@@ -2,8 +2,9 @@
 import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Prioritaskan Service Role Key agar operasi backend/admin bisa bypass RLS
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+const supabase = createClient(supabaseUrl, supabaseKey)
 
 export interface SectionConfig {
   id: string
@@ -570,4 +571,43 @@ export async function clearNotifications() {
   const db = await readDB()
   db.notifications = []
   await writeSupabaseRaw(db)
+}
+
+// ==================== UPLOAD FILE KE SUPABASE STORAGE ====================
+export async function uploadFile(
+  buffer: Buffer,
+  fileName: string,
+  contentType: string = 'image/jpeg'
+): Promise<string> {
+  const { error } = await supabase.storage
+    .from('uploads')
+    .upload(fileName, buffer, {
+      contentType,
+      upsert: true,
+    })
+
+  if (error) {
+    console.error('Gagal upload ke Supabase Storage:', error.message)
+    throw new Error(error.message)
+  }
+
+  const { data: publicUrlData } = supabase.storage
+    .from('uploads')
+    .getPublicUrl(fileName)
+
+  return publicUrlData.publicUrl
+}
+
+export async function deleteFile(fileName: string): Promise<void> {
+  try {
+    const { error } = await supabase.storage
+      .from('uploads')
+      .remove([fileName])
+
+    if (error) {
+      console.error('Gagal menghapus file dari Supabase Storage:', error.message)
+    }
+  } catch (e) {
+    console.error('Error deleteFile:', e)
+  }
 }

@@ -1,8 +1,6 @@
 // app/admin/page.tsx
-import { readDB, writeDB, addNotification } from '@/lib/db'
+import { readDB, writeDB, addNotification, uploadFile } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
-import fs from 'fs'
-import path from 'path'
 import AdminPageClient from './AdminPageClient'
 
 async function updateConfig(formData: FormData) {
@@ -19,25 +17,20 @@ async function updateConfig(formData: FormData) {
   let logoUrl = db.setting.logoUrl
   let bgImageUrl = db.setting.bgImageUrl
 
-  const uploadDir = path.join(process.cwd(), 'public', 'uploads')
-  if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true })
-  }
-
+  // Handle Logo Upload
   if (logoFile && logoFile.size > 0) {
     const bytes = await logoFile.arrayBuffer()
     const buffer = Buffer.from(bytes)
-    const filename = `logo-${Date.now()}${path.extname(logoFile.name)}`
-    fs.writeFileSync(path.join(uploadDir, filename), buffer)
-    logoUrl = `/uploads/${filename}`
+    const filename = `logo-${Date.now()}${logoFile.name.substring(logoFile.name.lastIndexOf('.'))}`
+    logoUrl = await uploadFile(buffer, filename, logoFile.type)
   }
 
+  // Handle Background Image Upload
   if (bgImageFile && bgImageFile.size > 0) {
     const bytes = await bgImageFile.arrayBuffer()
     const buffer = Buffer.from(bytes)
-    const filename = `bg-${Date.now()}${path.extname(bgImageFile.name)}`
-    fs.writeFileSync(path.join(uploadDir, filename), buffer)
-    bgImageUrl = `/uploads/${filename}`
+    const filename = `bg-${Date.now()}${bgImageFile.name.substring(bgImageFile.name.lastIndexOf('.'))}`
+    bgImageUrl = await uploadFile(buffer, filename, bgImageFile.type)
   }
 
   db.setting = {

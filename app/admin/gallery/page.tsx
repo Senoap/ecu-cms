@@ -1,9 +1,7 @@
 // app/admin/gallery/page.tsx
-import { readDB, writeDB, addNotification, GalleryItem } from '@/lib/db'
+import { readDB, writeDB, addNotification, uploadFile, GalleryItem } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import GalleryClient from './GalleryClient'
-import fs from 'fs'
-import path from 'path'
 
 export default async function AdminGalleryPage() {
   const db = await readDB()
@@ -46,15 +44,9 @@ export default async function AdminGalleryPage() {
     let imageUrl = 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=800&q=80'
     
     if (file && file.size > 0) {
-      const uploadDir = path.join(process.cwd(), 'public', 'uploads')
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true })
-      }
-      const fileName = `${Date.now()}-${file.name.replace(/\s+/g, '_')}`
-      const filePath = path.join(uploadDir, fileName)
       const buffer = Buffer.from(await file.arrayBuffer())
-      fs.writeFileSync(filePath, buffer)
-      imageUrl = `/uploads/${fileName}`
+      const fileName = `gallery-${Date.now()}-${file.name.replace(/\s+/g, '_')}`
+      imageUrl = await uploadFile(buffer, fileName, file.type)
     }
 
     const newItem: GalleryItem = {
@@ -87,15 +79,9 @@ export default async function AdminGalleryPage() {
       db.galleries[itemIndex].category = category
 
       if (file && file.size > 0) {
-        const uploadDir = path.join(process.cwd(), 'public', 'uploads')
-        if (!fs.existsSync(uploadDir)) {
-          fs.mkdirSync(uploadDir, { recursive: true })
-        }
-        const fileName = `${Date.now()}-${file.name.replace(/\s+/g, '_')}`
-        const filePath = path.join(uploadDir, fileName)
         const buffer = Buffer.from(await file.arrayBuffer())
-        fs.writeFileSync(filePath, buffer)
-        db.galleries[itemIndex].imageUrl = `/uploads/${fileName}`
+        const fileName = `gallery-${Date.now()}-${file.name.replace(/\s+/g, '_')}`
+        db.galleries[itemIndex].imageUrl = await uploadFile(buffer, fileName, file.type)
       }
 
       await writeDB(db)

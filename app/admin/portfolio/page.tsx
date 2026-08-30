@@ -1,9 +1,7 @@
 // app/admin/portfolio/page.tsx
-import { readDB, writeDB, addNotification, PortfolioItem } from '@/lib/db'
+import { readDB, writeDB, addNotification, uploadFile, PortfolioItem } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import PortfolioClient from './PortfolioClient'
-import fs from 'fs'
-import path from 'path'
 
 export default async function AdminPortfolioPage() {
   const db = await readDB()
@@ -49,15 +47,9 @@ export default async function AdminPortfolioPage() {
     let imageUrl = 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=800&q=80'
 
     if (file && file.size > 0) {
-      const uploadDir = path.join(process.cwd(), 'public', 'uploads')
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true })
-      }
-      const fileName = `port-${Date.now()}-${file.name.replace(/\s+/g, '_')}`
-      const filePath = path.join(uploadDir, fileName)
       const buffer = Buffer.from(await file.arrayBuffer())
-      fs.writeFileSync(filePath, buffer)
-      imageUrl = `/uploads/${fileName}`
+      const fileName = `port-${Date.now()}-${file.name.replace(/\s+/g, '_')}`
+      imageUrl = await uploadFile(buffer, fileName, file.type)
     }
 
     const newItem: PortfolioItem = {
@@ -88,15 +80,9 @@ export default async function AdminPortfolioPage() {
       db.portfolios[index].desc = desc
 
       if (file && file.size > 0) {
-        const uploadDir = path.join(process.cwd(), 'public', 'uploads')
-        if (!fs.existsSync(uploadDir)) {
-          fs.mkdirSync(uploadDir, { recursive: true })
-        }
-        const fileName = `port-${Date.now()}-${file.name.replace(/\s+/g, '_')}`
-        const filePath = path.join(uploadDir, fileName)
         const buffer = Buffer.from(await file.arrayBuffer())
-        fs.writeFileSync(filePath, buffer)
-        db.portfolios[index].imageUrl = `/uploads/${fileName}`
+        const fileName = `port-${Date.now()}-${file.name.replace(/\s+/g, '_')}`
+        db.portfolios[index].imageUrl = await uploadFile(buffer, fileName, file.type)
       }
 
       await writeDB(db)

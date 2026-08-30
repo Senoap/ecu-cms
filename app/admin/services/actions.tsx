@@ -1,9 +1,7 @@
 // app/admin/services/actions.tsx
 'use server'
-import { readDB, writeDB, addNotification } from '@/lib/db'
+import { readDB, writeDB, addNotification, uploadFile, deleteFile } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
-import fs from 'fs'
-import path from 'path'
 import sharp from 'sharp'
 
 export async function addService(formData: FormData) {
@@ -55,11 +53,6 @@ export async function updateService(formData: FormData) {
       const bytes = await photoFile.arrayBuffer()
       const buffer = Buffer.from(bytes)
       const filename = `service-${id}-${Date.now()}-${Math.random().toString(36).substring(2, 7)}.jpg`
-      const uploadDir = path.join(process.cwd(), 'public', 'uploads')
-
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true })
-      }
 
       const imageInstance = sharp(buffer)
       const metadata = await imageInstance.metadata()
@@ -107,8 +100,8 @@ export async function updateService(formData: FormData) {
 
       const finalBuffer = await processedBuffer.jpeg({ quality: 85 }).toBuffer()
 
-      fs.writeFileSync(path.join(uploadDir, filename), finalBuffer)
-      srv.images.push(`/uploads/${filename}`)
+      const imageUrl = await uploadFile(finalBuffer, filename, 'image/jpeg')
+      srv.images.push(imageUrl)
     }
   }
 
@@ -129,12 +122,11 @@ export async function deleteServiceImage(formData: FormData) {
     srv.images = srv.images.filter(img => img !== imagePath)
 
     try {
-      const filePath = path.join(process.cwd(), 'public', imagePath)
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath)
-      }
+      // Ekstrak nama file dari URL publik Supabase, lalu hapus dari storage
+      const fileName = imagePath.substring(imagePath.lastIndexOf('/') + 1)
+      await deleteFile(fileName)
     } catch (e) {
-      console.error('Gagal menghapus file fisik:', e)
+      console.error('Gagal menghapus file dari storage:', e)
     }
   }
 
