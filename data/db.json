@@ -1,0 +1,541 @@
+{
+  "setting": {
+    "siteName": "PT. EMPAT SINERGI UTAMA",
+    "tagline": "MANPOWER SERVICES",
+    "primaryColor": "#9b4d0f",
+    "accentColor": "#D4AF37",
+    "fontFamily": "Inter",
+    "logoUrl": "/uploads/logo-1788085817981.png",
+    "bgImageUrl": "/uploads/bg-1788085817983.jpg",
+    "slideDuration": 3
+  },
+  "sections": [
+    {
+      "id": "hero",
+      "label": "Banner Teks Hero",
+      "isVisible": true,
+      "order": 1,
+      "type": "hero",
+      "badge": "PT. EMPAT SINERGI UTAMA",
+      "titleLine1": "WE ARE YOUR",
+      "titleHighlight": "SOLUTION",
+      "content": "Penyedia Solusi Terintegrasi Kebutuhan Operasional Bisnis, Manajemen Fasilitas Gedung, dan Pemenuhan Ketenagakerjaan Ahli."
+    },
+    {
+      "id": "about",
+      "label": "About & Leadership",
+      "isVisible": true,
+      "order": 2,
+      "type": "about",
+      "subtitle": "ABOUT US",
+      "title": "Mitra Strategis Ketenagakerjaan Anda",
+      "p1": "PT. Empat Sinergi Utama adalah perusahaan penyedia tenaga kerja alih daya yang berkomitmen memberikan solusi terbaik untuk kebutuhan operasional bisnis Anda.",
+      "p2": "Sumber daya manusia yang kami miliki adalah tenaga kerja yang sudah dieksekusi pelatihan di bidangnya masing-masing, siap bekerja.",
+      "leadershipTitle": "Rekam Jejak Teruji",
+      "leadershipDesc": "Dengan pengalaman CEO selama lebih dari 15 tahun bekerja di industri Penyedia Jasa Tenaga Kerja Non Grade.",
+      "quote": "Integritas, Profesionalisme, Kualitas"
+    },
+    {
+      "id": "services",
+      "label": "Kelola Layanan (Services)",
+      "isVisible": true,
+      "order": 3,
+      "type": "services",
+      "subtitle": "OUR CAPABILITIES",
+      "title": "LAYANAN ALIH DAYA KAMI",
+      "content": "*Seluruh penempatan dikontrol sah melalui Perjanjian Kerja Waktu Tertentu (PKWT)."
+    },
+    {
+      "id": "portfolio",
+      "label": "Portofolio / Proyek",
+      "isVisible": true,
+      "order": 4,
+      "type": "portfolio",
+      "subtitle": "PROVEN TRACK RECORD",
+      "title": "PROJECT PORTFOLIO",
+      "content": "Serta dipercaya mendukung pengerjaan proyek harian entitas swasta nasional."
+    },
+    {
+      "id": "career",
+      "label": "Lowongan Kerja (Career)",
+      "isVisible": true,
+      "order": 5,
+      "type": "career",
+      "subtitle": "JOIN OUR TEAM",
+      "title": "CAREER OPPORTUNITIES",
+      "content": "Mari bergabung dan berkembang bersama korporat profesional kami."
+    },
+    {
+      "id": "gallery",
+      "label": "Galeri & Dokumentasi",
+      "isVisible": true,
+      "order": 6,
+      "type": "gallery",
+      "subtitle": "OUR MOMENTS",
+      "title": "GALERI DOKUMENTASI",
+      "content": "Dokumentasi kegiatan operasional, fasilitas, dan proyek perusahaan."
+    },
+    {
+      "id": "contact",
+      "label": "Footer & Kontak",
+      "isVisible": true,
+      "order": 7,
+      "type": "contact",
+      "content": "Penyedia Layanan Jasa Tenaga Kerja Alih Daya terpercaya, unggul, dan akuntabel di Indonesia.",
+      "address": "Casa De Bosco No.3, Tangerang Selatan 1",
+      "phone": "+6281584805000",
+      "email": "manpower.services@empatsinergiumata.com"
+    }
+  ],
+  "services": [
+    {
+      "id": "1",
+      "title": "JASA KEAMANAN",
+      "desc": "Pengamanan fisik dan aset terpercaya.",
+      "icon": "Shield",
+      "content": "...",
+      "images": []
+    },
+    {
+      "id": "2",
+      "title": "JASA KEBERSIHAN",
+      "desc": "Kebersihan gedung dan fasilitas optimal.",
+      "icon": "Building",
+      "content": "...",
+      "images": []
+    },
+    {
+      "id": "3",
+      "title": "TENAGA PENDUNGUNG",
+      "desc": "SDM pendukung operasional handal.",
+      "icon": "Users",
+      "content": "...",
+      "images": []
+    },
+    {
+      "id": "4",
+      "title": "PERAWATAN TAMAN",
+      "desc": "Landscape dan perawatan taman profesional.",
+      "icon": "Wrench",
+      "content": "...",
+      "images": []
+    }
+  ],
+  "portfolios": [
+    {
+      "id": "1",
+      "name": "KEMENPORA RI",
+      "desc": "Penyediaan tenaga pengamanan dan pendukung operasional gedung instansi.",
+      "imageUrl": "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "2",
+      "name": "KOTA TANGERANG SELATAN",
+      "desc": "Dukungan fasilitas pelayanan publik dan pemeliharaan kawasan.",
+      "imageUrl": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80"
+    }
+  ],
+  "career": [
+    {
+      "id": "1",
+      "title": "Security Officer (Satpam)",
+      "location": "Jakarta Selatan",
+      "type": "Full-time",
+      "desc": "Melakukan pengamanan area gedung korporat.",
+      "requirements": "Memiliki KTA resmi, berpengalaman min. 1 tahun.",
+      "isActive": true
+    }
+  ],
+  "galleries": [
+    {
+      "id": "1",
+      "title": "Pengamanan Gedung Korporat",
+      "desc": "Standar operasional prosedur pengamanan fisik area gedung oleh personel bersertifikasi.",
+      "category": "Keamanan",
+      "imageUrl": "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "2",
+      "title": "Kebersihan Fasilitas Gedung",
+      "desc": "Pemeliharaan kebersihan harian area publik dan perkantoran.",
+      "category": "Kebersihan",
+      "imageUrl": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80"
+    }
+  ],
+  "hero": {
+    "badge": "PT. EMPAT SINERGI UTAMA",
+    "titleLine1": "WE ARE YOUR",
+    "titleHighlight": "SOLUTION",
+    "description": "Penyedia Solusi Terintegrasi Kebutuhan Operasional Bisnis, Manajemen Fasilitas Gedung, dan Pemenuhan Ketenagakerjaan Ahli."
+  },
+  "about": {
+    "tag": "ABOUT US",
+    "heading": "Mitra Strategis Ketenagakerjaan Anda",
+    "subtitle": "ABOUT US",
+    "title": "Mitra Strategis Ketenagakerjaan Anda",
+    "p1": "PT. Empat Sinergi Utama adalah perusahaan penyedia tenaga kerja alih daya yang berkomitmen memberikan solusi terbaik untuk kebutuhan operasional bisnis Anda.",
+    "p2": "Sumber daya manusia yang kami miliki adalah tenaga kerja yang sudah dieksekusi pelatihan di bidangnya masing-masing, siap bekerja.",
+    "leadershipTitle": "Rekam Jejak Teruji",
+    "leadershipDesc": "Dengan pengalaman CEO selama lebih dari 15 tahun bekerja di industri Penyedia Jasa Tenaga Kerja Non Grade.",
+    "quote": "Integritas, Profesionalisme, Kualitas"
+  },
+  "servicesHeader": {
+    "tag": "OUR CAPABILITIES",
+    "heading": "LAYANAN ALIH DAYA KAMI",
+    "note": "*Seluruh penempatan dikontrol sah melalui Perjanjian Kerja Waktu Tertentu (PKWT)."
+  },
+  "portfolioHeader": {
+    "tag": "PROVEN TRACK RECORD",
+    "heading": "PROJECT PORTFOLIO",
+    "note": "Serta dipercaya mendukung pengerjaan proyek harian entitas swasta nasional."
+  },
+  "careerHeader": {
+    "tag": "JOIN OUR TEAM",
+    "heading": "CAREER OPPORTUNITIES",
+    "note": "Mari bergabung dan berkembang bersama korporat profesional kami."
+  },
+  "galleryHeader": {
+    "tag": "OUR MOMENTS",
+    "heading": "GALERI DOKUMENTASI",
+    "note": "Dokumentasi kegiatan operasional, fasilitas, dan proyek perusahaan."
+  },
+  "footer": {
+    "description": "Penyedia Layanan Jasa Tenaga Kerja Alih Daya terpercaya, unggul, dan akuntabel di Indonesia.",
+    "address": "Casa De Bosco No.3, Tangerang Selatan 1",
+    "phone": "+6281584805000",
+    "email": "manpower.services@empatsinergiumata.com"
+  },
+  "published": {
+    "setting": {
+      "siteName": "PT. EMPAT SINERGI UTAMA",
+      "tagline": "MANPOWER SERVICES",
+      "primaryColor": "#9b4d0f",
+      "accentColor": "#D4AF37",
+      "fontFamily": "Inter",
+      "logoUrl": "/uploads/logo-1788085817981.png",
+      "bgImageUrl": "/uploads/bg-1788085817983.jpg",
+      "slideDuration": 3
+    },
+    "sections": [
+      {
+        "id": "hero",
+        "label": "Banner Teks Hero",
+        "isVisible": true,
+        "order": 1,
+        "type": "hero",
+        "badge": "PT. EMPAT SINERGI UTAMA",
+        "titleLine1": "WE ARE YOUR",
+        "titleHighlight": "SOLUTION",
+        "content": "Penyedia Solusi Terintegrasi Kebutuhan Operasional Bisnis, Manajemen Fasilitas Gedung, dan Pemenuhan Ketenagakerjaan Ahli."
+      },
+      {
+        "id": "about",
+        "label": "About & Leadership",
+        "isVisible": true,
+        "order": 2,
+        "type": "about",
+        "subtitle": "ABOUT US",
+        "title": "Mitra Strategis Ketenagakerjaan Anda",
+        "p1": "PT. Empat Sinergi Utama adalah perusahaan penyedia tenaga kerja alih daya yang berkomitmen memberikan solusi terbaik untuk kebutuhan operasional bisnis Anda.",
+        "p2": "Sumber daya manusia yang kami miliki adalah tenaga kerja yang sudah dieksekusi pelatihan di bidangnya masing-masing, siap bekerja.",
+        "leadershipTitle": "Rekam Jejak Teruji",
+        "leadershipDesc": "Dengan pengalaman CEO selama lebih dari 15 tahun bekerja di industri Penyedia Jasa Tenaga Kerja Non Grade.",
+        "quote": "Integritas, Profesionalisme, Kualitas"
+      },
+      {
+        "id": "services",
+        "label": "Kelola Layanan (Services)",
+        "isVisible": true,
+        "order": 3,
+        "type": "services",
+        "subtitle": "OUR CAPABILITIES",
+        "title": "LAYANAN ALIH DAYA KAMI",
+        "content": "*Seluruh penempatan dikontrol sah melalui Perjanjian Kerja Waktu Tertentu (PKWT)."
+      },
+      {
+        "id": "portfolio",
+        "label": "Portofolio / Proyek",
+        "isVisible": true,
+        "order": 4,
+        "type": "portfolio",
+        "subtitle": "PROVEN TRACK RECORD",
+        "title": "PROJECT PORTFOLIO",
+        "content": "Serta dipercaya mendukung pengerjaan proyek harian entitas swasta nasional."
+      },
+      {
+        "id": "career",
+        "label": "Lowongan Kerja (Career)",
+        "isVisible": true,
+        "order": 5,
+        "type": "career",
+        "subtitle": "JOIN OUR TEAM",
+        "title": "CAREER OPPORTUNITIES",
+        "content": "Mari bergabung dan berkembang bersama korporat profesional kami."
+      },
+      {
+        "id": "gallery",
+        "label": "Galeri & Dokumentasi",
+        "isVisible": true,
+        "order": 6,
+        "type": "gallery",
+        "subtitle": "OUR MOMENTS",
+        "title": "GALERI DOKUMENTASI",
+        "content": "Dokumentasi kegiatan operasional, fasilitas, dan proyek perusahaan."
+      },
+      {
+        "id": "contact",
+        "label": "Footer & Kontak",
+        "isVisible": true,
+        "order": 7,
+        "type": "contact",
+        "content": "Penyedia Layanan Jasa Tenaga Kerja Alih Daya terpercaya, unggul, dan akuntabel di Indonesia.",
+        "address": "Casa De Bosco No.3, Tangerang Selatan 1",
+        "phone": "+6281584805000",
+        "email": "manpower.services@empatsinergiumata.com"
+      }
+    ],
+    "services": [
+      {
+        "id": "1",
+        "title": "JASA KEAMANAN",
+        "desc": "Pengamanan fisik dan aset terpercaya.",
+        "icon": "Shield",
+        "content": "...",
+        "images": []
+      },
+      {
+        "id": "2",
+        "title": "JASA KEBERSIHAN",
+        "desc": "Kebersihan gedung dan fasilitas optimal.",
+        "icon": "Building",
+        "content": "...",
+        "images": []
+      },
+      {
+        "id": "3",
+        "title": "TENAGA PENDUNGUNG",
+        "desc": "SDM pendukung operasional handal.",
+        "icon": "Users",
+        "content": "...",
+        "images": []
+      },
+      {
+        "id": "4",
+        "title": "PERAWATAN TAMAN",
+        "desc": "Landscape dan perawatan taman profesional.",
+        "icon": "Wrench",
+        "content": "...",
+        "images": []
+      }
+    ],
+    "portfolios": [
+      {
+        "id": "1",
+        "name": "KEMENPORA RI",
+        "desc": "Penyediaan tenaga pengamanan dan pendukung operasional gedung instansi.",
+        "imageUrl": "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        "id": "2",
+        "name": "KOTA TANGERANG SELATAN",
+        "desc": "Dukungan fasilitas pelayanan publik dan pemeliharaan kawasan.",
+        "imageUrl": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80"
+      }
+    ],
+    "career": [
+      {
+        "id": "1",
+        "title": "Security Officer (Satpam)",
+        "location": "Jakarta Selatan",
+        "type": "Full-time",
+        "desc": "Melakukan pengamanan area gedung korporat.",
+        "requirements": "Memiliki KTA resmi, berpengalaman min. 1 tahun.",
+        "isActive": true
+      }
+    ],
+    "galleries": [
+      {
+        "id": "1",
+        "title": "Pengamanan Gedung Korporat",
+        "desc": "Standar operasional prosedur pengamanan fisik area gedung oleh personel bersertifikasi.",
+        "category": "Keamanan",
+        "imageUrl": "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        "id": "2",
+        "title": "Kebersihan Fasilitas Gedung",
+        "desc": "Pemeliharaan kebersihan harian area publik dan perkantoran.",
+        "category": "Kebersihan",
+        "imageUrl": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80"
+      }
+    ],
+    "hero": {
+      "badge": "PT. EMPAT SINERGI UTAMA",
+      "titleLine1": "WE ARE YOUR",
+      "titleHighlight": "SOLUTION",
+      "description": "Penyedia Solusi Terintegrasi Kebutuhan Operasional Bisnis, Manajemen Fasilitas Gedung, dan Pemenuhan Ketenagakerjaan Ahli."
+    },
+    "about": {
+      "tag": "ABOUT US",
+      "heading": "Mitra Strategis Ketenagakerjaan Anda",
+      "subtitle": "ABOUT US",
+      "title": "Mitra Strategis Ketenagakerjaan Anda",
+      "p1": "PT. Empat Sinergi Utama adalah perusahaan penyedia tenaga kerja alih daya yang berkomitmen memberikan solusi terbaik untuk kebutuhan operasional bisnis Anda.",
+      "p2": "Sumber daya manusia yang kami miliki adalah tenaga kerja yang sudah dieksekusi pelatihan di bidangnya masing-masing, siap bekerja.",
+      "leadershipTitle": "Rekam Jejak Teruji",
+      "leadershipDesc": "Dengan pengalaman CEO selama lebih dari 15 tahun bekerja di industri Penyedia Jasa Tenaga Kerja Non Grade.",
+      "quote": "Integritas, Profesionalisme, Kualitas"
+    },
+    "servicesHeader": {
+      "tag": "OUR CAPABILITIES",
+      "heading": "LAYANAN ALIH DAYA KAMI",
+      "note": "*Seluruh penempatan dikontrol sah melalui Perjanjian Kerja Waktu Tertentu (PKWT)."
+    },
+    "portfolioHeader": {
+      "tag": "PROVEN TRACK RECORD",
+      "heading": "PROJECT PORTFOLIO",
+      "note": "Serta dipercaya mendukung pengerjaan proyek harian entitas swasta nasional."
+    },
+    "careerHeader": {
+      "tag": "JOIN OUR TEAM",
+      "heading": "CAREER OPPORTUNITIES",
+      "note": "Mari bergabung dan berkembang bersama korporat profesional kami."
+    },
+    "galleryHeader": {
+      "tag": "OUR MOMENTS",
+      "heading": "GALERI DOKUMENTASI",
+      "note": "Dokumentasi kegiatan operasional, fasilitas, dan proyek perusahaan."
+    },
+    "footer": {
+      "description": "Penyedia Layanan Jasa Tenaga Kerja Alih Daya terpercaya, unggul, dan akuntabel di Indonesia.",
+      "address": "Casa De Bosco No.3, Tangerang Selatan 1",
+      "phone": "+6281584805000",
+      "email": "manpower.services@empatsinergiumata.com"
+    }
+  },
+  "notifications": [
+    {
+      "id": "notif-1788085819198",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "time": "17.30",
+      "type": "DEPLOY"
+    },
+    {
+      "id": "notif-1788085817988",
+      "message": "Memperbarui Pengaturan Global, Logo, Background, dan Tata Letak Seksi.",
+      "time": "17.30",
+      "type": "UPDATE"
+    },
+    {
+      "id": "notif-1788085813177",
+      "message": "Memperbarui Pengaturan Global, Logo, Background, dan Tata Letak Seksi.",
+      "time": "17.30",
+      "type": "UPDATE"
+    },
+    {
+      "id": "notif-1788084846312",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "time": "17.14",
+      "type": "DEPLOY"
+    },
+    {
+      "id": "notif-1788084844707",
+      "message": "Memperbarui informasi Footer & Kontak.",
+      "time": "17.14",
+      "type": "UPDATE"
+    },
+    {
+      "id": "notif-1788084570480",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "time": "17.09",
+      "type": "DEPLOY"
+    },
+    {
+      "id": "notif-1788084569380",
+      "message": "Memperbarui informasi Footer & Kontak.",
+      "time": "17.09",
+      "type": "UPDATE"
+    },
+    {
+      "id": "notif-1788084504316",
+      "message": "Memperbarui informasi Footer & Kontak.",
+      "time": "17.08",
+      "type": "UPDATE"
+    },
+    {
+      "id": "notif-1788084371952",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "time": "17.06",
+      "type": "DEPLOY"
+    },
+    {
+      "id": "notif-1788084370161",
+      "message": "Memperbarui informasi Footer & Kontak.",
+      "time": "17.06",
+      "type": "UPDATE"
+    }
+  ],
+  "auditLogs": [
+    {
+      "id": "log-1788085819198",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "timestamp": 1788085819198,
+      "type": "DEPLOY"
+    },
+    {
+      "id": "log-1788085817988-mmhd",
+      "message": "Memperbarui Pengaturan Global, Logo, Background, dan Tata Letak Seksi.",
+      "timestamp": 1788085817988,
+      "type": "UPDATE"
+    },
+    {
+      "id": "log-1788085813177-3nec",
+      "message": "Memperbarui Pengaturan Global, Logo, Background, dan Tata Letak Seksi.",
+      "timestamp": 1788085813177,
+      "type": "UPDATE"
+    },
+    {
+      "id": "log-1788084846312",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "timestamp": 1788084846312,
+      "type": "DEPLOY"
+    },
+    {
+      "id": "log-1788084844707-kiot",
+      "message": "Memperbarui informasi Footer & Kontak.",
+      "timestamp": 1788084844707,
+      "type": "UPDATE"
+    },
+    {
+      "id": "log-1788084570480",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "timestamp": 1788084570480,
+      "type": "DEPLOY"
+    },
+    {
+      "id": "log-1788084569380-u11r",
+      "message": "Memperbarui informasi Footer & Kontak.",
+      "timestamp": 1788084569380,
+      "type": "UPDATE"
+    },
+    {
+      "id": "log-1788084504316-4mrt",
+      "message": "Memperbarui informasi Footer & Kontak.",
+      "timestamp": 1788084504316,
+      "type": "UPDATE"
+    },
+    {
+      "id": "log-1788084371952",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "timestamp": 1788084371952,
+      "type": "DEPLOY"
+    },
+    {
+      "id": "log-1788084370161-8ds8",
+      "message": "Memperbarui informasi Footer & Kontak.",
+      "timestamp": 1788084370161,
+      "type": "UPDATE"
+    }
+  ],
+  "hasDraft": false
+}
