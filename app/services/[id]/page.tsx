@@ -5,8 +5,8 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { DynamicIcon } from '@/components/DynamicIcon'
 
-export default function ServiceDetailPage({ params }: { params: { id: string } }) {
-  const db = readDB()
+export default async function ServiceDetailPage({ params }: { params: { id: string } }) {
+  const db = await readDB()
   const srv = db.services.find(s => s.id === params.id)
 
   if (!srv) {

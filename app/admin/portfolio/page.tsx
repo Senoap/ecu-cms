@@ -5,8 +5,8 @@ import PortfolioClient from './PortfolioClient'
 import fs from 'fs'
 import path from 'path'
 
-export default function AdminPortfolioPage() {
-  const db = readDB()
+export default async function AdminPortfolioPage() {
+  const db = await readDB()
   const portfolios = db.portfolios || []
   const portfolioHeader = db.portfolioHeader || { tag: 'PROVEN TRACK RECORD', heading: 'PROJECT PORTFOLIO', note: '' }
   const portfolioSection = db.sections.find(s => s.id === 'portfolio') || {
@@ -17,7 +17,7 @@ export default function AdminPortfolioPage() {
 
   async function saveHeaderAction(formData: FormData) {
     'use server'
-    const db = readDB()
+    const db = await readDB()
     const subtitle = formData.get('subtitle') as string
     const title = formData.get('title') as string
     const note = formData.get('note') as string
@@ -31,15 +31,15 @@ export default function AdminPortfolioPage() {
       db.sections[secIndex].content = note
     }
 
-    writeDB(db)
-    addNotification('Memperbarui Header & Catatan Portfolio Section.', 'UPDATE')
+    await writeDB(db)
+    await addNotification('Memperbarui Header & Catatan Portfolio Section.', 'UPDATE')
     revalidatePath('/admin/portfolio')
     revalidatePath('/')
   }
 
   async function addPortfolioAction(formData: FormData) {
     'use server'
-    const db = readDB()
+    const db = await readDB()
     if (!db.portfolios) db.portfolios = []
 
     const name = formData.get('name') as string
@@ -68,15 +68,15 @@ export default function AdminPortfolioPage() {
     }
 
     db.portfolios.push(newItem)
-    writeDB(db)
-    addNotification(`Menambahkan portofolio klien: "${name}".`, 'CREATE')
+    await writeDB(db)
+    await addNotification(`Menambahkan portofolio klien: "${name}".`, 'CREATE')
     revalidatePath('/admin/portfolio')
     revalidatePath('/')
   }
 
   async function updatePortfolioAction(formData: FormData) {
     'use server'
-    const db = readDB()
+    const db = await readDB()
     const id = formData.get('id') as string
     const name = formData.get('name') as string
     const desc = formData.get('desc') as string
@@ -99,8 +99,8 @@ export default function AdminPortfolioPage() {
         db.portfolios[index].imageUrl = `/uploads/${fileName}`
       }
 
-      writeDB(db)
-      addNotification(`Memperbarui portofolio: "${name}".`, 'UPDATE')
+      await writeDB(db)
+      await addNotification(`Memperbarui portofolio: "${name}".`, 'UPDATE')
       revalidatePath('/admin/portfolio')
       revalidatePath('/')
     }
@@ -108,12 +108,12 @@ export default function AdminPortfolioPage() {
 
   async function deletePortfolioAction(formData: FormData) {
     'use server'
-    const db = readDB()
+    const db = await readDB()
     const id = formData.get('id') as string
 
     db.portfolios = db.portfolios.filter(p => p.id !== id)
-    writeDB(db)
-    addNotification('Menghapus item dari portofolio.', 'DELETE')
+    await writeDB(db)
+    await addNotification('Menghapus item dari portofolio.', 'DELETE')
     revalidatePath('/admin/portfolio')
     revalidatePath('/')
   }

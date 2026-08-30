@@ -2,8 +2,8 @@
 import { readDB } from '@/lib/db'
 import AuditLogClient from './AuditLogClient'
 
-export default function AuditLogPage() {
-  const db = readDB()
+export default async function AuditLogPage() {
+  const db = await readDB()
   const logs = db.auditLogs || []
 
   return <AuditLogClient initialLogs={logs} />

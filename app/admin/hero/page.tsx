@@ -5,7 +5,7 @@ import HeroPageClient from './HeroPageClient'
 
 async function updateHero(formData: FormData) {
   'use server'
-  const db = readDB()
+  const db = await readDB()
   
   // Memperbarui seksi 'hero' di dalam array sections agar konsisten
   db.sections = db.sections.map((sec) => {
@@ -21,13 +21,13 @@ async function updateHero(formData: FormData) {
     return sec
   })
 
-  writeDB(db)
-  addNotification('Memperbarui konfigurasi Hero Section.', 'UPDATE')
+  await writeDB(db)
+  await addNotification('Memperbarui konfigurasi Hero Section.', 'UPDATE')
   revalidatePath('/admin/hero')
 }
 
 export default async function AdminHeroPage() {
-  const db = readDB()
+  const db = await readDB()
   const { hero } = db
 
   return (

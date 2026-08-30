@@ -7,20 +7,20 @@ import AdminLayoutClient from './AdminLayoutClient'
 
 async function handleDeployAction() {
   'use server'
-  deployDB()
+  await deployDB()
   revalidatePath('/')
   revalidatePath('/admin')
 }
 
 async function handleClearNotifications() {
   'use server'
-  clearNotifications()
+  await clearNotifications()
   revalidatePath('/admin')
 }
 
 async function handleMarkAsViewed() {
   'use server'
-  markNotificationsAsViewed()
+  await markNotificationsAsViewed()
   revalidatePath('/admin')
 }
 
@@ -38,7 +38,7 @@ export default async function AdminLayout({
   }
 
   // 2. AMBIL DATA DATABASE JIKA SUDAH LOGIN
-  const db = readDB()
+  const db = await readDB()
   const sections = [...(db.sections || [])].sort((a, b) => a.order - b.order)
   const notifications = db.notifications || []
   const hasDraft = db.hasDraft ?? false

@@ -16,7 +16,7 @@ async function updateServiceDetail(formData: FormData) {
     const content = formData.get('content') as string
     const photoFile = formData.get('photoFile') as File
 
-    const db = readDB()
+    const db = await readDB()
     const srv = db.services.find(s => s.id === id)
     if (!srv) return
 
@@ -41,14 +41,14 @@ async function updateServiceDetail(formData: FormData) {
         srv.images.push(`/uploads/${filename}`)
     }
 
-    writeDB(db)
+    await writeDB(db)
     revalidatePath('/admin/services')
     revalidatePath(`/services/${id}`)
     revalidatePath('/')
 }
 
 export default async function AdminEditServicePage({ params }: { params: { id: string } }) {
-    const db = readDB()
+    const db = await readDB()
     const srv = db.services.find(s => s.id === params.id)
 
     if (!srv) {

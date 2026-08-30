@@ -5,7 +5,7 @@ import FooterPageClient from './FooterPageClient'
 
 async function updateFooter(formData: FormData) {
   'use server'
-  const db = readDB()
+  const db = await readDB()
   
   // Memperbarui seksi 'contact' di dalam array sections agar konsisten
   db.sections = db.sections.map((sec) => {
@@ -21,13 +21,13 @@ async function updateFooter(formData: FormData) {
     return sec
   })
 
-  writeDB(db)
-  addNotification('Memperbarui informasi Footer & Kontak.', 'UPDATE')
+  await writeDB(db)
+  await addNotification('Memperbarui informasi Footer & Kontak.', 'UPDATE')
   revalidatePath('/admin/footer')
 }
 
 export default async function AdminFooterPage() {
-  const db = readDB()
+  const db = await readDB()
   const { footer } = db
 
   return (

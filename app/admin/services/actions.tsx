@@ -13,7 +13,7 @@ export async function addService(formData: FormData) {
 
   if (!title) return
 
-  const db = readDB()
+  const db = await readDB()
   db.services.push({
     id: Date.now().toString(),
     title,
@@ -22,8 +22,8 @@ export async function addService(formData: FormData) {
     content: desc,
     images: []
   })
-  writeDB(db)
-  addNotification(`Menambahkan layanan baru: "${title}".`, 'CREATE')
+  await writeDB(db)
+  await addNotification(`Menambahkan layanan baru: "${title}".`, 'CREATE')
   revalidatePath('/admin/services')
 }
 
@@ -37,7 +37,7 @@ export async function updateService(formData: FormData) {
   const applyWatermark = formData.get('applyWatermark') === 'on'
   const photoFiles = formData.getAll('photoFile') as File[]
 
-  const db = readDB()
+  const db = await readDB()
   const srv = db.services.find(s => s.id === id)
   if (!srv) return
 
@@ -112,8 +112,8 @@ export async function updateService(formData: FormData) {
     }
   }
 
-  writeDB(db)
-  addNotification(`Memperbarui layanan: "${title}".`, 'UPDATE')
+  await writeDB(db)
+  await addNotification(`Memperbarui layanan: "${title}".`, 'UPDATE')
   revalidatePath('/admin/services')
 }
 
@@ -121,7 +121,7 @@ export async function deleteServiceImage(formData: FormData) {
   const serviceId = formData.get('serviceId') as string
   const imagePath = formData.get('imagePath') as string
 
-  const db = readDB()
+  const db = await readDB()
   const srv = db.services.find(s => s.id === serviceId)
   if (!srv) return
 
@@ -138,17 +138,17 @@ export async function deleteServiceImage(formData: FormData) {
     }
   }
 
-  writeDB(db)
-  addNotification(`Menghapus foto galeri layanan "${srv.title}".`, 'DELETE')
+  await writeDB(db)
+  await addNotification(`Menghapus foto galeri layanan "${srv.title}".`, 'DELETE')
   revalidatePath('/admin/services')
 }
 
 export async function deleteService(formData: FormData) {
   const id = formData.get('id') as string
-  const db = readDB()
+  const db = await readDB()
   const target = db.services.find(s => s.id === id)
   db.services = db.services.filter((s) => s.id !== id)
-  writeDB(db)
-  addNotification(`Menghapus layanan: "${target?.title || id}".`, 'DELETE')
+  await writeDB(db)
+  await addNotification(`Menghapus layanan: "${target?.title || id}".`, 'DELETE')
   revalidatePath('/admin/services')
 }

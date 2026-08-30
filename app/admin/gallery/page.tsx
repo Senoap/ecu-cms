@@ -5,8 +5,8 @@ import GalleryClient from './GalleryClient'
 import fs from 'fs'
 import path from 'path'
 
-export default function AdminGalleryPage() {
-  const db = readDB()
+export default async function AdminGalleryPage() {
+  const db = await readDB()
   const galleries = db.galleries || []
   const gallerySection = db.sections.find(s => s.id === 'gallery') || {
     subtitle: 'OUR MOMENTS',
@@ -16,7 +16,7 @@ export default function AdminGalleryPage() {
 
   async function saveHeaderAction(formData: FormData) {
     'use server'
-    const db = readDB()
+    const db = await readDB()
     const subtitle = formData.get('subtitle') as string
     const title = formData.get('title') as string
     const content = formData.get('content') as string
@@ -28,14 +28,14 @@ export default function AdminGalleryPage() {
       db.sections[secIndex].content = content
     }
 
-    writeDB(db)
-    addNotification('Memperbarui Header Gallery Section.', 'UPDATE')
+    await writeDB(db)
+    await addNotification('Memperbarui Header Gallery Section.', 'UPDATE')
     revalidatePath('/admin/gallery')
   }
 
   async function addGalleryAction(formData: FormData) {
     'use server'
-    const db = readDB()
+    const db = await readDB()
     if (!db.galleries) db.galleries = []
 
     const title = formData.get('title') as string
@@ -66,14 +66,14 @@ export default function AdminGalleryPage() {
     }
 
     db.galleries.push(newItem)
-    writeDB(db)
-    addNotification(`Menambahkan foto galeri: "${title}" ke kategori "${category}".`, 'CREATE')
+    await writeDB(db)
+    await addNotification(`Menambahkan foto galeri: "${title}" ke kategori "${category}".`, 'CREATE')
     revalidatePath('/admin/gallery')
   }
 
   async function updateGalleryAction(formData: FormData) {
     'use server'
-    const db = readDB()
+    const db = await readDB()
     const id = formData.get('id') as string
     const title = formData.get('title') as string
     const desc = formData.get('desc') as string
@@ -98,20 +98,20 @@ export default function AdminGalleryPage() {
         db.galleries[itemIndex].imageUrl = `/uploads/${fileName}`
       }
 
-      writeDB(db)
-      addNotification(`Memperbarui foto galeri: "${title}".`, 'UPDATE')
+      await writeDB(db)
+      await addNotification(`Memperbarui foto galeri: "${title}".`, 'UPDATE')
       revalidatePath('/admin/gallery')
     }
   }
 
   async function deleteGalleryAction(formData: FormData) {
     'use server'
-    const db = readDB()
+    const db = await readDB()
     const id = formData.get('id') as string
 
     db.galleries = db.galleries.filter(g => g.id !== id)
-    writeDB(db)
-    addNotification('Menghapus foto dari galeri.', 'DELETE')
+    await writeDB(db)
+    await addNotification('Menghapus foto dari galeri.', 'DELETE')
     revalidatePath('/admin/gallery')
   }
 

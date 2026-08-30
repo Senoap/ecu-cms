@@ -3,8 +3,8 @@ import { readDB, writeDB, addNotification } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import AboutClient from './AboutClient'
 
-export default function AdminAboutPage() {
-  const db = readDB()
+export default async function AdminAboutPage() {
+  const db = await readDB()
   const aboutSec = db.sections.find(s => s.id === 'about') || {
     subtitle: 'ABOUT US',
     title: 'Mitra Strategis Ketenagakerjaan Anda',
@@ -17,7 +17,7 @@ export default function AdminAboutPage() {
 
   async function saveAboutAction(formData: FormData) {
     'use server'
-    const db = readDB()
+    const db = await readDB()
     const subtitle = formData.get('subtitle') as string
     const title = formData.get('title') as string
     const p1 = formData.get('p1') as string
@@ -37,8 +37,8 @@ export default function AdminAboutPage() {
       db.sections[secIndex].quote = quote
     }
 
-    writeDB(db)
-    addNotification('Memperbarui informasi seksi About Us (Who We Are).', 'UPDATE')
+    await writeDB(db)
+    await addNotification('Memperbarui informasi seksi About Us (Who We Are).', 'UPDATE')
     revalidatePath('/admin/about')
     revalidatePath('/')
   }

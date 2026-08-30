@@ -5,19 +5,19 @@ import { readDB } from '@/lib/db'
 
 // Fungsi untuk membuat title web dinamis dari CMS
 export async function generateMetadata(): Promise<Metadata> {
-  const db = readDB()
+  const db = await readDB()
   return {
     title: db.setting.siteName,
     description: 'Company Profile ESU yang dikelola dengan Custom CMS',
   }
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const db = readDB()
+  const db = await readDB()
   const { primaryColor, fontFamily } = db.setting
 
   return (

@@ -3,8 +3,8 @@ import { readDB, writeDB, addNotification, CareerItem } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import CareerClient from './CareerClient'
 
-export default function CareerPage() {
-  const db = readDB()
+export default async function CareerPage() {
+  const db = await readDB()
   const careers = db.career || []
 
   const careerSection = db.sections.find(s => s.id === 'career') || {
@@ -15,7 +15,7 @@ export default function CareerPage() {
 
   async function handleSaveHeader(formData: FormData) {
     'use server'
-    const db = readDB()
+    const db = await readDB()
     const subtitle = formData.get('subtitle') as string
     const title = formData.get('title') as string
     const content = formData.get('content') as string
@@ -27,14 +27,14 @@ export default function CareerPage() {
       db.sections[secIndex].content = content
     }
 
-    writeDB(db)
-    addNotification('Memperbarui konfigurasi Header Career Section.', 'UPDATE')
+    await writeDB(db)
+    await addNotification('Memperbarui konfigurasi Header Career Section.', 'UPDATE')
     revalidatePath('/admin/career')
   }
 
   async function handleAddCareer(formData: FormData) {
     'use server'
-    const db = readDB()
+    const db = await readDB()
     if (!db.career) db.career = []
 
     const newCareer: CareerItem = {
@@ -48,14 +48,14 @@ export default function CareerPage() {
     }
 
     db.career.push(newCareer)
-    writeDB(db)
-    addNotification(`Menambahkan lowongan kerja baru: "${newCareer.title}".`, 'CREATE')
+    await writeDB(db)
+    await addNotification(`Menambahkan lowongan kerja baru: "${newCareer.title}".`, 'CREATE')
     revalidatePath('/admin/career')
   }
 
   async function handleUpdateCareer(formData: FormData) {
     'use server'
-    const db = readDB()
+    const db = await readDB()
     const id = formData.get('id') as string
 
     db.career = db.career.map(c => {
@@ -73,19 +73,19 @@ export default function CareerPage() {
       return c
     })
 
-    writeDB(db)
-    addNotification('Memperbarui data lowongan kerja.', 'UPDATE')
+    await writeDB(db)
+    await addNotification('Memperbarui data lowongan kerja.', 'UPDATE')
     revalidatePath('/admin/career')
   }
 
   async function handleDeleteCareer(formData: FormData) {
     'use server'
-    const db = readDB()
+    const db = await readDB()
     const id = formData.get('id') as string
 
     db.career = db.career.filter(c => c.id !== id)
-    writeDB(db)
-    addNotification('Menghapus posisi lowongan kerja.', 'DELETE')
+    await writeDB(db)
+    await addNotification('Menghapus posisi lowongan kerja.', 'DELETE')
     revalidatePath('/admin/career')
   }
 

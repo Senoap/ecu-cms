@@ -8,23 +8,22 @@ import AdminPageClient from './AdminPageClient'
 async function updateConfig(formData: FormData) {
   'use server'
 
-  const db = readDB()
+  const db = await readDB()
   const siteName = formData.get('siteName') as string
   const tagline = formData.get('tagline') as string
   const primaryColor = formData.get('primaryColor') as string
   const slideDuration = parseInt(formData.get('slideDuration') as string) || 3
   const logoFile = formData.get('logoFile') as File
-  const bgImageFile = formData.get('bgImageFile') as File // <-- Tambahan untuk background image
+  const bgImageFile = formData.get('bgImageFile') as File
 
   let logoUrl = db.setting.logoUrl
-  let bgImageUrl = db.setting.bgImageUrl // <-- Mempertahankan background lama jika tidak diganti
+  let bgImageUrl = db.setting.bgImageUrl
 
   const uploadDir = path.join(process.cwd(), 'public', 'uploads')
   if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true })
   }
 
-  // Handle Logo Upload
   if (logoFile && logoFile.size > 0) {
     const bytes = await logoFile.arrayBuffer()
     const buffer = Buffer.from(bytes)
@@ -33,7 +32,6 @@ async function updateConfig(formData: FormData) {
     logoUrl = `/uploads/${filename}`
   }
 
-  // Handle Background Image Upload (BARU)
   if (bgImageFile && bgImageFile.size > 0) {
     const bytes = await bgImageFile.arrayBuffer()
     const buffer = Buffer.from(bytes)
@@ -48,7 +46,7 @@ async function updateConfig(formData: FormData) {
     tagline,
     primaryColor,
     logoUrl,
-    bgImageUrl, // <-- Disimpan ke database setting
+    bgImageUrl,
     slideDuration,
   }
 
@@ -61,16 +59,15 @@ async function updateConfig(formData: FormData) {
   })
   db.sections.sort((a, b) => a.order - b.order)
 
-  writeDB(db)
+  await writeDB(db)
 
-  // CATAT KE DRAFT & NOTIFIKASI
-  addNotification('Memperbarui Pengaturan Global, Logo, Background, dan Tata Letak Seksi.', 'UPDATE')
+  await addNotification('Memperbarui Pengaturan Global, Logo, Background, dan Tata Letak Seksi.', 'UPDATE')
 
   revalidatePath('/admin')
 }
 
 export default async function AdminDashboardPage() {
-  const db = readDB()
+  const db = await readDB()
   
   return (
     <AdminPageClient 
