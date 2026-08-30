@@ -17,7 +17,7 @@ export default function Navbar({ siteName, tagline, primaryColor, logoUrl }: Nav
   const [transitioning, setTransitioning] = useState(false)
   const [randomEffect, setRandomEffect] = useState(0)
 
-  // Deteksi scroll halaman
+  // Deteksi scroll halaman & otomatis tutup menu jika terbuka saat scroll
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 35) {
@@ -25,6 +25,7 @@ export default function Navbar({ siteName, tagline, primaryColor, logoUrl }: Nav
       } else {
         setIsScrolled(false)
       }
+      setMobileMenuOpen(false)
     }
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
@@ -84,10 +85,10 @@ export default function Navbar({ siteName, tagline, primaryColor, logoUrl }: Nav
         </div>
       </div>
 
-      {/* NAVBAR UTAMA (Sticky agar konten bawah tidak tumpang tindih di semua perangkat) */}
+      {/* NAVBAR UTAMA */}
       <header className="sticky top-4 z-50 w-full px-4 md:px-12 flex justify-between items-start pointer-events-none transition-all duration-700 ease-out font-sans">
         
-        {/* 1. LOGO FLOATING CARD (Kiri) - Diperbesar */}
+        {/* 1. LOGO FLOATING CARD (Kiri) */}
         <Link 
           href="#home" 
           onClick={(e) => handleNavClick(e, '#home')}
@@ -110,7 +111,7 @@ export default function Navbar({ siteName, tagline, primaryColor, logoUrl }: Nav
           </div>
         </Link>
 
-        {/* 2. NAVIGATION FLOATING CARD (Kanan) - Diperbesar */}
+        {/* 2. NAVIGATION FLOATING CARD (Kanan) */}
         <div className="relative pointer-events-auto">
           <nav 
             className={`flex items-center gap-6 md:gap-8 px-6 md:px-8 py-4 md:py-5 rounded-2xl shadow-2xl border border-white/20 transition-all duration-700 ease-out backdrop-blur-2xl text-base md:text-lg font-extrabold tracking-wide text-white ${
@@ -118,7 +119,7 @@ export default function Navbar({ siteName, tagline, primaryColor, logoUrl }: Nav
             }`}
             style={{ backgroundColor: primaryColor || '#4A0E17' }}
           >
-            {/* TAMPILAN DESKTOP (Teks Menu Lengkap) */}
+            {/* TAMPILAN DESKTOP */}
             <div className="hidden md:flex items-center gap-8">
               {!isScrolled ? (
                 <>
@@ -140,14 +141,6 @@ export default function Navbar({ siteName, tagline, primaryColor, logoUrl }: Nav
                   >
                     CONTACT US
                   </a>
-                  
-                  <Link 
-                    href="/admin" 
-                    className="text-sm bg-black/20 hover:bg-black/40 px-3.5 py-2.5 rounded-xl text-white/90 transition-colors duration-300 font-bold cursor-pointer"
-                    title="Admin CMS"
-                  >
-                    CMS
-                  </Link>
                 </>
               ) : (
                 <button
@@ -161,7 +154,7 @@ export default function Navbar({ siteName, tagline, primaryColor, logoUrl }: Nav
               )}
             </div>
 
-            {/* TAMPILAN MOBILE (Tombol Hamburger Diperbesar) */}
+            {/* TAMPILAN MOBILE (Tombol Hamburger) */}
             <div className="flex md:hidden items-center">
               <button
                 type="button"
@@ -177,41 +170,34 @@ export default function Navbar({ siteName, tagline, primaryColor, logoUrl }: Nav
             </div>
           </nav>
 
-          {/* DROPDOWN MENU (Diperbesar agar mudah dibaca) */}
-          {mobileMenuOpen && (
-            <div 
-              className="absolute right-0 mt-3 w-64 md:w-72 rounded-2xl shadow-2xl p-6 space-y-4 border border-white/25 backdrop-blur-2xl z-[10000]"
-              style={{ backgroundColor: primaryColor || '#4A0E17' }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {navLinks.map((link) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  onClick={(e) => handleNavClick(e, link.href)}
-                  className="block text-base md:text-lg font-extrabold tracking-wide text-white hover:text-amber-300 transition-colors py-2.5 border-b border-white/10 cursor-pointer"
-                >
-                  {link.name}
-                </a>
-              ))}
+          {/* DROPDOWN MENU DENGAN ANIMASI SMOOTH (FADE & SCALE) */}
+          <div 
+            className={`absolute right-0 mt-3 w-64 md:w-72 rounded-2xl shadow-2xl p-6 space-y-4 border border-white/25 backdrop-blur-2xl z-[10000] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] origin-top-right ${
+              mobileMenuOpen 
+                ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto' 
+                : 'opacity-0 -translate-y-3 scale-95 pointer-events-none'
+            }`}
+            style={{ backgroundColor: primaryColor || '#4A0E17' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {navLinks.map((link) => (
               <a
-                href="#contact"
-                onClick={(e) => handleNavClick(e, '#contact')}
+                key={link.name}
+                href={link.href}
+                onClick={(e) => handleNavClick(e, link.href)}
                 className="block text-base md:text-lg font-extrabold tracking-wide text-white hover:text-amber-300 transition-colors py-2.5 border-b border-white/10 cursor-pointer"
               >
-                CONTACT US
+                {link.name}
               </a>
-              <div className="pt-2">
-                <Link
-                  href="/admin"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block text-center w-full py-3 rounded-xl text-sm font-extrabold tracking-wider bg-white/30 hover:bg-white/40 text-white uppercase cursor-pointer"
-                >
-                  Admin CMS
-                </Link>
-              </div>
-            </div>
-          )}
+            ))}
+            <a
+              href="#contact"
+              onClick={(e) => handleNavClick(e, '#contact')}
+              className="block text-base md:text-lg font-extrabold tracking-wide text-white hover:text-amber-300 transition-colors py-2.5 cursor-pointer"
+            >
+              CONTACT US
+            </a>
+          </div>
 
         </div>
 

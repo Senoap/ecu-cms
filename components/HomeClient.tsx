@@ -1,6 +1,6 @@
 // components/HomeClient.tsx
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Navbar from './Navbar'
 import ServicesSectionClient from '@/components/ServicesSectionClient'
 import AboutSectionClient from '@/components/AboutSectionClient'
@@ -10,6 +10,8 @@ import { DynamicIcon } from '@/components/DynamicIcon'
 export default function HomeClient({ db }: { db: any }) {
   const [isDarkMode, setIsDarkMode] = useState(false)
   const [showScrollTop, setShowScrollTop] = useState(false)
+  const [showContactActions, setShowContactActions] = useState(false)
+  const contactRef = useRef<HTMLDivElement>(null)
 
   // Sinkronisasi tema khusus website publik menggunakan key 'esu_site_theme'
   useEffect(() => {
@@ -23,7 +25,7 @@ export default function HomeClient({ db }: { db: any }) {
     }
   }, [])
 
-  // Event listener untuk memantau posisi scroll halaman
+  // Event listener untuk scroll & menutup popover ketika klik di luar area
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 300) {
@@ -31,10 +33,22 @@ export default function HomeClient({ db }: { db: any }) {
       } else {
         setShowScrollTop(false)
       }
+      setShowContactActions(false)
     }
 
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
+    const handleClickOutside = (event: MouseEvent) => {
+      if (contactRef.current && !contactRef.current.contains(event.target as Node)) {
+        setShowContactActions(false)
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    document.addEventListener('mousedown', handleClickOutside)
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
   }, [])
 
   // Fungsi toggle tema khusus untuk pengunjung website utama
@@ -299,12 +313,12 @@ export default function HomeClient({ db }: { db: any }) {
                 <footer
                   key={sec.id}
                   id="contact"
-                  className="relative text-white pt-20 pb-12 px-8 md:px-20 lg:px-28 overflow-hidden rounded-t-[40px] shadow-2xl -mt-6 z-25 w-full font-sans"
+                  className="relative text-white pt-20 pb-12 px-6 md:px-12 lg:px-20 overflow-hidden rounded-t-[40px] shadow-2xl -mt-6 z-25 w-full font-sans"
                   style={{ backgroundColor: setting.primaryColor }}
                 >
                   <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1.5px,transparent_1.5px)] [background-size:24px_24px]"></div>
 
-                  <div className="relative z-10 space-y-12 w-full max-w-7xl mx-auto">
+                  <div className="relative z-10 space-y-12 w-full max-w-full">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 border-b border-white/15 pb-12 items-center justify-between">
 
                       <div className="space-y-6">
@@ -334,29 +348,43 @@ export default function HomeClient({ db }: { db: any }) {
                             <span>{footer.address}</span>
                           </a>
 
-                          <div className="space-y-3 lg:flex lg:flex-col lg:items-end">
-                            <div className="flex items-center gap-4 text-right flex-row-reverse">
-                              <span className="text-2xl flex-shrink-0">📞</span>
-                              <span>{footer.phone}</span>
-                            </div>
+                          <div className="space-y-3 lg:flex lg:flex-col lg:items-end w-full">
+                            {/* Wrapper untuk Nomor Telepon & Popover Transparan Melayang di Atasnya */}
+                            <div className="relative inline-block text-right" ref={contactRef}>
+                              <div
+                                onClick={() => setShowContactActions(!showContactActions)}
+                                className="flex items-center gap-4 text-right flex-row-reverse cursor-pointer group select-none"
+                                title="Klik untuk menampilkan opsi WhatsApp atau Telepon"
+                              >
+                                <span className="text-2xl flex-shrink-0 transition-transform duration-300 group-hover:scale-110">📞</span>
+                                <span className="hover:text-amber-300 transition-colors underline decoration-dotted underline-offset-4">{footer.phone}</span>
+                              </div>
 
-                            <div className="flex flex-wrap items-center gap-3 pt-1 justify-end">
-                              <a
-                                href={`tel:${footer.phone}`}
-                                className="bg-white/15 hover:bg-white/25 px-4.5 py-2 rounded-xl transition-all text-sm font-black text-white flex items-center gap-2 border border-white/20 shadow-sm"
-                                title="Panggil nomor telepon"
-                              >
-                                <span>📞</span> Panggil
-                              </a>
-                              <a
-                                href={`https://wa.me/${(((footer as any).whatsapp || footer.phone)).replace(/[^0-9]/g, '')}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="bg-emerald-600 hover:bg-emerald-500 px-4.5 py-2 rounded-xl transition-all text-sm font-black text-white flex items-center gap-2 shadow-md"
-                                title="Chat langsung via WhatsApp"
-                              >
-                                <span>💬</span> WhatsApp
-                              </a>
+                              {/* Popover Menu Melayang dengan Efek Transparan Glassmorphism */}
+                              <div className={`absolute bottom-full mb-3 right-0 lg:right-0 flex items-center gap-3 p-3 rounded-2xl bg-black/40 backdrop-blur-2xl border border-white/20 shadow-2xl z-50 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] origin-bottom ${
+                                showContactActions 
+                                  ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto' 
+                                  : 'opacity-0 translate-y-2 scale-95 pointer-events-none'
+                              }`}>
+                                <a
+                                  href={`tel:${footer.phone}`}
+                                  onClick={() => setShowContactActions(false)}
+                                  className="bg-white/10 hover:bg-white/20 px-4.5 py-2.5 rounded-xl transition-all text-sm font-black text-white flex items-center gap-2 border border-white/15 shadow-sm whitespace-nowrap backdrop-blur-md"
+                                  title="Panggil nomor telepon"
+                                >
+                                  <span>📞</span> Panggil
+                                </a>
+                                <a
+                                  href={`https://wa.me/${(((footer as any).whatsapp || footer.phone)).replace(/[^0-9]/g, '')}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  onClick={() => setShowContactActions(false)}
+                                  className="bg-emerald-600/90 hover:bg-emerald-500 px-4.5 py-2.5 rounded-xl transition-all text-sm font-black text-white flex items-center gap-2 shadow-md whitespace-nowrap backdrop-blur-md border border-emerald-500/30"
+                                  title="Chat langsung via WhatsApp"
+                                >
+                                  <span>💬</span> WhatsApp
+                                </a>
+                              </div>
                             </div>
                           </div>
 
@@ -379,7 +407,6 @@ export default function HomeClient({ db }: { db: any }) {
                       <div className="flex items-center gap-8">
                         <a href="#home" className="hover:text-amber-300 transition-colors">Privacy Policy</a>
                         <a href="#home" className="hover:text-amber-300 transition-colors">Terms of Service</a>
-                        <a href="/admin" className="hover:text-amber-300 transition-colors">CMS Admin</a>
                       </div>
                     </div>
                   </div>
