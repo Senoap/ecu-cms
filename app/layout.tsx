@@ -1,7 +1,15 @@
 // app/layout.tsx
-import type { Metadata } from 'next' // atau biarkan bawaan
+import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { readDB } from '@/lib/db'
+import { LanguageProvider } from '@/components/LanguageContext'
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: '#4A0E17',
+}
 
 // Fungsi untuk membuat title web dinamis dari CMS
 export async function generateMetadata(): Promise<Metadata> {
@@ -27,9 +35,11 @@ export default async function RootLayout({
           ['--primary' as any]: primaryColor,
           fontFamily: fontFamily === 'Poppins' ? 'Poppins, sans-serif' : fontFamily === 'Roboto' ? 'Roboto, sans-serif' : 'Inter, sans-serif'
         }}
-        className="bg-gray-950 text-gray-100 antialiased"
+        className="bg-gray-950 text-gray-100 antialiased selection:bg-amber-500/20 selection:text-amber-400"
       >
-        {children}
+        <LanguageProvider>
+          {children}
+        </LanguageProvider>
       </body>
     </html>
   )

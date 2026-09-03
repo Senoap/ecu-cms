@@ -42,9 +42,10 @@ async function updateServiceDetail(formData: FormData) {
     revalidatePath('/')
 }
 
-export default async function AdminEditServicePage({ params }: { params: { id: string } }) {
+export default async function AdminEditServicePage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params
     const db = await readDB()
-    const srv = db.services.find(s => s.id === params.id)
+    const srv = db.services.find(s => s.id === id)
 
     if (!srv) {
         redirect('/admin/services')

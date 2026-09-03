@@ -10,6 +10,9 @@ async function updateConfig(formData: FormData) {
   const siteName = formData.get('siteName') as string
   const tagline = formData.get('tagline') as string
   const primaryColor = formData.get('primaryColor') as string
+  const secondaryColor = (formData.get('secondaryColor') as string) || db.setting.secondaryColor || '#D4AF37'
+  const accentColor = (formData.get('accentColor') as string) || db.setting.accentColor || '#1E293B'
+  const loadingBgColor = (formData.get('loadingBgColor') as string) || primaryColor || '#7E1D0C'
   const slideDuration = parseInt(formData.get('slideDuration') as string) || 3
   const logoFile = formData.get('logoFile') as File
   const bgImageFile = formData.get('bgImageFile') as File
@@ -38,6 +41,9 @@ async function updateConfig(formData: FormData) {
     siteName,
     tagline,
     primaryColor,
+    secondaryColor,
+    accentColor,
+    loadingBgColor,
     logoUrl,
     bgImageUrl,
     slideDuration,

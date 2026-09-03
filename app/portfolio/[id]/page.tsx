@@ -1,27 +1,28 @@
-// app/services/[id]/page.tsx
+// app/portfolio/[id]/page.tsx
 import { readPublishedDB } from '@/lib/db'
 import { notFound } from 'next/navigation'
-import ServiceDetailClient from './ServiceDetailClient'
+import PortfolioDetailClient from './PortfolioDetailClient'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-export default async function ServiceDetailPage({
+export default async function PortfolioDetailPage({
   params
 }: {
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
   const db = await readPublishedDB()
-  const srv = (db.services || []).find((s) => s.id === id)
+  const item = (db.portfolios || []).find((p) => p.id === id)
 
-  if (!srv) {
+  if (!item) {
     notFound()
   }
 
   return (
-    <ServiceDetailClient
-      srv={srv}
+    <PortfolioDetailClient
+      item={item}
+      allPortfolios={db.portfolios || []}
       setting={db.setting}
       footer={db.footer}
     />

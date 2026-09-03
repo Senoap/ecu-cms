@@ -1,54 +1,119 @@
 // lib/colorExtractor.ts
+
+export interface ColorPalette {
+  primary: string
+  secondary: string
+  accent: string
+}
+
 export function extractDominantColor(imgSrc: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = 'Anonymous';
-    img.src = imgSrc;
+  return extractColorPalette(imgSrc).then((palette) => palette.primary)
+}
+
+export function extractColorPalette(imgSrc: string): Promise<ColorPalette> {
+  return new Promise((resolve) => {
+    const fallback: ColorPalette = {
+      primary: '#7E1D0C',
+      secondary: '#D4AF37',
+      accent: '#1E293B'
+    }
+
+    if (!imgSrc) {
+      resolve(fallback)
+      return
+    }
+
+    const img = new Image()
+    img.crossOrigin = 'Anonymous'
+    img.src = imgSrc
 
     img.onload = () => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      if (!ctx) {
-        reject('Canvas context tidak tersedia');
-        return;
+      try {
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+        if (!ctx) {
+          resolve(fallback)
+          return
+        }
+
+        canvas.width = 60
+        canvas.height = 60
+        ctx.drawImage(img, 0, 0, 60, 60)
+
+        const imageData = ctx.getImageData(0, 0, 60, 60).data
+        const colorBuckets: { r: number; g: number; b: number; count: number; lum: number }[] = []
+
+        for (let i = 0; i < imageData.length; i += 4) {
+          const r = imageData[i]
+          const g = imageData[i + 1]
+          const b = imageData[i + 2]
+          const a = imageData[i + 3]
+
+          // Ignore transparent and pure white/light grey background pixels
+          if (a < 128) continue
+          if (r > 245 && g > 245 && b > 245) continue
+
+          const lum = 0.299 * r + 0.587 * g + 0.114 * b
+
+          // Find if close to existing bucket
+          let found = false
+          for (const bucket of colorBuckets) {
+            const diff = Math.abs(bucket.r - r) + Math.abs(bucket.g - g) + Math.abs(bucket.b - b)
+            if (diff < 45) {
+              bucket.r = Math.floor((bucket.r * bucket.count + r) / (bucket.count + 1))
+              bucket.g = Math.floor((bucket.g * bucket.count + g) / (bucket.count + 1))
+              bucket.b = Math.floor((bucket.b * bucket.count + b) / (bucket.count + 1))
+              bucket.count++
+              found = true
+              break
+            }
+          }
+
+          if (!found) {
+            colorBuckets.push({ r, g, b, count: 1, lum })
+          }
+        }
+
+        if (colorBuckets.length === 0) {
+          resolve(fallback)
+          return
+        }
+
+        // Sort by frequency
+        colorBuckets.sort((a, b) => b.count - a.count)
+
+        const toHex = (r: number, g: number, b: number) =>
+          `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase()}`
+
+        // Primary: most frequent saturated or non-white color
+        const primary = toHex(colorBuckets[0].r, colorBuckets[0].g, colorBuckets[0].b)
+
+        // Secondary: second distinct color, preferably vibrant/gold or lighter
+        let secondary = '#D4AF37'
+        if (colorBuckets.length > 1) {
+          const second = colorBuckets[1]
+          secondary = toHex(second.r, second.g, second.b)
+        }
+
+        // Accent / Tertiary: contrast tone (executive deep slate or navy)
+        let accent = '#1E293B'
+        if (colorBuckets.length > 2) {
+          const third = colorBuckets[2]
+          accent = toHex(third.r, third.g, third.b)
+        }
+
+        resolve({
+          primary,
+          secondary,
+          accent
+        })
+      } catch {
+        resolve(fallback)
       }
+    }
 
-      canvas.width = 50;
-      canvas.height = 50;
-      ctx.drawImage(img, 0, 0, 50, 50);
-
-      const imageData = ctx.getImageData(0, 0, 50, 50).data;
-      let r = 0, g = 0, b = 0, count = 0;
-
-      for (let i = 0; i < imageData.length; i += 4) {
-        const red = imageData[i];
-        const green = imageData[i + 1];
-        const blue = imageData[i + 2];
-        const alpha = imageData[i + 3];
-
-        if (alpha < 125 || (red > 240 && green > 240 && blue > 240)) continue;
-
-        r += red;
-        g += green;
-        b += blue;
-        count++;
-      }
-
-      if (count === 0) {
-        resolve('#d4af37'); // Fallback ke warna default jika gagal
-        return;
-      }
-
-      r = Math.floor(r / count);
-      g = Math.floor(g / count);
-      b = Math.floor(b / count);
-
-      const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
-      resolve(hex);
-    };
-
-    img.onerror = (error) => {
-      reject(error);
-    };
-  });
+    img.onerror = () => {
+      resolve(fallback)
+    }
+  })
 }

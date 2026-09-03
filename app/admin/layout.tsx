@@ -8,8 +8,8 @@ import AdminLayoutClient from './AdminLayoutClient'
 async function handleDeployAction() {
   'use server'
   await deployDB()
-  revalidatePath('/')
-  revalidatePath('/admin')
+  revalidatePath('/', 'layout')
+  revalidatePath('/admin', 'layout')
 }
 
 async function handleClearNotifications() {

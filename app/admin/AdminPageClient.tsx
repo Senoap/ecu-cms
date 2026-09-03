@@ -1,7 +1,7 @@
 // app/admin/AdminPageClient.tsx
 'use client'
 import { useState, useTransition } from 'react'
-import { extractDominantColor } from '@/lib/colorExtractor'
+import { extractDominantColor, extractColorPalette } from '@/lib/colorExtractor'
 
 interface Section {
   id: string
@@ -16,6 +16,9 @@ interface AdminPageClientProps {
     siteName: string
     tagline: string
     primaryColor: string
+    secondaryColor?: string
+    accentColor?: string
+    loadingBgColor?: string
     slideDuration: number
     logoUrl?: string
     bgImageUrl?: string
@@ -23,6 +26,49 @@ interface AdminPageClientProps {
   initialSections: Section[]
   updateConfigAction: (formData: FormData) => Promise<void>
 }
+
+const PRESET_PALETTES = [
+  {
+    name: '👑 ESU Royal Prestige',
+    desc: 'Maroon & Emas Mewah',
+    primary: '#7E1D0C',
+    secondary: '#D4AF37',
+    accent: '#1E293B',
+    loading: '#7E1D0C',
+  },
+  {
+    name: '🏛️ Executive Sapphire',
+    desc: 'Navy Korporat & Amber',
+    primary: '#0F2537',
+    secondary: '#F59E0B',
+    accent: '#334155',
+    loading: '#0F2537',
+  },
+  {
+    name: '🌲 Corporate Emerald',
+    desc: 'Hijau Zamrud & Emas',
+    primary: '#064E3B',
+    secondary: '#EAB308',
+    accent: '#18181B',
+    loading: '#064E3B',
+  },
+  {
+    name: '💎 Obsidian Ruby',
+    desc: 'Hitam Pekat & Merah Ruby',
+    primary: '#991B1B',
+    secondary: '#FBBF24',
+    accent: '#111827',
+    loading: '#991B1B',
+  },
+  {
+    name: '⚡ Modern Cobalt',
+    desc: 'Biru Elektrik & Cyan',
+    primary: '#1E3A8A',
+    secondary: '#06B6D4',
+    accent: '#1E1B4B',
+    loading: '#1E3A8A',
+  },
+]
 
 export default function AdminPageClient({ initialSetting, initialSections, updateConfigAction }: AdminPageClientProps) {
   const [sections, setSections] = useState<Section[]>(
@@ -33,11 +79,23 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
   const [isPending, startTransition] = useTransition()
   const [showSuccessToast, setShowSuccessToast] = useState(false)
 
-  // State baru untuk mengontrol nilai Primary Color secara reaktif (bisa diubah manual atau auto-generate)
-  const [primaryColor, setPrimaryColor] = useState(initialSetting.primaryColor || '#d4af37')
+  // 3 Warna Utama & Warna Layar Loading
+  const [primaryColor, setPrimaryColor] = useState(initialSetting.primaryColor || '#7E1D0C')
+  const [secondaryColor, setSecondaryColor] = useState(initialSetting.secondaryColor || '#D4AF37')
+  const [accentColor, setAccentColor] = useState(initialSetting.accentColor || '#1E293B')
+  const [loadingBgColor, setLoadingBgColor] = useState(initialSetting.loadingBgColor || initialSetting.primaryColor || '#7E1D0C')
   const [isExtracting, setIsExtracting] = useState(false)
 
-  // Fungsi untuk menjalankan auto-generate warna dari logo aktif
+  // Terapkan Palet Preset
+  const handleApplyPreset = (preset: typeof PRESET_PALETTES[0]) => {
+    setPrimaryColor(preset.primary)
+    setSecondaryColor(preset.secondary)
+    setAccentColor(preset.accent)
+    setLoadingBgColor(preset.loading)
+    setIsDirty(true)
+  }
+
+  // Auto-generate 3 warna sekaligus dari logo
   const handleAutoGenerateColor = async () => {
     if (!initialSetting.logoUrl) {
       alert('Tidak ada logo aktif yang dapat dibaca. Silakan simpan/unggah logo terlebih dahulu.')
@@ -46,10 +104,13 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
 
     setIsExtracting(true)
     try {
-      const dominantColor = await extractDominantColor(initialSetting.logoUrl)
-      setPrimaryColor(dominantColor)
+      const palette = await extractColorPalette(initialSetting.logoUrl)
+      setPrimaryColor(palette.primary)
+      setSecondaryColor(palette.secondary)
+      setAccentColor(palette.accent)
+      setLoadingBgColor(palette.primary)
       setIsDirty(true)
-      alert(`Berhasil mendeteksi warna utama: ${dominantColor}`)
+      alert(`Berhasil mendeteksi kombinasi 3 warna dari logo:\n• Warna Utama: ${palette.primary}\n• Warna Sekunder: ${palette.secondary}\n• Warna Tersier: ${palette.accent}`)
     } catch (error) {
       console.error(error)
       alert('Gagal membaca warna dari logo. Pastikan format gambar valid.')
@@ -89,8 +150,11 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
 
-    // Memastikan primaryColor yang dikirim sesuai dengan state terkini (termasuk hasil auto-generate)
+    // Menyimpan 3 warna korporat + warna loading ke database
     formData.set('primaryColor', primaryColor)
+    formData.set('secondaryColor', secondaryColor)
+    formData.set('accentColor', accentColor)
+    formData.set('loadingBgColor', loadingBgColor)
 
     startTransition(async () => {
       await updateConfigAction(formData)
@@ -161,42 +225,247 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
               />
             </div>
             
-            {/* Primary Color dengan Fitur Auto-Generate */}
-            <div className="space-y-2 md:col-span-2">
-              <div className="flex justify-between items-center">
-                <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-300">Warna Utama (Primary Color)</label>
+            {/* PRESET PALET WARNA KORPORAT (1-KLIK) */}
+            <div className="space-y-3 md:col-span-2 pt-2 border-t border-gray-800/80">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <label className="block text-xs font-black uppercase tracking-wider text-amber-400">
+                    🎨 Palet Warna Korporat (3 Warna Harmonis)
+                  </label>
+                  <p className="text-[11px] text-gray-400 font-medium">
+                    Pilih preset 1-klik di bawah atau sesuaikan manual 3 warna korporat Anda.
+                  </p>
+                </div>
                 <button
                   type="button"
                   onClick={handleAutoGenerateColor}
                   disabled={isExtracting}
-                  className="px-3 py-1 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-400 text-[11px] font-bold tracking-wider hover:bg-amber-500/30 transition-all disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+                  className="px-3.5 py-2 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-black tracking-wider hover:bg-amber-500/30 transition-all disabled:opacity-50 flex items-center gap-2 cursor-pointer shadow-sm self-start sm:self-auto"
                 >
-                  {isExtracting ? 'Menganalisis Logo...' : '✨ Auto-Generate dari Logo'}
+                  {isExtracting ? '✨ Menganalisis Logo...' : '✨ Auto-Generate 3 Warna dari Logo'}
                 </button>
               </div>
-              <div className="flex gap-3 items-center bg-[#090A0F] border border-gray-800 rounded-2xl px-3 py-2 shadow-inner">
+
+              {/* Grid Tombol Preset Palet */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 pt-1">
+                {PRESET_PALETTES.map((p) => {
+                  const isCurrent = primaryColor.toUpperCase() === p.primary.toUpperCase() && secondaryColor.toUpperCase() === p.secondary.toUpperCase()
+                  return (
+                    <button
+                      key={p.name}
+                      type="button"
+                      onClick={() => handleApplyPreset(p)}
+                      className={`p-3 rounded-2xl border text-left transition-all duration-300 flex flex-col justify-between space-y-2 cursor-pointer ${
+                        isCurrent
+                          ? 'bg-amber-500/15 border-amber-500 ring-2 ring-amber-500/40'
+                          : 'bg-[#090A0F] border-gray-800 hover:border-gray-700 hover:bg-gray-900/60'
+                      }`}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-5 h-5 rounded-full border border-white/20 shadow-sm flex-shrink-0" style={{ backgroundColor: p.primary }} />
+                        <span className="w-4 h-4 rounded-full border border-white/20 shadow-sm flex-shrink-0" style={{ backgroundColor: p.secondary }} />
+                        <span className="w-3.5 h-3.5 rounded-full border border-white/20 shadow-sm flex-shrink-0" style={{ backgroundColor: p.accent }} />
+                      </div>
+                      <div>
+                        <div className="text-xs font-black text-white leading-tight truncate">{p.name}</div>
+                        <div className="text-[10px] text-gray-400 font-medium truncate">{p.desc}</div>
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* 3 WARNA KORPORAT DETAIL */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:col-span-2 pt-2">
+              {/* Warna 1: Utama */}
+              <div className="space-y-2 bg-[#090A0F] p-4 rounded-2xl border border-gray-800/90">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-black uppercase tracking-wider text-gray-300">1. Warna Utama</label>
+                  <span className="text-[10px] font-bold text-gray-500">Brand / Header</span>
+                </div>
+                <div className="flex gap-2.5 items-center">
+                  <input
+                    type="color"
+                    name="primaryColorPicker"
+                    value={primaryColor}
+                    onChange={(e) => {
+                      setPrimaryColor(e.target.value)
+                      setIsDirty(true)
+                    }}
+                    className="w-10 h-10 bg-transparent rounded-xl cursor-pointer border-0 flex-shrink-0"
+                  />
+                  <input
+                    type="text"
+                    name="primaryColor"
+                    value={primaryColor}
+                    onChange={(e) => {
+                      setPrimaryColor(e.target.value)
+                      setIsDirty(true)
+                    }}
+                    className="flex-1 bg-[#10131C] border border-gray-800 rounded-xl px-3 py-2 text-white text-xs font-mono font-bold uppercase focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+                <p className="text-[10px] text-gray-500 leading-tight">Tombol CTA, navbar, dan identitas utama.</p>
+              </div>
+
+              {/* Warna 2: Sekunder / Aksen Emas */}
+              <div className="space-y-2 bg-[#090A0F] p-4 rounded-2xl border border-gray-800/90">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-black uppercase tracking-wider text-amber-400">2. Warna Sekunder</label>
+                  <span className="text-[10px] font-bold text-amber-500/80">Highlight / Aksen</span>
+                </div>
+                <div className="flex gap-2.5 items-center">
+                  <input
+                    type="color"
+                    name="secondaryColorPicker"
+                    value={secondaryColor}
+                    onChange={(e) => {
+                      setSecondaryColor(e.target.value)
+                      setIsDirty(true)
+                    }}
+                    className="w-10 h-10 bg-transparent rounded-xl cursor-pointer border-0 flex-shrink-0"
+                  />
+                  <input
+                    type="text"
+                    name="secondaryColor"
+                    value={secondaryColor}
+                    onChange={(e) => {
+                      setSecondaryColor(e.target.value)
+                      setIsDirty(true)
+                    }}
+                    className="flex-1 bg-[#10131C] border border-gray-800 rounded-xl px-3 py-2 text-white text-xs font-mono font-bold uppercase focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+                <p className="text-[10px] text-gray-500 leading-tight">Ikon, garis aksen, badge & bintang kepuasan.</p>
+              </div>
+
+              {/* Warna 3: Tersier / Slate Contrast */}
+              <div className="space-y-2 bg-[#090A0F] p-4 rounded-2xl border border-gray-800/90">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-black uppercase tracking-wider text-slate-300">3. Warna Tersier</label>
+                  <span className="text-[10px] font-bold text-gray-500">Kontras / Kartu</span>
+                </div>
+                <div className="flex gap-2.5 items-center">
+                  <input
+                    type="color"
+                    name="accentColorPicker"
+                    value={accentColor}
+                    onChange={(e) => {
+                      setAccentColor(e.target.value)
+                      setIsDirty(true)
+                    }}
+                    className="w-10 h-10 bg-transparent rounded-xl cursor-pointer border-0 flex-shrink-0"
+                  />
+                  <input
+                    type="text"
+                    name="accentColor"
+                    value={accentColor}
+                    onChange={(e) => {
+                      setAccentColor(e.target.value)
+                      setIsDirty(true)
+                    }}
+                    className="flex-1 bg-[#10131C] border border-gray-800 rounded-xl px-3 py-2 text-white text-xs font-mono font-bold uppercase focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+                <p className="text-[10px] text-gray-500 leading-tight">Latar kartu kontras, teks pendukung & tag.</p>
+              </div>
+            </div>
+
+            {/* WARNA LAYAR LOADING & TRANSISI */}
+            <div className="space-y-2 md:col-span-2 bg-[#090A0F] p-4 rounded-2xl border border-gray-800">
+              <div className="flex justify-between items-center">
+                <label className="text-xs font-black uppercase tracking-wider text-gray-300">
+                  ⏳ Warna Layar Loading & Transisi Halaman (Custom)
+                </label>
+                <span className="text-[10px] text-gray-500">Smooth Background</span>
+              </div>
+              <div className="flex gap-3 items-center">
                 <input
                   type="color"
-                  name="primaryColor"
-                  value={primaryColor}
+                  name="loadingBgColorPicker"
+                  value={loadingBgColor}
                   onChange={(e) => {
-                    setPrimaryColor(e.target.value)
+                    setLoadingBgColor(e.target.value)
                     setIsDirty(true)
                   }}
-                  className="w-10 h-9 bg-transparent rounded-xl cursor-pointer border-0"
+                  className="w-10 h-10 bg-transparent rounded-xl cursor-pointer border-0 flex-shrink-0"
                 />
                 <input
                   type="text"
-                  name="primaryColor"
-                  value={primaryColor}
+                  name="loadingBgColor"
+                  value={loadingBgColor}
                   onChange={(e) => {
-                    setPrimaryColor(e.target.value)
+                    setLoadingBgColor(e.target.value)
                     setIsDirty(true)
                   }}
-                  className="flex-1 bg-transparent border-0 text-white text-sm focus:outline-none font-mono font-bold uppercase"
+                  className="flex-1 bg-[#10131C] border border-gray-800 rounded-xl px-3 py-2 text-white text-xs font-mono font-bold uppercase focus:outline-none focus:border-amber-500"
                 />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLoadingBgColor(primaryColor)
+                    setIsDirty(true)
+                  }}
+                  className="px-3 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-xs font-bold text-gray-300 cursor-pointer"
+                >
+                  Samakan dengan Warna Utama
+                </button>
               </div>
-              <p className="text-[11px] text-gray-500">Anda bisa memilih manual atau klik tombol Auto-Generate untuk mengambil warna terbaik dari logo secara otomatis.</p>
+              <p className="text-[11px] text-gray-500">
+                Warna ini akan digunakan pada layar transisi loading perpindahan halaman dan modal layanan secara halus.
+              </p>
+            </div>
+
+            {/* LIVE PREVIEW HARMONISASI 3 WARNA */}
+            <div className="md:col-span-2 p-5 rounded-2xl border border-gray-800 bg-[#07090E] space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black uppercase tracking-widest text-amber-400">
+                  👁️ Live Preview Harmonisasi 3 Warna
+                </span>
+                <span className="text-[10px] text-gray-500">Real-time Visual Check</span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                {/* Mode Terang (Light Mode Preview) */}
+                <div className="p-4 rounded-xl bg-[#F8F7F4] border border-gray-300 text-gray-900 space-y-2 shadow-sm">
+                  <div className="text-[10px] font-black uppercase tracking-wider text-gray-500">Pratinjau Mode Terang</div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-black" style={{ color: primaryColor }}>PT ESU</span>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold text-white" style={{ backgroundColor: secondaryColor }}>
+                      PRO
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-700 font-medium">Teks terbaca jelas dengan aksen harmonis.</p>
+                  <button
+                    type="button"
+                    className="px-4 py-1.5 rounded-lg text-xs font-black text-white shadow"
+                    style={{ backgroundColor: primaryColor }}
+                  >
+                    Tombol Utama
+                  </button>
+                </div>
+
+                {/* Mode Gelap (Dark Mode Preview) */}
+                <div className="p-4 rounded-xl bg-[#090A0F] border border-gray-800 text-white space-y-2 shadow-md">
+                  <div className="text-[10px] font-black uppercase tracking-wider text-gray-400">Pratinjau Mode Gelap</div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-black text-white">PT ESU</span>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold text-white shadow-sm" style={{ backgroundColor: primaryColor }}>
+                      LIVE
+                    </span>
+                    <span className="text-xs font-bold" style={{ color: secondaryColor }}>★ 99.8%</span>
+                  </div>
+                  <p className="text-xs text-gray-300 font-medium">Kontras tinggi & nyaman dibaca di layar gelap.</p>
+                  <button
+                    type="button"
+                    className="px-4 py-1.5 rounded-lg text-xs font-black text-white border transition-all"
+                    style={{ backgroundColor: primaryColor, borderColor: secondaryColor }}
+                  >
+                    Tombol Glow
+                  </button>
+                </div>
+              </div>
             </div>
 
             <div className="space-y-2 md:col-span-2">

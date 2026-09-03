@@ -1,27 +1,28 @@
-// app/services/[id]/page.tsx
+// app/career/[id]/page.tsx
 import { readPublishedDB } from '@/lib/db'
 import { notFound } from 'next/navigation'
-import ServiceDetailClient from './ServiceDetailClient'
+import CareerDetailClient from './CareerDetailClient'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-export default async function ServiceDetailPage({
+export default async function CareerDetailPage({
   params
 }: {
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
   const db = await readPublishedDB()
-  const srv = (db.services || []).find((s) => s.id === id)
+  const job = (db.career || []).find((j) => j.id === id)
 
-  if (!srv) {
+  if (!job) {
     notFound()
   }
 
   return (
-    <ServiceDetailClient
-      srv={srv}
+    <CareerDetailClient
+      job={job}
+      allJobs={db.career || []}
       setting={db.setting}
       footer={db.footer}
     />

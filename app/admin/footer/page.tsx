@@ -15,6 +15,7 @@ async function updateFooter(formData: FormData) {
         content: formData.get('description') as string,
         address: formData.get('address') as string,
         phone: formData.get('phone') as string,
+        whatsapp: (formData.get('whatsapp') as string) || (formData.get('phone') as string),
         email: formData.get('email') as string,
       }
     }
@@ -24,6 +25,7 @@ async function updateFooter(formData: FormData) {
   await writeDB(db)
   await addNotification('Memperbarui informasi Footer & Kontak.', 'UPDATE')
   revalidatePath('/admin/footer')
+  revalidatePath('/')
 }
 
 export default async function AdminFooterPage() {

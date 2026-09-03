@@ -25,6 +25,7 @@ export interface SectionConfig {
   quote?: string
   address?: string
   phone?: string
+  whatsapp?: string
   email?: string
   items?: { id: string; title?: string; name?: string; desc?: string; imageUrl?: string; icon?: string }[]
 }
@@ -134,7 +135,9 @@ export interface DatabaseContent {
     siteName: string
     tagline: string
     primaryColor: string
+    secondaryColor: string
     accentColor: string
+    loadingBgColor?: string
     fontFamily: string
     logoUrl?: string
     bgImageUrl?: string
@@ -165,8 +168,10 @@ const defaultDataContent: DatabaseContent = {
   setting: {
     siteName: 'PT. EMPAT SINERGI UTAMA',
     tagline: 'MANPOWER SERVICES',
-    primaryColor: '#58111A',
-    accentColor: '#D4AF37',
+    primaryColor: '#7E1D0C',
+    secondaryColor: '#D4AF37',
+    accentColor: '#1E293B',
+    loadingBgColor: '#7E1D0C',
     fontFamily: 'Inter',
     logoUrl: '',
     bgImageUrl: '',
@@ -359,6 +364,7 @@ function enrichContent(content: DatabaseContent): DatabaseContent {
       description: contactSec.content || '',
       address: contactSec.address || '',
       phone: contactSec.phone || '',
+      whatsapp: contactSec.whatsapp || contactSec.phone || '',
       email: contactSec.email || '',
     },
   }
@@ -402,6 +408,10 @@ function processParsedData(parsed: any): Database {
     setting: {
       ...defaultData.setting,
       ...(parsed.setting || parsed.published?.setting),
+      primaryColor: parsed.setting?.primaryColor || parsed.published?.setting?.primaryColor || defaultData.setting.primaryColor,
+      secondaryColor: parsed.setting?.secondaryColor || parsed.published?.setting?.secondaryColor || defaultData.setting.secondaryColor,
+      accentColor: parsed.setting?.accentColor || parsed.published?.setting?.accentColor || defaultData.setting.accentColor,
+      loadingBgColor: parsed.setting?.loadingBgColor || parsed.published?.setting?.loadingBgColor || parsed.setting?.primaryColor || defaultData.setting.primaryColor,
       slideDuration: parsed.setting?.slideDuration ?? parsed.published?.setting?.slideDuration ?? defaultData.setting.slideDuration
     },
     sections,
