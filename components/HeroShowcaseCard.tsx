@@ -2,6 +2,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useLanguage } from '@/components/LanguageContext'
+import { HeroShowcaseConfig } from '@/lib/db'
 
 interface HeroShowcaseCardProps {
   siteName: string
@@ -11,6 +12,7 @@ interface HeroShowcaseCardProps {
   accentColor?: string
   logoUrl?: string
   isDarkMode: boolean
+  showcaseData?: HeroShowcaseConfig
 }
 
 export default function HeroShowcaseCard({
@@ -20,14 +22,15 @@ export default function HeroShowcaseCard({
   secondaryColor = '#D4AF37',
   accentColor = '#1E293B',
   logoUrl,
-  isDarkMode
+  isDarkMode,
+  showcaseData
 }: HeroShowcaseCardProps) {
   const { locale } = useLanguage()
   const [activeTab, setActiveTab] = useState<'strengths' | 'metrics' | 'coverage'>('strengths')
   const [currentRoleIndex, setCurrentRoleIndex] = useState(0)
 
-  // Roles untuk auto-cycling ticker mini showcase
-  const roles = [
+  // Roles default jika belum diatur di CMS
+  const defaultRoles = [
     {
       icon: '🛡️',
       title: locale === 'en' ? 'Security & Asset Protection' : 'Satuan Pengamanan (Gada Pratama / Madya)',
@@ -54,16 +57,19 @@ export default function HeroShowcaseCard({
     }
   ]
 
+  const roles = (showcaseData?.roles && showcaseData.roles.length > 0) ? showcaseData.roles : defaultRoles
+
   // Auto-cycle mini role ticker
   useEffect(() => {
+    if (!roles || roles.length <= 1) return
     const timer = setInterval(() => {
       setCurrentRoleIndex((prev) => (prev + 1) % roles.length)
     }, 3800)
     return () => clearInterval(timer)
   }, [roles.length])
 
-  // Data Statistik / Metrik
-  const metrics = [
+  // Data Statistik / Metrik dari CMS
+  const defaultMetrics = [
     {
       num: '15+',
       label: locale === 'en' ? 'Years Experience' : 'Tahun Pengalaman',
@@ -86,8 +92,10 @@ export default function HeroShowcaseCard({
     }
   ]
 
-  // Data Keunggulan Utama
-  const strengths = [
+  const metrics = (showcaseData?.metrics && showcaseData.metrics.length > 0) ? showcaseData.metrics : defaultMetrics
+
+  // Data Keunggulan Utama dari CMS
+  const defaultStrengths = [
     {
       icon: '⚡',
       title: locale === 'en' ? 'Rapid 24/7 SLA Response' : 'Respons Tanggap Cepat 24/7',
@@ -110,8 +118,10 @@ export default function HeroShowcaseCard({
     }
   ]
 
-  // Sektor Industri yang Dilayani
-  const sectors = [
+  const strengths = (showcaseData?.strengths && showcaseData.strengths.length > 0) ? showcaseData.strengths : defaultStrengths
+
+  // Sektor Industri dari CMS
+  const defaultSectors = [
     { icon: '🏢', name: locale === 'en' ? 'Commercial Offices' : 'Perkantoran Komersial' },
     { icon: '🏭', name: locale === 'en' ? 'Industrial Plants & Factories' : 'Pabrik & Kawasan Industri' },
     { icon: '🏬', name: locale === 'en' ? 'Shopping Malls & Retail' : 'Mall & Pusat Perbelanjaan' },
@@ -119,6 +129,14 @@ export default function HeroShowcaseCard({
     { icon: '🚛', name: locale === 'en' ? 'Logistics & Warehouses' : 'Pergudangan & Logistik' },
     { icon: '🏫', name: locale === 'en' ? 'Educational Institutions' : 'Institusi Pendidikan' }
   ]
+
+  const sectors = (showcaseData?.sectors && showcaseData.sectors.length > 0) ? showcaseData.sectors : defaultSectors
+
+  const liveBadge = showcaseData?.liveBadgeText || (locale === 'en' ? 'Active System' : 'Sistem Aktif')
+  const ctaText = showcaseData?.ctaText || (locale === 'en' ? 'Consult Enterprise Workforce →' : 'Konsultasi Kebutuhan Mitra →')
+  const ctaLink = showcaseData?.ctaLink || '#contact'
+  const profileText = showcaseData?.profileText || (locale === 'en' ? 'Company Profile' : 'Profil Perusahaan')
+  const profileLink = showcaseData?.profileLink || '#about'
 
   return (
     <div className={`relative rounded-3xl overflow-hidden shadow-2xl border transition-all duration-500 flex flex-col justify-between ${
@@ -138,9 +156,9 @@ export default function HeroShowcaseCard({
       />
 
       {/* TOP HEADER: Verified Partner Beacon & Brand Identity */}
-      <div className="relative z-10 flex items-center justify-between border-b pb-4 gap-3 ${
+      <div className={`relative z-10 flex items-center justify-between border-b pb-4 gap-3 ${
         isDarkMode ? 'border-gray-800/80' : 'border-gray-100'
-      }">
+      }`}>
         <div className="flex items-center gap-3">
           {logoUrl ? (
             <div className="w-12 h-12 rounded-2xl bg-white p-1.5 shadow-md border border-gray-200/80 flex items-center justify-center flex-shrink-0">
@@ -169,7 +187,7 @@ export default function HeroShowcaseCard({
         {/* Live System Indicator */}
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase tracking-wider flex-shrink-0">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-          <span>{locale === 'en' ? 'Active System' : 'Sistem Aktif'}</span>
+          <span>{liveBadge}</span>
         </div>
       </div>
 
@@ -281,49 +299,51 @@ export default function HeroShowcaseCard({
       )}
 
       {/* AUTO-CYCLING ROLE TICKER (MINI CAROUSEL) */}
-      <div className="relative z-10 overflow-hidden rounded-2xl p-3 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/25">
-        <div className="flex items-center justify-between text-[10px] font-bold text-amber-700 dark:text-amber-400 mb-1">
-          <span className="uppercase tracking-widest flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-            {locale === 'en' ? 'Active Deployment Roster' : 'Penempatan Personel Unggulan'}
-          </span>
-          <span>{currentRoleIndex + 1} / {roles.length}</span>
-        </div>
+      {roles && roles.length > 0 && (
+        <div className="relative z-10 overflow-hidden rounded-2xl p-3 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/25">
+          <div className="flex items-center justify-between text-[10px] font-bold text-amber-700 dark:text-amber-400 mb-1">
+            <span className="uppercase tracking-widest flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+              {locale === 'en' ? 'Active Deployment Roster' : 'Penempatan Personel Unggulan'}
+            </span>
+            <span>{currentRoleIndex + 1} / {roles.length}</span>
+          </div>
 
-        <div className="flex items-center gap-3 transition-all duration-500">
-          <div className="w-9 h-9 rounded-xl bg-white dark:bg-gray-800 shadow-sm border border-amber-500/30 flex items-center justify-center text-lg flex-shrink-0">
-            {roles[currentRoleIndex].icon}
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <h5 className="text-xs font-black text-gray-900 dark:text-white truncate">
-                {roles[currentRoleIndex].title}
-              </h5>
-              <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-800 dark:text-amber-300 flex-shrink-0">
-                {roles[currentRoleIndex].tag}
-              </span>
+          <div className="flex items-center gap-3 transition-all duration-500">
+            <div className="w-9 h-9 rounded-xl bg-white dark:bg-gray-800 shadow-sm border border-amber-500/30 flex items-center justify-center text-lg flex-shrink-0">
+              {roles[currentRoleIndex]?.icon || '🛡️'}
             </div>
-            <p className="text-[10px] text-gray-600 dark:text-gray-400 truncate font-medium">
-              {roles[currentRoleIndex].desc}
-            </p>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <h5 className="text-xs font-black text-gray-900 dark:text-white truncate">
+                  {roles[currentRoleIndex]?.title}
+                </h5>
+                <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-800 dark:text-amber-300 flex-shrink-0">
+                  {roles[currentRoleIndex]?.tag}
+                </span>
+              </div>
+              <p className="text-[10px] text-gray-600 dark:text-gray-400 truncate font-medium">
+                {roles[currentRoleIndex]?.desc}
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* ACTION FOOTER */}
       <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-gray-200/60 dark:border-gray-800 text-xs">
         <a
-          href="#contact"
+          href={ctaLink}
           className="w-full sm:w-auto flex-1 py-2.5 px-4 rounded-xl text-center font-black text-white shadow-md transition-all duration-300 hover:opacity-95 uppercase tracking-wider text-[11px] active:scale-95"
           style={{ backgroundColor: primaryColor }}
         >
-          {locale === 'en' ? 'Consult Enterprise Workforce &rarr;' : 'Konsultasi Kebutuhan Mitra &rarr;'}
+          {ctaText}
         </a>
         <a
-          href="#about"
+          href={profileLink}
           className="w-full sm:w-auto py-2.5 px-4 rounded-xl text-center font-bold text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-all text-[11px] active:scale-95"
         >
-          {locale === 'en' ? 'Company Profile' : 'Profil Perusahaan'}
+          {profileText}
         </a>
       </div>
 

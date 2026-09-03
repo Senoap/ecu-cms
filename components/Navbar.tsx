@@ -87,6 +87,7 @@ export default function Navbar({
         loadingBgColor={loadingBgColor}
         primaryColor={primaryColor}
         secondaryColor={secondaryColor}
+        logoUrl={logoUrl}
         text={t.nav.loadingContent}
       />
 

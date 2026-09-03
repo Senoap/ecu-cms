@@ -6,6 +6,7 @@ interface SmoothLoaderProps {
   loadingBgColor?: string
   primaryColor?: string
   secondaryColor?: string
+  logoUrl?: string
   text?: string
 }
 
@@ -14,6 +15,7 @@ export default function SmoothLoader({
   loadingBgColor,
   primaryColor = '#7E1D0C',
   secondaryColor = '#D4AF37',
+  logoUrl,
   text = 'MEMUAT KONTEN...'
 }: SmoothLoaderProps) {
   const bg = loadingBgColor || primaryColor || '#7E1D0C'
@@ -58,12 +60,16 @@ export default function SmoothLoader({
               animationDirection: 'reverse'
             }}
           />
-          {/* Center Brand Emblem */}
+          {/* Center Brand Emblem / Logo Sesuai Inputan */}
           <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-white text-xs shadow-lg shadow-black/50 border border-white/20"
-            style={{ backgroundColor: primaryColor }}
+            className="w-11 h-11 rounded-xl flex items-center justify-center font-black text-white text-xs shadow-lg shadow-black/50 border border-white/20 overflow-hidden"
+            style={{ backgroundColor: logoUrl ? '#FFFFFF' : primaryColor }}
           >
-            ESU
+            {logoUrl ? (
+              <img src={logoUrl} alt="Logo" className="w-full h-full object-contain p-1.5" />
+            ) : (
+              'ESU'
+            )}
           </div>
         </div>
 

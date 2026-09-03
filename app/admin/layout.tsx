@@ -48,6 +48,7 @@ export default async function AdminLayout({
       sections={sections} 
       notifications={notifications} 
       hasDraft={hasDraft} 
+      logoUrl={db.setting?.logoUrl}
       deployAction={handleDeployAction}
       clearNotificationsAction={handleClearNotifications}
       markAsViewedAction={handleMarkAsViewed}

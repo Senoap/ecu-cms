@@ -161,6 +161,21 @@ export default function GalleryDetailClient({
         )}
       </main>
 
+      <footer className="max-w-5xl mx-auto py-8 px-4 border-t border-gray-200/60 dark:border-gray-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 font-semibold gap-3">
+        <span>© 2026 {setting.siteName}. All Rights Reserved.</span>
+        <div className="flex items-center gap-2">
+          <span>Website by</span>
+          <a
+            href="https://lembahtech.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-2.5 py-0.5 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 font-black uppercase tracking-wider"
+          >
+            lembahtech
+          </a>
+        </div>
+      </footer>
+
       {/* Full Photo Modal Zoom */}
       {showZoom && item.imageUrl && (
         <div

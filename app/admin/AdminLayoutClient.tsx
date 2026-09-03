@@ -26,6 +26,7 @@ interface AdminLayoutClientProps {
   sections: SectionConfig[]
   notifications: NotificationItem[]
   hasDraft: boolean
+  logoUrl?: string
   deployAction: () => Promise<void>
   clearNotificationsAction?: () => Promise<void>
   markAsViewedAction?: () => Promise<void>
@@ -36,6 +37,7 @@ export default function AdminLayoutClient({
   sections, 
   notifications, 
   hasDraft, 
+  logoUrl,
   deployAction,
   clearNotificationsAction,
   markAsViewedAction
@@ -231,8 +233,12 @@ export default function AdminLayoutClient({
           <div className="space-y-6 overflow-y-auto pr-1">
             <div className="flex items-center justify-between px-2 pt-2">
               <div className="flex items-center gap-3.5">
-                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-white font-black text-base shadow-lg shadow-amber-900/20">
-                  ESU
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-white font-black text-base shadow-lg shadow-amber-900/20 overflow-hidden p-1 flex-shrink-0">
+                  {logoUrl ? (
+                    <img src={logoUrl} alt="CMS Logo" className="w-full h-full object-contain bg-white rounded-lg p-0.5" />
+                  ) : (
+                    'ESU'
+                  )}
                 </div>
                 <div>
                   <h2 className={`text-base font-black tracking-wider uppercase ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>CMS Panel</h2>
@@ -339,8 +345,19 @@ export default function AdminLayoutClient({
                 <span>🚪</span> Keluar (Logout)
               </button>
 
-              <div className="text-center pt-1">
-                <span className="text-xs text-gray-400 font-bold uppercase tracking-widest">ESU Engine v2.6</span>
+              <div className="text-center pt-2 space-y-1">
+                <div className="text-xs text-gray-400 font-bold uppercase tracking-widest">ESU Engine v2.6</div>
+                <div className="text-[11px] font-bold text-gray-400">
+                  Developed by{' '}
+                  <a 
+                    href="https://lembahtech.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-amber-400 hover:text-amber-300 font-black tracking-wider uppercase transition-colors"
+                  >
+                    lembahtech
+                  </a>
+                </div>
               </div>
             </div>
 

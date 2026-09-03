@@ -27,6 +27,7 @@ export interface SectionConfig {
   phone?: string
   whatsapp?: string
   email?: string
+  showcaseCard?: HeroShowcaseConfig
   items?: { id: string; title?: string; name?: string; desc?: string; imageUrl?: string; icon?: string }[]
 }
 
@@ -79,11 +80,128 @@ export interface AuditLogItem {
   type: 'CREATE' | 'UPDATE' | 'DELETE' | 'DEPLOY'
 }
 
+export interface HeroShowcaseConfig {
+  enabled: boolean
+  liveBadgeText: string
+  strengths: Array<{
+    icon: string
+    title: string
+    desc: string
+  }>
+  metrics: Array<{
+    num: string
+    label: string
+    sub: string
+  }>
+  sectors: Array<{
+    icon: string
+    name: string
+  }>
+  roles: Array<{
+    icon: string
+    title: string
+    tag: string
+    desc: string
+  }>
+  ctaText?: string
+  ctaLink?: string
+  profileText?: string
+  profileLink?: string
+}
+
+export const defaultHeroShowcase: HeroShowcaseConfig = {
+  enabled: true,
+  liveBadgeText: 'SISTEM AKTIF',
+  strengths: [
+    {
+      icon: '⚡',
+      title: 'Respons Tanggap Cepat 24/7',
+      desc: 'Penanganan insiden & pergantian personel darurat < 2 jam.'
+    },
+    {
+      icon: '🎖️',
+      title: 'Personel Tersertifikasi Legal',
+      desc: 'Tersertifikasi resmi BNSP dan dibekali pelatihan berkala.'
+    },
+    {
+      icon: '🤝',
+      title: 'Bebas Sengketa & Akuntabel',
+      desc: 'Jaminan kepatuhan UU Ketenagakerjaan, BPJS, & payroll transparan.'
+    },
+    {
+      icon: '🛡️',
+      title: 'Budaya K3 & Zero-Accident',
+      desc: 'Disiplin keselamatan kerja tinggi untuk perlindungan aset optimal.'
+    }
+  ],
+  metrics: [
+    {
+      num: '15+',
+      label: 'Tahun Pengalaman',
+      sub: 'Pimpinan Teruji'
+    },
+    {
+      num: '500+',
+      label: 'Tenaga Siap Kerja',
+      sub: 'Penempatan Cepat'
+    },
+    {
+      num: '99.8%',
+      label: 'Kepuasan Klien',
+      sub: 'Pemenuhan SLA'
+    },
+    {
+      num: '100%',
+      label: 'Kepatuhan Legalitas',
+      sub: 'Izin Kemenaker Resmi'
+    }
+  ],
+  sectors: [
+    { icon: '🏢', name: 'Perkantoran Komersial' },
+    { icon: '🏭', name: 'Pabrik & Kawasan Industri' },
+    { icon: '🏬', name: 'Mall & Pusat Perbelanjaan' },
+    { icon: '🏥', name: 'Rumah Sakit & Fasilitas Medis' },
+    { icon: '🚛', name: 'Pergudangan & Logistik' },
+    { icon: '🏫', name: 'Institusi Pendidikan' }
+  ],
+  roles: [
+    {
+      icon: '🛡️',
+      title: 'Satuan Pengamanan (Gada Pratama / Madya)',
+      tag: 'Personel Tersertifikasi',
+      desc: 'Perlindungan aset fisik & korporat berstandar regulasi'
+    },
+    {
+      icon: '🧹',
+      title: 'Jasa Kebersihan & Manajemen Fasilitas',
+      tag: 'Standar Higienis',
+      desc: 'Perawatan gedung, kantor, dan fasilitas komersial prima'
+    },
+    {
+      icon: '🚗',
+      title: 'Pengemudi Profesional & Eksekutif',
+      tag: 'Safety Driving',
+      desc: 'Disiplin waktu, berlisensi, dan penguasaan rute handal'
+    },
+    {
+      icon: '⚙️',
+      title: 'Operator Pabrik & Teknisi Pemeliharaan',
+      tag: 'Siap Kerja',
+      desc: 'Tenaga terampil siap dukung target operasional industri'
+    }
+  ],
+  ctaText: 'Konsultasi Kebutuhan Mitra →',
+  ctaLink: '#contact',
+  profileText: 'Profil Perusahaan',
+  profileLink: '#about'
+}
+
 export interface HeroContent {
   badge: string
   titleLine1: string
   titleHighlight: string
   description: string
+  showcaseCard?: HeroShowcaseConfig
 }
 
 export interface AboutContent {
@@ -188,6 +306,7 @@ const defaultDataContent: DatabaseContent = {
       titleLine1: 'WE ARE YOUR',
       titleHighlight: 'SOLUTION',
       content: 'Penyedia Solusi Terintegrasi Kebutuhan Operasional Bisnis, Manajemen Fasilitas Gedung, dan Pemenuhan Ketenagakerjaan Ahli.',
+      showcaseCard: defaultHeroShowcase,
     },
     {
       id: 'about',
@@ -328,6 +447,7 @@ function enrichContent(content: DatabaseContent): DatabaseContent {
       titleLine1: heroSec.titleLine1 || '',
       titleHighlight: heroSec.titleHighlight || '',
       description: heroSec.content || '',
+      showcaseCard: heroSec.showcaseCard || (content as any).hero?.showcaseCard || defaultHeroShowcase,
     },
     about: {
       tag: aboutSec.subtitle || '',

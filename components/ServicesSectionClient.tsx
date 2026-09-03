@@ -17,6 +17,7 @@ interface ServicesProps {
   secondaryColor?: string
   accentColor?: string
   loadingBgColor?: string
+  logoUrl?: string
 }
 
 export default function ServicesSectionClient({
@@ -28,7 +29,8 @@ export default function ServicesSectionClient({
   primaryColor,
   secondaryColor = '#D4AF37',
   accentColor = '#1E293B',
-  loadingBgColor
+  loadingBgColor,
+  logoUrl
 }: ServicesProps) {
   const [selectedService, setSelectedService] = useState<ServiceItem | null>(null)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
@@ -93,6 +95,7 @@ export default function ServicesSectionClient({
         loadingBgColor={loadingBgColor}
         primaryColor={primaryColor}
         secondaryColor={secondaryColor}
+        logoUrl={logoUrl}
         text={t.nav.loadingContent}
       />
 

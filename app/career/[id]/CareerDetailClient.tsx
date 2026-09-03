@@ -126,22 +126,23 @@ export default function CareerDetailClient({
               {locale === 'en' ? 'Quick Application' : 'Pusat Lamaran Cepat'}
             </h3>
 
-            <div className="space-y-3 text-xs sm:text-sm">
-              <div className="flex justify-between border-b border-gray-100 dark:border-gray-800 pb-2.5">
-                <span className="text-gray-500 dark:text-gray-400 font-semibold">{locale === 'en' ? 'Employment' : 'Tipe'}</span>
-                <span className="font-bold text-gray-900 dark:text-white">{job.type}</span>
+            <div className="space-y-3.5 text-xs sm:text-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 border-b border-gray-100 dark:border-gray-800 pb-3">
+                <span className="text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider text-[11px] shrink-0">{locale === 'en' ? 'Employment' : 'Tipe'}</span>
+                <span className="font-extrabold text-gray-900 dark:text-white sm:text-right">{job.type}</span>
               </div>
-              <div className="flex justify-between border-b border-gray-100 dark:border-gray-800 pb-2.5">
-                <span className="text-gray-500 dark:text-gray-400 font-semibold">{locale === 'en' ? 'Location' : 'Lokasi'}</span>
-                <span className="font-bold text-gray-900 dark:text-white">{jobLoc}</span>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 border-b border-gray-100 dark:border-gray-800 pb-3">
+                <span className="text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider text-[11px] shrink-0">{locale === 'en' ? 'Location' : 'Lokasi'}</span>
+                <span className="font-extrabold text-gray-900 dark:text-white sm:text-right">{jobLoc}</span>
               </div>
-              <div className="flex justify-between border-b border-gray-100 dark:border-gray-800 pb-2.5">
-                <span className="text-gray-500 dark:text-gray-400 font-semibold">{locale === 'en' ? 'Company' : 'Perusahaan'}</span>
-                <span className="font-bold text-gray-900 dark:text-white">{setting.siteName}</span>
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1.5 border-b border-gray-100 dark:border-gray-800 pb-3">
+                <span className="text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider text-[11px] shrink-0">{locale === 'en' ? 'Company' : 'Perusahaan'}</span>
+                <span className="font-extrabold text-gray-900 dark:text-white sm:text-right break-words">{setting.siteName}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500 dark:text-gray-400 font-semibold">{locale === 'en' ? 'Recruitment' : 'Penerimaan'}</span>
-                <span className="font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 pt-1">
+                <span className="text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider text-[11px] shrink-0">{locale === 'en' ? 'Recruitment' : 'Penerimaan'}</span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-black text-xs uppercase tracking-wider border border-emerald-500/20 w-fit self-start sm:self-auto">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                   {locale === 'en' ? 'Open' : 'Terbuka'}
                 </span>
               </div>
@@ -207,6 +208,21 @@ export default function CareerDetailClient({
           </div>
         )}
       </main>
+
+      <footer className="max-w-5xl mx-auto py-8 px-4 border-t border-gray-200/60 dark:border-gray-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 font-semibold gap-3">
+        <span>© 2026 {setting.siteName}. All Rights Reserved.</span>
+        <div className="flex items-center gap-2">
+          <span>Website by</span>
+          <a
+            href="https://lembahtech.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-2.5 py-0.5 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 font-black uppercase tracking-wider"
+          >
+            lembahtech
+          </a>
+        </div>
+      </footer>
     </div>
   )
 }

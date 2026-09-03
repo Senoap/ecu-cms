@@ -45,7 +45,7 @@ export default function PortfolioDetailClient({
         logoUrl={setting.logoUrl}
       />
 
-      <main className="max-w-5xl mx-auto py-16 sm:py-24 px-4 sm:px-6 md:px-8 space-y-12">
+      <main className="max-w-6xl mx-auto py-16 sm:py-24 px-4 sm:px-6 md:px-8 space-y-12">
         {/* Navigation Breadcrumb */}
         <div>
           <Link
@@ -87,48 +87,75 @@ export default function PortfolioDetailClient({
           </div>
         )}
 
-        {/* Deskripsi Lengkap Proyek */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 bg-white dark:bg-gray-900 p-6 sm:p-10 rounded-3xl border border-gray-200 dark:border-gray-800 shadow-xl space-y-6">
-            <h2 className="text-lg sm:text-xl font-black uppercase tracking-wider text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-800 pb-3">
-              {locale === 'en' ? 'Project Overview & Scope' : 'Ringkasan & Ruang Lingkup Proyek'}
-            </h2>
-            <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-sm sm:text-base md:text-lg whitespace-pre-line text-justify font-medium">
+        {/* Deskripsi Lengkap Proyek & Spesifikasi (Layout Rapi & Responsif) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Ringkasan & Ruang Lingkup Proyek */}
+          <div className="lg:col-span-7 xl:col-span-8 bg-white dark:bg-gray-900 p-6 sm:p-10 rounded-3xl border border-gray-200 dark:border-gray-800 shadow-xl space-y-6">
+            <div className="flex items-center gap-3 border-b border-gray-100 dark:border-gray-800 pb-4">
+              <span className="w-2.5 h-6 rounded-full bg-amber-500"></span>
+              <h2 className="text-base sm:text-xl font-black uppercase tracking-wider text-gray-900 dark:text-white">
+                {locale === 'en' ? 'Project Overview & Scope' : 'Ringkasan & Ruang Lingkup Proyek'}
+              </h2>
+            </div>
+            <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-sm sm:text-base md:text-lg whitespace-pre-line text-left font-normal sm:font-medium">
               {itemDesc}
             </p>
           </div>
 
-          {/* Quick Info Card */}
-          <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-3xl border border-gray-200 dark:border-gray-800 shadow-xl space-y-6 h-fit">
-            <h3 className="text-sm font-black uppercase tracking-widest text-amber-700 dark:text-amber-400">
-              {locale === 'en' ? 'Project Details' : 'Spesifikasi Proyek'}
-            </h3>
+          {/* Spesifikasi Proyek Card */}
+          <div className="lg:col-span-5 xl:col-span-4 bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-3xl border border-gray-200 dark:border-gray-800 shadow-xl space-y-6">
+            <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-4">
+              <h3 className="text-xs sm:text-sm font-black uppercase tracking-widest text-amber-700 dark:text-amber-400 flex items-center gap-2">
+                <span>📋</span>
+                <span>{locale === 'en' ? 'Project Details' : 'Spesifikasi Proyek'}</span>
+              </h3>
+            </div>
+
             <div className="space-y-4 text-xs sm:text-sm">
-              <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-3">
-                <span className="text-gray-500 dark:text-gray-400 font-semibold">{locale === 'en' ? 'Status' : 'Status'}</span>
-                <span className="font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+              {/* Row Status */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-gray-100 dark:border-gray-800 pb-3.5">
+                <span className="text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider text-[11px] shrink-0">
+                  {locale === 'en' ? 'Status' : 'Status'}
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-black text-xs uppercase tracking-wider border border-emerald-500/20 w-fit self-start sm:self-auto">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                   {locale === 'en' ? 'Completed & Verified' : 'Selesai & Terverifikasi'}
                 </span>
               </div>
-              <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-3">
-                <span className="text-gray-500 dark:text-gray-400 font-semibold">{locale === 'en' ? 'Category' : 'Kategori'}</span>
-                <span className="font-bold text-gray-800 dark:text-gray-200">Manpower Services</span>
+
+              {/* Row Kategori */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-4 border-b border-gray-100 dark:border-gray-800 pb-3.5">
+                <span className="text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider text-[11px] shrink-0">
+                  {locale === 'en' ? 'Category' : 'Kategori'}
+                </span>
+                <span className="font-extrabold text-gray-900 dark:text-white text-xs sm:text-sm sm:text-right">
+                  Manpower Services
+                </span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-500 dark:text-gray-400 font-semibold">{locale === 'en' ? 'Provider' : 'Penyedia'}</span>
-                <span className="font-bold text-gray-800 dark:text-gray-200">{setting.siteName}</span>
+
+              {/* Row Penyedia */}
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1.5 sm:gap-4 border-b border-gray-100 dark:border-gray-800 pb-3.5">
+                <span className="text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider text-[11px] shrink-0">
+                  {locale === 'en' ? 'Provider' : 'Penyedia'}
+                </span>
+                <span className="font-extrabold text-gray-900 dark:text-white text-xs sm:text-sm sm:text-right break-words">
+                  {setting.siteName}
+                </span>
               </div>
             </div>
 
             {waNumber && (
-              <a
-                href={`https://wa.me/${waNumber}?text=${waMessage}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block w-full py-3.5 px-4 rounded-xl text-xs font-black text-white text-center bg-emerald-600 hover:bg-emerald-500 shadow-md transition-all uppercase tracking-wider"
-              >
-                💬 {locale === 'en' ? 'Inquire Similar Project' : 'Konsultasi Proyek Serupa'}
-              </a>
+              <div className="pt-2">
+                <a
+                  href={`https://wa.me/${waNumber}?text=${waMessage}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full py-4 px-4 rounded-xl text-xs sm:text-sm font-black text-white text-center bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-900/20 transition-all duration-300 uppercase tracking-wider active:scale-95 cursor-pointer"
+                >
+                  <span>💬</span>
+                  <span>{locale === 'en' ? 'Inquire Similar Project' : 'Konsultasi Proyek Serupa'}</span>
+                </a>
+              </div>
             )}
           </div>
         </div>
@@ -173,6 +200,21 @@ export default function PortfolioDetailClient({
           </div>
         )}
       </main>
+
+      <footer className="max-w-5xl mx-auto py-8 px-4 border-t border-gray-200/60 dark:border-gray-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 font-semibold gap-3">
+        <span>© 2026 {setting.siteName}. All Rights Reserved.</span>
+        <div className="flex items-center gap-2">
+          <span>Website by</span>
+          <a
+            href="https://lembahtech.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-2.5 py-0.5 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 font-black uppercase tracking-wider"
+          >
+            lembahtech
+          </a>
+        </div>
+      </footer>
 
       {/* Modal Zoom Gambar */}
       {showImageModal && item.imageUrl && (

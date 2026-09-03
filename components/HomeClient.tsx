@@ -118,13 +118,18 @@ export default function HomeClient({ db }: { db: any }) {
         {/* RENDER SECTIONS BERDASARKAN URUTAN DI CMS SECARA FULL SCREEN */}
         {activeSections.map((sec: any) => {
           switch (sec.id) {
-            case 'hero':
+            case 'hero': {
+              const showcaseConfig = db.hero?.showcaseCard || sec.showcaseCard
+              const isShowcaseActive = showcaseConfig?.enabled !== false
+
               return (
                 <section key={sec.id} id="home" className="min-h-screen w-full relative py-24 md:py-28 px-4 sm:px-8 md:px-20 bg-transparent border-b border-gray-200/10 overflow-hidden flex flex-col justify-center">
                   <div className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-5 pointer-events-none blur-3xl" style={{ backgroundColor: setting.primaryColor }}></div>
 
-                  <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12 items-center relative z-10 w-full">
-                    <div className="space-y-6">
+                  <div className={`max-w-7xl mx-auto items-center relative z-10 w-full gap-10 md:gap-12 ${
+                    isShowcaseActive ? 'grid grid-cols-1 md:grid-cols-2' : 'flex flex-col max-w-4xl text-center mx-auto'
+                  }`}>
+                    <div className={`space-y-6 ${!isShowcaseActive ? 'flex flex-col items-center' : ''}`}>
                       <div className={`inline-flex items-center gap-2.5 px-3.5 sm:px-4 py-2 backdrop-blur-sm border rounded-full text-xs md:text-sm font-extrabold tracking-wider shadow-sm ${
                         isDarkMode ? 'bg-gray-900/80 border-amber-500/30 text-amber-400' : 'bg-amber-50/90 border-amber-200/80 text-amber-800'
                       }`}>
@@ -149,7 +154,7 @@ export default function HomeClient({ db }: { db: any }) {
                         {heroDesc}
                       </p>
 
-                      <div className="flex flex-wrap gap-3 sm:gap-4 pt-2">
+                      <div className={`flex flex-wrap gap-3 sm:gap-4 pt-2 ${!isShowcaseActive ? 'justify-center' : ''}`}>
                         <a
                           href="#services"
                           className="px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl text-xs sm:text-sm md:text-base font-black text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 tracking-wide text-center active:scale-95"
@@ -170,19 +175,23 @@ export default function HomeClient({ db }: { db: any }) {
                       </div>
                     </div>
 
-                    {/* HERO SHOWCASE CARD KORPORAT INTERAKTIF (PENGGANTI KOTAK HITAM POLOS) */}
-                    <HeroShowcaseCard
-                      siteName={setting.siteName}
-                      tagline={setting.tagline}
-                      primaryColor={setting.primaryColor}
-                      secondaryColor={setting.secondaryColor}
-                      accentColor={setting.accentColor}
-                      logoUrl={setting.logoUrl}
-                      isDarkMode={isDarkMode}
-                    />
+                    {/* HERO SHOWCASE CARD KORPORAT INTERAKTIF (BISA DIATUR & DIAKTIFKAN / DINONAKTIFKAN DI CMS) */}
+                    {isShowcaseActive && (
+                      <HeroShowcaseCard
+                        siteName={setting.siteName}
+                        tagline={setting.tagline}
+                        primaryColor={setting.primaryColor}
+                        secondaryColor={setting.secondaryColor}
+                        accentColor={setting.accentColor}
+                        logoUrl={setting.logoUrl}
+                        isDarkMode={isDarkMode}
+                        showcaseData={showcaseConfig}
+                      />
+                    )}
                   </div>
                 </section>
               )
+            }
 
             case 'about':
               return (
@@ -206,6 +215,7 @@ export default function HomeClient({ db }: { db: any }) {
                   secondaryColor={setting.secondaryColor}
                   accentColor={setting.accentColor}
                   loadingBgColor={setting.loadingBgColor}
+                  logoUrl={setting.logoUrl}
                 />
               )
 
@@ -495,8 +505,22 @@ export default function HomeClient({ db }: { db: any }) {
 
                     </div>
 
-                    <div className="flex flex-col sm:flex-row items-center justify-between text-xs sm:text-sm md:text-base text-gray-200 gap-4 font-black tracking-wider uppercase w-full">
+                    <div className="flex flex-col md:flex-row items-center justify-between text-xs sm:text-sm text-gray-200 gap-4 font-black tracking-wider uppercase w-full pt-4 border-t border-white/10">
                       <p>© 2026 {setting.siteName}. {t.footer.rightsReserved}</p>
+
+                      {/* LEMBAHTECH CREATOR WATERMARK (HARDCODED IN CODE - DASHBOARD ADMIN TIDAK BISA UBAH) */}
+                      <div className="flex items-center gap-2 text-xs font-bold lowercase tracking-normal">
+                        <span className="text-gray-300">crafted by</span>
+                        <a 
+                          href="https://lembahtech.com" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="px-3 py-1 rounded-xl bg-white/15 hover:bg-white/25 text-amber-300 font-extrabold uppercase tracking-widest border border-white/25 transition-all duration-300 shadow-sm hover:scale-105 active:scale-95 cursor-pointer"
+                        >
+                          lembahtech
+                        </a>
+                      </div>
+
                       <div className="flex items-center gap-6 sm:gap-8">
                         <a href="/#home" className="hover:text-amber-300 transition-colors">{t.footer.privacyPolicy}</a>
                         <a href="/#home" className="hover:text-amber-300 transition-colors">{t.footer.termsOfService}</a>
