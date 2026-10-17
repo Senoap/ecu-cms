@@ -114,10 +114,18 @@ export default function UsersClient({ users, masterAdminUsername }: UsersClientP
     startTransition(async () => {
       try {
         if (editingUser) {
-          await updateUserAction(formData)
+          const res = await updateUserAction(formData)
+          if (!res.success) {
+            setErrorMsg(res.message || 'Gagal memperbarui data pengguna.')
+            return
+          }
           setSuccessMsg(`Data pengguna "${formName}" berhasil diperbarui.`)
         } else {
-          await createUserAction(formData)
+          const res = await createUserAction(formData)
+          if (!res.success) {
+            setErrorMsg(res.message || 'Gagal menambahkan pengguna baru.')
+            return
+          }
           setSuccessMsg(`Pengguna baru "${formName}" berhasil dibuat.`)
         }
         setIsModalOpen(false)
@@ -134,7 +142,11 @@ export default function UsersClient({ users, masterAdminUsername }: UsersClientP
     formData.set('id', id)
     startTransition(async () => {
       try {
-        await deleteUserAction(formData)
+        const res = await deleteUserAction(formData)
+        if (!res.success) {
+          setErrorMsg(res.message || 'Gagal menghapus pengguna.')
+          return
+        }
         setSuccessMsg(`Pengguna "${name}" berhasil dihapus.`)
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : 'Gagal menghapus pengguna.'
@@ -148,7 +160,11 @@ export default function UsersClient({ users, masterAdminUsername }: UsersClientP
     formData.set('id', id)
     startTransition(async () => {
       try {
-        await toggleUserStatusAction(formData)
+        const res = await toggleUserStatusAction(formData)
+        if (!res.success) {
+          setErrorMsg(res.message || 'Gagal mengubah status.')
+          return
+        }
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : 'Gagal mengubah status.'
         setErrorMsg(msg)

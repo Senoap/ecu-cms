@@ -345,17 +345,169 @@
     "lastUpdated": "17 Oktober 2026"
   },
   "published": {
+    "hero": {
+      "badge": "PT. EMPAT SINERGI UTAMA",
+      "titleLine1": "WE ARE YOUR",
+      "titleHighlight": "SOLUTION",
+      "description": "Penyedia Solusi Terintegrasi Kebutuhan Operasional Bisnis, Manajemen Fasilitas Gedung, dan Pemenuhan Ketenagakerjaan Ahli.",
+      "showcaseCard": {
+        "roles": [
+          {
+            "tag": "Personel Tersertifikasi",
+            "desc": "Perlindungan aset fisik & korporat berstandar regulasi",
+            "icon": "ShieldCheck",
+            "title": "Satuan Pengamanan (Gada Pratama / Madya)"
+          },
+          {
+            "tag": "Standar Higienis",
+            "desc": "Perawatan gedung, kantor, dan fasilitas komersial prima",
+            "icon": "Sparkles",
+            "title": "Jasa Kebersihan & Manajemen Fasilitas"
+          },
+          {
+            "tag": "Safety Driving",
+            "desc": "Disiplin waktu, berlisensi, dan penguasaan rute handal",
+            "icon": "Car",
+            "title": "Pengemudi Profesional & Eksekutif"
+          },
+          {
+            "tag": "Siap Kerja",
+            "desc": "Tenaga terampil siap dukung target operasional industri",
+            "icon": "Wrench",
+            "title": "Operator Pabrik & Teknisi Pemeliharaan"
+          }
+        ],
+        "ctaLink": "#contact",
+        "ctaText": "Konsultasi Kebutuhan Mitra →",
+        "enabled": true,
+        "metrics": [
+          {
+            "num": "15+",
+            "sub": "Pimpinan Teruji",
+            "label": "Tahun Pengalaman"
+          },
+          {
+            "num": "500+",
+            "sub": "Penempatan Cepat",
+            "label": "Tenaga Siap Kerja"
+          },
+          {
+            "num": "99.8%",
+            "sub": "Pemenuhan SLA",
+            "label": "Kepuasan Klien"
+          },
+          {
+            "num": "100%",
+            "sub": "Izin Kemenaker Resmi",
+            "label": "Kepatuhan Legalitas"
+          }
+        ],
+        "sectors": [
+          {
+            "icon": "Building2",
+            "name": "Perkantoran Komersial"
+          },
+          {
+            "icon": "Factory",
+            "name": "Pabrik & Kawasan Industri"
+          },
+          {
+            "icon": "Store",
+            "name": "Mall & Pusat Perbelanjaan"
+          },
+          {
+            "icon": "Activity",
+            "name": "Rumah Sakit & Fasilitas Medis"
+          },
+          {
+            "icon": "Truck",
+            "name": "Pergudangan & Logistik"
+          },
+          {
+            "icon": "GraduationCap",
+            "name": "Institusi Pendidikan"
+          }
+        ],
+        "strengths": [
+          {
+            "desc": "Penanganan insiden & pergantian personel darurat < 2 jam.",
+            "icon": "Zap",
+            "title": "Respons Tanggap Cepat 24/7"
+          },
+          {
+            "desc": "Tersertifikasi resmi BNSP dan dibekali pelatihan berkala.",
+            "icon": "Award",
+            "title": "Personel Tersertifikasi Legal"
+          },
+          {
+            "desc": "Jaminan kepatuhan UU Ketenagakerjaan, BPJS, & payroll transparan.",
+            "icon": "Users",
+            "title": "Bebas Sengketa & Akuntabel"
+          },
+          {
+            "desc": "Disiplin keselamatan kerja tinggi untuk perlindungan aset optimal.",
+            "icon": "ShieldCheck",
+            "title": "Budaya K3 & Zero-Accident"
+          }
+        ],
+        "profileLink": "#about",
+        "profileText": "Profil Perusahaan",
+        "liveBadgeText": "SISTEM AKTIF"
+      }
+    },
+    "about": {
+      "tag": "ABOUT US",
+      "heading": "Mitra Strategis Ketenagakerjaan Anda",
+      "subtitle": "ABOUT US",
+      "title": "Mitra Strategis Ketenagakerjaan Anda",
+      "p1": "PT. Empat Sinergi Utama adalah perusahaan penyedia tenaga kerja alih daya yang berkomitmen memberikan solusi terbaik untuk kebutuhan operasional bisnis Anda.",
+      "p2": "Sumber daya manusia yang kami miliki adalah tenaga kerja yang sudah dieksekusi pelatihan di bidangnya masing-masing, siap bekerja.",
+      "leadershipTitle": "Rekam Jejak Teruji",
+      "leadershipDesc": "Dengan pengalaman CEO selama lebih dari 15 tahun bekerja di industri Penyedia Jasa Tenaga Kerja Non Grade.",
+      "quote": "Integritas, Profesionalisme, Kualitas"
+    },
+    "career": [
+      {
+        "id": "1",
+        "desc": "Melakukan pengamanan area gedung korporat.",
+        "type": "Full-time",
+        "title": "Security Officer (Satpam)",
+        "isActive": true,
+        "location": "Jakarta Selatan",
+        "requirements": "Memiliki KTA resmi, berpengalaman min. 1 tahun."
+      }
+    ],
+    "footer": {
+      "description": "Penyedia Layanan Jasa Tenaga Kerja Alih Daya terpercaya, unggul, dan akuntabel di Indonesia.",
+      "address": "Casa De Bosco No.3, Tangerang Selatan 1",
+      "phone": "+6281584805000",
+      "whatsapp": "+6281584805000",
+      "email": "manpower.services@empatsinergiumata.com",
+      "socialMedia": {
+        "tiktok": "",
+        "enabled": true,
+        "youtube": "",
+        "facebook": "https://facebook.com/empatsinergiutama",
+        "linkedin": "https://linkedin.com/company/empat-sinergi-utama",
+        "instagram": "https://instagram.com/empatsinergiutama"
+      },
+      "inquiryTemplates": {
+        "emailBody": "Halo Tim PT. Empat Sinergi Utama,\n\nSaya ingin mendapatkan informasi dan penawaran terkait kebutuhan operasional perusahaan kami:\n\nNama: \nPerusahaan / Instansi: \nKebutuhan Layanan (Keamanan / Kebersihan / Tenaga Pendukung / Taman): \nKontak / No. Telepon: \n\nMohon informasi lebih lanjut. Terima kasih.",
+        "waMessage": "Halo PT. Empat Sinergi Utama, saya ingin berkonsultasi mengenai kebutuhan layanan alih daya / ketenagakerjaan untuk perusahaan kami.",
+        "emailSubject": "Konsultasi Layanan Alih Daya & Ketenagakerjaan - PT. Empat Sinergi Utama"
+      }
+    },
     "setting": {
-      "siteName": "PT. EMPAT SINERGI UTAMA",
-      "tagline": "MANPOWER SERVICES",
-      "primaryColor": "#6B0808",
-      "secondaryColor": "#AF6E00",
-      "accentColor": "#BF8009",
-      "loadingBgColor": "#6B0808",
-      "fontFamily": "Inter",
       "logoUrl": "/uploads/logo-1788085817981.png",
+      "tagline": "MANPOWER SERVICES",
+      "siteName": "PT. EMPAT SINERGI UTAMA",
       "bgImageUrl": "/uploads/bg-1788085817983.jpg",
-      "slideDuration": 3
+      "fontFamily": "Inter",
+      "accentColor": "#BF8009",
+      "primaryColor": "#6B0808",
+      "slideDuration": 3,
+      "loadingBgColor": "#6B0808",
+      "secondaryColor": "#AF6E00"
     },
     "sections": [
       {
@@ -478,31 +630,6 @@
         "content": "..."
       }
     ],
-    "portfolios": [
-      {
-        "id": "1",
-        "desc": "Penyediaan tenaga pengamanan dan pendukung operasional gedung instansi.",
-        "name": "KEMENPORA RI",
-        "imageUrl": "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=800&q=80"
-      },
-      {
-        "id": "2",
-        "desc": "Dukungan fasilitas pelayanan publik dan pemeliharaan kawasan.",
-        "name": "KOTA TANGERANG SELATAN",
-        "imageUrl": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80"
-      }
-    ],
-    "career": [
-      {
-        "id": "1",
-        "desc": "Melakukan pengamanan area gedung korporat.",
-        "type": "Full-time",
-        "title": "Security Officer (Satpam)",
-        "isActive": true,
-        "location": "Jakarta Selatan",
-        "requirements": "Memiliki KTA resmi, berpengalaman min. 1 tahun."
-      }
-    ],
     "galleries": [
       {
         "id": "1",
@@ -519,137 +646,20 @@
         "imageUrl": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80"
       }
     ],
-    "hero": {
-      "badge": "PT. EMPAT SINERGI UTAMA",
-      "titleLine1": "WE ARE YOUR",
-      "titleHighlight": "SOLUTION",
-      "description": "Penyedia Solusi Terintegrasi Kebutuhan Operasional Bisnis, Manajemen Fasilitas Gedung, dan Pemenuhan Ketenagakerjaan Ahli.",
-      "showcaseCard": {
-        "roles": [
-          {
-            "tag": "Personel Tersertifikasi",
-            "desc": "Perlindungan aset fisik & korporat berstandar regulasi",
-            "icon": "ShieldCheck",
-            "title": "Satuan Pengamanan (Gada Pratama / Madya)"
-          },
-          {
-            "tag": "Standar Higienis",
-            "desc": "Perawatan gedung, kantor, dan fasilitas komersial prima",
-            "icon": "Sparkles",
-            "title": "Jasa Kebersihan & Manajemen Fasilitas"
-          },
-          {
-            "tag": "Safety Driving",
-            "desc": "Disiplin waktu, berlisensi, dan penguasaan rute handal",
-            "icon": "Car",
-            "title": "Pengemudi Profesional & Eksekutif"
-          },
-          {
-            "tag": "Siap Kerja",
-            "desc": "Tenaga terampil siap dukung target operasional industri",
-            "icon": "Wrench",
-            "title": "Operator Pabrik & Teknisi Pemeliharaan"
-          }
-        ],
-        "ctaLink": "#contact",
-        "ctaText": "Konsultasi Kebutuhan Mitra →",
-        "enabled": true,
-        "metrics": [
-          {
-            "num": "15+",
-            "sub": "Pimpinan Teruji",
-            "label": "Tahun Pengalaman"
-          },
-          {
-            "num": "500+",
-            "sub": "Penempatan Cepat",
-            "label": "Tenaga Siap Kerja"
-          },
-          {
-            "num": "99.8%",
-            "sub": "Pemenuhan SLA",
-            "label": "Kepuasan Klien"
-          },
-          {
-            "num": "100%",
-            "sub": "Izin Kemenaker Resmi",
-            "label": "Kepatuhan Legalitas"
-          }
-        ],
-        "sectors": [
-          {
-            "icon": "Building2",
-            "name": "Perkantoran Komersial"
-          },
-          {
-            "icon": "Factory",
-            "name": "Pabrik & Kawasan Industri"
-          },
-          {
-            "icon": "Store",
-            "name": "Mall & Pusat Perbelanjaan"
-          },
-          {
-            "icon": "Activity",
-            "name": "Rumah Sakit & Fasilitas Medis"
-          },
-          {
-            "icon": "Truck",
-            "name": "Pergudangan & Logistik"
-          },
-          {
-            "icon": "GraduationCap",
-            "name": "Institusi Pendidikan"
-          }
-        ],
-        "strengths": [
-          {
-            "desc": "Penanganan insiden & pergantian personel darurat < 2 jam.",
-            "icon": "Zap",
-            "title": "Respons Tanggap Cepat 24/7"
-          },
-          {
-            "desc": "Tersertifikasi resmi BNSP dan dibekali pelatihan berkala.",
-            "icon": "Award",
-            "title": "Personel Tersertifikasi Legal"
-          },
-          {
-            "desc": "Jaminan kepatuhan UU Ketenagakerjaan, BPJS, & payroll transparan.",
-            "icon": "Users",
-            "title": "Bebas Sengketa & Akuntabel"
-          },
-          {
-            "desc": "Disiplin keselamatan kerja tinggi untuk perlindungan aset optimal.",
-            "icon": "ShieldCheck",
-            "title": "Budaya K3 & Zero-Accident"
-          }
-        ],
-        "profileLink": "#about",
-        "profileText": "Profil Perusahaan",
-        "liveBadgeText": "SISTEM AKTIF"
+    "portfolios": [
+      {
+        "id": "1",
+        "desc": "Penyediaan tenaga pengamanan dan pendukung operasional gedung instansi.",
+        "name": "KEMENPORA RI",
+        "imageUrl": "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        "id": "2",
+        "desc": "Dukungan fasilitas pelayanan publik dan pemeliharaan kawasan.",
+        "name": "KOTA TANGERANG SELATAN",
+        "imageUrl": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80"
       }
-    },
-    "about": {
-      "tag": "ABOUT US",
-      "heading": "Mitra Strategis Ketenagakerjaan Anda",
-      "subtitle": "ABOUT US",
-      "title": "Mitra Strategis Ketenagakerjaan Anda",
-      "p1": "PT. Empat Sinergi Utama adalah perusahaan penyedia tenaga kerja alih daya yang berkomitmen memberikan solusi terbaik untuk kebutuhan operasional bisnis Anda.",
-      "p2": "Sumber daya manusia yang kami miliki adalah tenaga kerja yang sudah dieksekusi pelatihan di bidangnya masing-masing, siap bekerja.",
-      "leadershipTitle": "Rekam Jejak Teruji",
-      "leadershipDesc": "Dengan pengalaman CEO selama lebih dari 15 tahun bekerja di industri Penyedia Jasa Tenaga Kerja Non Grade.",
-      "quote": "Integritas, Profesionalisme, Kualitas"
-    },
-    "servicesHeader": {
-      "tag": "OUR CAPABILITIES",
-      "heading": "LAYANAN ALIH DAYA KAMI",
-      "note": "*Seluruh penempatan dikontrol sah melalui Perjanjian Kerja Waktu Tertentu (PKWT)."
-    },
-    "portfolioHeader": {
-      "tag": "PROVEN TRACK RECORD",
-      "heading": "PROJECT PORTFOLIO",
-      "note": "Serta dipercaya mendukung pengerjaan proyek harian entitas swasta nasional."
-    },
+    ],
     "careerHeader": {
       "tag": "JOIN OUR TEAM",
       "heading": "CAREER OPPORTUNITIES",
@@ -660,25 +670,25 @@
       "heading": "GALERI DOKUMENTASI",
       "note": "Dokumentasi kegiatan operasional, fasilitas, dan proyek perusahaan."
     },
-    "footer": {
-      "description": "Penyedia Layanan Jasa Tenaga Kerja Alih Daya terpercaya, unggul, dan akuntabel di Indonesia.",
-      "address": "Casa De Bosco No.3, Tangerang Selatan 1",
-      "phone": "+6281584805000",
-      "whatsapp": "+6281584805000",
-      "email": "manpower.services@empatsinergiumata.com",
-      "socialMedia": {
-        "tiktok": "",
-        "enabled": true,
-        "youtube": "",
-        "facebook": "https://facebook.com/empatsinergiutama",
-        "linkedin": "https://linkedin.com/company/empat-sinergi-utama",
-        "instagram": "https://instagram.com/empatsinergiutama"
-      },
-      "inquiryTemplates": {
-        "emailBody": "Halo Tim PT. Empat Sinergi Utama,\n\nSaya ingin mendapatkan informasi dan penawaran terkait kebutuhan operasional perusahaan kami:\n\nNama: \nPerusahaan / Instansi: \nKebutuhan Layanan (Keamanan / Kebersihan / Tenaga Pendukung / Taman): \nKontak / No. Telepon: \n\nMohon informasi lebih lanjut. Terima kasih.",
-        "waMessage": "Halo PT. Empat Sinergi Utama, saya ingin berkonsultasi mengenai kebutuhan layanan alih daya / ketenagakerjaan untuk perusahaan kami.",
-        "emailSubject": "Konsultasi Layanan Alih Daya & Ketenagakerjaan - PT. Empat Sinergi Utama"
-      }
+    "privacyPolicy": {
+      "title": "Kebijakan Privasi",
+      "content": "PT. Empat Sinergi Utama berkomitmen untuk melindungi dan menghormati privasi Anda. Kebijakan Privasi ini menjelaskan bagaimana kami mengumpulkan, menggunakan, dan melindungi data pribadi yang Anda berikan melalui situs web ini.\n\n1. Pengumpulan Informasi\nKami mengumpulkan informasi pribadi yang Anda berikan secara sukarela saat menghubungi kami atau mengirimkan lamaran pekerjaan melalui situs web kami, termasuk namun tidak terbatas pada nama, alamat email, nomor telepon, riwayat pekerjaan, dan dokumen kurikulum vitae (CV).\n\n2. Penggunaan Informasi\nInformasi yang kami kumpulkan digunakan untuk:\n- Memproses lamaran kerja dan proses seleksi ketenagakerjaan.\n- Merespons pertanyaan, permintaan penawaran, atau konsultasi layanan alih daya.\n- Meningkatkan kualitas layanan dan pengalaman operasional situs web kami.\n\n3. Perlindungan & Keamanan Data\nKami menerapkan langkah-langkah keamanan teknis dan organisasi yang ketat untuk mencegah akses tanpa izin, pengungkapan, perubahan, atau penghancuran data pribadi Anda. Berkas lamaran dan dokumen sensitif disimpan dalam penyimpanan aman dengan hak akses terbatas.\n\n4. Pembagian Data kepada Pihak Ketiga\nKami tidak menjual atau menyewakan informasi pribadi Anda kepada pihak ketiga. Data hanya dibagikan kepada mitra bisnis resmi atau klien pengguna jasa tenaga kerja jika relevan dengan penempatan kerja Anda dan dengan persetujuan Anda.\n\n5. Hak Pengguna\nAnda berhak untuk meminta akses, perbaikan, atau penghapusan data pribadi Anda yang tersimpan di sistem kami dengan menghubungi tim kami melalui kontak resmi yang tercantum di situs ini.",
+      "lastUpdated": "17 Oktober 2026"
+    },
+    "servicesHeader": {
+      "tag": "OUR CAPABILITIES",
+      "heading": "LAYANAN ALIH DAYA KAMI",
+      "note": "*Seluruh penempatan dikontrol sah melalui Perjanjian Kerja Waktu Tertentu (PKWT)."
+    },
+    "termsOfService": {
+      "title": "Syarat dan Ketentuan",
+      "content": "Selamat datang di situs resmi PT. Empat Sinergi Utama. Dengan mengakses dan menggunakan situs web ini, Anda menyetujui untuk terikat oleh Syarat dan Ketentuan berikut.\n\n1. Penggunaan Situs Web\nSitus web ini disediakan untuk tujuan informasi mengenai layanan ketenagakerjaan, manajemen fasilitas, keamanan, kebersihan, serta informasi lowongan kerja resmi PT. Empat Sinergi Utama. Anda setuju untuk menggunakan situs ini hanya untuk tujuan yang sah dan tidak melanggar hukum.\n\n2. Pengajuan Lamaran Pekerjaan\nPengunjung yang melamar pekerjaan melalui formulir karir menjamin bahwa seluruh data, dokumen identitas, dan berkas CV yang diunggah adalah asli, akurat, dan dapat dipertanggungjawabkan kebenarannya. Manipulasi data atau dokumen palsu dapat mengakibatkan diskualifikasi otomatis.\n\n3. Hak Kekayaan Intelektual\nSeluruh konten, merek dagang, logo, desain grafis, teks, dan media visual yang terdapat dalam situs web ini adalah hak milik eksklusif PT. Empat Sinergi Utama atau pemegang lisensi terkait. Dilarang menggandakan, menyebarluaskan, atau memodifikasi konten tanpa izin tertulis.\n\n4. Batasan Tanggung Jawab\nPT. Empat Sinergi Utama berupaya menjaga keakuratan informasi di situs web, namun tidak menjamin bahwa situs akan selalu bebas gangguan teknis atau kesalahan. Kami tidak bertanggung jawab atas kerugian langsung maupun tidak langsung yang timbul dari penggunaan situs ini.\n\n5. Perubahan Ketentuan\nKami berhak untuk mengubah, memperbarui, atau memodifikasi Syarat dan Ketentuan ini sewaktu-waktu tanpa pemberitahuan sebelumnya. Penggunaan berkelanjutan atas situs ini setelah perubahan menandakan persetujuan Anda terhadap ketentuan yang diperbarui.",
+      "lastUpdated": "17 Oktober 2026"
+    },
+    "portfolioHeader": {
+      "tag": "PROVEN TRACK RECORD",
+      "heading": "PROJECT PORTFOLIO",
+      "note": "Serta dipercaya mendukung pengerjaan proyek harian entitas swasta nasional."
     },
     "scheduledContents": [
       {
@@ -693,24 +703,21 @@
         "createdAt": 1792248970685,
         "startDate": "2026-10-17"
       }
-    ],
-    "privacyPolicy": {
-      "title": "Kebijakan Privasi",
-      "content": "PT. Empat Sinergi Utama berkomitmen untuk melindungi dan menghormati privasi Anda. Kebijakan Privasi ini menjelaskan bagaimana kami mengumpulkan, menggunakan, dan melindungi data pribadi yang Anda berikan melalui situs web ini.\n\n1. Pengumpulan Informasi\nKami mengumpulkan informasi pribadi yang Anda berikan secara sukarela saat menghubungi kami atau mengirimkan lamaran pekerjaan melalui situs web kami, termasuk namun tidak terbatas pada nama, alamat email, nomor telepon, riwayat pekerjaan, dan dokumen kurikulum vitae (CV).\n\n2. Penggunaan Informasi\nInformasi yang kami kumpulkan digunakan untuk:\n- Memproses lamaran kerja dan proses seleksi ketenagakerjaan.\n- Merespons pertanyaan, permintaan penawaran, atau konsultasi layanan alih daya.\n- Meningkatkan kualitas layanan dan pengalaman operasional situs web kami.\n\n3. Perlindungan & Keamanan Data\nKami menerapkan langkah-langkah keamanan teknis dan organisasi yang ketat untuk mencegah akses tanpa izin, pengungkapan, perubahan, atau penghancuran data pribadi Anda. Berkas lamaran dan dokumen sensitif disimpan dalam penyimpanan aman dengan hak akses terbatas.\n\n4. Pembagian Data kepada Pihak Ketiga\nKami tidak menjual atau menyewakan informasi pribadi Anda kepada pihak ketiga. Data hanya dibagikan kepada mitra bisnis resmi atau klien pengguna jasa tenaga kerja jika relevan dengan penempatan kerja Anda dan dengan persetujuan Anda.\n\n5. Hak Pengguna\nAnda berhak untuk meminta akses, perbaikan, atau penghapusan data pribadi Anda yang tersimpan di sistem kami dengan menghubungi tim kami melalui kontak resmi yang tercantum di situs ini.",
-      "lastUpdated": "17 Oktober 2026"
-    },
-    "termsOfService": {
-      "title": "Syarat dan Ketentuan",
-      "content": "Selamat datang di situs resmi PT. Empat Sinergi Utama. Dengan mengakses dan menggunakan situs web ini, Anda menyetujui untuk terikat oleh Syarat dan Ketentuan berikut.\n\n1. Penggunaan Situs Web\nSitus web ini disediakan untuk tujuan informasi mengenai layanan ketenagakerjaan, manajemen fasilitas, keamanan, kebersihan, serta informasi lowongan kerja resmi PT. Empat Sinergi Utama. Anda setuju untuk menggunakan situs ini hanya untuk tujuan yang sah dan tidak melanggar hukum.\n\n2. Pengajuan Lamaran Pekerjaan\nPengunjung yang melamar pekerjaan melalui formulir karir menjamin bahwa seluruh data, dokumen identitas, dan berkas CV yang diunggah adalah asli, akurat, dan dapat dipertanggungjawabkan kebenarannya. Manipulasi data atau dokumen palsu dapat mengakibatkan diskualifikasi otomatis.\n\n3. Hak Kekayaan Intelektual\nSeluruh konten, merek dagang, logo, desain grafis, teks, dan media visual yang terdapat dalam situs web ini adalah hak milik eksklusif PT. Empat Sinergi Utama atau pemegang lisensi terkait. Dilarang menggandakan, menyebarluaskan, atau memodifikasi konten tanpa izin tertulis.\n\n4. Batasan Tanggung Jawab\nPT. Empat Sinergi Utama berupaya menjaga keakuratan informasi di situs web, namun tidak menjamin bahwa situs akan selalu bebas gangguan teknis atau kesalahan. Kami tidak bertanggung jawab atas kerugian langsung maupun tidak langsung yang timbul dari penggunaan situs ini.\n\n5. Perubahan Ketentuan\nKami berhak untuk mengubah, memperbarui, atau memodifikasi Syarat dan Ketentuan ini sewaktu-waktu tanpa pemberitahuan sebelumnya. Penggunaan berkelanjutan atas situs ini setelah perubahan menandakan persetujuan Anda terhadap ketentuan yang diperbarui.",
-      "lastUpdated": "17 Oktober 2026"
-    }
+    ]
   },
   "notifications": [
     {
+      "id": "notif-1792261452034",
+      "message": "Menambahkan pengguna CMS baru: \"HRD\" (@hrd) dengan role \"HRD\".",
+      "time": "01.24",
+      "type": "CREATE",
+      "category": "system"
+    },
+    {
       "id": "notif-1792255235437",
-      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
       "time": "23.40",
       "type": "DEPLOY",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
       "category": "system"
     },
     {
@@ -793,14 +800,24 @@
   ],
   "auditLogs": [
     {
-      "id": "log-1792255235437",
-      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
-      "timestamp": 1792255235437,
-      "type": "DEPLOY",
+      "id": "log-1792261452034-smi8",
+      "message": "Menambahkan pengguna CMS baru: \"HRD\" (@hrd) dengan role \"HRD\".",
+      "timestamp": 1792261452034,
+      "type": "CREATE",
       "category": "system",
-      "userName": "Administrator Master",
+      "userName": "Administrator",
       "userEmail": "admin",
       "userRole": "Superadmin"
+    },
+    {
+      "id": "log-1792255235437",
+      "type": "DEPLOY",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "category": "system",
+      "userName": "Administrator Master",
+      "userRole": "Superadmin",
+      "timestamp": 1792255235437,
+      "userEmail": "admin"
     },
     {
       "id": "log-1792255049631",
@@ -974,8 +991,23 @@
       "timestamp": 1788084370161
     }
   ],
-  "hasDraft": false,
-  "cmsUsers": [],
+  "hasDraft": true,
+  "cmsUsers": [
+    {
+      "id": "usr-1792261451918-p9y6",
+      "name": "HRD",
+      "role": "HRD",
+      "isActive": true,
+      "username": "hrd",
+      "createdAt": 1792261451941,
+      "permissions": [
+        "career",
+        "applications"
+      ],
+      "passwordHash": "0ead391727b15e0a1f943b675b0a64fc:c7caf892fb547f0fefbfc1aaed5bdbb66c9bc64f8d59b7d451498ccddd4293ec97eb4cac8c4635c7062516adf1f83e3f96f76d791d1ceb77b55213e6a92959b0",
+      "canReceiveCareerNotif": true
+    }
+  ],
   "careerTemplates": [
     {
       "id": "tpl-interview",

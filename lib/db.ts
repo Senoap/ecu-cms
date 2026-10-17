@@ -1,10 +1,15 @@
-// lib/db.ts
-import { createClient } from '@supabase/supabase-js'
+import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-// Prioritaskan Service Role Key agar operasi backend/admin bisa bypass RLS
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-const supabase = createClient(supabaseUrl, supabaseKey)
+function getSupabase(): SupabaseClient | null {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+  if (!supabaseUrl || !supabaseKey) return null
+  try {
+    return createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false } })
+  } catch {
+    return null
+  }
+}
 
 export interface SectionConfig {
   id: string
@@ -691,7 +696,9 @@ function enrichContent(content: DatabaseContent): DatabaseContent {
 
 export async function initializeSupabaseDB() {
   try {
-    await supabase
+    const client = getSupabase()
+    if (!client) return
+    await client
       .from('site_content')
       .upsert({ id: 1, data: defaultData })
   } catch (e) {
@@ -775,14 +782,17 @@ function processParsedData(parsed: Partial<Database>): Database {
 
 export async function readDB(): Promise<Database> {
   try {
-    const { data, error } = await supabase
-      .from('site_content')
-      .select('data')
-      .eq('id', 1)
-      .single()
+    const client = getSupabase()
+    if (client) {
+      const { data, error } = await client
+        .from('site_content')
+        .select('data')
+        .eq('id', 1)
+        .single()
 
-    if (!error && data && data.data) {
-      return processParsedData(data.data as Partial<Database>)
+      if (!error && data && data.data) {
+        return processParsedData(data.data as Partial<Database>)
+      }
     }
   } catch (err) {
     console.warn('Supabase tidak dapat dihubungi saat readDB, menggunakan data lokal:', err)
@@ -846,14 +856,17 @@ export async function readPublishedDB(): Promise<DatabaseContent> {
 async function writeSupabaseRaw(data: Database) {
   let supabaseSuccess = false
   try {
-    const { error } = await supabase
-      .from('site_content')
-      .upsert({ id: 1, data })
+    const client = getSupabase()
+    if (client) {
+      const { error } = await client
+        .from('site_content')
+        .upsert({ id: 1, data })
 
-    if (!error) {
-      supabaseSuccess = true
-    } else {
-      console.warn('Gagal menulis ke Supabase:', error.message)
+      if (!error) {
+        supabaseSuccess = true
+      } else {
+        console.warn('Gagal menulis ke Supabase:', error.message)
+      }
     }
   } catch (err) {
     console.warn('Supabase tidak dapat dihubungi saat writeDB:', err)
@@ -962,6 +975,7 @@ export async function addNotification(
   db.auditLogs.unshift(logItem)
 
   db.hasDraft = type !== 'DEPLOY'
+  await writeSupabaseRaw(db)
 }
 
 export async function markNotificationsAsViewed() {
@@ -989,20 +1003,23 @@ export async function uploadFile(
   contentType: string = 'image/jpeg'
 ): Promise<string> {
   try {
-    const { error } = await supabase.storage
-      .from('uploads')
-      .upload(fileName, buffer, {
-        contentType,
-        upsert: true,
-      })
-
-    if (!error) {
-      const { data: publicUrlData } = supabase.storage
+    const client = getSupabase()
+    if (client) {
+      const { error } = await client.storage
         .from('uploads')
-        .getPublicUrl(fileName)
-      return publicUrlData.publicUrl
+        .upload(fileName, buffer, {
+          contentType,
+          upsert: true,
+        })
+
+      if (!error) {
+        const { data: publicUrlData } = client.storage
+          .from('uploads')
+          .getPublicUrl(fileName)
+        return publicUrlData.publicUrl
+      }
+      console.warn('Gagal upload ke Supabase Storage, beralih ke penyimpanan lokal:', error.message)
     }
-    console.warn('Gagal upload ke Supabase Storage, beralih ke penyimpanan lokal:', error.message)
   } catch (err) {
     console.warn('Supabase Storage tidak dapat dihubungi (fetch failed), beralih ke penyimpanan lokal:', err)
   }
@@ -1023,7 +1040,10 @@ export async function uploadFile(
 
 export async function deleteFile(fileName: string): Promise<void> {
   try {
-    await supabase.storage.from('uploads').remove([fileName])
+    const client = getSupabase()
+    if (client) {
+      await client.storage.from('uploads').remove([fileName])
+    }
   } catch {
     // Abaikan jika Supabase offline
   }
