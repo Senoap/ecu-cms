@@ -3,13 +3,13 @@
 
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
-import { requireAdmin } from '@/lib/auth'
+import { requirePermission } from '@/lib/auth'
 import { getAdminClient } from '@/lib/supabaseAdmin'
 import { APPLICATION_STATUSES, HR_EMAIL_KEY, setAppSetting } from '@/lib/applications'
 import { addNotification, readDB } from '@/lib/db'
 
 export async function saveHrEmail(formData: FormData) {
-  await requireAdmin()
+  await requirePermission('applications')
   const raw = String(formData.get('hrEmail') ?? '').trim()
   if (raw && !z.string().email().safeParse(raw).success) return
   await setAppSetting(HR_EMAIL_KEY, raw)
@@ -19,7 +19,7 @@ export async function saveHrEmail(formData: FormData) {
 }
 
 export async function updateApplicationStatus(formData: FormData) {
-  await requireAdmin()
+  await requirePermission('applications')
   const id = String(formData.get('id') ?? '')
   const status = String(formData.get('status') ?? '')
   if (!id || !(APPLICATION_STATUSES as string[]).includes(status as never)) return
@@ -30,7 +30,7 @@ export async function updateApplicationStatus(formData: FormData) {
 }
 
 export async function deleteApplication(formData: FormData) {
-  await requireAdmin()
+  await requirePermission('applications')
   const id = String(formData.get('id') ?? '')
   if (!id) return
   const supabase = getAdminClient()
@@ -42,7 +42,7 @@ export async function deleteApplication(formData: FormData) {
 }
 
 export async function sendCandidateReplyAction(formData: FormData) {
-  await requireAdmin()
+  await requirePermission('applications')
   const to = String(formData.get('to') ?? '').trim()
   const candidateName = String(formData.get('candidateName') ?? '').trim()
   const subject = String(formData.get('subject') ?? '').trim()

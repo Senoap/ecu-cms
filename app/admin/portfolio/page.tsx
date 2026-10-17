@@ -1,9 +1,11 @@
 // app/admin/portfolio/page.tsx
 import { readDB, writeDB, addNotification, uploadFile, deleteFile, PortfolioItem } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
+import { requirePermission, requirePagePermission } from '@/lib/auth'
 import PortfolioClient from './PortfolioClient'
 
 export default async function AdminPortfolioPage() {
+  await requirePagePermission('portfolio')
   const db = await readDB()
   const portfolios = db.portfolios || []
   const portfolioHeader = db.portfolioHeader || { tag: 'PROVEN TRACK RECORD', heading: 'PROJECT PORTFOLIO', note: '' }
@@ -15,6 +17,7 @@ export default async function AdminPortfolioPage() {
 
   async function saveHeaderAction(formData: FormData) {
     'use server'
+    await requirePermission('portfolio')
     const db = await readDB()
     const subtitle = formData.get('subtitle') as string
     const title = formData.get('title') as string
@@ -37,6 +40,7 @@ export default async function AdminPortfolioPage() {
 
   async function addPortfolioAction(formData: FormData) {
     'use server'
+    await requirePermission('portfolio')
     const db = await readDB()
     if (!db.portfolios) db.portfolios = []
 
@@ -68,6 +72,7 @@ export default async function AdminPortfolioPage() {
 
   async function updatePortfolioAction(formData: FormData) {
     'use server'
+    await requirePermission('portfolio')
     const db = await readDB()
     const id = formData.get('id') as string
     const name = formData.get('name') as string
@@ -98,6 +103,7 @@ export default async function AdminPortfolioPage() {
 
   async function deletePortfolioAction(formData: FormData) {
     'use server'
+    await requirePermission('portfolio')
     const db = await readDB()
     const id = formData.get('id') as string
 

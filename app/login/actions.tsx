@@ -7,6 +7,8 @@ import { SESSION_COOKIE, SESSION_MAX_AGE, createSessionToken } from '@/lib/sessi
 import { readDB } from '@/lib/db'
 import { verifyPassword } from '@/lib/password'
 
+import { AVAILABLE_MENUS, canUserAccessMenu } from '@/lib/auth'
+
 // Rate limit sederhana (in-memory per instance): 5 percobaan gagal / 15 menit / IP
 const WINDOW_MS = 15 * 60 * 1000
 const MAX_ATTEMPTS = 5
@@ -41,7 +43,7 @@ function passwordMatches(input: string, secret: string): boolean {
   return timingSafeEqual(a, b)
 }
 
-export async function loginAdmin(formData: FormData) {
+export async function loginAdmin(formData: FormData): Promise<{ success: boolean; message?: string; redirectUrl?: string }> {
   const username = String(formData.get('username') ?? '').trim()
   const password = String(formData.get('password') ?? '')
   const secretPassword = process.env.ADMIN_PASSWORD
@@ -65,7 +67,7 @@ export async function loginAdmin(formData: FormData) {
         maxAge: SESSION_MAX_AGE,
         path: '/',
       })
-      return { success: true }
+      return { success: true, redirectUrl: '/admin' }
     }
   }
 
@@ -94,7 +96,24 @@ export async function loginAdmin(formData: FormData) {
         maxAge: SESSION_MAX_AGE,
         path: '/',
       })
-      return { success: true }
+
+      const isSuper = matchedUser.role.toLowerCase() === 'superadmin' || matchedUser.permissions.includes('users')
+      let redirectUrl = '/admin'
+      if (!isSuper && !matchedUser.permissions.includes('global')) {
+        const dummyUser = {
+          id: matchedUser.id,
+          username: matchedUser.username,
+          name: matchedUser.name,
+          role: matchedUser.role,
+          isSuperadmin: isSuper,
+          permissions: matchedUser.permissions || [],
+          canReceiveCareerNotif: Boolean(matchedUser.canReceiveCareerNotif),
+        }
+        const first = AVAILABLE_MENUS.find((m) => canUserAccessMenu(dummyUser, m.id))
+        if (first) redirectUrl = first.href
+      }
+
+      return { success: true, redirectUrl }
     }
   } catch (err) {
     console.warn('Gagal membaca pengguna CMS saat login:', err)

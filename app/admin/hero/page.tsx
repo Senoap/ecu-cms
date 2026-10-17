@@ -1,10 +1,12 @@
 // app/admin/hero/page.tsx
 import { readDB, writeDB, addNotification } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
+import { requirePermission, requirePagePermission } from '@/lib/auth'
 import HeroPageClient from './HeroPageClient'
 
 async function updateHero(formData: FormData) {
   'use server'
+  await requirePermission('hero')
   const db = await readDB()
   
   const showcaseCardRaw = formData.get('showcaseCardJson') as string
@@ -39,6 +41,7 @@ async function updateHero(formData: FormData) {
 }
 
 export default async function AdminHeroPage() {
+  await requirePagePermission('hero')
   const db = await readDB()
   const { hero } = db
 

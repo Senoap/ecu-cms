@@ -1,9 +1,11 @@
 // app/admin/gallery/page.tsx
 import { readDB, writeDB, addNotification, uploadFile, deleteFile, GalleryItem } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
+import { requirePermission, requirePagePermission } from '@/lib/auth'
 import GalleryClient from './GalleryClient'
 
 export default async function AdminGalleryPage() {
+  await requirePagePermission('gallery')
   const db = await readDB()
   const galleries = db.galleries || []
   const gallerySection = db.sections.find(s => s.id === 'gallery') || {
@@ -14,6 +16,7 @@ export default async function AdminGalleryPage() {
 
   async function saveHeaderAction(formData: FormData) {
     'use server'
+    await requirePermission('gallery')
     const db = await readDB()
     const subtitle = formData.get('subtitle') as string
     const title = formData.get('title') as string
@@ -33,6 +36,7 @@ export default async function AdminGalleryPage() {
 
   async function addGalleryAction(formData: FormData) {
     'use server'
+    await requirePermission('gallery')
     const db = await readDB()
     if (!db.galleries) db.galleries = []
 
@@ -65,6 +69,7 @@ export default async function AdminGalleryPage() {
 
   async function updateGalleryAction(formData: FormData) {
     'use server'
+    await requirePermission('gallery')
     const db = await readDB()
     const id = formData.get('id') as string
     const title = formData.get('title') as string
@@ -96,6 +101,7 @@ export default async function AdminGalleryPage() {
 
   async function deleteGalleryAction(formData: FormData) {
     'use server'
+    await requirePermission('gallery')
     const db = await readDB()
     const id = formData.get('id') as string
 

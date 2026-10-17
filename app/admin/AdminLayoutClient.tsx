@@ -221,7 +221,7 @@ export default function AdminLayoutClient({
   const handleLogout = async () => {
     await logoutAdmin()
     localStorage.removeItem('esu_admin_logged')
-    router.push('/admin/login')
+    router.push('/login')
     router.refresh()
   }
 

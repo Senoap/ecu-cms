@@ -1,7 +1,7 @@
 // app/admin/applications/page.tsx
 import { listApplications, getAppSetting, HR_EMAIL_KEY, APPLICATION_STATUSES, type Application } from '@/lib/applications'
 import { readDB, defaultCareerTemplates } from '@/lib/db'
-import { requirePermission } from '@/lib/auth'
+import { requirePagePermission } from '@/lib/auth'
 import { saveHrEmail } from './actions'
 import ApplicationsListClient from './ApplicationsListClient'
 
@@ -28,7 +28,7 @@ export default async function ApplicationsPage({
 }: { 
   searchParams: Promise<{ status?: string; job?: string }> 
 }) {
-  await requirePermission('applications')
+  await requirePagePermission('applications')
 
   const { status, job } = await searchParams
 

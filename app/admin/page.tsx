@@ -1,6 +1,6 @@
 import { readDB, writeDB, addNotification, uploadFile, deleteFile } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
-import { requirePermission } from '@/lib/auth'
+import { requirePermission, requirePagePermission } from '@/lib/auth'
 import AdminPageClient from './AdminPageClient'
 
 async function updateConfig(formData: FormData) {
@@ -79,6 +79,7 @@ async function updateConfig(formData: FormData) {
 }
 
 export default async function AdminDashboardPage() {
+  await requirePagePermission('global')
   const db = await readDB()
   
   return (

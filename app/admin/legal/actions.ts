@@ -3,8 +3,10 @@
 
 import { revalidatePath } from 'next/cache'
 import { readDB, writeDB, addNotification, type LegalContent } from '@/lib/db'
+import { requirePermission } from '@/lib/auth'
 
 export async function updatePrivacyPolicyAction(formData: FormData) {
+  await requirePermission('legal')
   const title = (formData.get('title') as string)?.trim() || 'Kebijakan Privasi'
   const lastUpdated = (formData.get('lastUpdated') as string)?.trim() || new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
   const content = (formData.get('content') as string)?.trim() || ''
@@ -30,6 +32,7 @@ export async function updatePrivacyPolicyAction(formData: FormData) {
 }
 
 export async function updateTermsAction(formData: FormData) {
+  await requirePermission('legal')
   const title = (formData.get('title') as string)?.trim() || 'Syarat dan Ketentuan'
   const lastUpdated = (formData.get('lastUpdated') as string)?.trim() || new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
   const content = (formData.get('content') as string)?.trim() || ''

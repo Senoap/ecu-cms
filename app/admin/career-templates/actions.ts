@@ -2,11 +2,11 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { requireAdmin } from '@/lib/auth'
+import { requirePermission } from '@/lib/auth'
 import { readDB, writeDB, addNotification, defaultCareerTemplates, type CareerReplyTemplate } from '@/lib/db'
 
 export async function createCareerTemplateAction(formData: FormData) {
-  await requireAdmin()
+  await requirePermission('career-templates')
 
   const name = String(formData.get('name') ?? '').trim()
   const channel = (String(formData.get('channel') ?? 'both') as 'wa' | 'email' | 'both')
@@ -40,7 +40,7 @@ export async function createCareerTemplateAction(formData: FormData) {
 }
 
 export async function updateCareerTemplateAction(formData: FormData) {
-  await requireAdmin()
+  await requirePermission('career-templates')
 
   const id = String(formData.get('id') ?? '')
   const name = String(formData.get('name') ?? '').trim()
@@ -77,7 +77,7 @@ export async function updateCareerTemplateAction(formData: FormData) {
 }
 
 export async function deleteCareerTemplateAction(formData: FormData) {
-  await requireAdmin()
+  await requirePermission('career-templates')
 
   const id = String(formData.get('id') ?? '')
   if (!id) return

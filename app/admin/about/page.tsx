@@ -1,9 +1,11 @@
 // app/admin/about/page.tsx
 import { readDB, writeDB, addNotification } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
+import { requirePermission, requirePagePermission } from '@/lib/auth'
 import AboutClient from './AboutClient'
 
 export default async function AdminAboutPage() {
+  await requirePagePermission('about')
   const db = await readDB()
   const aboutSec = db.sections.find(s => s.id === 'about') || {
     subtitle: 'ABOUT US',
@@ -17,6 +19,7 @@ export default async function AdminAboutPage() {
 
   async function saveAboutAction(formData: FormData) {
     'use server'
+    await requirePermission('about')
     const db = await readDB()
     const subtitle = formData.get('subtitle') as string
     const title = formData.get('title') as string

@@ -1,12 +1,12 @@
 // app/admin/users/page.tsx
-import { requirePermission } from '@/lib/auth'
+import { requirePagePermission } from '@/lib/auth'
 import { readDB } from '@/lib/db'
 import UsersClient, { type CmsUserDisplay } from './UsersClient'
 
 export const dynamic = 'force-dynamic'
 
 export default async function UsersPage() {
-  await requirePermission('users')
+  await requirePagePermission('users')
 
   const db = await readDB()
   const users: CmsUserDisplay[] = (db.cmsUsers || []).map((u) => ({

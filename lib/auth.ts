@@ -1,5 +1,6 @@
 // lib/auth.ts
 import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
 import { SESSION_COOKIE, getSessionPayload } from './session'
 import { readDB } from './db'
 
@@ -56,6 +57,22 @@ export async function getCurrentUser(): Promise<CurrentAdminUser | null> {
   }
 }
 
+export function canUserAccessMenu(user: CurrentAdminUser, menuId: string): boolean {
+  if (user.isSuperadmin) return true
+  if (menuId === 'career-templates') {
+    return user.permissions.includes('career-templates') || user.permissions.includes('career')
+  }
+  return user.permissions.includes(menuId)
+}
+
+export function getDefaultMenuHref(user: CurrentAdminUser): string {
+  if (user.isSuperadmin || user.permissions.includes('global')) {
+    return '/admin'
+  }
+  const firstAllowed = AVAILABLE_MENUS.find((m) => canUserAccessMenu(user, m.id))
+  return firstAllowed ? firstAllowed.href : '/admin'
+}
+
 export async function isAdmin(): Promise<boolean> {
   const user = await getCurrentUser()
   return user !== null
@@ -70,8 +87,25 @@ export async function requireAdmin(): Promise<CurrentAdminUser> {
 
 export async function requirePermission(menuId: string): Promise<CurrentAdminUser> {
   const user = await requireAdmin()
-  if (user.isSuperadmin || user.permissions.includes(menuId)) {
+  if (canUserAccessMenu(user, menuId)) {
     return user
   }
   throw new Error(`Akses ditolak: Anda tidak memiliki izin untuk menu "${menuId}".`)
+}
+
+/** Panggil di baris pertama setiap Server Component halaman admin (page.tsx). */
+export async function requirePagePermission(menuId: string): Promise<CurrentAdminUser> {
+  const user = await getCurrentUser()
+  if (!user) {
+    redirect('/login')
+  }
+  if (canUserAccessMenu(user, menuId)) {
+    return user
+  }
+  const target = getDefaultMenuHref(user)
+  const currentMenu = AVAILABLE_MENUS.find((m) => m.id === menuId)
+  if (currentMenu && currentMenu.href === target) {
+    redirect('/login')
+  }
+  redirect(target)
 }

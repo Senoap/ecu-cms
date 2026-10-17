@@ -5,9 +5,11 @@ import Link from 'next/link'
 import path from 'path'
 import { redirect } from 'next/navigation'
 import { AVAILABLE_ICONS } from '@/components/DynamicIcon'
+import { requirePermission, requirePagePermission } from '@/lib/auth'
 
 async function updateServiceDetail(formData: FormData) {
     'use server'
+    await requirePermission('services')
     const id = formData.get('id') as string
     const title = formData.get('title') as string
     const desc = formData.get('desc') as string
@@ -43,6 +45,7 @@ async function updateServiceDetail(formData: FormData) {
 }
 
 export default async function AdminEditServicePage({ params }: { params: Promise<{ id: string }> }) {
+    await requirePagePermission('services')
     const { id } = await params
     const db = await readDB()
     const srv = db.services.find(s => s.id === id)

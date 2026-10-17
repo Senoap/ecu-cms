@@ -7,10 +7,12 @@ import {
   defaultInquiryTemplates 
 } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
+import { requirePermission, requirePagePermission } from '@/lib/auth'
 import FooterPageClient from './FooterPageClient'
 
 async function updateFooter(formData: FormData) {
   'use server'
+  await requirePermission('footer')
   const db = await readDB()
   
   const desc = (formData.get('description') as string)?.trim() || ''
@@ -71,6 +73,7 @@ async function updateFooter(formData: FormData) {
 }
 
 export default async function AdminFooterPage() {
+  await requirePagePermission('footer')
   const db = await readDB()
   const footer = {
     ...db.footer,

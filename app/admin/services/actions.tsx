@@ -3,7 +3,7 @@
 import { readDB, writeDB, addNotification, uploadFile, deleteFile } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import sharp from 'sharp'
-import { requireAdmin } from '@/lib/auth'
+import { requirePermission } from '@/lib/auth'
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
@@ -13,7 +13,7 @@ function escapeXml(s: string): string {
 }
 
 export async function addService(formData: FormData) {
-  await requireAdmin()
+  await requirePermission('services')
   const title = formData.get('title') as string
   const desc = formData.get('desc') as string
   const icon = formData.get('icon') as string || 'Briefcase'
@@ -35,7 +35,7 @@ export async function addService(formData: FormData) {
 }
 
 export async function updateService(formData: FormData) {
-  await requireAdmin()
+  await requirePermission('services')
   const id = formData.get('id') as string
   const title = formData.get('title') as string
   const desc = formData.get('desc') as string
@@ -123,7 +123,7 @@ export async function updateService(formData: FormData) {
 }
 
 export async function deleteServiceImage(formData: FormData) {
-  await requireAdmin()
+  await requirePermission('services')
   const serviceId = formData.get('serviceId') as string
   const imagePath = formData.get('imagePath') as string
 
@@ -149,7 +149,7 @@ export async function deleteServiceImage(formData: FormData) {
 }
 
 export async function deleteService(formData: FormData) {
-  await requireAdmin()
+  await requirePermission('services')
   const id = formData.get('id') as string
   const db = await readDB()
   const target = db.services.find(s => s.id === id)

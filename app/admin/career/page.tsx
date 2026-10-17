@@ -1,9 +1,11 @@
 // app/admin/career/page.tsx
 import { readDB, writeDB, addNotification, CareerItem } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
+import { requirePermission, requirePagePermission } from '@/lib/auth'
 import CareerClient from './CareerClient'
 
 export default async function CareerPage() {
+  await requirePagePermission('career')
   const db = await readDB()
   const careers = db.career || []
 
@@ -15,6 +17,7 @@ export default async function CareerPage() {
 
   async function handleSaveHeader(formData: FormData) {
     'use server'
+    await requirePermission('career')
     const db = await readDB()
     const subtitle = formData.get('subtitle') as string
     const title = formData.get('title') as string
@@ -34,6 +37,7 @@ export default async function CareerPage() {
 
   async function handleAddCareer(formData: FormData) {
     'use server'
+    await requirePermission('career')
     const db = await readDB()
     if (!db.career) db.career = []
 
@@ -55,6 +59,7 @@ export default async function CareerPage() {
 
   async function handleUpdateCareer(formData: FormData) {
     'use server'
+    await requirePermission('career')
     const db = await readDB()
     const id = formData.get('id') as string
 
@@ -80,6 +85,7 @@ export default async function CareerPage() {
 
   async function handleDeleteCareer(formData: FormData) {
     'use server'
+    await requirePermission('career')
     const db = await readDB()
     const id = formData.get('id') as string
 

@@ -36,7 +36,7 @@ export default function AdminLoginPage() {
       const result = await loginAdmin(formData)
       if (result.success) {
         localStorage.setItem('esu_admin_logged', 'true')
-        router.push('/admin')
+        router.push(result.redirectUrl || '/admin')
         router.refresh()
       } else {
         setErrorMsg(result.message || 'Terjadi kesalahan')
