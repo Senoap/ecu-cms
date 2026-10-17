@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useLanguage } from '@/components/LanguageContext'
+import { SectionConfig, GalleryHeaderContent } from '@/lib/db'
+import { X } from 'lucide-react'
 
 interface GalleryItem {
   id: string
@@ -12,7 +14,7 @@ interface GalleryItem {
   imageUrl: string
 }
 
-export default function GallerySectionClient({ sec, galleryHeader, galleries, primaryColor }: { sec: any; galleryHeader: any; galleries: GalleryItem[]; primaryColor: string }) {
+export default function GallerySectionClient({ sec, galleryHeader, galleries, primaryColor }: { sec: SectionConfig; galleryHeader: GalleryHeaderContent; galleries: GalleryItem[]; primaryColor: string }) {
   const [selectedImage, setSelectedImage] = useState<GalleryItem | null>(null)
   const { locale, t, getFallbackContent } = useLanguage()
 
@@ -34,7 +36,7 @@ export default function GallerySectionClient({ sec, galleryHeader, galleries, pr
         </span>
         <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">{galHeading}</h2>
         <div className="w-16 h-1 bg-amber-500 mx-auto rounded-full mt-2"></div>
-        <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm max-w-xl mx-auto">{sec.content}</p>
+        <p className="text-gray-700 dark:text-gray-300 text-xs sm:text-sm max-w-xl mx-auto font-medium">{sec.content}</p>
       </div>
 
       <div className="space-y-16">
@@ -60,8 +62,9 @@ export default function GallerySectionClient({ sec, galleryHeader, galleries, pr
               type="button"
               onClick={() => setSelectedImage(null)} 
               className="absolute top-4 right-4 z-20 bg-black/50 hover:bg-black/70 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg transition-colors cursor-pointer active:scale-95"
+              aria-label="Tutup modal"
             >
-              ✕
+              <X className="w-5 h-5" />
             </button>
             <div className="md:w-1/2 bg-black flex items-center justify-center relative min-h-[260px] sm:min-h-[320px]">
               <img src={selectedImage.imageUrl} alt={selectedTitle} className="w-full h-full object-cover" />
@@ -72,7 +75,7 @@ export default function GallerySectionClient({ sec, galleryHeader, galleries, pr
                   {selectedCat}
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight">{selectedTitle}</h3>
-                <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm md:text-base leading-relaxed font-medium">{selectedDesc}</p>
+                <p className="text-gray-700 dark:text-gray-300 text-xs sm:text-sm md:text-base leading-relaxed font-medium">{selectedDesc}</p>
               </div>
               <div className="space-y-2 pt-2">
                 <Link
@@ -153,11 +156,11 @@ function CategoryUniformSlider({ categoryName, items, primaryColor, onImageClick
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between px-2">
-        <h3 className="text-base sm:text-lg font-black text-gray-900 tracking-wide flex items-center gap-2">
+        <h3 className="text-base sm:text-lg font-black text-gray-900 dark:text-white tracking-wide flex items-center gap-2">
           <span className="w-3 h-3 rounded-full" style={{ backgroundColor: primaryColor }}></span>
           <span>{categoryName}</span>
         </h3>
-        <span className="text-xs font-bold text-gray-400">
+        <span className="text-xs font-bold text-gray-600 dark:text-gray-400">
           {t.gallery.photo} {(currentIndex % N) + 1} {t.gallery.of} {N}
         </span>
       </div>

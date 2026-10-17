@@ -2,9 +2,10 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
+import { MessageSquare } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import { useLanguage } from '@/components/LanguageContext'
-import { GalleryItem } from '@/lib/db'
+import { GalleryItem, DatabaseContent, FooterContent } from '@/lib/db'
 
 export default function GalleryDetailClient({
   item,
@@ -14,8 +15,8 @@ export default function GalleryDetailClient({
 }: {
   item: GalleryItem
   allGalleries: GalleryItem[]
-  setting: any
-  footer: any
+  setting: DatabaseContent['setting']
+  footer: FooterContent
 }) {
   const { locale, t, getFallbackContent } = useLanguage()
   const [showZoom, setShowZoom] = useState(false)
@@ -100,9 +101,9 @@ export default function GalleryDetailClient({
           </p>
 
           <div className="pt-6 border-t border-gray-100 dark:border-gray-800 flex flex-wrap items-center justify-between gap-4">
-            <div className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+            <div className="text-xs font-semibold text-gray-600 dark:text-gray-400">
               {locale === 'en' ? 'Documented by:' : 'Didokumentasikan oleh:'}{' '}
-              <span className="font-bold text-gray-800 dark:text-gray-200">{setting.siteName}</span>
+              <span className="font-bold text-gray-900 dark:text-gray-200">{setting.siteName}</span>
             </div>
             {waNumber && (
               <a
@@ -111,7 +112,7 @@ export default function GalleryDetailClient({
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-xs font-black text-white bg-emerald-600 hover:bg-emerald-500 transition-all uppercase tracking-wider shadow-md"
               >
-                <span>💬</span>
+                <MessageSquare className="w-4 h-4" />
                 <span>{locale === 'en' ? 'Inquire Activity' : 'Tanyakan Kegiatan Ini'}</span>
               </a>
             )}
@@ -144,13 +145,13 @@ export default function GalleryDetailClient({
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     </div>
-                    <span className="text-[10px] font-black uppercase tracking-wider text-amber-600">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-amber-700 dark:text-amber-400">
                       {relCat}
                     </span>
                     <h3 className="font-black text-sm text-gray-900 dark:text-white group-hover:text-amber-600 transition-colors line-clamp-1">
                       {relTitle}
                     </h3>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2">
+                    <p className="text-xs text-gray-700 dark:text-gray-300 line-clamp-2 font-medium">
                       {relDesc}
                     </p>
                   </Link>
@@ -161,18 +162,13 @@ export default function GalleryDetailClient({
         )}
       </main>
 
-      <footer className="max-w-5xl mx-auto py-8 px-4 border-t border-gray-200/60 dark:border-gray-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 font-semibold gap-3">
+      <footer className="max-w-5xl mx-auto py-8 px-4 border-t border-gray-200/60 dark:border-gray-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-600 dark:text-gray-400 font-semibold gap-3">
         <span>© 2026 {setting.siteName}. All Rights Reserved.</span>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 select-none">
           <span>Website by</span>
-          <a
-            href="https://lembahtech.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-2.5 py-0.5 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 font-black uppercase tracking-wider"
-          >
+          <span className="px-2.5 py-0.5 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 font-black uppercase tracking-wider">
             lembahtech
-          </a>
+          </span>
         </div>
       </footer>
 

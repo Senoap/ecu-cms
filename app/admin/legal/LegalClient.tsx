@@ -1,0 +1,260 @@
+// app/admin/legal/LegalClient.tsx
+'use client'
+
+import { useState, useTransition } from 'react'
+import { ShieldCheck, FileText, Save, ExternalLink, Calendar, CheckCircle2 } from 'lucide-react'
+import type { LegalContent } from '@/lib/db'
+import { updatePrivacyPolicyAction, updateTermsAction } from './actions'
+import Link from 'next/link'
+
+interface LegalClientProps {
+  initialPrivacy: LegalContent
+  initialTerms: LegalContent
+}
+
+export default function LegalClient({ initialPrivacy, initialTerms }: LegalClientProps) {
+  const [activeTab, setActiveTab] = useState<'privacy' | 'terms'>('privacy')
+  const [isPending, startTransition] = useTransition()
+  const [toastMsg, setToastMsg] = useState('')
+
+  const [privacyTitle, setPrivacyTitle] = useState(initialPrivacy.title)
+  const [privacyDate, setPrivacyDate] = useState(initialPrivacy.lastUpdated)
+  const [privacyContent, setPrivacyContent] = useState(initialPrivacy.content)
+
+  const [termsTitle, setTermsTitle] = useState(initialTerms.title)
+  const [termsDate, setTermsDate] = useState(initialTerms.lastUpdated)
+  const [termsContent, setTermsContent] = useState(initialTerms.content)
+
+  const showToast = (msg: string) => {
+    setToastMsg(msg)
+    setTimeout(() => setToastMsg(''), 4000)
+  }
+
+  const handleSavePrivacy = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+    startTransition(async () => {
+      await updatePrivacyPolicyAction(formData)
+      showToast('Kebijakan Privasi berhasil disimpan!')
+    })
+  }
+
+  const handleSaveTerms = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+    startTransition(async () => {
+      await updateTermsAction(formData)
+      showToast('Syarat & Ketentuan berhasil disimpan!')
+    })
+  }
+
+  return (
+    <div className="relative pb-32">
+      {/* TOAST SUKSES */}
+      {toastMsg && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="bg-amber-950/95 text-amber-300 border border-amber-500/40 px-6 py-3.5 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3">
+            <CheckCircle2 className="w-5 h-5 text-amber-400 shrink-0" />
+            <div>
+              <h4 className="text-xs font-black uppercase tracking-wider">Perubahan Disimpan!</h4>
+              <p className="text-[11px] text-amber-400/80 font-medium">{toastMsg}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="max-w-4xl mx-auto space-y-8">
+        {/* HEADER BANNER */}
+        <div className="bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-xl relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+          <div className="space-y-1 relative z-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 text-[10px] font-black uppercase tracking-widest mb-2">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Legal & Compliance</span>
+            </div>
+            <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
+              Kebijakan Privasi & Syarat Ketentuan
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 text-xs md:text-sm font-medium">
+              Kelola isi teks legal korporat yang dapat diakses publik pada tautan footer website.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 relative z-10">
+            <Link
+              href={activeTab === 'privacy' ? '/privacy-policy' : '/terms'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 hover:text-amber-600 dark:hover:text-amber-400 text-xs font-bold transition-all border border-gray-200 dark:border-gray-700 flex items-center gap-1.5 shadow-sm"
+            >
+              <span>Lihat Halaman Publik</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </div>
+
+        {/* TAB SWITCHER */}
+        <div className="flex border-b border-gray-200 dark:border-gray-800 gap-4">
+          <button
+            type="button"
+            onClick={() => setActiveTab('privacy')}
+            className={`pb-3 px-2 font-black text-sm flex items-center gap-2 border-b-2 transition-all cursor-pointer ${
+              activeTab === 'privacy'
+                ? 'border-amber-500 text-amber-600 dark:text-amber-400'
+                : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+            }`}
+          >
+            <ShieldCheck className="w-4 h-4" />
+            <span>Kebijakan Privasi (Privacy Policy)</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('terms')}
+            className={`pb-3 px-2 font-black text-sm flex items-center gap-2 border-b-2 transition-all cursor-pointer ${
+              activeTab === 'terms'
+                ? 'border-amber-500 text-amber-600 dark:text-amber-400'
+                : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+            }`}
+          >
+            <FileText className="w-4 h-4" />
+            <span>Syarat & Ketentuan (Terms of Service)</span>
+          </button>
+        </div>
+
+        {/* TAB 1: KEBIJAKAN PRIVASI */}
+        {activeTab === 'privacy' && (
+          <form onSubmit={handleSavePrivacy} className="bg-white dark:bg-[#10131C] p-8 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-800/80 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">
+                  Judul Halaman
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  value={privacyTitle}
+                  onChange={(e) => setPrivacyTitle(e.target.value)}
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">
+                  Pembaruan Terakhir
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    name="lastUpdated"
+                    value={privacyDate}
+                    onChange={(e) => setPrivacyDate(e.target.value)}
+                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner pl-10"
+                    placeholder="Contoh: 17 Oktober 2026"
+                  />
+                  <Calendar className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">
+                Isi Kebijakan Privasi
+              </label>
+              <textarea
+                name="content"
+                rows={16}
+                value={privacyContent}
+                onChange={(e) => setPrivacyContent(e.target.value)}
+                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl p-4 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner font-mono leading-relaxed"
+                placeholder="Tuliskan klausul kebijakan privasi perusahaan..."
+                required
+              />
+              <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                Gunakan baris baru (Enter) untuk memisahkan paragraf atau poin klausul. Teks akan diformat secara rapi di halaman publik.
+              </p>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                type="submit"
+                disabled={isPending}
+                className="px-6 py-3 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-black text-xs uppercase tracking-wider transition-all duration-300 shadow-lg shadow-amber-950/40 hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                <Save className="w-4 h-4" />
+                <span>{isPending ? 'Menyimpan...' : 'Simpan Kebijakan Privasi'}</span>
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* TAB 2: SYARAT & KETENTUAN */}
+        {activeTab === 'terms' && (
+          <form onSubmit={handleSaveTerms} className="bg-white dark:bg-[#10131C] p-8 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-800/80 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">
+                  Judul Halaman
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  value={termsTitle}
+                  onChange={(e) => setTermsTitle(e.target.value)}
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">
+                  Pembaruan Terakhir
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    name="lastUpdated"
+                    value={termsDate}
+                    onChange={(e) => setTermsDate(e.target.value)}
+                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner pl-10"
+                    placeholder="Contoh: 17 Oktober 2026"
+                  />
+                  <Calendar className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">
+                Isi Syarat & Ketentuan
+              </label>
+              <textarea
+                name="content"
+                rows={16}
+                value={termsContent}
+                onChange={(e) => setTermsContent(e.target.value)}
+                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl p-4 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner font-mono leading-relaxed"
+                placeholder="Tuliskan syarat dan ketentuan penggunaan situs..."
+                required
+              />
+              <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                Gunakan baris baru (Enter) untuk memisahkan paragraf atau poin klausul. Teks akan diformat secara rapi di halaman publik.
+              </p>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                type="submit"
+                disabled={isPending}
+                className="px-6 py-3 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-black text-xs uppercase tracking-wider transition-all duration-300 shadow-lg shadow-amber-950/40 hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                <Save className="w-4 h-4" />
+                <span>{isPending ? 'Menyimpan...' : 'Simpan Syarat & Ketentuan'}</span>
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
+  )
+}

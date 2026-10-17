@@ -53,27 +53,27 @@ export default async function AdminEditServicePage({ params }: { params: Promise
 
     return (
         <div className="max-w-3xl mx-auto space-y-8 pb-16">
-            <div className="flex justify-between items-center bg-[#10131C] p-6 rounded-3xl border border-gray-800 shadow-xl">
+            <div className="flex justify-between items-center bg-white dark:bg-[#10131C] p-6 rounded-3xl border border-gray-200 dark:border-gray-800 shadow-xl transition-colors">
                 <div>
-                    <h1 className="text-xl font-black text-white">Edit Layanan: {srv.title}</h1>
-                    <p className="text-gray-400 text-xs font-medium">Sesuaikan konten deskripsi mendalam dan tambah foto dokumentasi.</p>
+                    <h1 className="text-xl font-black text-gray-900 dark:text-white">Edit Layanan: {srv.title}</h1>
+                    <p className="text-gray-600 dark:text-gray-400 text-xs font-medium">Sesuaikan konten deskripsi mendalam dan tambah foto dokumentasi.</p>
                 </div>
-                <Link href="/admin/services" className="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-xl text-xs font-bold text-gray-300 transition-colors">
+                <Link href="/admin/services" className="px-4 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 transition-colors">
                     &larr; Kembali
                 </Link>
             </div>
 
-            <form action={updateServiceDetail} className="bg-[#10131C] p-8 rounded-3xl border border-gray-800 shadow-xl space-y-6">
+            <form action={updateServiceDetail} className="bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800 shadow-xl space-y-6 transition-colors">
                 <input type="hidden" name="id" value={srv.id} />
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="md:col-span-2 space-y-2">
-                        <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-300">Judul Layanan</label>
-                        <input type="text" name="title" defaultValue={srv.title} required className="w-full bg-[#090A0F] border border-gray-800 rounded-2xl px-4 py-3 text-white text-sm font-medium shadow-inner" />
+                        <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Judul Layanan</label>
+                        <input type="text" name="title" defaultValue={srv.title} required className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm font-medium shadow-inner transition-colors" />
                     </div>
                     <div className="space-y-2">
-                        <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-300">Pilih Ikon CMS</label>
-                        <select name="icon" defaultValue={srv.icon} className="w-full bg-[#090A0F] border border-gray-800 rounded-2xl px-4 py-3 text-white text-sm font-medium shadow-inner">
+                        <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Pilih Ikon CMS</label>
+                        <select name="icon" defaultValue={srv.icon} className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm font-medium shadow-inner transition-colors">
                             {AVAILABLE_ICONS.map((ic) => (
                                 <option key={ic.value} value={ic.value}>{ic.label}</option>
                             ))}
@@ -82,24 +82,24 @@ export default async function AdminEditServicePage({ params }: { params: Promise
                 </div>
 
                 <div className="space-y-2">
-                    <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-300">Deskripsi Singkat (Card)</label>
-                    <input type="text" name="desc" defaultValue={srv.desc} className="w-full bg-[#090A0F] border border-gray-800 rounded-2xl px-4 py-3 text-white text-sm font-medium shadow-inner" />
+                    <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Deskripsi Singkat (Card)</label>
+                    <input type="text" name="desc" defaultValue={srv.desc} className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm font-medium shadow-inner transition-colors" />
                 </div>
 
                 <div className="space-y-2">
-                    <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-300">Konten / Deskripsi Lengkap (Halaman Detail)</label>
-                    <textarea name="content" rows={5} defaultValue={srv.content} className="w-full bg-[#090A0F] border border-gray-800 rounded-2xl px-4 py-3 text-white text-sm font-medium shadow-inner leading-relaxed"></textarea>
+                    <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Konten / Deskripsi Lengkap (Halaman Detail)</label>
+                    <textarea name="content" rows={5} defaultValue={srv.content} className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm font-medium shadow-inner leading-relaxed transition-colors"></textarea>
                 </div>
 
                 {/* Upload Foto Galeri */}
-                <div className="space-y-3 pt-4 border-t border-gray-800">
-                    <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-300">Unggah Foto Galeri Layanan Baru</label>
-                    <input type="file" name="photoFile" accept="image/*" className="w-full bg-[#090A0F] border border-gray-800 rounded-2xl px-4 py-3 text-white text-xs cursor-pointer file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-gray-800 file:text-white hover:file:bg-gray-700" />
+                <div className="space-y-3 pt-4 border-t border-gray-200 dark:border-gray-800">
+                    <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Unggah Foto Galeri Layanan Baru</label>
+                    <input type="file" name="photoFile" accept="image/*" className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-xs cursor-pointer file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-gray-200 dark:file:bg-gray-800 file:text-gray-800 dark:file:text-white hover:file:bg-gray-300 dark:hover:file:bg-gray-700" />
 
                     {srv.images && srv.images.length > 0 && (
                         <div className="grid grid-cols-3 gap-4 pt-2">
                             {srv.images.map((img: string, idx: number) => (
-                                <div key={idx} className="relative rounded-2xl overflow-hidden border border-gray-800 bg-[#090A0F] h-28">
+                                <div key={idx} className="relative rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#090A0F] h-28">
                                     <img src={img} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
                                 </div>
                             ))}

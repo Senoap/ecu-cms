@@ -1,10 +1,10 @@
 // app/admin/services/ServicesClient.tsx
 'use client'
 import { useState, useMemo, useTransition } from 'react'
+import { Save } from 'lucide-react'
 import { ServiceItem } from '@/lib/db'
 import { AVAILABLE_ICONS, DynamicIcon } from '@/components/DynamicIcon'
 import { addService, updateService, deleteService, deleteServiceImage } from './actions'
-import Link from 'next/link'
 
 // Gabungkan dan otomatis hapus duplikat berdasarkan 'value' agar key unik
 const EXTENDED_ICONS = Array.from(
@@ -233,28 +233,28 @@ export default function ServicesClient({ initialServices }: { initialServices: S
         showSuccessToast ? 'translate-y-0 opacity-100 scale-100' : '-translate-y-4 opacity-0 scale-95 pointer-events-none'
       }`}>
         <div className="bg-amber-950/95 text-amber-300 border border-amber-500/40 px-6 py-4 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3">
-          <span className="text-xl">💾</span>
+          <Save className="w-5 h-5 text-amber-400 shrink-0" />
           <div>
             <h4 className="text-xs font-black uppercase tracking-wider">{toastMessage}</h4>
-            <p className="text-[11px] text-amber-400/80 font-medium">Masuk ke log notifikasi. Klik tombol Deploy (🚀) untuk menerbitkan.</p>
+            <p className="text-[11px] text-amber-400/80 font-medium">Masuk ke log notifikasi. Klik tombol Deploy untuk menerbitkan.</p>
           </div>
         </div>
       </div>
 
-      <div className="flex justify-between items-center bg-[#10131C] p-8 rounded-3xl border border-gray-800/80 shadow-xl relative overflow-hidden">
+      <div className="flex justify-between items-center bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-xl relative overflow-hidden transition-colors">
         <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
         <div className="space-y-1 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] font-black uppercase tracking-widest mb-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-[10px] font-black uppercase tracking-widest mb-2">
             <span>💼 Section Management</span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">Kelola Layanan (Services)</h1>
-          <p className="text-gray-400 text-xs md:text-sm font-medium">Tambah, edit isi konten, ikon visual, dan foto galeri dengan opsi watermark diagonal.</p>
+          <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight">Kelola Layanan (Services)</h1>
+          <p className="text-gray-600 dark:text-gray-400 text-xs md:text-sm font-medium">Tambah, edit isi konten, ikon visual, dan foto galeri dengan opsi watermark diagonal.</p>
         </div>
       </div>
 
       {/* Form Tambah Layanan Baru */}
-      <div className="bg-[#10131C] p-8 rounded-3xl border border-gray-800/80 shadow-xl space-y-6">
-        <h2 className="text-base font-black text-amber-500 tracking-wide uppercase flex items-center gap-2">
+      <div className="bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-xl space-y-6 transition-colors">
+        <h2 className="text-base font-black text-amber-600 dark:text-amber-500 tracking-wide uppercase flex items-center gap-2">
           <span>➕</span> Tambah Layanan Baru
         </h2>
         <form action={async (formData) => {
@@ -269,27 +269,27 @@ export default function ServicesClient({ initialServices }: { initialServices: S
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-2 space-y-2">
-              <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-300">Judul Layanan</label>
-              <input type="text" name="title" required placeholder="Contoh: Jasa Pengamanan" className="w-full bg-[#090A0F] border border-gray-800 rounded-2xl px-4 py-3 text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner" />
+              <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Judul Layanan</label>
+              <input type="text" name="title" required placeholder="Contoh: Jasa Pengamanan" className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner transition-colors" />
             </div>
             <div className="space-y-2">
-              <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-300">Pilih Ikon Visual</label>
+              <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Pilih Ikon Visual</label>
               <button
                 type="button"
                 onClick={() => { setIconTarget('add'); setIsIconModalOpen(true); }}
-                className="w-full bg-[#090A0F] border border-gray-800 hover:border-amber-500 rounded-2xl px-4 py-3 text-white flex items-center justify-between transition-colors shadow-inner"
+                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 hover:border-amber-500 rounded-2xl px-4 py-3 text-gray-900 dark:text-white flex items-center justify-between transition-colors shadow-inner cursor-pointer"
               >
                 <div className="flex items-center gap-2.5">
                   <DynamicIcon name={newServiceIcon} className="w-5 h-5 text-amber-500" />
                   <span className="text-xs font-bold">{newServiceIcon}</span>
                 </div>
-                <span className="text-xs text-amber-400 font-bold underline">Ganti</span>
+                <span className="text-xs text-amber-600 dark:text-amber-400 font-bold underline">Ganti</span>
               </button>
             </div>
           </div>
           <div className="space-y-2">
-            <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-300">Deskripsi Singkat (Card Home)</label>
-            <textarea name="desc" rows={2} placeholder="Penjelasan ringkas..." className="w-full bg-[#090A0F] border border-gray-800 rounded-2xl px-4 py-3 text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner"></textarea>
+            <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Deskripsi Singkat (Card Home)</label>
+            <textarea name="desc" rows={2} placeholder="Penjelasan ringkas..." className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner transition-colors"></textarea>
           </div>
           <button type="submit" disabled={isPending} className="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-black text-xs uppercase tracking-widest px-6 py-3.5 rounded-xl transition-all shadow-lg cursor-pointer">
             {isPending ? 'Menyimpan...' : 'Simpan Layanan Baru ke Draft'}
@@ -298,21 +298,21 @@ export default function ServicesClient({ initialServices }: { initialServices: S
       </div>
 
       {/* List Daftar Layanan */}
-      <div className="bg-[#10131C] p-8 rounded-3xl border border-gray-800/80 shadow-xl space-y-6">
-        <h2 className="text-base font-black text-amber-500 tracking-wide uppercase flex items-center gap-2">
+      <div className="bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-xl space-y-6 transition-colors">
+        <h2 className="text-base font-black text-amber-600 dark:text-amber-500 tracking-wide uppercase flex items-center gap-2">
           <span>📋</span> Daftar Layanan Saat Ini
         </h2>
         <div className="space-y-4">
           {(initialServices || []).map((srv) => (
-            <div key={srv.id} className="flex justify-between items-center bg-[#090A0F] p-5 rounded-2xl border border-gray-800/90 shadow-sm">
+            <div key={srv.id} className="flex justify-between items-center bg-gray-50 dark:bg-[#090A0F] p-5 rounded-2xl border border-gray-200 dark:border-gray-800/90 shadow-sm transition-colors">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gray-900 rounded-2xl border border-gray-800 flex items-center justify-center text-amber-500 shadow-inner">
+                <div className="w-12 h-12 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 flex items-center justify-center text-amber-600 dark:text-amber-500 shadow-inner">
                   <DynamicIcon name={srv.icon} className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm text-white">{srv.title}</h3>
-                  <p className="text-gray-400 text-xs font-medium">{srv.desc}</p>
-                  <span className="text-[10px] bg-amber-500/10 text-amber-400 font-bold px-2 py-0.5 rounded-md mt-1.5 inline-block border border-amber-500/20">
+                  <h3 className="font-bold text-sm text-gray-900 dark:text-white">{srv.title}</h3>
+                  <p className="text-gray-600 dark:text-gray-400 text-xs font-medium">{srv.desc}</p>
+                  <span className="text-[10px] bg-amber-500/10 text-amber-700 dark:text-amber-400 font-bold px-2 py-0.5 rounded-md mt-1.5 inline-block border border-amber-500/20">
                     {(srv.images || []).length} Foto Galeri Terlampir
                   </span>
                 </div>
@@ -321,7 +321,7 @@ export default function ServicesClient({ initialServices }: { initialServices: S
                 <button
                   type="button"
                   onClick={() => handleOpenEdit(srv)}
-                  className="bg-blue-950/40 hover:bg-blue-900/60 text-blue-300 px-4 py-2.5 rounded-xl text-xs font-extrabold transition-colors border border-blue-500/30 cursor-pointer shadow-sm"
+                  className="bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 px-4 py-2.5 rounded-xl text-xs font-extrabold transition-colors border border-blue-200 dark:border-blue-500/30 cursor-pointer shadow-sm"
                 >
                   Edit Konten & Watermark
                 </button>
@@ -335,7 +335,7 @@ export default function ServicesClient({ initialServices }: { initialServices: S
                   })
                 }}>
                   <input type="hidden" name="id" value={srv.id} />
-                  <button type="submit" className="bg-red-950/40 hover:bg-red-900/60 text-red-300 px-3.5 py-2.5 rounded-xl text-xs font-extrabold transition-colors border border-red-500/30 cursor-pointer shadow-sm">
+                  <button type="submit" className="bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/60 text-red-700 dark:text-red-300 px-3.5 py-2.5 rounded-xl text-xs font-extrabold transition-colors border border-red-200 dark:border-red-500/30 cursor-pointer shadow-sm">
                     Hapus
                   </button>
                 </form>
@@ -348,16 +348,16 @@ export default function ServicesClient({ initialServices }: { initialServices: S
       {/* POPUP MODAL EDIT KONTEN & WATERMARK */}
       {isModalOpen && editingService && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto">
-          <div className="bg-[#10131C] border border-gray-800 w-full max-w-3xl rounded-3xl p-8 shadow-2xl space-y-6 my-8 relative">
-            <div className="flex justify-between items-center border-b border-gray-800 pb-4">
+          <div className="bg-white dark:bg-[#10131C] border border-gray-200 dark:border-gray-800 w-full max-w-3xl rounded-3xl p-8 shadow-2xl space-y-6 my-8 relative transition-colors">
+            <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-800 pb-4">
               <div>
-                <h2 className="text-lg font-black text-white">Edit Konten & Watermark: {editingService.title}</h2>
-                <p className="text-gray-400 text-xs font-medium">Atur opsi watermark diagonal, preview foto, lalu simpan ke draft.</p>
+                <h2 className="text-lg font-black text-gray-900 dark:text-white">Edit Konten & Watermark: {editingService.title}</h2>
+                <p className="text-gray-600 dark:text-gray-400 text-xs font-medium">Atur opsi watermark diagonal, preview foto, lalu simpan ke draft.</p>
               </div>
               <button
                 type="button"
                 onClick={handleCloseModal}
-                className="w-9 h-9 rounded-full bg-gray-800 hover:bg-gray-700 text-gray-300 flex items-center justify-center font-bold text-sm transition-colors cursor-pointer"
+                className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 flex items-center justify-center font-bold text-sm transition-colors cursor-pointer"
               >
                 ✕
               </button>
@@ -378,43 +378,43 @@ export default function ServicesClient({ initialServices }: { initialServices: S
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="md:col-span-2 space-y-2">
-                  <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-300">Judul Layanan</label>
-                  <input type="text" name="title" defaultValue={editingService.title} required className="w-full bg-[#090A0F] border border-gray-800 rounded-2xl px-4 py-3 text-white text-sm font-medium shadow-inner" />
+                  <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Judul Layanan</label>
+                  <input type="text" name="title" defaultValue={editingService.title} required className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm font-medium shadow-inner transition-colors" />
                 </div>
                 <div className="space-y-2">
-                  <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-300">Pilih Ikon Visual</label>
+                  <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Pilih Ikon Visual</label>
                   <button
                     type="button"
                     onClick={() => { setIconTarget('edit'); setIsIconModalOpen(true); }}
-                    className="w-full bg-[#090A0F] border border-gray-800 hover:border-amber-500 rounded-2xl px-4 py-3 text-white flex items-center justify-between transition-colors shadow-inner cursor-pointer"
+                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 hover:border-amber-500 rounded-2xl px-4 py-3 text-gray-900 dark:text-white flex items-center justify-between transition-colors shadow-inner cursor-pointer"
                   >
                     <div className="flex items-center gap-2">
                       <DynamicIcon name={editServiceIcon} className="w-5 h-5 text-amber-500" />
                       <span className="text-xs font-bold">{editServiceIcon}</span>
                     </div>
-                    <span className="text-xs text-amber-400 font-bold underline">Ganti</span>
+                    <span className="text-xs text-amber-600 dark:text-amber-400 font-bold underline">Ganti</span>
                   </button>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-300">Deskripsi Singkat (Card Home)</label>
-                <input type="text" name="desc" defaultValue={editingService.desc} className="w-full bg-[#090A0F] border border-gray-800 rounded-2xl px-4 py-3 text-white text-sm font-medium shadow-inner" />
+                <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Deskripsi Singkat (Card Home)</label>
+                <input type="text" name="desc" defaultValue={editingService.desc} className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm font-medium shadow-inner transition-colors" />
               </div>
 
               <div className="space-y-2">
-                <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-300">Konten / Deskripsi Lengkap (Halaman Detail)</label>
-                <textarea name="content" rows={4} defaultValue={editingService.content || editingService.desc} className="w-full bg-[#090A0F] border border-gray-800 rounded-2xl px-4 py-3 text-white text-sm font-medium shadow-inner leading-relaxed"></textarea>
+                <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Konten / Deskripsi Lengkap (Halaman Detail)</label>
+                <textarea name="content" rows={4} defaultValue={editingService.content || editingService.desc} className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm font-medium shadow-inner leading-relaxed transition-colors"></textarea>
               </div>
 
               {/* PENGATURAN WATERMARK & UPLOAD FOTO */}
-              <div className="space-y-4 pt-4 border-t border-gray-800">
-                <h3 className="text-xs font-black text-amber-500 uppercase tracking-widest">Konfigurasi Watermark & Galeri Foto</h3>
+              <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-800">
+                <h3 className="text-xs font-black text-amber-600 dark:text-amber-500 uppercase tracking-widest">Konfigurasi Watermark & Galeri Foto</h3>
 
-                <div className="flex items-center justify-between bg-[#090A0F] p-4 rounded-2xl border border-gray-800">
+                <div className="flex items-center justify-between bg-gray-50 dark:bg-[#090A0F] p-4 rounded-2xl border border-gray-200 dark:border-gray-800 transition-colors">
                   <div>
-                    <span className="text-xs font-bold text-white block">Terapkan Watermark Diagonal</span>
-                    <span className="text-[11px] text-gray-400">Geser untuk mengaktifkan/menonaktifkan watermark transparan pada foto baru.</span>
+                    <span className="text-xs font-bold text-gray-900 dark:text-white block">Terapkan Watermark Diagonal</span>
+                    <span className="text-[11px] text-gray-600 dark:text-gray-400">Geser untuk mengaktifkan/menonaktifkan watermark transparan pada foto baru.</span>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
@@ -424,30 +424,30 @@ export default function ServicesClient({ initialServices }: { initialServices: S
                       onChange={(e) => setApplyWatermark(e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-gray-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
+                    <div className="w-11 h-6 bg-gray-200 dark:bg-gray-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
                   </label>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-300">Caption Teks Watermark</label>
+                    <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Caption Teks Watermark</label>
                     <input
                       type="text"
                       value={watermarkCaption}
                       onChange={(e) => setWatermarkCaption(e.target.value)}
                       placeholder="Contoh: PT. EMPAT SINERGI UTAMA"
-                      className="w-full bg-[#090A0F] border border-gray-800 rounded-2xl px-4 py-3 text-white text-sm font-medium shadow-inner"
+                      className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm font-medium shadow-inner transition-colors"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-300">Pilih Foto Baru (Maks. 10)</label>
+                    <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Pilih Foto Baru (Maks. 10)</label>
                     <input
                       type="file"
                       name="photoFile"
                       accept="image/*"
                       multiple
                       onChange={handleFileChange}
-                      className="w-full bg-[#090A0F] border border-gray-800 rounded-xl px-3 py-2 text-white text-xs cursor-pointer file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-gray-800 file:text-white hover:file:bg-gray-700"
+                      className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-gray-900 dark:text-white text-xs cursor-pointer file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-gray-200 dark:file:bg-gray-800 file:text-gray-800 dark:file:text-white hover:file:bg-gray-300 dark:hover:file:bg-gray-700"
                     />
                   </div>
                 </div>
@@ -455,10 +455,10 @@ export default function ServicesClient({ initialServices }: { initialServices: S
                 {/* Pratinjau Foto Sebelum Disimpan */}
                 {previewUrls.length > 0 && (
                   <div className="space-y-2">
-                    <p className="text-xs font-bold text-gray-400">Pratinjau Foto Sebelum Disimpan:</p>
+                    <p className="text-xs font-bold text-gray-700 dark:text-gray-400">Pratinjau Foto Sebelum Disimpan:</p>
                     <div className="grid grid-cols-4 gap-3">
                       {previewUrls.map((url, idx) => (
-                        <div key={idx} className="relative rounded-2xl overflow-hidden border border-gray-700 bg-[#090A0F] h-24 flex items-center justify-center">
+                        <div key={idx} className="relative rounded-2xl overflow-hidden border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#090A0F] h-24 flex items-center justify-center">
                           <img src={url} alt={`Preview ${idx}`} className="w-full h-full object-cover" />
                           {applyWatermark && (
                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -482,10 +482,10 @@ export default function ServicesClient({ initialServices }: { initialServices: S
                 {/* Foto Galeri Tersimpan */}
                 {editingService.images && editingService.images.length > 0 && (
                   <div className="space-y-2 pt-2">
-                    <p className="text-xs font-bold text-amber-500">Galeri Foto Tersimpan Saat Ini (Klik ✕ untuk menghapus):</p>
+                    <p className="text-xs font-bold text-amber-600 dark:text-amber-500">Galeri Foto Tersimpan Saat Ini (Klik ✕ untuk menghapus):</p>
                     <div className="grid grid-cols-4 gap-3">
                       {editingService.images.map((img, idx) => (
-                        <div key={idx} className="relative rounded-2xl overflow-hidden border border-gray-800 bg-[#090A0F] h-24 group">
+                        <div key={idx} className="relative rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#090A0F] h-24 group">
                           <img src={img} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
                           <button
                             type="button"
@@ -503,11 +503,11 @@ export default function ServicesClient({ initialServices }: { initialServices: S
               </div>
 
               {/* TOMBOL SIMPAN KE DRAFT DI DALAM MODAL */}
-              <div className="flex justify-end gap-3 pt-4 border-t border-gray-800">
+              <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-800">
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="px-5 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-xs font-extrabold uppercase tracking-wider transition-colors cursor-pointer"
+                  className="px-5 py-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl text-xs font-extrabold uppercase tracking-wider transition-colors cursor-pointer"
                 >
                   Batal
                 </button>
@@ -516,11 +516,16 @@ export default function ServicesClient({ initialServices }: { initialServices: S
                   disabled={!isDirty || isPending}
                   className={`px-6 py-2.5 rounded-xl text-xs font-black tracking-widest uppercase transition-all duration-300 border backdrop-blur-md cursor-pointer ${
                     !isDirty || isPending
-                      ? 'bg-gray-900/40 text-gray-600 border-gray-800/40 cursor-not-allowed opacity-50'
+                      ? 'bg-gray-200 dark:bg-gray-900/40 text-gray-400 dark:text-gray-600 border-gray-300 dark:border-gray-800/40 cursor-not-allowed opacity-50'
                       : 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white border-amber-500/40 shadow-lg shadow-amber-900/50 hover:scale-105 animate-pulse'
                   }`}
                 >
-                  {isPending ? 'Menyimpan...' : '💾 Simpan ke Draft'}
+                  {isPending ? 'Menyimpan...' : (
+                    <span className="flex items-center gap-1.5">
+                      <Save className="w-4 h-4" />
+                      <span>Simpan ke Draft</span>
+                    </span>
+                  )}
                 </button>
               </div>
             </form>
@@ -531,11 +536,11 @@ export default function ServicesClient({ initialServices }: { initialServices: S
       {/* POPUP MODAL PILIH IKON */}
       {isIconModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 overflow-y-auto">
-          <div className="bg-[#10131C] border border-gray-800 w-full max-w-6xl rounded-3xl p-8 shadow-2xl space-y-6 relative animate-in fade-in zoom-in duration-200">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-800 pb-5">
+          <div className="bg-white dark:bg-[#10131C] border border-gray-200 dark:border-gray-800 w-full max-w-6xl rounded-3xl p-8 shadow-2xl space-y-6 relative animate-in fade-in zoom-in duration-200 transition-colors">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
               <div>
-                <h3 className="text-lg font-black text-white">Pilih Ikon Layanan ({filteredIcons.length} Tersedia)</h3>
-                <p className="text-gray-400 text-xs font-medium">Cari dan klik salah satu ikon di bawah ini untuk menggunakannya.</p>
+                <h3 className="text-lg font-black text-gray-900 dark:text-white">Pilih Ikon Layanan ({filteredIcons.length} Tersedia)</h3>
+                <p className="text-gray-600 dark:text-gray-400 text-xs font-medium">Cari dan klik salah satu ikon di bawah ini untuk menggunakannya.</p>
               </div>
               <div className="flex items-center gap-3 w-full sm:w-auto">
                 <input
@@ -543,12 +548,12 @@ export default function ServicesClient({ initialServices }: { initialServices: S
                   value={iconSearchQuery}
                   onChange={(e) => setIconSearchQuery(e.target.value)}
                   placeholder="Cari ikon..."
-                  className="bg-[#090A0F] border border-gray-800 rounded-2xl px-4 py-2.5 text-white text-xs w-full sm:w-64 focus:border-amber-500 focus:outline-none shadow-inner"
+                  className="bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-2.5 text-gray-900 dark:text-white text-xs w-full sm:w-64 focus:border-amber-500 focus:outline-none shadow-inner transition-colors"
                 />
                 <button
                   type="button"
                   onClick={() => setIsIconModalOpen(false)}
-                  className="w-10 h-10 rounded-2xl bg-gray-800 hover:bg-gray-700 text-gray-300 flex items-center justify-center font-bold text-base transition-colors shadow flex-shrink-0 cursor-pointer"
+                  className="w-10 h-10 rounded-2xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 flex items-center justify-center font-bold text-base transition-colors shadow flex-shrink-0 cursor-pointer"
                 >
                   ✕
                 </button>
@@ -561,9 +566,9 @@ export default function ServicesClient({ initialServices }: { initialServices: S
                   key={ic.value}
                   type="button"
                   onClick={() => handleSelectIcon(ic.value)}
-                  className="group flex flex-col items-center justify-center gap-2 p-3 rounded-2xl bg-[#090A0F] hover:bg-amber-500/20 border border-gray-800 hover:border-amber-500 transition-all duration-200 text-gray-300 hover:text-white cursor-pointer"
+                  className="group flex flex-col items-center justify-center gap-2 p-3 rounded-2xl bg-gray-50 dark:bg-[#090A0F] hover:bg-amber-500/10 dark:hover:bg-amber-500/20 border border-gray-200 dark:border-gray-800 hover:border-amber-500 transition-all duration-200 text-gray-700 dark:text-gray-300 hover:text-amber-700 dark:hover:text-white cursor-pointer"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-gray-900 group-hover:bg-amber-500/30 flex items-center justify-center text-amber-500 transition-colors shadow-inner">
+                  <div className="w-12 h-12 rounded-xl bg-white dark:bg-gray-900 group-hover:bg-amber-500/20 dark:group-hover:bg-amber-500/30 flex items-center justify-center text-amber-600 dark:text-amber-500 transition-colors shadow-inner border border-gray-200 dark:border-gray-800">
                     <DynamicIcon name={ic.value} className="w-6 h-6" />
                   </div>
                   <span className="text-[10px] text-center truncate w-full font-bold">{ic.label}</span>
@@ -571,8 +576,8 @@ export default function ServicesClient({ initialServices }: { initialServices: S
               ))}
 
               {filteredIcons.length === 0 && (
-                <div className="col-span-full py-16 text-center text-gray-400 text-sm font-medium">
-                  Ikon tidak ditemukan untuk pencarian "<span className="text-amber-500">{iconSearchQuery}</span>"
+                <div className="col-span-full py-16 text-center text-gray-500 dark:text-gray-400 text-sm font-medium">
+                  Ikon tidak ditemukan untuk pencarian &quot;<span className="text-amber-600 dark:text-amber-500">{iconSearchQuery}</span>&quot;
                 </div>
               )}
             </div>

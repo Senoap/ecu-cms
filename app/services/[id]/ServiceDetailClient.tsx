@@ -1,11 +1,12 @@
 // app/services/[id]/ServiceDetailClient.tsx
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { MessageSquare, Sun, Moon } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import { DynamicIcon } from '@/components/DynamicIcon'
 import { useLanguage } from '@/components/LanguageContext'
-import { ServiceItem } from '@/lib/db'
+import { ServiceItem, DatabaseContent, FooterContent } from '@/lib/db'
 
 export default function ServiceDetailClient({
   srv,
@@ -13,11 +14,35 @@ export default function ServiceDetailClient({
   footer
 }: {
   srv: ServiceItem
-  setting: any
-  footer: any
+  setting: DatabaseContent['setting']
+  footer: FooterContent
 }) {
   const { locale, t, getFallbackContent } = useLanguage()
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null)
+  const [isDarkMode, setIsDarkMode] = useState(false)
+
+  // Sinkronisasi tema dengan document.documentElement & event esu-theme-change
+  useEffect(() => {
+    const syncTheme = () => {
+      const dark = document.documentElement.classList.contains('dark') || localStorage.getItem('esu_site_theme') === 'dark'
+      setIsDarkMode(dark)
+    }
+    syncTheme()
+    window.addEventListener('esu-theme-change', syncTheme)
+    return () => window.removeEventListener('esu-theme-change', syncTheme)
+  }, [])
+
+  const toggleSiteTheme = () => {
+    const next = !isDarkMode
+    setIsDarkMode(next)
+    localStorage.setItem('esu_site_theme', next ? 'dark' : 'light')
+    if (next) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+    window.dispatchEvent(new Event('esu-theme-change'))
+  }
 
   const fb = getFallbackContent('services', srv.id)
   const title = (locale === 'en' && fb?.title) ? fb.title : srv.title
@@ -66,7 +91,7 @@ export default function ServiceDetailClient({
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-gray-900 dark:text-white">
             {title}
           </h1>
-          <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-300 font-medium leading-relaxed">
+          <p className="text-sm sm:text-base md:text-lg text-gray-700 dark:text-gray-300 font-medium leading-relaxed">
             {desc}
           </p>
         </div>
@@ -79,7 +104,7 @@ export default function ServiceDetailClient({
               {t.services.scopeAndContent}
             </h2>
           </div>
-          <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-sm sm:text-base md:text-lg whitespace-pre-line text-justify">
+          <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-sm sm:text-base md:text-lg whitespace-pre-line text-justify font-medium">
             {content}
           </p>
         </div>
@@ -91,7 +116,7 @@ export default function ServiceDetailClient({
               <h2 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
                 {t.services.projectDocs}
               </h2>
-              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-medium">
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium">
                 {srv.images.length} {t.gallery.photoCount}
               </p>
             </div>
@@ -119,8 +144,8 @@ export default function ServiceDetailClient({
 
         {/* CTA Konsultasi & Pengajuan Layanan */}
         <div className="bg-gradient-to-br from-gray-900 via-gray-950 to-black text-white p-8 sm:p-12 rounded-3xl text-center space-y-6 shadow-2xl border border-gray-800">
-          <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 text-3xl">
-            💬
+          <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
+            <MessageSquare className="w-8 h-8" />
           </div>
           <div className="space-y-2 max-w-xl mx-auto">
             <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
@@ -141,7 +166,7 @@ export default function ServiceDetailClient({
                 rel="noopener noreferrer"
                 className="w-full sm:w-auto px-8 py-4 rounded-xl text-xs sm:text-sm font-black text-white bg-emerald-600 hover:bg-emerald-500 shadow-xl transition-all duration-300 active:scale-95 uppercase tracking-wider flex items-center justify-center gap-2"
               >
-                <span>💬</span>
+                <MessageSquare className="w-4 h-4" />
                 <span>{locale === 'en' ? 'Consult via WhatsApp' : 'Konsultasi via WhatsApp'}</span>
               </a>
             )}
@@ -158,16 +183,11 @@ export default function ServiceDetailClient({
 
       <footer className="max-w-5xl mx-auto py-8 px-4 border-t border-gray-200/60 dark:border-gray-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 font-semibold gap-3">
         <span>© 2026 {setting.siteName}. All Rights Reserved.</span>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 select-none">
           <span>Website by</span>
-          <a
-            href="https://lembahtech.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-2.5 py-0.5 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 font-black uppercase tracking-wider"
-          >
+          <span className="px-2.5 py-0.5 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 font-black uppercase tracking-wider">
             lembahtech
-          </a>
+          </span>
         </div>
       </footer>
 
@@ -188,6 +208,23 @@ export default function ServiceDetailClient({
           </div>
         </div>
       )}
+
+      {/* TOMBOL KONTROL MELAYANG DI POJOK KANAN BAWAH */}
+      <div className="fixed bottom-6 right-6 z-40">
+        <button
+          type="button"
+          onClick={toggleSiteTheme}
+          className={`w-12 h-12 rounded-full shadow-2xl flex items-center justify-center text-lg transition-all duration-300 hover:scale-110 border backdrop-blur-md cursor-pointer ${
+            isDarkMode
+              ? 'bg-gray-900/95 text-amber-400 border-gray-700/80 shadow-amber-900/40 hover:bg-gray-800 hover:border-amber-500/50'
+              : 'bg-white text-amber-800 border-gray-300 shadow-xl hover:bg-gray-50 hover:border-amber-600/60'
+          }`}
+          title={isDarkMode ? (locale === 'en' ? 'Switch to Light Mode' : 'Ubah ke Mode Terang') : (locale === 'en' ? 'Switch to Dark Mode' : 'Ubah ke Mode Malam')}
+          aria-label="Toggle Theme"
+        >
+          {isDarkMode ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-amber-800" />}
+        </button>
+      </div>
     </div>
   )
 }

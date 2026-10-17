@@ -1,25 +1,29 @@
 // app/admin/layout.tsx
-import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { readDB, deployDB, clearNotifications, markNotificationsAsViewed } from '@/lib/db'
+import { getCurrentUser, requireAdmin } from '@/lib/auth'
+import { readDB, clearNotifications, markNotificationsAsViewed } from '@/lib/db'
+import { deployWithAudit } from '@/lib/audit'
 import { revalidatePath } from 'next/cache'
 import AdminLayoutClient from './AdminLayoutClient'
 
 async function handleDeployAction() {
   'use server'
-  await deployDB()
+  await requireAdmin()
+  await deployWithAudit()
   revalidatePath('/', 'layout')
   revalidatePath('/admin', 'layout')
 }
 
 async function handleClearNotifications() {
   'use server'
+  await requireAdmin()
   await clearNotifications()
   revalidatePath('/admin')
 }
 
 async function handleMarkAsViewed() {
   'use server'
+  await requireAdmin()
   await markNotificationsAsViewed()
   revalidatePath('/admin')
 }
@@ -30,10 +34,8 @@ export default async function AdminLayout({
   children: React.ReactNode
 }) {
   // 1. CEK AUTENTIKASI (Keamanan Akses CMS)
-  const cookieStore = await cookies()
-  const session = cookieStore.get('esu_admin_session')
-
-  if (!session || session.value !== 'authenticated') {
+  const user = await getCurrentUser()
+  if (!user) {
     redirect('/login')
   }
 
@@ -45,6 +47,7 @@ export default async function AdminLayout({
 
   return (
     <AdminLayoutClient 
+      currentUser={user}
       sections={sections} 
       notifications={notifications} 
       hasDraft={hasDraft} 

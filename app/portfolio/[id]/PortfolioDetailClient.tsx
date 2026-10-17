@@ -2,9 +2,10 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
+import { MessageSquare } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import { useLanguage } from '@/components/LanguageContext'
-import { PortfolioItem } from '@/lib/db'
+import { PortfolioItem, DatabaseContent, FooterContent } from '@/lib/db'
 
 export default function PortfolioDetailClient({
   item,
@@ -14,8 +15,8 @@ export default function PortfolioDetailClient({
 }: {
   item: PortfolioItem
   allPortfolios: PortfolioItem[]
-  setting: any
-  footer: any
+  setting: DatabaseContent['setting']
+  footer: FooterContent
 }) {
   const { locale, t, getFallbackContent } = useLanguage()
   const [showImageModal, setShowImageModal] = useState(false)
@@ -114,10 +115,10 @@ export default function PortfolioDetailClient({
             <div className="space-y-4 text-xs sm:text-sm">
               {/* Row Status */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-gray-100 dark:border-gray-800 pb-3.5">
-                <span className="text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider text-[11px] shrink-0">
+                <span className="text-gray-600 dark:text-gray-400 font-bold uppercase tracking-wider text-[11px] shrink-0">
                   {locale === 'en' ? 'Status' : 'Status'}
                 </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-black text-xs uppercase tracking-wider border border-emerald-500/20 w-fit self-start sm:self-auto">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-black text-xs uppercase tracking-wider border border-emerald-500/20 w-fit self-start sm:self-auto">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                   {locale === 'en' ? 'Completed & Verified' : 'Selesai & Terverifikasi'}
                 </span>
@@ -125,7 +126,7 @@ export default function PortfolioDetailClient({
 
               {/* Row Kategori */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-4 border-b border-gray-100 dark:border-gray-800 pb-3.5">
-                <span className="text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider text-[11px] shrink-0">
+                <span className="text-gray-600 dark:text-gray-400 font-bold uppercase tracking-wider text-[11px] shrink-0">
                   {locale === 'en' ? 'Category' : 'Kategori'}
                 </span>
                 <span className="font-extrabold text-gray-900 dark:text-white text-xs sm:text-sm sm:text-right">
@@ -135,7 +136,7 @@ export default function PortfolioDetailClient({
 
               {/* Row Penyedia */}
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1.5 sm:gap-4 border-b border-gray-100 dark:border-gray-800 pb-3.5">
-                <span className="text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider text-[11px] shrink-0">
+                <span className="text-gray-600 dark:text-gray-400 font-bold uppercase tracking-wider text-[11px] shrink-0">
                   {locale === 'en' ? 'Provider' : 'Penyedia'}
                 </span>
                 <span className="font-extrabold text-gray-900 dark:text-white text-xs sm:text-sm sm:text-right break-words">
@@ -152,7 +153,7 @@ export default function PortfolioDetailClient({
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2 w-full py-4 px-4 rounded-xl text-xs sm:text-sm font-black text-white text-center bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-900/20 transition-all duration-300 uppercase tracking-wider active:scale-95 cursor-pointer"
                 >
-                  <span>💬</span>
+                  <MessageSquare className="w-4 h-4" />
                   <span>{locale === 'en' ? 'Inquire Similar Project' : 'Konsultasi Proyek Serupa'}</span>
                 </a>
               </div>
@@ -203,16 +204,11 @@ export default function PortfolioDetailClient({
 
       <footer className="max-w-5xl mx-auto py-8 px-4 border-t border-gray-200/60 dark:border-gray-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 font-semibold gap-3">
         <span>© 2026 {setting.siteName}. All Rights Reserved.</span>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 select-none">
           <span>Website by</span>
-          <a
-            href="https://lembahtech.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-2.5 py-0.5 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 font-black uppercase tracking-wider"
-          >
+          <span className="px-2.5 py-0.5 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 font-black uppercase tracking-wider">
             lembahtech
-          </a>
+          </span>
         </div>
       </footer>
 

@@ -1,5 +1,11 @@
 // app/admin/footer/page.tsx
-import { readDB, writeDB, addNotification } from '@/lib/db'
+import { 
+  readDB, 
+  writeDB, 
+  addNotification, 
+  defaultFooterSocialMedia, 
+  defaultInquiryTemplates 
+} from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import FooterPageClient from './FooterPageClient'
 
@@ -7,30 +13,70 @@ async function updateFooter(formData: FormData) {
   'use server'
   const db = await readDB()
   
+  const desc = (formData.get('description') as string)?.trim() || ''
+  const addr = (formData.get('address') as string)?.trim() || ''
+  const phone = (formData.get('phone') as string)?.trim() || ''
+  const wa = ((formData.get('whatsapp') as string)?.trim()) || phone
+  const email = (formData.get('email') as string)?.trim() || ''
+
+  const socialEnabled = formData.get('socialEnabled') === 'true' || formData.get('socialEnabled') === 'on'
+  const socialMedia = {
+    enabled: socialEnabled,
+    instagram: (formData.get('instagram') as string)?.trim() || '',
+    linkedin: (formData.get('linkedin') as string)?.trim() || '',
+    facebook: (formData.get('facebook') as string)?.trim() || '',
+    tiktok: (formData.get('tiktok') as string)?.trim() || '',
+    youtube: (formData.get('youtube') as string)?.trim() || '',
+  }
+
+  const inquiryTemplates = {
+    waMessage: (formData.get('waMessage') as string)?.trim() || defaultInquiryTemplates.waMessage,
+    emailSubject: (formData.get('emailSubject') as string)?.trim() || defaultInquiryTemplates.emailSubject,
+    emailBody: (formData.get('emailBody') as string)?.trim() || defaultInquiryTemplates.emailBody,
+  }
+
+  db.footer = {
+    description: desc,
+    address: addr,
+    phone,
+    whatsapp: wa,
+    email,
+    socialMedia,
+    inquiryTemplates,
+  }
+
   // Memperbarui seksi 'contact' di dalam array sections agar konsisten
   db.sections = db.sections.map((sec) => {
     if (sec.id === 'contact') {
       return {
         ...sec,
-        content: formData.get('description') as string,
-        address: formData.get('address') as string,
-        phone: formData.get('phone') as string,
-        whatsapp: (formData.get('whatsapp') as string) || (formData.get('phone') as string),
-        email: formData.get('email') as string,
+        content: desc,
+        address: addr,
+        phone,
+        whatsapp: wa,
+        email,
       }
     }
     return sec
   })
 
+  if (db.published) {
+    db.published.footer = db.footer
+  }
+
   await writeDB(db)
-  await addNotification('Memperbarui informasi Footer & Kontak.', 'UPDATE')
+  await addNotification('Memperbarui informasi Footer, Media Sosial, dan Template Pertanyaan.', 'UPDATE')
   revalidatePath('/admin/footer')
   revalidatePath('/')
 }
 
 export default async function AdminFooterPage() {
   const db = await readDB()
-  const { footer } = db
+  const footer = {
+    ...db.footer,
+    socialMedia: db.footer.socialMedia || defaultFooterSocialMedia,
+    inquiryTemplates: db.footer.inquiryTemplates || defaultInquiryTemplates,
+  }
 
   return (
     <FooterPageClient 

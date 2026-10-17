@@ -3,8 +3,17 @@
 import { readDB, writeDB, addNotification, uploadFile, deleteFile } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import sharp from 'sharp'
+import { requireAdmin } from '@/lib/auth'
+
+const MAX_IMAGE_BYTES = 8 * 1024 * 1024
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+
+function escapeXml(s: string): string {
+  return s.replace(/[<>&'"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[c] as string))
+}
 
 export async function addService(formData: FormData) {
+  await requireAdmin()
   const title = formData.get('title') as string
   const desc = formData.get('desc') as string
   const icon = formData.get('icon') as string || 'Briefcase'
@@ -13,7 +22,7 @@ export async function addService(formData: FormData) {
 
   const db = await readDB()
   db.services.push({
-    id: Date.now().toString(),
+    id: crypto.randomUUID(),
     title,
     desc,
     icon,
@@ -26,6 +35,7 @@ export async function addService(formData: FormData) {
 }
 
 export async function updateService(formData: FormData) {
+  await requireAdmin()
   const id = formData.get('id') as string
   const title = formData.get('title') as string
   const desc = formData.get('desc') as string
@@ -49,12 +59,14 @@ export async function updateService(formData: FormData) {
   for (const photoFile of photoFiles) {
     if (photoFile && photoFile.size > 0) {
       if (srv.images.length >= 10) break
+      if (!ALLOWED_IMAGE_TYPES.includes(photoFile.type) || photoFile.size > MAX_IMAGE_BYTES) continue
+      if (srv.images.length >= 10) break
 
       const bytes = await photoFile.arrayBuffer()
       const buffer = Buffer.from(bytes)
       const filename = `service-${id}-${Date.now()}-${Math.random().toString(36).substring(2, 7)}.jpg`
 
-      const imageInstance = sharp(buffer)
+      const imageInstance = sharp(buffer, { limitInputPixels: 50_000_000 })
       const metadata = await imageInstance.metadata()
       const origWidth = metadata.width || 1200
       const origHeight = metadata.height || 800
@@ -86,7 +98,7 @@ export async function updateService(formData: FormData) {
                 dominant-baseline: central;
               }
             </style>
-            <text x="50%" y="50%" transform="rotate(-30 ${targetWidth / 2} ${targetHeight / 2})" class="text">© ${watermarkText}</text>
+            <text x="50%" y="50%" transform="rotate(-30 ${targetWidth / 2} ${targetHeight / 2})" class="text">© ${escapeXml(watermarkText)}</text>
           </svg>
         `)
 
@@ -111,6 +123,7 @@ export async function updateService(formData: FormData) {
 }
 
 export async function deleteServiceImage(formData: FormData) {
+  await requireAdmin()
   const serviceId = formData.get('serviceId') as string
   const imagePath = formData.get('imagePath') as string
 
@@ -118,7 +131,7 @@ export async function deleteServiceImage(formData: FormData) {
   const srv = db.services.find(s => s.id === serviceId)
   if (!srv) return
 
-  if (srv.images) {
+  if (srv.images && srv.images.includes(imagePath)) {
     srv.images = srv.images.filter(img => img !== imagePath)
 
     try {
@@ -136,6 +149,7 @@ export async function deleteServiceImage(formData: FormData) {
 }
 
 export async function deleteService(formData: FormData) {
+  await requireAdmin()
   const id = formData.get('id') as string
   const db = await readDB()
   const target = db.services.find(s => s.id === id)

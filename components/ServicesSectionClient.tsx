@@ -6,6 +6,7 @@ import { ServiceItem } from '@/lib/db'
 import { DynamicIcon } from '@/components/DynamicIcon'
 import { useLanguage } from '@/components/LanguageContext'
 import SmoothLoader from '@/components/SmoothLoader'
+import { X } from 'lucide-react'
 
 interface ServicesProps {
   services: ServiceItem[]
@@ -28,7 +29,6 @@ export default function ServicesSectionClient({
   slideDuration,
   primaryColor,
   secondaryColor = '#D4AF37',
-  accentColor = '#1E293B',
   loadingBgColor,
   logoUrl
 }: ServicesProps) {
@@ -169,8 +169,9 @@ export default function ServicesSectionClient({
               <button
                 onClick={handleCloseModal}
                 className="absolute top-6 right-6 w-11 h-11 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 flex items-center justify-center font-bold text-lg transition-colors shadow-sm cursor-pointer active:scale-95"
+                aria-label="Tutup modal"
               >
-                ✕
+                <X className="w-5 h-5" />
               </button>
 
               <div className="flex items-center gap-4 sm:gap-5 border-b border-gray-100 dark:border-gray-800 pb-6 pr-14">
@@ -185,7 +186,7 @@ export default function ServicesSectionClient({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 items-start">
                 <div className="space-y-5 min-w-0">
-                  <h3 className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-gray-400 dark:text-gray-500">{t.services.scopeAndContent}</h3>
+                  <h3 className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-gray-600 dark:text-gray-400">{t.services.scopeAndContent}</h3>
                   <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-sm sm:text-base md:text-lg whitespace-pre-line break-words font-medium">
                     {selectedContent}
                   </p>
@@ -210,7 +211,7 @@ export default function ServicesSectionClient({
                 </div>
 
                 <div className="space-y-4 min-w-0">
-                  <div className="flex justify-between items-center text-xs font-semibold text-gray-500">
+                  <div className="flex justify-between items-center text-xs font-semibold text-gray-600 dark:text-gray-400">
                     <span>{t.services.projectDocs}</span>
                     {selectedService.images && selectedService.images.length > 0 && (
                       <span>Slide {currentImageIndex + 1} {t.gallery.of} {selectedService.images.length} ({slideDuration}s)</span>

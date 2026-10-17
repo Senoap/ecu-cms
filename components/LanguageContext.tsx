@@ -9,7 +9,7 @@ interface LanguageContextType {
   setLocale: (loc: Locale) => void
   toggleLocale: () => void
   t: typeof translations['id']
-  getFallbackContent: (type: 'services' | 'portfolios' | 'career' | 'galleries', id: string) => any
+  getFallbackContent: (type: 'services' | 'portfolios' | 'career' | 'galleries', id: string) => Record<string, string> | null
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined)
@@ -20,7 +20,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const saved = localStorage.getItem('esu_locale') as Locale
     if (saved === 'id' || saved === 'en') {
-      setLocaleState(saved)
+      setTimeout(() => {
+        setLocaleState(saved)
+      }, 0)
     }
   }, [])
 

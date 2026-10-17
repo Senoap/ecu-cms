@@ -8,7 +8,8 @@ interface DynamicIconProps {
 
 export function DynamicIcon({ name, className = 'w-6 h-6' }: DynamicIconProps) {
   // Ambil komponen ikon secara dinamis dari lucide-react berdasarkan string namanya
-  const IconComponent = (LucideIcons as any)[name] || LucideIcons.Briefcase
+  const iconsMap = LucideIcons as unknown as Record<string, LucideIcons.LucideIcon>
+  const IconComponent = iconsMap[name] || LucideIcons.Briefcase
 
   return <IconComponent className={className} />
 }

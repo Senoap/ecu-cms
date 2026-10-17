@@ -1,6 +1,7 @@
 // app/admin/career/CareerClient.tsx
 'use client'
 import { useState, useTransition } from 'react'
+import { Save, Briefcase, MapPin, ClipboardList, Plus, X } from 'lucide-react'
 
 interface CareerItem {
   id: string
@@ -59,30 +60,32 @@ export default function CareerClient({
         showSuccessToast ? 'translate-y-0 opacity-100 scale-100' : '-translate-y-4 opacity-0 scale-95 pointer-events-none'
       }`}>
         <div className="bg-amber-950/95 text-amber-300 border border-amber-500/40 px-6 py-4 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3">
-          <span className="text-xl">💾</span>
+          <Save className="w-5 h-5 text-amber-400 shrink-0" />
           <div>
             <h4 className="text-xs font-black uppercase tracking-wider">{toastMessage}</h4>
-            <p className="text-[11px] text-amber-400/80 font-medium">Masuk ke log notifikasi. Klik tombol Deploy (🚀) untuk menerbitkan.</p>
+            <p className="text-[11px] text-amber-400/80 font-medium">Masuk ke log notifikasi. Klik tombol Deploy untuk menerbitkan.</p>
           </div>
         </div>
       </div>
 
       {/* Banner Header Halaman */}
-      <div className="flex justify-between items-center bg-[#10131C] p-8 rounded-3xl border border-gray-800/80 shadow-xl relative overflow-hidden">
+      <div className="flex justify-between items-center bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-xl relative overflow-hidden">
         <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
         <div className="space-y-1 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] font-black uppercase tracking-widest mb-2">
-            <span>🧑‍💻 Recruitment Portal</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 text-[10px] font-black uppercase tracking-widest mb-2">
+            <Briefcase className="w-3.5 h-3.5" />
+            <span>Recruitment Portal</span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">Kelola Lowongan Kerja (Career)</h1>
-          <p className="text-gray-400 text-xs md:text-sm font-medium">Atur informasi header seksi karir dan daftar posisi lowongan pekerjaan.</p>
+          <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight">Kelola Lowongan Kerja (Career)</h1>
+          <p className="text-gray-600 dark:text-gray-400 text-xs md:text-sm font-medium">Atur informasi header seksi karir dan daftar posisi lowongan pekerjaan.</p>
         </div>
         <button
           type="button"
           onClick={() => setIsAddModalOpen(true)}
-          className="relative z-10 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-black text-xs uppercase tracking-widest px-6 py-3.5 rounded-2xl transition-all shadow-lg shadow-amber-950/50 cursor-pointer"
+          className="relative z-10 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-black text-xs uppercase tracking-widest px-6 py-3.5 rounded-2xl transition-all shadow-lg shadow-amber-950/50 cursor-pointer flex items-center gap-2"
         >
-          + Tambah Lowongan
+          <Plus className="w-4 h-4" />
+          <span>Tambah Lowongan</span>
         </button>
       </div>
 
@@ -95,39 +98,39 @@ export default function CareerClient({
           setShowSuccessToast(true)
           setTimeout(() => setShowSuccessToast(false), 4000)
         })
-      }} onChange={() => setIsHeaderDirty(true)} className="bg-[#10131C] p-8 rounded-3xl border border-gray-800/80 shadow-xl space-y-6">
-        <h2 className="text-base font-black text-amber-500 tracking-wide uppercase flex items-center gap-2">
+      }} onChange={() => setIsHeaderDirty(true)} className="bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-xl space-y-6">
+        <h2 className="text-base font-black text-amber-600 dark:text-amber-500 tracking-wide uppercase flex items-center gap-2">
           <span>📝</span> Header & Judul Seksi Karir
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-300">Sub-Judul (Badge / Tag)</label>
+            <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Sub-Judul (Badge / Tag)</label>
             <input 
               type="text" 
               name="subtitle" 
               defaultValue={careerSection.subtitle || ''} 
-              className="w-full bg-[#090A0F] border border-gray-800 rounded-2xl px-4 py-3 text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner" 
+              className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner" 
             />
           </div>
           <div className="space-y-2">
-            <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-300">Judul Utama</label>
+            <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Judul Utama</label>
             <input 
               type="text" 
               name="title" 
               defaultValue={careerSection.title || ''} 
-              className="w-full bg-[#090A0F] border border-gray-800 rounded-2xl px-4 py-3 text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner" 
+              className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner" 
             />
           </div>
         </div>
 
         <div className="space-y-2">
-          <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-300">Deskripsi Singkat / Catatan</label>
+          <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Deskripsi Singkat / Catatan</label>
           <textarea 
             name="content" 
             rows={2} 
             defaultValue={careerSection.content || ''} 
-            className="w-full bg-[#090A0F] border border-gray-800 rounded-2xl px-4 py-3 text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner resize-none"
+            className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner resize-none"
           ></textarea>
         </div>
 
@@ -138,7 +141,7 @@ export default function CareerClient({
             disabled={!isHeaderDirty || isPending}
             className={`px-6 h-12 rounded-full shadow-2xl flex items-center gap-2.5 text-xs font-black tracking-widest uppercase transition-all duration-300 border backdrop-blur-md cursor-pointer ${
               !isHeaderDirty || isPending
-                ? 'bg-gray-900/40 text-gray-600 border-gray-800/40 cursor-not-allowed opacity-50 shadow-none'
+                ? 'bg-gray-200 dark:bg-gray-900/40 text-gray-400 dark:text-gray-600 border-gray-300 dark:border-gray-800/40 cursor-not-allowed opacity-50 shadow-none'
                 : 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white border-amber-500/40 shadow-xl shadow-amber-900/50 hover:scale-105 animate-pulse'
             }`}
           >
@@ -152,7 +155,7 @@ export default function CareerClient({
               </>
             ) : (
               <>
-                <span className="text-base">💾</span>
+                <Save className="w-4 h-4" />
                 <span>Simpan ke Draft</span>
               </>
             )}
@@ -161,35 +164,38 @@ export default function CareerClient({
       </form>
 
       {/* List Daftar Lowongan Kerja */}
-      <div className="bg-[#10131C] p-8 rounded-3xl border border-gray-800/80 shadow-xl space-y-6">
-        <h2 className="text-base font-black text-amber-500 tracking-wide uppercase flex items-center gap-2">
-          <span>📋</span> Daftar Posisi Lowongan ({careers.length})
+      <div className="bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-xl space-y-6">
+        <h2 className="text-base font-black text-amber-600 dark:text-amber-500 tracking-wide uppercase flex items-center gap-2">
+          <ClipboardList className="w-4 h-4" /> Daftar Posisi Lowongan ({careers.length})
         </h2>
 
         <div className="space-y-4">
           {careers.length === 0 ? (
-            <p className="text-xs text-gray-500 text-center py-12 font-medium">Belum ada lowongan pekerjaan yang ditambahkan.</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 text-center py-12 font-medium">Belum ada lowongan pekerjaan yang ditambahkan.</p>
           ) : (
             careers.map((job) => (
-              <div key={job.id} className="flex flex-col md:flex-row justify-between items-start md:items-center bg-[#090A0F] p-5 rounded-2xl border border-gray-800/90 shadow-sm gap-4">
+              <div key={job.id} className="flex flex-col md:flex-row justify-between items-start md:items-center bg-gray-50 dark:bg-[#090A0F] p-5 rounded-2xl border border-gray-200 dark:border-gray-800/90 shadow-sm gap-4">
                 <div className="space-y-1.5">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${job.isActive ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
+                    <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${job.isActive ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20'}`}>
                       {job.isActive ? 'Aktif' : 'Non-Aktif'}
                     </span>
-                    <span className="text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-0.5 rounded-full">
+                    <span className="text-[10px] font-bold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 px-2.5 py-0.5 rounded-full">
                       {job.type}
                     </span>
-                    <span className="text-[10px] font-bold text-gray-400">📍 {job.location}</span>
+                    <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                      <MapPin className="w-3 h-3 text-amber-600 dark:text-amber-500" />
+                      <span>{job.location}</span>
+                    </span>
                   </div>
-                  <h3 className="font-bold text-sm text-white">{job.title}</h3>
-                  <p className="text-gray-400 text-xs font-medium">{job.desc}</p>
+                  <h3 className="font-bold text-sm text-gray-900 dark:text-white">{job.title}</h3>
+                  <p className="text-gray-600 dark:text-gray-400 text-xs font-medium">{job.desc}</p>
                 </div>
                 <div className="flex items-center gap-2.5 self-end md:self-center">
                   <button
                     type="button"
                     onClick={() => handleOpenEdit(job)}
-                    className="bg-blue-950/40 hover:bg-blue-900/60 text-blue-300 px-4 py-2.5 rounded-xl text-xs font-extrabold transition-colors border border-blue-500/30 cursor-pointer shadow-sm"
+                    className="bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 px-4 py-2.5 rounded-xl text-xs font-extrabold transition-colors border border-blue-200 dark:border-blue-500/30 cursor-pointer shadow-sm"
                   >
                     Edit Lowongan
                   </button>
@@ -203,7 +209,7 @@ export default function CareerClient({
                     })
                   }}>
                     <input type="hidden" name="id" value={job.id} />
-                    <button type="submit" className="bg-red-950/40 hover:bg-red-900/60 text-red-300 px-3.5 py-2.5 rounded-xl text-xs font-extrabold transition-colors border border-red-500/30 cursor-pointer shadow-sm">
+                    <button type="submit" className="bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/60 text-red-700 dark:text-red-300 px-3.5 py-2.5 rounded-xl text-xs font-extrabold transition-colors border border-red-200 dark:border-red-500/30 cursor-pointer shadow-sm">
                       Hapus
                     </button>
                   </form>
@@ -217,10 +223,12 @@ export default function CareerClient({
       {/* MODAL TAMBAH LOWONGAN */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto">
-          <div className="bg-[#10131C] border border-gray-800 w-full max-w-lg rounded-3xl p-8 shadow-2xl space-y-6 relative">
-            <div className="flex justify-between items-center border-b border-gray-800 pb-4">
-              <h3 className="text-base font-black text-white uppercase tracking-wider">Tambah Lowongan Kerja Baru</h3>
-              <button onClick={() => setIsAddModalOpen(false)} className="text-gray-400 hover:text-white text-lg font-bold">✕</button>
+          <div className="bg-white dark:bg-[#10131C] border border-gray-200 dark:border-gray-800 w-full max-w-lg rounded-3xl p-8 shadow-2xl space-y-6 relative">
+            <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-800 pb-4">
+              <h3 className="text-base font-black text-gray-900 dark:text-white uppercase tracking-wider">Tambah Lowongan Kerja Baru</h3>
+              <button onClick={() => setIsAddModalOpen(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors">
+                <X className="w-4 h-4" />
+              </button>
             </div>
 
             <form action={async (formData) => {
@@ -233,33 +241,33 @@ export default function CareerClient({
               })
             }} className="space-y-4">
               <div className="space-y-1">
-                <label className="text-xs font-extrabold text-gray-400 uppercase">Posisi / Jabatan</label>
-                <input type="text" name="title" required placeholder="Contoh: Security Officer" className="w-full bg-[#090A0F] border border-gray-800 rounded-xl px-4 py-3 text-white text-xs font-medium focus:outline-none focus:border-amber-500" />
+                <label className="text-xs font-extrabold text-gray-700 dark:text-gray-400 uppercase">Posisi / Jabatan</label>
+                <input type="text" name="title" required placeholder="Contoh: Security Officer" className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-amber-500" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-xs font-extrabold text-gray-400 uppercase">Lokasi Penempatan</label>
-                  <input type="text" name="location" required placeholder="Contoh: Jakarta Selatan" className="w-full bg-[#090A0F] border border-gray-800 rounded-xl px-4 py-3 text-white text-xs font-medium focus:outline-none focus:border-amber-500" />
+                  <label className="text-xs font-extrabold text-gray-700 dark:text-gray-400 uppercase">Lokasi Penempatan</label>
+                  <input type="text" name="location" required placeholder="Contoh: Jakarta Selatan" className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-amber-500" />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-extrabold text-gray-400 uppercase">Tipe Pekerjaan</label>
-                  <select name="type" required className="w-full bg-[#090A0F] border border-gray-800 rounded-xl px-4 py-3 text-white text-xs font-medium focus:outline-none focus:border-amber-500 cursor-pointer">
+                  <label className="text-xs font-extrabold text-gray-700 dark:text-gray-400 uppercase">Tipe Pekerjaan</label>
+                  <select name="type" required className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-amber-500 cursor-pointer">
                     <option value="Full-time">Full-time</option>
                     <option value="Part-time">Part-time</option>
                   </select>
                 </div>
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-extrabold text-gray-400 uppercase">Deskripsi Pekerjaan</label>
-                <textarea name="desc" rows={2} required placeholder="Deskripsi ringkas posisi..." className="w-full bg-[#090A0F] border border-gray-800 rounded-xl p-3 text-white text-xs font-medium focus:outline-none focus:border-amber-500 resize-none"></textarea>
+                <label className="text-xs font-extrabold text-gray-700 dark:text-gray-400 uppercase">Deskripsi Pekerjaan</label>
+                <textarea name="desc" rows={2} required placeholder="Deskripsi ringkas posisi..." className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-amber-500 resize-none"></textarea>
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-extrabold text-gray-400 uppercase">Kualifikasi / Persyaratan</label>
-                <textarea name="requirements" rows={2} required placeholder="Persyaratan utama pelamar..." className="w-full bg-[#090A0F] border border-gray-800 rounded-xl p-3 text-white text-xs font-medium focus:outline-none focus:border-amber-500 resize-none"></textarea>
+                <label className="text-xs font-extrabold text-gray-700 dark:text-gray-400 uppercase">Kualifikasi / Persyaratan</label>
+                <textarea name="requirements" rows={2} required placeholder="Persyaratan utama pelamar..." className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-amber-500 resize-none"></textarea>
               </div>
               <input type="hidden" name="isActive" value="true" />
-              <div className="flex justify-end gap-3 pt-4 border-t border-gray-800">
-                <button type="button" onClick={() => setIsAddModalOpen(false)} className="px-5 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-xs font-extrabold uppercase transition-colors cursor-pointer">Batal</button>
+              <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-800">
+                <button type="button" onClick={() => setIsAddModalOpen(false)} className="px-5 py-2.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-300 rounded-xl text-xs font-extrabold uppercase transition-colors cursor-pointer">Batal</button>
                 <button type="submit" disabled={isPending} className="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-black text-xs uppercase tracking-widest px-6 py-2.5 rounded-xl transition-all shadow-lg cursor-pointer">
                   {isPending ? 'Menyimpan...' : 'Simpan Lowongan'}
                 </button>
@@ -272,10 +280,12 @@ export default function CareerClient({
       {/* MODAL EDIT LOWONGAN */}
       {editingCareer && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto">
-          <div className="bg-[#10131C] border border-gray-800 w-full max-w-lg rounded-3xl p-8 shadow-2xl space-y-6 relative">
-            <div className="flex justify-between items-center border-b border-gray-800 pb-4">
-              <h3 className="text-base font-black text-white uppercase tracking-wider">Edit Lowongan: {editingCareer.title}</h3>
-              <button onClick={handleCloseEdit} className="text-gray-400 hover:text-white text-lg font-bold">✕</button>
+          <div className="bg-white dark:bg-[#10131C] border border-gray-200 dark:border-gray-800 w-full max-w-lg rounded-3xl p-8 shadow-2xl space-y-6 relative">
+            <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-800 pb-4">
+              <h3 className="text-base font-black text-gray-900 dark:text-white uppercase tracking-wider">Edit Lowongan: {editingCareer.title}</h3>
+              <button onClick={handleCloseEdit} className="text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors">
+                <X className="w-4 h-4" />
+              </button>
             </div>
 
             <form action={async (formData) => {
@@ -290,51 +300,55 @@ export default function CareerClient({
               <input type="hidden" name="id" value={editingCareer.id} />
               
               <div className="space-y-1">
-                <label className="text-xs font-extrabold text-gray-400 uppercase">Posisi / Jabatan</label>
-                <input type="text" name="title" defaultValue={editingCareer.title} required className="w-full bg-[#090A0F] border border-gray-800 rounded-xl px-4 py-3 text-white text-xs font-medium focus:outline-none focus:border-amber-500" />
+                <label className="text-xs font-extrabold text-gray-700 dark:text-gray-400 uppercase">Posisi / Jabatan</label>
+                <input type="text" name="title" defaultValue={editingCareer.title} required className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-amber-500" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-xs font-extrabold text-gray-400 uppercase">Lokasi Penempatan</label>
-                  <input type="text" name="location" defaultValue={editingCareer.location} required className="w-full bg-[#090A0F] border border-gray-800 rounded-xl px-4 py-3 text-white text-xs font-medium focus:outline-none focus:border-amber-500" />
+                  <label className="text-xs font-extrabold text-gray-700 dark:text-gray-400 uppercase">Lokasi Penempatan</label>
+                  <input type="text" name="location" defaultValue={editingCareer.location} required className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-amber-500" />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-extrabold text-gray-400 uppercase">Tipe Pekerjaan</label>
-                  <select name="type" defaultValue={editingCareer.type} required className="w-full bg-[#090A0F] border border-gray-800 rounded-xl px-4 py-3 text-white text-xs font-medium focus:outline-none focus:border-amber-500 cursor-pointer">
+                  <label className="text-xs font-extrabold text-gray-700 dark:text-gray-400 uppercase">Tipe Pekerjaan</label>
+                  <select name="type" defaultValue={editingCareer.type} required className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-amber-500 cursor-pointer">
                     <option value="Full-time">Full-time</option>
                     <option value="Part-time">Part-time</option>
                   </select>
                 </div>
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-extrabold text-gray-400 uppercase">Deskripsi Pekerjaan</label>
-                <textarea name="desc" rows={2} defaultValue={editingCareer.desc} required className="w-full bg-[#090A0F] border border-gray-800 rounded-xl p-3 text-white text-xs font-medium focus:outline-none focus:border-amber-500 resize-none"></textarea>
+                <label className="text-xs font-extrabold text-gray-700 dark:text-gray-400 uppercase">Deskripsi Pekerjaan</label>
+                <textarea name="desc" rows={2} defaultValue={editingCareer.desc} required className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-amber-500 resize-none"></textarea>
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-extrabold text-gray-400 uppercase">Kualifikasi / Persyaratan</label>
-                <textarea name="requirements" rows={2} defaultValue={editingCareer.requirements} required className="w-full bg-[#090A0F] border border-gray-800 rounded-xl p-3 text-white text-xs font-medium focus:outline-none focus:border-amber-500 resize-none"></textarea>
+                <label className="text-xs font-extrabold text-gray-700 dark:text-gray-400 uppercase">Kualifikasi / Persyaratan</label>
+                <textarea name="requirements" rows={2} defaultValue={editingCareer.requirements} required className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-amber-500 resize-none"></textarea>
               </div>
 
               <div className="flex items-center gap-2 pt-2">
-                <input type="hidden" name="isActive" value="true" />
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" name="isActive" value="true" defaultChecked={editingCareer.isActive} className="rounded border-gray-700 bg-gray-900 text-amber-600 focus:ring-amber-500 w-4 h-4 cursor-pointer" />
-                  <span className="text-xs text-gray-300 font-bold">Status Aktif di Website</span>
+                  <input type="checkbox" name="isActive" value="true" defaultChecked={editingCareer.isActive} className="rounded border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-amber-600 focus:ring-amber-500 w-4 h-4 cursor-pointer" />
+                  <span className="text-xs text-gray-700 dark:text-gray-300 font-bold">Status Aktif di Website</span>
                 </label>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-gray-800">
-                <button type="button" onClick={handleCloseEdit} className="px-5 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-xs font-extrabold uppercase transition-colors cursor-pointer">Batal</button>
+              <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-800">
+                <button type="button" onClick={handleCloseEdit} className="px-5 py-2.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-300 rounded-xl text-xs font-extrabold uppercase transition-colors cursor-pointer">Batal</button>
                 <button 
                   type="submit" 
                   disabled={!isEditDirty || isPending}
                   className={`px-6 py-2.5 rounded-xl text-xs font-black tracking-widest uppercase transition-all duration-300 border backdrop-blur-md cursor-pointer ${
                     !isEditDirty || isPending
-                      ? 'bg-gray-900/40 text-gray-600 border-gray-800/40 cursor-not-allowed opacity-50'
+                      ? 'bg-gray-200 dark:bg-gray-900/40 text-gray-400 dark:text-gray-600 border-gray-300 dark:border-gray-800/40 cursor-not-allowed opacity-50'
                       : 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white border-amber-500/40 shadow-lg shadow-amber-900/50 hover:scale-105 animate-pulse'
                   }`}
                 >
-                  {isPending ? 'Menyimpan...' : '💾 Simpan ke Draft'}
+                  {isPending ? 'Menyimpan...' : (
+                    <span className="flex items-center gap-1.5">
+                      <Save className="w-4 h-4" />
+                      <span>Simpan ke Draft</span>
+                    </span>
+                  )}
                 </button>
               </div>
             </form>

@@ -2,6 +2,7 @@
 import { readPublishedDB } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import CareerDetailClient from './CareerDetailClient'
+import { getAppSetting, HR_EMAIL_KEY } from '@/lib/applications'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -19,12 +20,15 @@ export default async function CareerDetailPage({
     notFound()
   }
 
+  const hrEmail = await getAppSetting(HR_EMAIL_KEY)
+
   return (
     <CareerDetailClient
       job={job}
       allJobs={db.career || []}
       setting={db.setting}
       footer={db.footer}
+      hrEmail={hrEmail}
     />
   )
 }

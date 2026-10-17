@@ -2,10 +2,10 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { DynamicIcon } from '@/components/DynamicIcon'
 import { useLanguage } from '@/components/LanguageContext'
 import SmoothLoader from '@/components/SmoothLoader'
+import { Globe } from 'lucide-react'
 
 interface NavbarProps {
   siteName: string
@@ -22,7 +22,6 @@ export default function Navbar({
   tagline,
   primaryColor,
   secondaryColor = '#D4AF37',
-  accentColor = '#1E293B',
   loadingBgColor,
   logoUrl
 }: NavbarProps) {
@@ -30,7 +29,6 @@ export default function Navbar({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [transitioning, setTransitioning] = useState(false)
   const { locale, toggleLocale, t } = useLanguage()
-  const router = useRouter()
 
   // Deteksi scroll halaman & otomatis tutup menu jika terbuka saat scroll
   useEffect(() => {
@@ -150,27 +148,30 @@ export default function Navbar({
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white font-black text-xs transition-all duration-300 border border-white/25 shadow-inner cursor-pointer"
                     title={locale === 'id' ? 'Switch to English' : 'Ganti ke Bahasa Indonesia'}
                   >
-                    <span>{locale === 'id' ? '🇮🇩 ID' : '🇬🇧 EN'}</span>
+                    <Globe className="w-3.5 h-3.5 opacity-80" />
+                    <span>{locale === 'id' ? 'ID' : 'EN'}</span>
                     <span className="text-[10px] opacity-75">⇄</span>
                   </button>
 
-                  <a 
+                  <Link 
                     href="/#contact" 
                     onClick={(e) => handleNavClick(e, '#contact')}
                     className="px-6 py-2.5 rounded-xl bg-white text-gray-950 hover:bg-gray-100 shadow-md font-black transition-all duration-300 hover:scale-105 text-xs lg:text-sm cursor-pointer tracking-wider whitespace-nowrap"
                   >
                     {t.nav.contactUs}
-                  </a>
+                  </Link>
                 </>
               ) : (
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
                     onClick={toggleLocale}
-                    className="flex items-center gap-1 px-3 py-2 rounded-xl bg-white/20 hover:bg-white/30 text-white font-black text-xs transition-all border border-white/25 cursor-pointer"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/20 hover:bg-white/30 text-white font-black text-xs transition-all border border-white/25 cursor-pointer"
                   >
-                    <span>{locale === 'id' ? '🇮🇩 ID' : '🇬🇧 EN'}</span>
+                    <Globe className="w-3.5 h-3.5 opacity-80" />
+                    <span>{locale === 'id' ? 'ID' : 'EN'}</span>
                   </button>
+
                   <button
                     type="button"
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -188,10 +189,11 @@ export default function Navbar({
               <button
                 type="button"
                 onClick={toggleLocale}
-                className="px-2.5 py-2 rounded-xl bg-white/20 active:bg-white/30 text-white font-black text-xs transition-all border border-white/25 cursor-pointer touch-manipulation select-none"
+                className="flex items-center gap-1 px-2.5 py-2 rounded-xl bg-white/20 active:bg-white/30 text-white font-black text-xs transition-all border border-white/25 cursor-pointer touch-manipulation select-none"
                 title={locale === 'id' ? 'Switch to English' : 'Ganti ke Bahasa Indonesia'}
               >
-                <span>{locale === 'id' ? '🇮🇩 ID' : '🇬🇧 EN'}</span>
+                <Globe className="w-3.5 h-3.5 opacity-80" />
+                <span>{locale === 'id' ? 'ID' : 'EN'}</span>
               </button>
 
               <button
@@ -224,29 +226,31 @@ export default function Navbar({
               <button
                 type="button"
                 onClick={toggleLocale}
-                className="px-3 py-1.5 rounded-xl bg-white/20 text-white font-black text-xs border border-white/30"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/20 text-white font-black text-xs border border-white/30"
               >
-                {locale === 'id' ? '🇮🇩 Indonesia' : '🇬🇧 English'} ⇄
+                <Globe className="w-3.5 h-3.5 opacity-80" />
+                <span>{locale === 'id' ? 'ID (Bahasa)' : 'EN (English)'} ⇄</span>
               </button>
             </div>
 
+
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.name}
                 href={`/${link.href}`}
                 onClick={(e) => handleNavClick(e, link.href)}
                 className="block text-sm sm:text-base font-extrabold tracking-wide text-white hover:text-amber-300 transition-colors py-2 border-b border-white/10 cursor-pointer"
               >
                 {link.name}
-              </a>
+              </Link>
             ))}
-            <a
+            <Link
               href="/#contact"
               onClick={(e) => handleNavClick(e, '#contact')}
               className="block text-sm sm:text-base font-extrabold tracking-wide text-white hover:text-amber-300 transition-colors py-2 cursor-pointer"
             >
               {t.nav.contactUs}
-            </a>
+            </Link>
           </div>
 
         </div>

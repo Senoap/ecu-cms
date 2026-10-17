@@ -1,6 +1,7 @@
 // components/AboutSectionClient.tsx
 'use client'
 import { useLanguage } from '@/components/LanguageContext'
+import { Award } from 'lucide-react'
 
 interface AboutContent {
   tag: string
@@ -39,7 +40,7 @@ export default function AboutSectionClient({ about, primaryColor }: { about: Abo
             <div className="w-16 h-1 bg-amber-500 rounded-full mt-2"></div>
           </div>
 
-          <div className="space-y-4 md:space-y-5 text-gray-600 dark:text-gray-300 text-sm sm:text-base md:text-lg leading-relaxed font-medium text-justify">
+          <div className="space-y-4 md:space-y-5 text-gray-700 dark:text-gray-300 text-sm sm:text-base md:text-lg leading-relaxed font-medium text-justify">
             <p>{about.p1}</p>
             <p>{about.p2}</p>
           </div>
@@ -60,8 +61,8 @@ export default function AboutSectionClient({ about, primaryColor }: { about: Abo
           <div className="bg-gradient-to-br from-gray-900 to-gray-800 text-white p-6 sm:p-8 md:p-10 rounded-3xl shadow-2xl border border-gray-700/80 space-y-6 relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
             
-            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center text-amber-400 text-xl sm:text-2xl shadow-inner">
-              ⭐
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center text-amber-400 shadow-inner">
+              <Award className="w-7 h-7 sm:w-8 sm:h-8" />
             </div>
 
             <div className="space-y-3 relative z-10">

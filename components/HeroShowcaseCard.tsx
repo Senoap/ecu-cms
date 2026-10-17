@@ -3,6 +3,25 @@
 import { useState, useEffect } from 'react'
 import { useLanguage } from '@/components/LanguageContext'
 import { HeroShowcaseConfig } from '@/lib/db'
+import {
+  Award,
+  BarChart3,
+  Globe,
+  Zap,
+  Users,
+  ShieldCheck,
+  Building2,
+  Factory,
+  Store,
+  Activity,
+  Truck,
+  GraduationCap,
+  Sparkles,
+  Car,
+  Wrench,
+  CheckCircle2,
+  LucideIcon
+} from 'lucide-react'
 
 interface HeroShowcaseCardProps {
   siteName: string
@@ -15,12 +34,52 @@ interface HeroShowcaseCardProps {
   showcaseData?: HeroShowcaseConfig
 }
 
+function renderShowcaseIcon(iconStr?: string, className = 'w-4 h-4') {
+  if (!iconStr) return <ShieldCheck className={className} />
+
+  const map: Record<string, LucideIcon> = {
+    '⚡': Zap,
+    'Zap': Zap,
+    '🎖️': Award,
+    'Award': Award,
+    '🤝': Users,
+    'Users': Users,
+    '🛡️': ShieldCheck,
+    'ShieldCheck': ShieldCheck,
+    'Shield': ShieldCheck,
+    '🏢': Building2,
+    'Building': Building2,
+    'Building2': Building2,
+    '🏭': Factory,
+    'Factory': Factory,
+    '🏬': Store,
+    'Store': Store,
+    '🏥': Activity,
+    'Activity': Activity,
+    'Hospital': Activity,
+    '🚛': Truck,
+    'Truck': Truck,
+    '🏫': GraduationCap,
+    'GraduationCap': GraduationCap,
+    '🧹': Sparkles,
+    'Sparkles': Sparkles,
+    '🚗': Car,
+    'Car': Car,
+    '⚙️': Wrench,
+    'Wrench': Wrench,
+    'Settings': Wrench,
+    'CheckCircle': CheckCircle2
+  }
+
+  const Component = map[iconStr] || ShieldCheck
+  return <Component className={className} />
+}
+
 export default function HeroShowcaseCard({
   siteName,
   tagline,
   primaryColor,
   secondaryColor = '#D4AF37',
-  accentColor = '#1E293B',
   logoUrl,
   isDarkMode,
   showcaseData
@@ -32,25 +91,25 @@ export default function HeroShowcaseCard({
   // Roles default jika belum diatur di CMS
   const defaultRoles = [
     {
-      icon: '🛡️',
+      icon: 'ShieldCheck',
       title: locale === 'en' ? 'Security & Asset Protection' : 'Satuan Pengamanan (Gada Pratama / Madya)',
       tag: locale === 'en' ? 'Certified Officers' : 'Personel Tersertifikasi',
       desc: locale === 'en' ? 'Trained physical & executive security personnel' : 'Perlindungan aset fisik & korporat berstandar regulasi'
     },
     {
-      icon: '🧹',
+      icon: 'Sparkles',
       title: locale === 'en' ? 'Facility & Cleaning Services' : 'Jasa Kebersihan & Manajemen Fasilitas',
       tag: locale === 'en' ? 'Hygiene Standard' : 'Standar Higienis',
       desc: locale === 'en' ? 'Professional building housekeeping & maintenance' : 'Perawatan gedung, kantor, dan fasilitas komersial prima'
     },
     {
-      icon: '🚗',
+      icon: 'Car',
       title: locale === 'en' ? 'Executive Corporate Drivers' : 'Pengemudi Profesional & Eksekutif',
       tag: locale === 'en' ? 'Defensive Driving' : 'Safety Driving',
       desc: locale === 'en' ? 'Punctual, vetted and protocol-trained drivers' : 'Disiplin waktu, berlisensi, dan penguasaan rute handal'
     },
     {
-      icon: '⚙️',
+      icon: 'Wrench',
       title: locale === 'en' ? 'Industrial & Technical Crew' : 'Operator Pabrik & Teknisi Pemeliharaan',
       tag: locale === 'en' ? 'Production Ready' : 'Siap Kerja',
       desc: locale === 'en' ? 'Skilled non-grade operators for manufacturing & logistics' : 'Tenaga terampil siap dukung target operasional industri'
@@ -66,7 +125,7 @@ export default function HeroShowcaseCard({
       setCurrentRoleIndex((prev) => (prev + 1) % roles.length)
     }, 3800)
     return () => clearInterval(timer)
-  }, [roles.length])
+  }, [roles])
 
   // Data Statistik / Metrik dari CMS
   const defaultMetrics = [
@@ -97,22 +156,22 @@ export default function HeroShowcaseCard({
   // Data Keunggulan Utama dari CMS
   const defaultStrengths = [
     {
-      icon: '⚡',
+      icon: 'Zap',
       title: locale === 'en' ? 'Rapid 24/7 SLA Response' : 'Respons Tanggap Cepat 24/7',
       desc: locale === 'en' ? 'Incident mitigation and emergency replacement within < 2 hours.' : 'Penanganan insiden & pergantian personel darurat < 2 jam.'
     },
     {
-      icon: '🎖️',
+      icon: 'Award',
       title: locale === 'en' ? 'Certified Workforce' : 'Personel Tersertifikasi Legal',
       desc: locale === 'en' ? 'Officially qualified via BNSP and Ministry of Manpower training.' : 'Tersertifikasi resmi BNSP dan dibekali pelatihan berkala.'
     },
     {
-      icon: '🤝',
+      icon: 'Users',
       title: locale === 'en' ? 'Zero Dispute Guarantee' : 'Bebas Sengketa & Akuntabel',
       desc: locale === 'en' ? 'Complete regulatory compliance, BPJS, and transparent payroll.' : 'Jaminan kepatuhan UU Ketenagakerjaan, BPJS, & payroll transparan.'
     },
     {
-      icon: '🛡️',
+      icon: 'ShieldCheck',
       title: locale === 'en' ? 'Zero-Accident Safety' : 'Budaya K3 & Zero-Accident',
       desc: locale === 'en' ? 'Strict workplace safety protocols tailored to your industry.' : 'Disiplin keselamatan kerja tinggi untuk perlindungan aset optimal.'
     }
@@ -122,12 +181,12 @@ export default function HeroShowcaseCard({
 
   // Sektor Industri dari CMS
   const defaultSectors = [
-    { icon: '🏢', name: locale === 'en' ? 'Commercial Offices' : 'Perkantoran Komersial' },
-    { icon: '🏭', name: locale === 'en' ? 'Industrial Plants & Factories' : 'Pabrik & Kawasan Industri' },
-    { icon: '🏬', name: locale === 'en' ? 'Shopping Malls & Retail' : 'Mall & Pusat Perbelanjaan' },
-    { icon: '🏥', name: locale === 'en' ? 'Healthcare & Hospitals' : 'Rumah Sakit & Fasilitas Medis' },
-    { icon: '🚛', name: locale === 'en' ? 'Logistics & Warehouses' : 'Pergudangan & Logistik' },
-    { icon: '🏫', name: locale === 'en' ? 'Educational Institutions' : 'Institusi Pendidikan' }
+    { icon: 'Building2', name: locale === 'en' ? 'Commercial Offices' : 'Perkantoran Komersial' },
+    { icon: 'Factory', name: locale === 'en' ? 'Industrial Plants & Factories' : 'Pabrik & Kawasan Industri' },
+    { icon: 'Store', name: locale === 'en' ? 'Shopping Malls & Retail' : 'Mall & Pusat Perbelanjaan' },
+    { icon: 'Activity', name: locale === 'en' ? 'Healthcare & Hospitals' : 'Rumah Sakit & Fasilitas Medis' },
+    { icon: 'Truck', name: locale === 'en' ? 'Logistics & Warehouses' : 'Pergudangan & Logistik' },
+    { icon: 'GraduationCap', name: locale === 'en' ? 'Educational Institutions' : 'Institusi Pendidikan' }
   ]
 
   const sectors = (showcaseData?.sectors && showcaseData.sectors.length > 0) ? showcaseData.sectors : defaultSectors
@@ -169,7 +228,7 @@ export default function HeroShowcaseCard({
               className="w-12 h-12 rounded-2xl flex items-center justify-center font-black text-white text-lg shadow-md flex-shrink-0"
               style={{ backgroundColor: primaryColor }}
             >
-              🏢
+              <Building2 className="w-6 h-6 text-white" />
             </div>
           )}
           <div className="min-w-0">
@@ -186,7 +245,7 @@ export default function HeroShowcaseCard({
 
         {/* Live System Indicator */}
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase tracking-wider flex-shrink-0">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
           <span>{liveBadge}</span>
         </div>
       </div>
@@ -196,37 +255,40 @@ export default function HeroShowcaseCard({
         <button
           type="button"
           onClick={() => setActiveTab('strengths')}
-          className={`flex-1 py-2 px-2.5 rounded-xl transition-all duration-300 text-center cursor-pointer truncate ${
+          className={`flex-1 py-2 px-2.5 rounded-xl transition-all duration-300 text-center cursor-pointer truncate flex items-center justify-center gap-1.5 ${
             activeTab === 'strengths'
               ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-md'
-              : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-bold'
           }`}
         >
-          {locale === 'en' ? '⭐ Strengths' : '⭐ Keunggulan'}
+          <Award className="w-3.5 h-3.5 text-amber-500" />
+          <span>{locale === 'en' ? 'Strengths' : 'Keunggulan'}</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('metrics')}
-          className={`flex-1 py-2 px-2.5 rounded-xl transition-all duration-300 text-center cursor-pointer truncate ${
+          className={`flex-1 py-2 px-2.5 rounded-xl transition-all duration-300 text-center cursor-pointer truncate flex items-center justify-center gap-1.5 ${
             activeTab === 'metrics'
               ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-md'
-              : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-bold'
           }`}
         >
-          {locale === 'en' ? '📊 Metrics' : '📊 Metrik'}
+          <BarChart3 className="w-3.5 h-3.5 text-amber-500" />
+          <span>{locale === 'en' ? 'Metrics' : 'Metrik'}</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('coverage')}
-          className={`flex-1 py-2 px-2.5 rounded-xl transition-all duration-300 text-center cursor-pointer truncate ${
+          className={`flex-1 py-2 px-2.5 rounded-xl transition-all duration-300 text-center cursor-pointer truncate flex items-center justify-center gap-1.5 ${
             activeTab === 'coverage'
               ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-md'
-              : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-bold'
           }`}
         >
-          {locale === 'en' ? '🌐 Sectors' : '🌐 Sektor'}
+          <Globe className="w-3.5 h-3.5 text-amber-500" />
+          <span>{locale === 'en' ? 'Sectors' : 'Sektor'}</span>
         </button>
       </div>
 
@@ -243,10 +305,12 @@ export default function HeroShowcaseCard({
               }`}
             >
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-base">{s.icon}</span>
-                <h4 className="text-xs font-black tracking-tight leading-tight truncate">{s.title}</h4>
+                <span className="w-6 h-6 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center flex-shrink-0">
+                  {renderShowcaseIcon(s.icon, 'w-3.5 h-3.5')}
+                </span>
+                <h4 className="text-xs font-black tracking-tight leading-tight truncate text-gray-900 dark:text-white">{s.title}</h4>
               </div>
-              <p className="text-[11px] text-gray-600 dark:text-gray-400 leading-snug line-clamp-2 font-medium">
+              <p className="text-[11px] text-gray-700 dark:text-gray-300 leading-snug line-clamp-2 font-medium">
                 {s.desc}
               </p>
             </div>
@@ -272,8 +336,8 @@ export default function HeroShowcaseCard({
               >
                 {m.num}
               </div>
-              <div className="text-xs font-black tracking-wide truncate">{m.label}</div>
-              <div className="text-[10px] text-gray-500 dark:text-gray-400 font-medium truncate">{m.sub}</div>
+              <div className="text-xs font-black tracking-wide truncate text-gray-900 dark:text-white">{m.label}</div>
+              <div className="text-[10px] text-gray-600 dark:text-gray-400 font-bold truncate">{m.sub}</div>
             </div>
           ))}
         </div>
@@ -285,13 +349,15 @@ export default function HeroShowcaseCard({
           {sectors.map((sec, idx) => (
             <div
               key={idx}
-              className={`p-2.5 rounded-xl border flex items-center gap-2 transition-all ${
+              className={`p-2.5 rounded-xl border flex items-center gap-2.5 transition-all ${
                 isDarkMode
                   ? 'bg-gray-900/60 border-gray-800/80 text-gray-200'
                   : 'bg-gray-50 border-gray-200/80 text-gray-800'
               }`}
             >
-              <span className="text-base">{sec.icon}</span>
+              <span className="w-6 h-6 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center flex-shrink-0">
+                {renderShowcaseIcon(sec.icon, 'w-3.5 h-3.5')}
+              </span>
               <span className="text-[11px] font-bold tracking-tight truncate">{sec.name}</span>
             </div>
           ))}
@@ -306,12 +372,12 @@ export default function HeroShowcaseCard({
               <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
               {locale === 'en' ? 'Active Deployment Roster' : 'Penempatan Personel Unggulan'}
             </span>
-            <span>{currentRoleIndex + 1} / {roles.length}</span>
+            <span className="font-mono text-[10px]">{currentRoleIndex + 1} / {roles.length}</span>
           </div>
 
           <div className="flex items-center gap-3 transition-all duration-500">
-            <div className="w-9 h-9 rounded-xl bg-white dark:bg-gray-800 shadow-sm border border-amber-500/30 flex items-center justify-center text-lg flex-shrink-0">
-              {roles[currentRoleIndex]?.icon || '🛡️'}
+            <div className="w-9 h-9 rounded-xl bg-white dark:bg-gray-800 shadow-sm border border-amber-500/30 flex items-center justify-center text-amber-600 dark:text-amber-400 flex-shrink-0">
+              {renderShowcaseIcon(roles[currentRoleIndex]?.icon, 'w-4 h-4')}
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
@@ -322,7 +388,7 @@ export default function HeroShowcaseCard({
                   {roles[currentRoleIndex]?.tag}
                 </span>
               </div>
-              <p className="text-[10px] text-gray-600 dark:text-gray-400 truncate font-medium">
+              <p className="text-[10px] text-gray-700 dark:text-gray-300 truncate font-medium">
                 {roles[currentRoleIndex]?.desc}
               </p>
             </div>
@@ -341,7 +407,7 @@ export default function HeroShowcaseCard({
         </a>
         <a
           href={profileLink}
-          className="w-full sm:w-auto py-2.5 px-4 rounded-xl text-center font-bold text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-all text-[11px] active:scale-95"
+          className="w-full sm:w-auto py-2.5 px-4 rounded-xl text-center font-bold text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 transition-all text-[11px] active:scale-95"
         >
           {profileText}
         </a>
@@ -350,3 +416,4 @@ export default function HeroShowcaseCard({
     </div>
   )
 }
+

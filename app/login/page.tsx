@@ -2,6 +2,8 @@
 'use client'
 import { useState, useTransition, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { AlertCircle } from 'lucide-react'
 import { loginAdmin } from './actions'
 
 export default function AdminLoginPage() {
@@ -14,7 +16,9 @@ export default function AdminLoginPage() {
   useEffect(() => {
     const savedTheme = localStorage.getItem('esu_cms_theme')
     const dark = savedTheme === 'dark' || savedTheme === null
-    setIsDarkMode(dark)
+    setTimeout(() => {
+      setIsDarkMode(dark)
+    }, 0)
     if (dark) {
       document.documentElement.classList.add('dark')
     } else {
@@ -67,12 +71,28 @@ export default function AdminLoginPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <label className="text-xs font-black uppercase tracking-wider text-gray-400">
-                Admin Password
+                Username <span className="text-[10px] text-gray-500 font-normal lowercase">(opsional jika login admin master)</span>
+              </label>
+              <input
+                type="text"
+                name="username"
+                placeholder="admin atau nama user..."
+                className={`w-full px-4 py-3.5 rounded-2xl border text-sm font-medium outline-none transition-all duration-300 ${
+                  isDarkMode 
+                    ? 'bg-gray-950/80 border-gray-800 text-white focus:border-amber-500' 
+                    : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-amber-600'
+                }`}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-black uppercase tracking-wider text-gray-400">
+                Password
               </label>
               <input
                 type="password"
                 name="password"
-                placeholder="Masukkan password admin..."
+                placeholder="Masukkan password..."
                 className={`w-full px-4 py-3.5 rounded-2xl border text-sm font-medium outline-none transition-all duration-300 ${
                   isDarkMode 
                     ? 'bg-gray-950/80 border-gray-800 text-white focus:border-amber-500' 
@@ -81,8 +101,9 @@ export default function AdminLoginPage() {
                 required
               />
               {errorMsg && (
-                <p className="text-xs font-bold text-rose-500 mt-1.5 animate-bounce">
-                  ⚠️ {errorMsg}
+                <p className="text-xs font-semibold text-rose-500 mt-2 flex items-center gap-1.5">
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                  <span>{errorMsg}</span>
                 </p>
               )}
             </div>
@@ -98,12 +119,12 @@ export default function AdminLoginPage() {
 
           {/* Footer Card */}
           <div className="text-center pt-2 border-t border-gray-800/40">
-            <a 
+            <Link 
               href="/" 
               className="text-xs font-bold text-gray-400 hover:text-amber-500 transition-colors uppercase tracking-widest"
             >
               &larr; Kembali ke Website Utama
-            </a>
+            </Link>
           </div>
 
         </div>

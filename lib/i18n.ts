@@ -222,7 +222,7 @@ export const translations = {
 }
 
 // Fallback content translations for default items when user selects English
-export const enContentFallback: Record<string, any> = {
+export const enContentFallback: Record<string, Record<string, Record<string, string>>> = {
   services: {
     '1': {
       title: 'SECURITY SERVICES',

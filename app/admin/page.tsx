@@ -1,10 +1,11 @@
-// app/admin/page.tsx
 import { readDB, writeDB, addNotification, uploadFile } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
+import { requirePermission } from '@/lib/auth'
 import AdminPageClient from './AdminPageClient'
 
 async function updateConfig(formData: FormData) {
   'use server'
+  await requirePermission('global')
 
   const db = await readDB()
   const siteName = formData.get('siteName') as string
