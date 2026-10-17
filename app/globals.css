@@ -35,11 +35,6 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Responsivitas Media & Gambar lintas perangkat */
-img, video, canvas, svg {
-  max-width: 100%;
-  height: auto;
-}
 
 /* Akselerasi Sentuhan pada Perangkat Layar Sentuh (Mobile/Tablet) */
 a, button, input, select, textarea {

@@ -115,7 +115,14 @@ export default function Navbar({
           }`}
         >
           {logoUrl ? (
-            <img src={logoUrl} alt={siteName} className="h-10 md:h-12 w-auto object-contain max-w-[150px] md:max-w-[180px]" />
+            <div className="h-10 md:h-12 max-h-12 w-auto max-w-[150px] md:max-w-[180px] flex items-center justify-center flex-shrink-0">
+              <img 
+                src={logoUrl} 
+                alt={siteName} 
+                className="h-10 md:h-12 w-auto max-h-10 md:max-h-12 max-w-[150px] md:max-w-[180px] object-contain flex-shrink-0"
+                style={{ maxHeight: '48px', width: 'auto' }}
+              />
+            </div>
           ) : (
             <div
               className="w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center border border-amber-300/40 shadow-inner flex-shrink-0"

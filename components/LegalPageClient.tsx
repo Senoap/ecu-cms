@@ -54,7 +54,12 @@ export default function LegalPageClient({ db, legal, type }: LegalPageClientProp
 
           <Link href="/" className="flex items-center gap-3">
             {setting.logoUrl ? (
-              <img src={setting.logoUrl} alt={setting.siteName} className="h-8 md:h-10 w-auto object-contain max-w-[140px]" />
+              <img 
+                src={setting.logoUrl} 
+                alt={setting.siteName} 
+                className="h-8 md:h-10 w-auto object-contain max-h-8 md:max-h-10 max-w-[140px]" 
+                style={{ maxHeight: '40px', width: 'auto' }}
+              />
             ) : (
               <div 
                 className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs text-white shadow-sm"
