@@ -3,7 +3,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { requirePermission } from '@/lib/auth'
-import { readDB, writeDB, addNotification, uploadFile, type ScheduledContentItem } from '@/lib/db'
+import { readDB, writeDB, addNotification, uploadFile, deleteFile, type ScheduledContentItem } from '@/lib/db'
 
 export async function createScheduledContentAction(formData: FormData) {
   await requirePermission('scheduled-content')
@@ -78,19 +78,24 @@ export async function updateScheduledContentAction(formData: FormData) {
 
   let finalImageUrl = imageUrlRaw
 
-  const imageFile = formData.get('imageFile') as File | null
-  if (imageFile && imageFile.size > 0) {
-    const buffer = Buffer.from(await imageFile.arrayBuffer())
-    const ext = imageFile.name.split('.').pop() || 'jpg'
-    const fileName = `content-${type}-${Date.now()}.${ext}`
-    finalImageUrl = await uploadFile(buffer, fileName, imageFile.type || 'image/jpeg')
-  }
-
   const db = await readDB()
   if (!db.scheduledContents) db.scheduledContents = []
 
   const idx = db.scheduledContents.findIndex((c) => c.id === id)
   if (idx === -1) throw new Error('Konten terjadwal tidak ditemukan.')
+
+  const imageFile = formData.get('imageFile') as File | null
+  if (imageFile && imageFile.size > 0) {
+    const oldItem = db.scheduledContents[idx]
+    if (oldItem?.imageUrl) {
+      const oldFileName = oldItem.imageUrl.split('/').pop()
+      if (oldFileName) await deleteFile(oldFileName)
+    }
+    const buffer = Buffer.from(await imageFile.arrayBuffer())
+    const ext = imageFile.name.split('.').pop() || 'jpg'
+    const fileName = `content-${type}-${Date.now()}.${ext}`
+    finalImageUrl = await uploadFile(buffer, fileName, imageFile.type || 'image/jpeg')
+  }
 
   db.scheduledContents[idx] = {
     ...db.scheduledContents[idx],
@@ -121,6 +126,11 @@ export async function deleteScheduledContentAction(formData: FormData) {
   if (!db.scheduledContents) return
 
   const target = db.scheduledContents.find((c) => c.id === id)
+  if (target?.imageUrl) {
+    const fileName = target.imageUrl.split('/').pop()
+    if (fileName) await deleteFile(fileName)
+  }
+
   db.scheduledContents = db.scheduledContents.filter((c) => c.id !== id)
 
   await writeDB(db)

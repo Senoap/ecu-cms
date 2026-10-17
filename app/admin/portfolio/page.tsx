@@ -1,5 +1,5 @@
 // app/admin/portfolio/page.tsx
-import { readDB, writeDB, addNotification, uploadFile, PortfolioItem } from '@/lib/db'
+import { readDB, writeDB, addNotification, uploadFile, deleteFile, PortfolioItem } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import PortfolioClient from './PortfolioClient'
 
@@ -80,6 +80,10 @@ export default async function AdminPortfolioPage() {
       db.portfolios[index].desc = desc
 
       if (file && file.size > 0) {
+        if (db.portfolios[index].imageUrl) {
+          const oldFile = db.portfolios[index].imageUrl.split('/').pop()
+          if (oldFile) await deleteFile(oldFile)
+        }
         const buffer = Buffer.from(await file.arrayBuffer())
         const fileName = `port-${Date.now()}-${file.name.replace(/\s+/g, '_')}`
         db.portfolios[index].imageUrl = await uploadFile(buffer, fileName, file.type)
@@ -96,6 +100,12 @@ export default async function AdminPortfolioPage() {
     'use server'
     const db = await readDB()
     const id = formData.get('id') as string
+
+    const target = db.portfolios.find(p => p.id === id)
+    if (target?.imageUrl) {
+      const fileName = target.imageUrl.split('/').pop()
+      if (fileName) await deleteFile(fileName)
+    }
 
     db.portfolios = db.portfolios.filter(p => p.id !== id)
     await writeDB(db)

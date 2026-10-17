@@ -1,5 +1,5 @@
 // app/admin/gallery/page.tsx
-import { readDB, writeDB, addNotification, uploadFile, GalleryItem } from '@/lib/db'
+import { readDB, writeDB, addNotification, uploadFile, deleteFile, GalleryItem } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import GalleryClient from './GalleryClient'
 
@@ -79,6 +79,10 @@ export default async function AdminGalleryPage() {
       db.galleries[itemIndex].category = category
 
       if (file && file.size > 0) {
+        if (db.galleries[itemIndex].imageUrl) {
+          const oldFile = db.galleries[itemIndex].imageUrl.split('/').pop()
+          if (oldFile) await deleteFile(oldFile)
+        }
         const buffer = Buffer.from(await file.arrayBuffer())
         const fileName = `gallery-${Date.now()}-${file.name.replace(/\s+/g, '_')}`
         db.galleries[itemIndex].imageUrl = await uploadFile(buffer, fileName, file.type)
@@ -94,6 +98,12 @@ export default async function AdminGalleryPage() {
     'use server'
     const db = await readDB()
     const id = formData.get('id') as string
+
+    const target = db.galleries.find(g => g.id === id)
+    if (target?.imageUrl) {
+      const fileName = target.imageUrl.split('/').pop()
+      if (fileName) await deleteFile(fileName)
+    }
 
     db.galleries = db.galleries.filter(g => g.id !== id)
     await writeDB(db)

@@ -1,4 +1,4 @@
-import { readDB, writeDB, addNotification, uploadFile } from '@/lib/db'
+import { readDB, writeDB, addNotification, uploadFile, deleteFile } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import { requirePermission } from '@/lib/auth'
 import AdminPageClient from './AdminPageClient'
@@ -21,16 +21,28 @@ async function updateConfig(formData: FormData) {
   let logoUrl = db.setting.logoUrl
   let bgImageUrl = db.setting.bgImageUrl
 
-  // Handle Logo Upload
+  // Handle Logo Upload (hapus logo lama jika diganti)
   if (logoFile && logoFile.size > 0) {
+    if (db.setting.logoUrl) {
+      const oldName = db.setting.logoUrl.split('/').pop()
+      if (oldName && oldName.startsWith('logo-')) {
+        await deleteFile(oldName)
+      }
+    }
     const bytes = await logoFile.arrayBuffer()
     const buffer = Buffer.from(bytes)
     const filename = `logo-${Date.now()}${logoFile.name.substring(logoFile.name.lastIndexOf('.'))}`
     logoUrl = await uploadFile(buffer, filename, logoFile.type)
   }
 
-  // Handle Background Image Upload
+  // Handle Background Image Upload (hapus background lama jika diganti)
   if (bgImageFile && bgImageFile.size > 0) {
+    if (db.setting.bgImageUrl) {
+      const oldName = db.setting.bgImageUrl.split('/').pop()
+      if (oldName && oldName.startsWith('bg-')) {
+        await deleteFile(oldName)
+      }
+    }
     const bytes = await bgImageFile.arrayBuffer()
     const buffer = Buffer.from(bytes)
     const filename = `bg-${Date.now()}${bgImageFile.name.substring(bgImageFile.name.lastIndexOf('.'))}`

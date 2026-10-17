@@ -15,7 +15,11 @@
     "db:migrate": "node scripts/migrate-to-supabase.mjs stg",
     "db:migrate:stg": "node scripts/migrate-to-supabase.mjs stg",
     "db:migrate:prod": "node scripts/migrate-to-supabase.mjs prod",
-    "db:migrate:dev": "node scripts/migrate-to-supabase.mjs dev"
+    "db:migrate:dev": "node scripts/migrate-to-supabase.mjs dev",
+    "storage:clean": "node scripts/cleanup-storage.mjs stg",
+    "storage:clean:stg": "node scripts/cleanup-storage.mjs stg",
+    "storage:clean:dev": "node scripts/cleanup-storage.mjs dev",
+    "storage:clean:prod": "node scripts/cleanup-storage.mjs prod"
   },
   "dependencies": {
     "@prisma/client": "^7.10.0",
