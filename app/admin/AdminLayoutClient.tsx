@@ -72,7 +72,12 @@ export default function AdminLayoutClient({
   markAsViewedAction
 }: AdminLayoutClientProps) {
   const [isDarkMode, setIsDarkMode] = useState(true)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 1024
+    }
+    return true
+  })
   const [showNotifPanel, setShowNotifPanel] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [showSuccessToast, setShowSuccessToast] = useState(false)
@@ -86,9 +91,12 @@ export default function AdminLayoutClient({
     system: ['/admin/users', '/admin/audit-log'].some((p) => pathname?.startsWith(p)),
   }))
 
-  // Buka otomatis submenu yang rutenya sedang aktif saat halaman berpindah
+  // Buka otomatis submenu yang rutenya sedang aktif & auto-close sidebar pada mobile saat rute berganti
   useEffect(() => {
     queueMicrotask(() => {
+      if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+        setIsSidebarOpen(false)
+      }
       if (['/admin/hero', '/admin/scheduled-content', '/admin/about', '/admin/services', '/admin/portfolio', '/admin/gallery', '/admin/footer', '/admin/legal'].some((p) => pathname?.startsWith(p))) {
         setOpenSubmenus((prev) => ({ ...prev, website: true }))
       } else if (['/admin/career', '/admin/applications', '/admin/career-templates'].some((p) => pathname?.startsWith(p))) {
@@ -333,9 +341,17 @@ export default function AdminLayoutClient({
         )}
       </div>
 
+      {/* MOBILE BACKDROP OVERLAY */}
+      {isSidebarOpen && (
+        <div 
+          onClick={() => setIsSidebarOpen(false)} 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden cursor-pointer"
+        />
+      )}
+
       {/* SIDEBAR PANEL */}
-      <aside className={`h-screen border-r flex-shrink-0 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden ${
-        isSidebarOpen ? 'w-80 opacity-100' : 'w-0 opacity-0 border-transparent'
+      <aside className={`h-screen border-r flex-shrink-0 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden fixed lg:relative z-50 ${
+        isSidebarOpen ? 'w-80 opacity-100 shadow-2xl lg:shadow-none' : 'w-0 opacity-0 border-transparent pointer-events-none'
       } ${isDarkMode ? 'bg-[#0E1017] border-gray-800/80' : 'bg-white border-gray-200'}`}>
         
         <div className={`w-80 h-screen p-5 flex flex-col justify-between transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${

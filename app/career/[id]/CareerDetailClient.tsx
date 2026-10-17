@@ -25,13 +25,13 @@ export default function CareerDetailClient({
   job,
   allJobs,
   setting,
-  footer,
+  footer: _footer,
   hrEmail
 }: {
   job: CareerItem
   allJobs: CareerItem[]
   setting: DatabaseContent['setting']
-  footer: FooterContent
+  footer?: FooterContent
   hrEmail: string
 }) {
   const { locale, t, getFallbackContent } = useLanguage()

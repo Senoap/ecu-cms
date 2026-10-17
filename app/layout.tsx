@@ -8,15 +8,43 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
-  themeColor: '#4A0E17',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#F8F7F4' },
+    { media: '(prefers-color-scheme: dark)', color: '#090A0F' },
+  ],
+  viewportFit: 'cover',
 }
 
-// Fungsi untuk membuat title web dinamis dari CMS
+// Fungsi untuk membuat metadata web dinamis dari CMS untuk desktop, laptop, mobile, & SEO
 export async function generateMetadata(): Promise<Metadata> {
   const db = await readDB()
+  const siteName = db.setting.siteName || 'PT. EMPAT SINERGI UTAMA'
+  const tagline = db.setting.tagline || 'MANPOWER SERVICES'
+
   return {
-    title: db.setting.siteName,
-    description: 'Company Profile ESU yang dikelola dengan Custom CMS',
+    title: {
+      default: `${siteName} — ${tagline}`,
+      template: `%s | ${siteName}`,
+    },
+    description: `${siteName} adalah penyedia solusi terintegrasi kebutuhan operasional bisnis, manajemen fasilitas gedung, dan pemenuhan ketenagakerjaan ahli di Indonesia.`,
+    applicationName: siteName,
+    authors: [{ name: siteName }],
+    creator: siteName,
+    publisher: siteName,
+    formatDetection: {
+      telephone: true,
+      date: true,
+      address: true,
+      email: true,
+    },
+    icons: db.setting.logoUrl ? [{ rel: 'icon', url: db.setting.logoUrl }] : undefined,
+    openGraph: {
+      title: siteName,
+      description: tagline,
+      siteName: siteName,
+      type: 'website',
+      locale: 'id_ID',
+    },
   }
 }
 

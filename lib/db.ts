@@ -689,7 +689,7 @@ function enrichContent(content: DatabaseContent): DatabaseContent {
   }
 }
 
-async function _initializeSupabaseDB() {
+export async function initializeSupabaseDB() {
   try {
     await supabase
       .from('site_content')

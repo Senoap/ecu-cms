@@ -24,11 +24,11 @@ export default function LegalPageClient({ db, legal, type }: LegalPageClientProp
   const toggleTheme = () => {
     if (document.documentElement.classList.contains('dark')) {
       document.documentElement.classList.remove('dark')
-      localStorage.setItem('esu_theme', 'light')
+      localStorage.setItem('esu_site_theme', 'light')
       setIsDarkMode(false)
     } else {
       document.documentElement.classList.add('dark')
-      localStorage.setItem('esu_theme', 'dark')
+      localStorage.setItem('esu_site_theme', 'dark')
       setIsDarkMode(true)
     }
   }

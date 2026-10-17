@@ -44,6 +44,16 @@ export default function Navbar({
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  // Menutup menu mobile saat pengguna menyentuh area luar menu
+  useEffect(() => {
+    if (!mobileMenuOpen) return
+    const handleClickOutside = () => {
+      setMobileMenuOpen(false)
+    }
+    window.addEventListener('click', handleClickOutside)
+    return () => window.removeEventListener('click', handleClickOutside)
+  }, [mobileMenuOpen])
+
   // Fungsi navigasi yang bekerja baik di halaman utama maupun di halaman detail
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, hash: string) => {
     setMobileMenuOpen(false)
@@ -75,6 +85,8 @@ export default function Navbar({
     { name: t.nav.about, href: '#about' },
     { name: t.nav.services, href: '#services' },
     { name: t.nav.portfolio, href: '#portfolio' },
+    { name: t.nav.career, href: '#career' },
+    { name: t.nav.gallery, href: '#gallery' },
   ]
 
   return (
@@ -126,8 +138,8 @@ export default function Navbar({
             }`}
             style={{ backgroundColor: primaryColor || '#4A0E17' }}
           >
-            {/* TAMPILAN DESKTOP */}
-            <div className="hidden md:flex items-center gap-6 lg:gap-8">
+            {/* TAMPILAN DESKTOP & LAPTOP */}
+            <div className="hidden lg:flex items-center gap-5 xl:gap-8">
               {!isScrolled ? (
                 <>
                   {navLinks.map((link) => (
@@ -135,7 +147,7 @@ export default function Navbar({
                       key={link.name} 
                       href={`/${link.href}`} 
                       onClick={(e) => handleNavClick(e, link.href)}
-                      className="hover:text-amber-300 transition-colors duration-300 cursor-pointer text-sm lg:text-base tracking-wide"
+                      className="hover:text-amber-300 transition-colors duration-300 cursor-pointer text-xs xl:text-sm font-black tracking-wider uppercase whitespace-nowrap"
                     >
                       {link.name}
                     </a>
@@ -156,7 +168,7 @@ export default function Navbar({
                   <Link 
                     href="/#contact" 
                     onClick={(e) => handleNavClick(e, '#contact')}
-                    className="px-6 py-2.5 rounded-xl bg-white text-gray-950 hover:bg-gray-100 shadow-md font-black transition-all duration-300 hover:scale-105 text-xs lg:text-sm cursor-pointer tracking-wider whitespace-nowrap"
+                    className="px-5 xl:px-6 py-2.5 rounded-xl bg-white text-gray-950 hover:bg-gray-100 shadow-md font-black transition-all duration-300 hover:scale-105 text-xs xl:text-sm cursor-pointer tracking-wider whitespace-nowrap"
                   >
                     {t.nav.contactUs}
                   </Link>
@@ -177,6 +189,7 @@ export default function Navbar({
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                     className="w-10 h-10 rounded-xl bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-all duration-300 shadow-inner cursor-pointer"
                     aria-label="Toggle Menu"
+                    aria-expanded={mobileMenuOpen}
                   >
                     <DynamicIcon name={mobileMenuOpen ? "ChevronLeft" : "Menu"} className="w-6 h-6" />
                   </button>
@@ -184,8 +197,8 @@ export default function Navbar({
               )}
             </div>
 
-            {/* TAMPILAN MOBILE (Tombol Bahasa + Tombol Hamburger) */}
-            <div className="flex md:hidden items-center gap-2">
+            {/* TAMPILAN MOBILE & TABLET (Tombol Bahasa + Tombol Hamburger) */}
+            <div className="flex lg:hidden items-center gap-2">
               <button
                 type="button"
                 onClick={toggleLocale}
@@ -204,6 +217,7 @@ export default function Navbar({
                 }}
                 className="w-10 h-10 rounded-xl bg-white/20 active:bg-white/40 text-white flex items-center justify-center shadow-inner cursor-pointer touch-manipulation select-none"
                 aria-label="Toggle Mobile Menu"
+                aria-expanded={mobileMenuOpen}
               >
                 <DynamicIcon name={mobileMenuOpen ? "ChevronLeft" : "Menu"} className="w-6 h-6" />
               </button>
