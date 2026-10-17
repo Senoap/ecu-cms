@@ -41,7 +41,7 @@ a, button, input, select, textarea {
   touch-action: manipulation;
 }
 
-/* WebKit Backdrop Filter Fallback untuk macOS Safari & iOS */
+/* WebKit & Standard Backdrop Filter Fallback untuk macOS Safari & iOS */
 @supports not (backdrop-filter: blur(10px)) {
   .backdrop-blur-sm,
   .backdrop-blur-md,
@@ -49,6 +49,7 @@ a, button, input, select, textarea {
   .backdrop-blur-xl,
   .backdrop-blur-2xl {
     -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
   }
 }
 
