@@ -12,7 +12,8 @@ import {
   Send, 
   ExternalLink,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  FileX
 } from 'lucide-react'
 import Link from 'next/link'
 import type { Application } from '@/lib/applications'
@@ -60,6 +61,12 @@ export default function ApplicationsListClient({
   const [body, setBody] = useState('')
   const [isPendingEmail, startEmailTransition] = useTransition()
   const [modalFeedback, setModalFeedback] = useState<{ type: 'success' | 'error'; msg: string } | null>(null)
+
+  // Point 12: Pagination Maksimal 10 List per Halaman
+  const [currentPage, setCurrentPage] = useState(1)
+  const PAGE_SIZE = 10
+  const totalPages = Math.ceil(applications.length / PAGE_SIZE) || 1
+  const displayedApps = applications.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
 
   const openReplyModal = (app: Application) => {
     setSelectedApp(app)
@@ -125,8 +132,8 @@ export default function ApplicationsListClient({
     : '#'
 
   return (
-    <div className="space-y-3">
-      {applications.map((a) => (
+    <div className="space-y-4">
+      {displayedApps.map((a) => (
         <div 
           key={a.id} 
           className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 space-y-3 shadow-sm hover:border-amber-500/30 transition-all" 
@@ -161,18 +168,25 @@ export default function ApplicationsListClient({
           {a.cover_note && <p className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-line bg-gray-50 dark:bg-gray-950/60 p-3 rounded-xl border border-gray-100 dark:border-gray-800">{a.cover_note}</p>}
 
           <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-gray-100 dark:border-gray-800/80">
-            {/* UNDUH CV */}
-            <a 
-              href={`/admin/applications/cv/${a.id}`} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black bg-amber-500/15 text-amber-700 dark:text-amber-400 hover:bg-amber-500/25 transition-colors cursor-pointer"
-            >
-              <Download className="w-3.5 h-3.5" />
-              <span>Unduh CV</span>
-            </a>
+            {/* UNDUH CV ATAU STATUS RETENSI 60 HARI (POINT 11) */}
+            {a.cv_purged ? (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-gray-100 dark:bg-gray-800 text-gray-500 border border-gray-200 dark:border-gray-700" title="File CV fisik telah dihapus otomatis setelah 60 hari untuk efisiensi penyimpanan, data profil pelamar tetap aman.">
+                <FileX className="w-3.5 h-3.5 text-amber-500" />
+                <span>CV Dihapus Otomatis (Retensi 60 Hari)</span>
+              </span>
+            ) : (
+              <a 
+                href={`/admin/applications/cv/${a.id}`} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black bg-amber-500/15 text-amber-700 dark:text-amber-400 hover:bg-amber-500/25 transition-colors cursor-pointer"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Unduh CV</span>
+              </a>
+            )}
 
-            {/* BALAS KANDIDAT (POINT 2) */}
+            {/* BALAS KANDIDAT */}
             <button
               type="button"
               onClick={() => openReplyModal(a)}
@@ -216,6 +230,47 @@ export default function ApplicationsListClient({
           </div>
         </div>
       ))}
+
+      {/* POINT 12: PAGINATION JIKA LEBIH DARI 10 DATA */}
+      {totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm mt-6">
+          <div className="text-xs text-gray-500 font-medium">
+            Menampilkan <span className="font-bold text-gray-900 dark:text-white">{(currentPage - 1) * PAGE_SIZE + 1}</span> - <span className="font-bold text-gray-900 dark:text-white">{Math.min(currentPage * PAGE_SIZE, applications.length)}</span> dari <span className="font-bold text-gray-900 dark:text-white">{applications.length}</span> lamaran masuk
+          </div>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1.5 rounded-xl text-xs font-bold border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+            >
+              Sebelumnya
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
+              <button
+                key={pg}
+                type="button"
+                onClick={() => setCurrentPage(pg)}
+                className={`w-8 h-8 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  currentPage === pg
+                    ? 'bg-amber-600 text-white shadow-md shadow-amber-950/40'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                }`}
+              >
+                {pg}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1.5 rounded-xl text-xs font-bold border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+            >
+              Selanjutnya
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* MODAL BALAS KANDIDAT (POINT 2) */}
       {selectedApp && (

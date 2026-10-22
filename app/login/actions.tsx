@@ -9,27 +9,101 @@ import { verifyPassword } from '@/lib/password'
 
 import { AVAILABLE_MENUS, canUserAccessMenu } from '@/lib/auth'
 
-// Rate limit sederhana (in-memory per instance): 5 percobaan gagal / 15 menit / IP
+// Rate limit persisten & in-memory: 5 percobaan gagal / 15 menit / IP
 const WINDOW_MS = 15 * 60 * 1000
 const MAX_ATTEMPTS = 5
-const attempts = new Map<string, { count: number; resetAt: number }>()
+const memoryAttempts = new Map<string, { count: number; resetAt: number }>()
 
-function isLocked(ip: string): boolean {
-  const rec = attempts.get(ip)
-  if (!rec) return false
-  if (rec.resetAt < Date.now()) {
-    attempts.delete(ip)
-    return false
+async function checkIsLocked(ip: string): Promise<{ locked: boolean; remainingMinutes?: number }> {
+  const now = Date.now()
+
+  // 1. Cek cache in-memory cepat
+  const memRec = memoryAttempts.get(ip)
+  if (memRec && memRec.resetAt > now && memRec.count >= MAX_ATTEMPTS) {
+    const remaining = Math.max(1, Math.ceil((memRec.resetAt - now) / 60000))
+    return { locked: true, remainingMinutes: remaining }
   }
-  return rec.count >= MAX_ATTEMPTS
+
+  // 2. Cek database persisten
+  try {
+    const db = await readDB()
+    const rec = db.loginAttempts?.[`ip_${ip}`]
+    if (rec && rec.resetAt > now && rec.count >= MAX_ATTEMPTS) {
+      const remaining = Math.max(1, Math.ceil((rec.resetAt - now) / 60000))
+      return { locked: true, remainingMinutes: remaining }
+    }
+  } catch (e) {
+    console.warn('Gagal membaca status rate limit:', e)
+  }
+
+  return { locked: false }
 }
 
-function registerFailure(ip: string) {
-  const rec = attempts.get(ip)
-  if (!rec || rec.resetAt < Date.now()) {
-    attempts.set(ip, { count: 1, resetAt: Date.now() + WINDOW_MS })
-  } else {
-    rec.count++
+async function recordLoginFailure(ip: string, targetUsername: string) {
+  const now = Date.now()
+  const resetAt = now + WINDOW_MS
+
+  // 1. Catat ke memory
+  const memRec = memoryAttempts.get(ip)
+  const newCount = (!memRec || memRec.resetAt < now) ? 1 : memRec.count + 1
+  memoryAttempts.set(ip, { count: newCount, resetAt })
+
+  // 2. Catat ke database persisten & audit log
+  try {
+    const { writeDB } = await import('@/lib/db')
+    const db = await readDB()
+    if (!db.loginAttempts) db.loginAttempts = {}
+    db.loginAttempts[`ip_${ip}`] = {
+      count: newCount,
+      resetAt,
+      lastAttemptAt: now,
+      lockedUntil: newCount >= MAX_ATTEMPTS ? resetAt : undefined,
+    }
+
+    if (!db.auditLogs) db.auditLogs = []
+    if (newCount >= MAX_ATTEMPTS) {
+      db.auditLogs.unshift({
+        id: 'log-brute-' + now,
+        message: `PERINGATAN KEAMANAN: Percobaan login gagal berulang (${newCount}x) terdeteksi dari IP: ${ip} untuk akun: "${targetUsername || 'admin'}". Akses IP ini diblokir sementara selama 15 menit.`,
+        timestamp: now,
+        type: 'AUTH',
+        category: 'system',
+        userName: targetUsername || 'Unknown',
+        userEmail: '-',
+        userRole: 'Unauthenticated',
+        ip,
+      })
+    } else {
+      db.auditLogs.unshift({
+        id: 'log-fail-' + now,
+        message: `Percobaan login gagal (${newCount}/${MAX_ATTEMPTS}) dari IP: ${ip} untuk target user: "${targetUsername || 'admin'}".`,
+        timestamp: now,
+        type: 'AUTH',
+        category: 'system',
+        userName: targetUsername || 'Unknown',
+        userEmail: '-',
+        userRole: 'Unauthenticated',
+        ip,
+      })
+    }
+
+    await writeDB(db)
+  } catch (e) {
+    console.warn('Gagal mencatat login failure:', e)
+  }
+}
+
+async function clearLoginAttempts(ip: string) {
+  memoryAttempts.delete(ip)
+  try {
+    const { writeDB } = await import('@/lib/db')
+    const db = await readDB()
+    if (db.loginAttempts && db.loginAttempts[`ip_${ip}`]) {
+      delete db.loginAttempts[`ip_${ip}`]
+      await writeDB(db)
+    }
+  } catch (e) {
+    console.warn('Gagal membersihkan login attempts:', e)
   }
 }
 
@@ -50,17 +124,65 @@ export async function loginAdmin(formData: FormData): Promise<{ success: boolean
 
   const h = await headers()
   const ip = h.get('x-forwarded-for')?.split(',')[0].trim() || h.get('x-real-ip') || 'unknown'
+  const userAgent = h.get('user-agent') || 'Perangkat Tidak Dikenal'
 
-  if (isLocked(ip)) {
-    return { success: false, message: 'Terlalu banyak percobaan. Coba lagi dalam 15 menit.' }
+  const lockStatus = await checkIsLocked(ip)
+  if (lockStatus.locked) {
+    return {
+      success: false,
+      message: `Terlalu banyak percobaan gagal. Akses diblokir sementara. Coba lagi dalam ${lockStatus.remainingMinutes || 15} menit.`
+    }
   }
+
+  const SESSION_INACTIVITY_LIMIT = 30 * 60 * 1000 // 30 menit
 
   // 1. Cek Admin Master (jika username kosong atau 'admin', dan password cocok dengan ADMIN_PASSWORD)
   if (!username || username.toLowerCase() === 'admin') {
     if (secretPassword && passwordMatches(password, secretPassword)) {
-      attempts.delete(ip)
+      await clearLoginAttempts(ip)
+
+      // Cek single session enforcement (Point 7)
+      const db = await readDB()
+      const existingSession = db.activeSessions?.['admin']
+      const now = Date.now()
+      if (existingSession && (now - existingSession.lastSeen < SESSION_INACTIVITY_LIMIT)) {
+        const isSameDevice = existingSession.ip === ip && existingSession.userAgent === userAgent
+        if (!isSameDevice) {
+          return {
+            success: false,
+            message: `Akun Administrator sedang aktif di perangkat lain (IP: ${existingSession.ip}). Untuk alasan keamanan, login bersamaan tidak diizinkan. Silakan logout dari perangkat tersebut terlebih dahulu.`
+          }
+        }
+      }
+
+      const token = await createSessionToken('admin')
+      if (!db.activeSessions) db.activeSessions = {}
+      db.activeSessions['admin'] = {
+        token,
+        ip,
+        userAgent,
+        lastSeen: now,
+        loggedInAt: now,
+      }
+
+      if (!db.auditLogs) db.auditLogs = []
+      db.auditLogs.unshift({
+        id: 'log-auth-' + now,
+        message: `Login berhasil oleh Administrator Master dari IP: ${ip}.`,
+        timestamp: now,
+        type: 'AUTH',
+        category: 'system',
+        userName: 'Administrator Master',
+        userEmail: 'admin',
+        userRole: 'Superadmin',
+        ip,
+      })
+
+      const { writeDB } = await import('@/lib/db')
+      await writeDB(db)
+
       const cookieStore = await cookies()
-      cookieStore.set(SESSION_COOKIE, await createSessionToken('admin'), {
+      cookieStore.set(SESSION_COOKIE, token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
@@ -87,9 +209,49 @@ export async function loginAdmin(formData: FormData): Promise<{ success: boolean
     }
 
     if (matchedUser && verifyPassword(password, matchedUser.passwordHash)) {
-      attempts.delete(ip)
+      await clearLoginAttempts(ip)
+
+      // Cek single session enforcement (Point 7)
+      const existingSession = db.activeSessions?.[matchedUser.id]
+      const now = Date.now()
+      if (existingSession && (now - existingSession.lastSeen < SESSION_INACTIVITY_LIMIT)) {
+        const isSameDevice = existingSession.ip === ip && existingSession.userAgent === userAgent
+        if (!isSameDevice) {
+          return {
+            success: false,
+            message: `Akun "${matchedUser.name}" sedang aktif di perangkat lain (IP: ${existingSession.ip}). Login bersamaan tidak diizinkan. Silakan logout dari perangkat sebelumnya terlebih dahulu.`
+          }
+        }
+      }
+
+      const token = await createSessionToken(matchedUser.id)
+      if (!db.activeSessions) db.activeSessions = {}
+      db.activeSessions[matchedUser.id] = {
+        token,
+        ip,
+        userAgent,
+        lastSeen: now,
+        loggedInAt: now,
+      }
+
+      if (!db.auditLogs) db.auditLogs = []
+      db.auditLogs.unshift({
+        id: 'log-auth-' + now,
+        message: `Login berhasil oleh pengguna "${matchedUser.name}" (${matchedUser.role}) dari IP: ${ip}.`,
+        timestamp: now,
+        type: 'AUTH',
+        category: 'system',
+        userName: matchedUser.name,
+        userEmail: matchedUser.username,
+        userRole: matchedUser.role,
+        ip,
+      })
+
+      const { writeDB } = await import('@/lib/db')
+      await writeDB(db)
+
       const cookieStore = await cookies()
-      cookieStore.set(SESSION_COOKIE, await createSessionToken(matchedUser.id), {
+      cookieStore.set(SESSION_COOKIE, token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
@@ -115,16 +277,69 @@ export async function loginAdmin(formData: FormData): Promise<{ success: boolean
 
       return { success: true, redirectUrl }
     }
+    await recordLoginFailure(ip, username)
+    return { success: false, message: 'Username atau password salah, silakan coba lagi.' }
   } catch (err) {
     console.warn('Gagal membaca pengguna CMS saat login:', err)
+    await recordLoginFailure(ip, username)
+    return { success: false, message: 'Terjadi kesalahan sistem saat memproses login.' }
   }
-
-  registerFailure(ip)
-  return { success: false, message: 'Username atau password salah, silakan coba lagi.' }
 }
 
 export async function logoutAdmin() {
   const cookieStore = await cookies()
+  const token = cookieStore.get(SESSION_COOKIE)?.value
+  if (token) {
+    try {
+      const { getSessionPayload } = await import('@/lib/session')
+      const payload = await getSessionPayload(token)
+      if (payload?.userId) {
+        const { readDB, writeDB, addNotification } = await import('@/lib/db')
+        const db = await readDB()
+        if (db.activeSessions && db.activeSessions[payload.userId]) {
+          delete db.activeSessions[payload.userId]
+          await writeDB(db)
+        }
+        await addNotification(
+          `Pengguna "${payload.userId}" telah logout dari sistem CMS.`,
+          'AUTH',
+          'system',
+          { userName: payload.userId, userRole: 'CMS User' }
+        )
+      }
+    } catch (e) {
+      console.warn('Gagal menghapus active session saat logout:', e)
+    }
+  }
   cookieStore.delete(SESSION_COOKIE)
   return { success: true }
+}
+
+export async function heartbeatAdminSession(): Promise<{ valid: boolean; message?: string }> {
+  try {
+    const cookieStore = await cookies()
+    const token = cookieStore.get(SESSION_COOKIE)?.value
+    if (!token) return { valid: false, message: 'Tidak ada sesi aktif.' }
+
+    const { getSessionPayload } = await import('@/lib/session')
+    const payload = await getSessionPayload(token)
+    if (!payload?.userId) return { valid: false, message: 'Token sesi tidak valid.' }
+
+    const { readDB, writeDB } = await import('@/lib/db')
+    const db = await readDB()
+    const session = db.activeSessions?.[payload.userId]
+    if (!session) {
+      return { valid: true }
+    }
+
+    if (session.token !== token) {
+      return { valid: false, message: 'Akun Anda telah masuk di perangkat lain. Sesi di perangkat ini dinonaktifkan.' }
+    }
+
+    session.lastSeen = Date.now()
+    await writeDB(db)
+    return { valid: true }
+  } catch {
+    return { valid: true }
+  }
 }

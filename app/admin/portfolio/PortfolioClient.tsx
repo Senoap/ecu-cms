@@ -1,6 +1,6 @@
 // app/admin/portfolio/PortfolioClient.tsx
 'use client'
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useMemo } from 'react'
 import { Save, FolderKanban, Building2, Pencil, Trash2, X } from 'lucide-react'
 
 interface PortfolioItem {
@@ -30,7 +30,25 @@ export default function PortfolioClient({
 }: PortfolioClientProps) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<PortfolioItem | null>(null)
-  const [isHeaderDirty, setIsHeaderDirty] = useState(false)
+  
+  const [subtitle, setSubtitle] = useState(portfolioHeader.tag || '')
+  const [title, setTitle] = useState(portfolioHeader.heading || '')
+  const [note, setNote] = useState(portfolioHeader.note || '')
+
+  const [headerBaseline, setHeaderBaseline] = useState({
+    subtitle: portfolioHeader.tag || '',
+    title: portfolioHeader.heading || '',
+    note: portfolioHeader.note || '',
+  })
+
+  const isHeaderDirty = useMemo(() => {
+    return (
+      subtitle !== headerBaseline.subtitle ||
+      title !== headerBaseline.title ||
+      note !== headerBaseline.note
+    )
+  }, [subtitle, title, note, headerBaseline])
+
   const [isPending, startTransition] = useTransition()
   const [showToast, setShowToast] = useState(false)
   const [toastMsg, setToastMsg] = useState('Berhasil Disimpan ke Draft!')
@@ -52,20 +70,15 @@ export default function PortfolioClient({
       </div>
 
       {/* Header Banner */}
-      <div className="flex justify-between items-center bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-xl relative overflow-hidden transition-colors">
-        <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+      <div className="flex justify-between items-center bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-sm relative overflow-hidden transition-colors">
         <div className="space-y-1 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-[10px] font-black uppercase tracking-widest mb-2">
-            <FolderKanban className="w-3.5 h-3.5" />
-            <span>Portfolio Management</span>
-          </div>
           <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight">Kelola Portofolio Klien & Proyek</h1>
           <p className="text-gray-600 dark:text-gray-400 text-xs md:text-sm font-medium">Tambah instansi, deskripsi kerja sama, dan foto/logo proyek.</p>
         </div>
         <button
           type="button"
           onClick={() => setIsAddModalOpen(true)}
-          className="relative z-10 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-black text-xs uppercase tracking-widest px-6 py-3.5 rounded-2xl transition-all shadow-lg shadow-amber-950/50 cursor-pointer"
+          className="relative z-10 bg-amber-600 hover:bg-amber-700 text-white font-black text-xs uppercase tracking-widest px-6 py-3.5 rounded-2xl transition-all shadow-sm cursor-pointer"
         >
           + Tambah Mitra Baru
         </button>
@@ -75,30 +88,49 @@ export default function PortfolioClient({
       <form action={async (formData) => {
         startTransition(async () => {
           await saveHeaderAction(formData)
-          setIsHeaderDirty(false)
+          setHeaderBaseline({ subtitle, title, note })
           setToastMsg('Header Portofolio berhasil disimpan ke Draft!')
           setShowToast(true)
           setTimeout(() => setShowToast(false), 4000)
         })
-      }} onChange={() => setIsHeaderDirty(true)} className="bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-xl space-y-6 transition-colors">
+      }} className="bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-xl space-y-6 transition-colors">
         <h2 className="text-base font-black text-amber-600 dark:text-amber-500 tracking-wide uppercase flex items-center gap-2">
-          <span>📝</span> Header & Catatan Seksi Portofolio
+          <FolderKanban className="w-4 h-4 text-amber-600 dark:text-amber-500" />
+          <span>Header & Catatan Seksi Portofolio</span>
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Sub-Judul (Badge)</label>
-            <input type="text" name="subtitle" defaultValue={portfolioHeader.tag || ''} className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:border-amber-500 font-medium shadow-inner transition-colors" />
+            <input 
+              type="text" 
+              name="subtitle" 
+              value={subtitle}
+              onChange={(e) => setSubtitle(e.target.value)}
+              className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:border-amber-500 font-medium shadow-inner transition-colors" 
+            />
           </div>
           <div className="space-y-2">
             <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Judul Utama</label>
-            <input type="text" name="title" defaultValue={portfolioHeader.heading || ''} className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:border-amber-500 font-medium shadow-inner transition-colors" />
+            <input 
+              type="text" 
+              name="title" 
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:border-amber-500 font-medium shadow-inner transition-colors" 
+            />
           </div>
         </div>
 
         <div className="space-y-2">
           <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Catatan Kaki (Note / Keterangan Bawah)</label>
-          <input type="text" name="note" defaultValue={portfolioHeader.note || ''} className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:border-amber-500 font-medium shadow-inner transition-colors" />
+          <input 
+            type="text" 
+            name="note" 
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:border-amber-500 font-medium shadow-inner transition-colors" 
+          />
         </div>
 
         <div className="fixed bottom-6 right-20 z-45">
@@ -108,7 +140,7 @@ export default function PortfolioClient({
             className={`px-6 h-12 rounded-full shadow-2xl flex items-center gap-2.5 text-xs font-black tracking-widest uppercase transition-all duration-300 border backdrop-blur-md cursor-pointer ${
               !isHeaderDirty || isPending
                 ? 'bg-gray-200 dark:bg-gray-900/40 text-gray-400 dark:text-gray-600 border-gray-300 dark:border-gray-800/40 cursor-not-allowed opacity-50 shadow-none'
-                : 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white border-amber-500/40 shadow-xl shadow-amber-900/50 hover:scale-105 animate-pulse'
+                : 'bg-amber-600 hover:bg-amber-700 text-white border-amber-600 shadow-md shadow-black/20 cursor-pointer'
             }`}
           >
             <Save className="w-4 h-4" />
@@ -199,7 +231,7 @@ export default function PortfolioClient({
               </div>
               <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-800">
                 <button type="button" onClick={() => setIsAddModalOpen(false)} className="px-5 py-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl text-xs font-bold transition-colors cursor-pointer">Batal</button>
-                <button type="submit" disabled={isPending} className="bg-gradient-to-r from-amber-600 to-amber-700 text-white font-black text-xs uppercase px-6 py-2.5 rounded-xl cursor-pointer">
+                <button type="submit" disabled={isPending} className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs uppercase px-6 py-2.5 rounded-xl cursor-pointer">
                   {isPending ? 'Menyimpan...' : 'Tambah Mitra'}
                 </button>
               </div>
@@ -242,7 +274,7 @@ export default function PortfolioClient({
               </div>
               <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-800">
                 <button type="button" onClick={() => setEditingItem(null)} className="px-5 py-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl text-xs font-bold transition-colors cursor-pointer">Batal</button>
-                <button type="submit" disabled={isPending} className="bg-gradient-to-r from-blue-600 to-blue-700 text-white font-black text-xs uppercase px-6 py-2.5 rounded-xl cursor-pointer">
+                <button type="submit" disabled={isPending} className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs uppercase px-6 py-2.5 rounded-xl cursor-pointer">
                   {isPending ? 'Menyimpan...' : 'Simpan Perubahan'}
                 </button>
               </div>

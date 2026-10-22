@@ -9,19 +9,126 @@
     "fontFamily": "Inter",
     "logoUrl": "/uploads/logo-1788085817981.png",
     "bgImageUrl": "/uploads/bg-1788085817983.jpg",
-    "slideDuration": 3
+    "slideDuration": 3,
+    "showLeadership": true,
+    "showCertifications": false,
+    "leadershipLabel": "Profil Pimpinan"
   },
   "sections": [
     {
       "id": "hero",
       "type": "hero",
-      "badge": "PT. EMPAT SINERGI UTAMA",
+      "badge": "",
       "label": "Banner Teks Hero",
       "order": 1,
       "content": "Penyedia Solusi Terintegrasi Kebutuhan Operasional Bisnis, Manajemen Fasilitas Gedung, dan Pemenuhan Ketenagakerjaan Ahli.",
       "isVisible": true,
       "titleLine1": "WE ARE YOUR",
-      "titleHighlight": "SOLUTION"
+      "titleHighlight": "SOLUTION",
+      "showcaseCard": {
+        "enabled": true,
+        "liveBadgeText": "Tersertifikasi",
+        "strengths": [
+          {
+            "desc": "Penanganan insiden & pergantian personel darurat < 2 jam.",
+            "icon": "Zap",
+            "title": "Respons Tanggap Cepat 24/7"
+          },
+          {
+            "desc": "Tersertifikasi resmi BNSP dan dibekali pelatihan berkala.",
+            "icon": "Award",
+            "title": "Personel Tersertifikasi Legal"
+          },
+          {
+            "desc": "Jaminan kepatuhan UU Ketenagakerjaan, BPJS, & payroll transparan.",
+            "icon": "Users",
+            "title": "Bebas Sengketa & Akuntabel"
+          },
+          {
+            "desc": "Disiplin keselamatan kerja tinggi untuk perlindungan aset optimal.",
+            "icon": "ShieldCheck",
+            "title": "Budaya K3 & Zero-Accident"
+          }
+        ],
+        "metrics": [
+          {
+            "num": "15+",
+            "sub": "Pimpinan Teruji",
+            "label": "Tahun Pengalaman"
+          },
+          {
+            "num": "500+",
+            "sub": "Penempatan Cepat",
+            "label": "Tenaga Siap Kerja"
+          },
+          {
+            "num": "99.8%",
+            "sub": "Pemenuhan SLA",
+            "label": "Kepuasan Klien"
+          },
+          {
+            "num": "100%",
+            "sub": "Izin Kemenaker Resmi",
+            "label": "Kepatuhan Legalitas"
+          }
+        ],
+        "sectors": [
+          {
+            "icon": "Building2",
+            "name": "Perkantoran Komersial"
+          },
+          {
+            "icon": "Factory",
+            "name": "Pabrik & Kawasan Industri"
+          },
+          {
+            "icon": "Store",
+            "name": "Mall & Pusat Perbelanjaan"
+          },
+          {
+            "icon": "Activity",
+            "name": "Rumah Sakit & Fasilitas Medis"
+          },
+          {
+            "icon": "Truck",
+            "name": "Pergudangan & Logistik"
+          },
+          {
+            "icon": "GraduationCap",
+            "name": "Institusi Pendidikan"
+          }
+        ],
+        "roles": [
+          {
+            "tag": "Personel Tersertifikasi",
+            "desc": "Perlindungan aset fisik & korporat berstandar regulasi",
+            "icon": "ShieldCheck",
+            "title": "Satuan Pengamanan (Gada Pratama / Madya)"
+          },
+          {
+            "tag": "Standar Higienis",
+            "desc": "Perawatan gedung, kantor, dan fasilitas komersial prima",
+            "icon": "Sparkles",
+            "title": "Jasa Kebersihan & Manajemen Fasilitas"
+          },
+          {
+            "tag": "Safety Driving",
+            "desc": "Disiplin waktu, berlisensi, dan penguasaan rute handal",
+            "icon": "Car",
+            "title": "Pengemudi Profesional & Eksekutif"
+          },
+          {
+            "tag": "Siap Kerja",
+            "desc": "Tenaga terampil siap dukung target operasional industri",
+            "icon": "Wrench",
+            "title": "Operator Pabrik & Teknisi Pemeliharaan"
+          }
+        ],
+        "ctaText": "Konsultasi Kebutuhan Mitra →",
+        "ctaLink": "#contact",
+        "profileText": "Profil Perusahaan",
+        "profileLink": "#about"
+      }
     },
     {
       "id": "about",
@@ -174,40 +281,35 @@
     }
   ],
   "hero": {
-    "badge": "PT. EMPAT SINERGI UTAMA",
+    "badge": "",
     "titleLine1": "WE ARE YOUR",
     "titleHighlight": "SOLUTION",
     "description": "Penyedia Solusi Terintegrasi Kebutuhan Operasional Bisnis, Manajemen Fasilitas Gedung, dan Pemenuhan Ketenagakerjaan Ahli.",
     "showcaseCard": {
-      "roles": [
+      "enabled": true,
+      "liveBadgeText": "Tersertifikasi",
+      "strengths": [
         {
-          "tag": "Personel Tersertifikasi",
-          "desc": "Perlindungan aset fisik & korporat berstandar regulasi",
+          "desc": "Penanganan insiden & pergantian personel darurat < 2 jam.",
+          "icon": "Zap",
+          "title": "Respons Tanggap Cepat 24/7"
+        },
+        {
+          "desc": "Tersertifikasi resmi BNSP dan dibekali pelatihan berkala.",
+          "icon": "Award",
+          "title": "Personel Tersertifikasi Legal"
+        },
+        {
+          "desc": "Jaminan kepatuhan UU Ketenagakerjaan, BPJS, & payroll transparan.",
+          "icon": "Users",
+          "title": "Bebas Sengketa & Akuntabel"
+        },
+        {
+          "desc": "Disiplin keselamatan kerja tinggi untuk perlindungan aset optimal.",
           "icon": "ShieldCheck",
-          "title": "Satuan Pengamanan (Gada Pratama / Madya)"
-        },
-        {
-          "tag": "Standar Higienis",
-          "desc": "Perawatan gedung, kantor, dan fasilitas komersial prima",
-          "icon": "Sparkles",
-          "title": "Jasa Kebersihan & Manajemen Fasilitas"
-        },
-        {
-          "tag": "Safety Driving",
-          "desc": "Disiplin waktu, berlisensi, dan penguasaan rute handal",
-          "icon": "Car",
-          "title": "Pengemudi Profesional & Eksekutif"
-        },
-        {
-          "tag": "Siap Kerja",
-          "desc": "Tenaga terampil siap dukung target operasional industri",
-          "icon": "Wrench",
-          "title": "Operator Pabrik & Teknisi Pemeliharaan"
+          "title": "Budaya K3 & Zero-Accident"
         }
       ],
-      "ctaLink": "#contact",
-      "ctaText": "Konsultasi Kebutuhan Mitra →",
-      "enabled": true,
       "metrics": [
         {
           "num": "15+",
@@ -256,31 +358,36 @@
           "name": "Institusi Pendidikan"
         }
       ],
-      "strengths": [
+      "roles": [
         {
-          "desc": "Penanganan insiden & pergantian personel darurat < 2 jam.",
-          "icon": "Zap",
-          "title": "Respons Tanggap Cepat 24/7"
-        },
-        {
-          "desc": "Tersertifikasi resmi BNSP dan dibekali pelatihan berkala.",
-          "icon": "Award",
-          "title": "Personel Tersertifikasi Legal"
-        },
-        {
-          "desc": "Jaminan kepatuhan UU Ketenagakerjaan, BPJS, & payroll transparan.",
-          "icon": "Users",
-          "title": "Bebas Sengketa & Akuntabel"
-        },
-        {
-          "desc": "Disiplin keselamatan kerja tinggi untuk perlindungan aset optimal.",
+          "tag": "Personel Tersertifikasi",
+          "desc": "Perlindungan aset fisik & korporat berstandar regulasi",
           "icon": "ShieldCheck",
-          "title": "Budaya K3 & Zero-Accident"
+          "title": "Satuan Pengamanan (Gada Pratama / Madya)"
+        },
+        {
+          "tag": "Standar Higienis",
+          "desc": "Perawatan gedung, kantor, dan fasilitas komersial prima",
+          "icon": "Sparkles",
+          "title": "Jasa Kebersihan & Manajemen Fasilitas"
+        },
+        {
+          "tag": "Safety Driving",
+          "desc": "Disiplin waktu, berlisensi, dan penguasaan rute handal",
+          "icon": "Car",
+          "title": "Pengemudi Profesional & Eksekutif"
+        },
+        {
+          "tag": "Siap Kerja",
+          "desc": "Tenaga terampil siap dukung target operasional industri",
+          "icon": "Wrench",
+          "title": "Operator Pabrik & Teknisi Pemeliharaan"
         }
       ],
-      "profileLink": "#about",
+      "ctaText": "Konsultasi Kebutuhan Mitra →",
+      "ctaLink": "#contact",
       "profileText": "Profil Perusahaan",
-      "liveBadgeText": "SISTEM AKTIF"
+      "profileLink": "#about"
     }
   },
   "about": {
@@ -344,182 +451,269 @@
     "content": "Selamat datang di situs resmi PT. Empat Sinergi Utama. Dengan mengakses dan menggunakan situs web ini, Anda menyetujui untuk terikat oleh Syarat dan Ketentuan berikut.\n\n1. Penggunaan Situs Web\nSitus web ini disediakan untuk tujuan informasi mengenai layanan ketenagakerjaan, manajemen fasilitas, keamanan, kebersihan, serta informasi lowongan kerja resmi PT. Empat Sinergi Utama. Anda setuju untuk menggunakan situs ini hanya untuk tujuan yang sah dan tidak melanggar hukum.\n\n2. Pengajuan Lamaran Pekerjaan\nPengunjung yang melamar pekerjaan melalui formulir karir menjamin bahwa seluruh data, dokumen identitas, dan berkas CV yang diunggah adalah asli, akurat, dan dapat dipertanggungjawabkan kebenarannya. Manipulasi data atau dokumen palsu dapat mengakibatkan diskualifikasi otomatis.\n\n3. Hak Kekayaan Intelektual\nSeluruh konten, merek dagang, logo, desain grafis, teks, dan media visual yang terdapat dalam situs web ini adalah hak milik eksklusif PT. Empat Sinergi Utama atau pemegang lisensi terkait. Dilarang menggandakan, menyebarluaskan, atau memodifikasi konten tanpa izin tertulis.\n\n4. Batasan Tanggung Jawab\nPT. Empat Sinergi Utama berupaya menjaga keakuratan informasi di situs web, namun tidak menjamin bahwa situs akan selalu bebas gangguan teknis atau kesalahan. Kami tidak bertanggung jawab atas kerugian langsung maupun tidak langsung yang timbul dari penggunaan situs ini.\n\n5. Perubahan Ketentuan\nKami berhak untuk mengubah, memperbarui, atau memodifikasi Syarat dan Ketentuan ini sewaktu-waktu tanpa pemberitahuan sebelumnya. Penggunaan berkelanjutan atas situs ini setelah perubahan menandakan persetujuan Anda terhadap ketentuan yang diperbarui.",
     "lastUpdated": "17 Oktober 2026"
   },
+  "directors": [
+    {
+      "id": "dir-1",
+      "bio": "Berpengalaman lebih dari 20 tahun dalam kepemimpinan korporasi alih daya ketenagakerjaan dan manajemen fasilitas terpadu. Memiliki keahlian strategis dalam tata kelola SDM, kepatuhan hukum ketenagakerjaan, dan kemitraan skala nasional.",
+      "name": "Drs. H. Bambang Soeprapto, M.M.",
+      "order": 1,
+      "photoUrl": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=80",
+      "position": "Direktur Utama (President Director)",
+      "education": "Magister Manajemen Sumber Daya Manusia - Universitas Indonesia",
+      "isVisible": true,
+      "experiences": [
+        "Mantan Eksekutif Senior Perusahaan Manpower Services Nasional",
+        "Pengurus Bidang Hukum Asosiasi Pengusaha Alih Daya Indonesia",
+        "Konsultan Kepatuhan UU Ketenagakerjaan & Hubungan Industrial"
+      ]
+    },
+    {
+      "id": "dir-2",
+      "bio": "Pakar operasional manajemen fasilitas gedung bertingkat dan pengelolaan keamanan terpadu. Mengantongi lisensi K3 BNSP tingkat utama dan sertifikasi Gada Utama Kepolisian RI.",
+      "name": "Ir. Hendra Gunawan, S.T., IPM.",
+      "order": 2,
+      "photoUrl": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=800&q=80",
+      "position": "Direktur Operasional & K3 (COO)",
+      "education": "Sarjana Teknik Industri - Institut Teknologi Bandung (ITB)",
+      "isVisible": true,
+      "experiences": [
+        "15+ Tahun Pengelolaan Operasional Gedung Perkantoran & Kawasan Industri",
+        "Auditor Sistem Manajemen K3 & ISO 45001:2018",
+        "Pembina Standar Operasional Prosedur Pengamanan Fisik Korporat"
+      ]
+    },
+    {
+      "id": "dir-3",
+      "bio": "Menangani akuntabilitas finansial, transparansi sistem penggajian (payroll), dan kepatuhan perpajakan serta BPJS Ketenagakerjaan dan Kesehatan untuk ribuan tenaga kerja terkelola.",
+      "name": "Siti Rahmawati, S.E., Ak., CA.",
+      "order": 3,
+      "photoUrl": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&q=80",
+      "position": "Direktur Keuangan & Kepatuhan Bisnis (CFO)",
+      "education": "Sarjana Ekonomi Akuntansi - Universitas Gadjah Mada (UGM)",
+      "isVisible": true,
+      "experiences": [
+        "12+ Tahun Akuntansi Forensik & Manajemen Keuangan Alih Daya",
+        "Spesialis Audit Payroll & Perlindungan Jaminan Sosial Tenaga Kerja",
+        "Anggota Ikatan Akuntan Indonesia (IAI)"
+      ]
+    }
+  ],
+  "certifications": [
+    {
+      "id": "cert-1",
+      "desc": "Standar pengakuan internasional untuk mutu pelayanan jasa penyedia tenaga kerja, manajemen fasilitas, dan sistem operasional alih daya yang konsisten dan prima.",
+      "order": 1,
+      "title": "ISO 9001:2015 - Sistem Manajemen Mutu",
+      "issuer": "Badan Sertifikasi Mutu Internasional",
+      "imageUrl": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=900&q=80",
+      "isVisible": true,
+      "issueDate": "15 Januari 2024",
+      "certNumber": "QMS/2024/ESU-88912",
+      "expiryDate": "14 Januari 2027",
+      "watermarkText": "PT. EMPAT SINERGI UTAMA - DOKUMEN RESMI - TIDAK UNTUK DIKANDANGKAN"
+    },
+    {
+      "id": "cert-2",
+      "desc": "Sertifikasi kepatuhan sistem manajemen keselamatan dan kesehatan kerja guna menjamin perlindungan maksimal bagi seluruh personel lapangan dan aset mitra.",
+      "order": 2,
+      "title": "ISO 45001:2018 - Keselamatan & Kesehatan Kerja (K3)",
+      "issuer": "Badan Akreditasi K3 Internasional",
+      "imageUrl": "https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=900&q=80",
+      "isVisible": true,
+      "issueDate": "20 Mei 2023",
+      "certNumber": "OHSAS/2023/ESU-45019",
+      "expiryDate": "19 Mei 2026",
+      "watermarkText": "PT. EMPAT SINERGI UTAMA - DOKUMEN RESMI - TIDAK UNTUK DIKANDANGKAN"
+    },
+    {
+      "id": "cert-3",
+      "desc": "Izin legal resmi dari Mabes POLRI untuk menyelenggarakan jasa penyediaan, pelatihan, dan pengelolaan personel satuan pengamanan (Satpam).",
+      "order": 3,
+      "title": "Surat Izin Operasional Badan Usaha Jasa Pengamanan (SIO-BUJP)",
+      "issuer": "Kepolisian Negara Republik Indonesia (MABES POLRI)",
+      "imageUrl": "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=900&q=80",
+      "isVisible": true,
+      "issueDate": "10 Februari 2023",
+      "certNumber": "SIO/POLRI/BUJP/2023-9912",
+      "expiryDate": "09 Februari 2028",
+      "watermarkText": "PT. EMPAT SINERGI UTAMA - DOKUMEN RESMI - TIDAK UNTUK DIKANDANGKAN"
+    },
+    {
+      "id": "cert-4",
+      "desc": "Legalitas resmi kementerian ketenagakerjaan sebagai perusahaan alih daya yang memenuhi syarat UU Ketenagakerjaan dan perlindungan hak pekerja.",
+      "order": 4,
+      "title": "Surat Izin Penyalur Penyedia Jasa Pekerja (PPJP)",
+      "issuer": "Kementerian Ketenagakerjaan Republik Indonesia (KEMENAKER)",
+      "imageUrl": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=900&q=80",
+      "isVisible": true,
+      "issueDate": "18 Oktober 2022",
+      "certNumber": "KEP.541/MENAKER/PPJP/2022",
+      "expiryDate": "17 Oktober 2027",
+      "watermarkText": "PT. EMPAT SINERGI UTAMA - DOKUMEN RESMI - TIDAK UNTUK DIKANDANGKAN"
+    },
+    {
+      "id": "cert-5",
+      "desc": "Keanggotaan aktif dalam asosiasi resmi jasa pengamanan Indonesia yang menjamin standar kompetensi personel Satpam.",
+      "order": 5,
+      "title": "Sertifikat Keanggotaan ABUJAPI",
+      "issuer": "Asosiasi Badan Usaha Jasa Pengamanan Indonesia (ABUJAPI)",
+      "imageUrl": "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=900&q=80",
+      "isVisible": true,
+      "issueDate": "05 Maret 2023",
+      "certNumber": "ABUJAPI/DKI/2023-01827",
+      "expiryDate": "04 Maret 2026",
+      "watermarkText": "PT. EMPAT SINERGI UTAMA - DOKUMEN RESMI - TIDAK UNTUK DIKANDANGKAN"
+    },
+    {
+      "id": "cert-6",
+      "desc": "Standarisasi metode pembersihan, higienitas fasilitas, dan tata kelola bahan kimia ramah lingkungan.",
+      "order": 6,
+      "title": "Sertifikat Keanggotaan APKLINDO",
+      "issuer": "Asosiasi Perusahaan Klining Servis Indonesia (APKLINDO)",
+      "imageUrl": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=900&q=80",
+      "isVisible": true,
+      "issueDate": "12 Agustus 2023",
+      "certNumber": "APKLINDO/BANTEN/2023-5521",
+      "expiryDate": "11 Agustus 2026",
+      "watermarkText": "PT. EMPAT SINERGI UTAMA - DOKUMEN RESMI - TIDAK UNTUK DIKANDANGKAN"
+    }
+  ],
+  "comproEmailTemplate": {
+    "body": "Yth. Bapak/Ibu {name},\nDari {company},\n\nTerima kasih atas minat dan kepercayaan Anda kepada PT. Empat Sinergi Utama.\n\nMenindaklanjuti permintaan Company Profile yang Anda ajukan melalui situs web resmi kami, bersama pesan ini kami lampirkan informasi Company Profile (Compro) resmi PT. Empat Sinergi Utama.\n\nDokumen ini memuat informasi lengkap mengenai:\n- Profil dan legalitas perusahaan\n- Portofolio layanan alih daya (Keamanan, Kebersihan, Tenaga Pendukung, Fasilitas)\n- Rekam jejak mitra dan sertifikasi mutu (ISO 9001, ISO 45001, SIO-BUJP, PPJP Kemenaker)\n- Skema kemitraan yang fleksibel, transparan, dan akuntabel\n\nAnda juga dapat mengunduh berkas langsung melalui tautan resmi berikut:\n{compro_url}\n\nTim konsultan kami siap berdiskusi lebih lanjut mengenai solusi operasional di perusahaan Anda. Silakan hubungi kami via balasan email ini atau WhatsApp di nomor hotline resmi kami.\n\nSalam hormat,\nTim Kemitraan Korporat\nPT. Empat Sinergi Utama\nWeb: {site_url}\nHotline: +62 815 8480 5000",
+    "subject": "Company Profile Resmi - PT. Empat Sinergi Utama",
+    "senderName": "PT. Empat Sinergi Utama"
+  },
   "published": {
-    "hero": {
-      "badge": "PT. EMPAT SINERGI UTAMA",
-      "titleLine1": "WE ARE YOUR",
-      "titleHighlight": "SOLUTION",
-      "description": "Penyedia Solusi Terintegrasi Kebutuhan Operasional Bisnis, Manajemen Fasilitas Gedung, dan Pemenuhan Ketenagakerjaan Ahli.",
-      "showcaseCard": {
-        "roles": [
-          {
-            "tag": "Personel Tersertifikasi",
-            "desc": "Perlindungan aset fisik & korporat berstandar regulasi",
-            "icon": "ShieldCheck",
-            "title": "Satuan Pengamanan (Gada Pratama / Madya)"
-          },
-          {
-            "tag": "Standar Higienis",
-            "desc": "Perawatan gedung, kantor, dan fasilitas komersial prima",
-            "icon": "Sparkles",
-            "title": "Jasa Kebersihan & Manajemen Fasilitas"
-          },
-          {
-            "tag": "Safety Driving",
-            "desc": "Disiplin waktu, berlisensi, dan penguasaan rute handal",
-            "icon": "Car",
-            "title": "Pengemudi Profesional & Eksekutif"
-          },
-          {
-            "tag": "Siap Kerja",
-            "desc": "Tenaga terampil siap dukung target operasional industri",
-            "icon": "Wrench",
-            "title": "Operator Pabrik & Teknisi Pemeliharaan"
-          }
-        ],
-        "ctaLink": "#contact",
-        "ctaText": "Konsultasi Kebutuhan Mitra →",
-        "enabled": true,
-        "metrics": [
-          {
-            "num": "15+",
-            "sub": "Pimpinan Teruji",
-            "label": "Tahun Pengalaman"
-          },
-          {
-            "num": "500+",
-            "sub": "Penempatan Cepat",
-            "label": "Tenaga Siap Kerja"
-          },
-          {
-            "num": "99.8%",
-            "sub": "Pemenuhan SLA",
-            "label": "Kepuasan Klien"
-          },
-          {
-            "num": "100%",
-            "sub": "Izin Kemenaker Resmi",
-            "label": "Kepatuhan Legalitas"
-          }
-        ],
-        "sectors": [
-          {
-            "icon": "Building2",
-            "name": "Perkantoran Komersial"
-          },
-          {
-            "icon": "Factory",
-            "name": "Pabrik & Kawasan Industri"
-          },
-          {
-            "icon": "Store",
-            "name": "Mall & Pusat Perbelanjaan"
-          },
-          {
-            "icon": "Activity",
-            "name": "Rumah Sakit & Fasilitas Medis"
-          },
-          {
-            "icon": "Truck",
-            "name": "Pergudangan & Logistik"
-          },
-          {
-            "icon": "GraduationCap",
-            "name": "Institusi Pendidikan"
-          }
-        ],
-        "strengths": [
-          {
-            "desc": "Penanganan insiden & pergantian personel darurat < 2 jam.",
-            "icon": "Zap",
-            "title": "Respons Tanggap Cepat 24/7"
-          },
-          {
-            "desc": "Tersertifikasi resmi BNSP dan dibekali pelatihan berkala.",
-            "icon": "Award",
-            "title": "Personel Tersertifikasi Legal"
-          },
-          {
-            "desc": "Jaminan kepatuhan UU Ketenagakerjaan, BPJS, & payroll transparan.",
-            "icon": "Users",
-            "title": "Bebas Sengketa & Akuntabel"
-          },
-          {
-            "desc": "Disiplin keselamatan kerja tinggi untuk perlindungan aset optimal.",
-            "icon": "ShieldCheck",
-            "title": "Budaya K3 & Zero-Accident"
-          }
-        ],
-        "profileLink": "#about",
-        "profileText": "Profil Perusahaan",
-        "liveBadgeText": "SISTEM AKTIF"
-      }
-    },
-    "about": {
-      "tag": "ABOUT US",
-      "heading": "Mitra Strategis Ketenagakerjaan Anda",
-      "subtitle": "ABOUT US",
-      "title": "Mitra Strategis Ketenagakerjaan Anda",
-      "p1": "PT. Empat Sinergi Utama adalah perusahaan penyedia tenaga kerja alih daya yang berkomitmen memberikan solusi terbaik untuk kebutuhan operasional bisnis Anda.",
-      "p2": "Sumber daya manusia yang kami miliki adalah tenaga kerja yang sudah dieksekusi pelatihan di bidangnya masing-masing, siap bekerja.",
-      "leadershipTitle": "Rekam Jejak Teruji",
-      "leadershipDesc": "Dengan pengalaman CEO selama lebih dari 15 tahun bekerja di industri Penyedia Jasa Tenaga Kerja Non Grade.",
-      "quote": "Integritas, Profesionalisme, Kualitas"
-    },
-    "career": [
-      {
-        "id": "1",
-        "desc": "Melakukan pengamanan area gedung korporat.",
-        "type": "Full-time",
-        "title": "Security Officer (Satpam)",
-        "isActive": true,
-        "location": "Jakarta Selatan",
-        "requirements": "Memiliki KTA resmi, berpengalaman min. 1 tahun."
-      }
-    ],
-    "footer": {
-      "description": "Penyedia Layanan Jasa Tenaga Kerja Alih Daya terpercaya, unggul, dan akuntabel di Indonesia.",
-      "address": "Casa De Bosco No.3, Tangerang Selatan 1",
-      "phone": "+6281584805000",
-      "whatsapp": "+6281584805000",
-      "email": "manpower.services@empatsinergiumata.com",
-      "socialMedia": {
-        "tiktok": "",
-        "enabled": true,
-        "youtube": "",
-        "facebook": "https://facebook.com/empatsinergiutama",
-        "linkedin": "https://linkedin.com/company/empat-sinergi-utama",
-        "instagram": "https://instagram.com/empatsinergiutama"
-      },
-      "inquiryTemplates": {
-        "emailBody": "Halo Tim PT. Empat Sinergi Utama,\n\nSaya ingin mendapatkan informasi dan penawaran terkait kebutuhan operasional perusahaan kami:\n\nNama: \nPerusahaan / Instansi: \nKebutuhan Layanan (Keamanan / Kebersihan / Tenaga Pendukung / Taman): \nKontak / No. Telepon: \n\nMohon informasi lebih lanjut. Terima kasih.",
-        "waMessage": "Halo PT. Empat Sinergi Utama, saya ingin berkonsultasi mengenai kebutuhan layanan alih daya / ketenagakerjaan untuk perusahaan kami.",
-        "emailSubject": "Konsultasi Layanan Alih Daya & Ketenagakerjaan - PT. Empat Sinergi Utama"
-      }
-    },
     "setting": {
-      "logoUrl": "/uploads/logo-1788085817981.png",
-      "tagline": "MANPOWER SERVICES",
       "siteName": "PT. EMPAT SINERGI UTAMA",
-      "bgImageUrl": "/uploads/bg-1788085817983.jpg",
-      "fontFamily": "Inter",
-      "accentColor": "#BF8009",
+      "tagline": "MANPOWER SERVICES",
       "primaryColor": "#6B0808",
-      "slideDuration": 3,
+      "secondaryColor": "#AF6E00",
+      "accentColor": "#BF8009",
       "loadingBgColor": "#6B0808",
-      "secondaryColor": "#AF6E00"
+      "fontFamily": "Inter",
+      "logoUrl": "/uploads/logo-1788085817981.png",
+      "bgImageUrl": "/uploads/bg-1788085817983.jpg",
+      "slideDuration": 3,
+      "showLeadership": true,
+      "showCertifications": false,
+      "leadershipLabel": "Profil Pimpinan"
     },
     "sections": [
       {
         "id": "hero",
         "type": "hero",
-        "badge": "PT. EMPAT SINERGI UTAMA",
+        "badge": "",
         "label": "Banner Teks Hero",
         "order": 1,
         "content": "Penyedia Solusi Terintegrasi Kebutuhan Operasional Bisnis, Manajemen Fasilitas Gedung, dan Pemenuhan Ketenagakerjaan Ahli.",
         "isVisible": true,
         "titleLine1": "WE ARE YOUR",
-        "titleHighlight": "SOLUTION"
+        "titleHighlight": "SOLUTION",
+        "showcaseCard": {
+          "enabled": true,
+          "liveBadgeText": "Tersertifikasi",
+          "strengths": [
+            {
+              "desc": "Penanganan insiden & pergantian personel darurat < 2 jam.",
+              "icon": "Zap",
+              "title": "Respons Tanggap Cepat 24/7"
+            },
+            {
+              "desc": "Tersertifikasi resmi BNSP dan dibekali pelatihan berkala.",
+              "icon": "Award",
+              "title": "Personel Tersertifikasi Legal"
+            },
+            {
+              "desc": "Jaminan kepatuhan UU Ketenagakerjaan, BPJS, & payroll transparan.",
+              "icon": "Users",
+              "title": "Bebas Sengketa & Akuntabel"
+            },
+            {
+              "desc": "Disiplin keselamatan kerja tinggi untuk perlindungan aset optimal.",
+              "icon": "ShieldCheck",
+              "title": "Budaya K3 & Zero-Accident"
+            }
+          ],
+          "metrics": [
+            {
+              "num": "15+",
+              "sub": "Pimpinan Teruji",
+              "label": "Tahun Pengalaman"
+            },
+            {
+              "num": "500+",
+              "sub": "Penempatan Cepat",
+              "label": "Tenaga Siap Kerja"
+            },
+            {
+              "num": "99.8%",
+              "sub": "Pemenuhan SLA",
+              "label": "Kepuasan Klien"
+            },
+            {
+              "num": "100%",
+              "sub": "Izin Kemenaker Resmi",
+              "label": "Kepatuhan Legalitas"
+            }
+          ],
+          "sectors": [
+            {
+              "icon": "Building2",
+              "name": "Perkantoran Komersial"
+            },
+            {
+              "icon": "Factory",
+              "name": "Pabrik & Kawasan Industri"
+            },
+            {
+              "icon": "Store",
+              "name": "Mall & Pusat Perbelanjaan"
+            },
+            {
+              "icon": "Activity",
+              "name": "Rumah Sakit & Fasilitas Medis"
+            },
+            {
+              "icon": "Truck",
+              "name": "Pergudangan & Logistik"
+            },
+            {
+              "icon": "GraduationCap",
+              "name": "Institusi Pendidikan"
+            }
+          ],
+          "roles": [
+            {
+              "tag": "Personel Tersertifikasi",
+              "desc": "Perlindungan aset fisik & korporat berstandar regulasi",
+              "icon": "ShieldCheck",
+              "title": "Satuan Pengamanan (Gada Pratama / Madya)"
+            },
+            {
+              "tag": "Standar Higienis",
+              "desc": "Perawatan gedung, kantor, dan fasilitas komersial prima",
+              "icon": "Sparkles",
+              "title": "Jasa Kebersihan & Manajemen Fasilitas"
+            },
+            {
+              "tag": "Safety Driving",
+              "desc": "Disiplin waktu, berlisensi, dan penguasaan rute handal",
+              "icon": "Car",
+              "title": "Pengemudi Profesional & Eksekutif"
+            },
+            {
+              "tag": "Siap Kerja",
+              "desc": "Tenaga terampil siap dukung target operasional industri",
+              "icon": "Wrench",
+              "title": "Operator Pabrik & Teknisi Pemeliharaan"
+            }
+          ],
+          "ctaText": "Konsultasi Kebutuhan Mitra →",
+          "ctaLink": "#contact",
+          "profileText": "Profil Perusahaan",
+          "profileLink": "#about"
+        }
       },
       {
         "id": "about",
@@ -630,6 +824,31 @@
         "content": "..."
       }
     ],
+    "portfolios": [
+      {
+        "id": "1",
+        "desc": "Penyediaan tenaga pengamanan dan pendukung operasional gedung instansi.",
+        "name": "KEMENPORA RI",
+        "imageUrl": "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        "id": "2",
+        "desc": "Dukungan fasilitas pelayanan publik dan pemeliharaan kawasan.",
+        "name": "KOTA TANGERANG SELATAN",
+        "imageUrl": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80"
+      }
+    ],
+    "career": [
+      {
+        "id": "1",
+        "desc": "Melakukan pengamanan area gedung korporat.",
+        "type": "Full-time",
+        "title": "Security Officer (Satpam)",
+        "isActive": true,
+        "location": "Jakarta Selatan",
+        "requirements": "Memiliki KTA resmi, berpengalaman min. 1 tahun."
+      }
+    ],
     "galleries": [
       {
         "id": "1",
@@ -646,20 +865,137 @@
         "imageUrl": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80"
       }
     ],
-    "portfolios": [
-      {
-        "id": "1",
-        "desc": "Penyediaan tenaga pengamanan dan pendukung operasional gedung instansi.",
-        "name": "KEMENPORA RI",
-        "imageUrl": "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=800&q=80"
-      },
-      {
-        "id": "2",
-        "desc": "Dukungan fasilitas pelayanan publik dan pemeliharaan kawasan.",
-        "name": "KOTA TANGERANG SELATAN",
-        "imageUrl": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80"
+    "hero": {
+      "badge": "",
+      "titleLine1": "WE ARE YOUR",
+      "titleHighlight": "SOLUTION",
+      "description": "Penyedia Solusi Terintegrasi Kebutuhan Operasional Bisnis, Manajemen Fasilitas Gedung, dan Pemenuhan Ketenagakerjaan Ahli.",
+      "showcaseCard": {
+        "enabled": true,
+        "liveBadgeText": "Tersertifikasi",
+        "strengths": [
+          {
+            "desc": "Penanganan insiden & pergantian personel darurat < 2 jam.",
+            "icon": "Zap",
+            "title": "Respons Tanggap Cepat 24/7"
+          },
+          {
+            "desc": "Tersertifikasi resmi BNSP dan dibekali pelatihan berkala.",
+            "icon": "Award",
+            "title": "Personel Tersertifikasi Legal"
+          },
+          {
+            "desc": "Jaminan kepatuhan UU Ketenagakerjaan, BPJS, & payroll transparan.",
+            "icon": "Users",
+            "title": "Bebas Sengketa & Akuntabel"
+          },
+          {
+            "desc": "Disiplin keselamatan kerja tinggi untuk perlindungan aset optimal.",
+            "icon": "ShieldCheck",
+            "title": "Budaya K3 & Zero-Accident"
+          }
+        ],
+        "metrics": [
+          {
+            "num": "15+",
+            "sub": "Pimpinan Teruji",
+            "label": "Tahun Pengalaman"
+          },
+          {
+            "num": "500+",
+            "sub": "Penempatan Cepat",
+            "label": "Tenaga Siap Kerja"
+          },
+          {
+            "num": "99.8%",
+            "sub": "Pemenuhan SLA",
+            "label": "Kepuasan Klien"
+          },
+          {
+            "num": "100%",
+            "sub": "Izin Kemenaker Resmi",
+            "label": "Kepatuhan Legalitas"
+          }
+        ],
+        "sectors": [
+          {
+            "icon": "Building2",
+            "name": "Perkantoran Komersial"
+          },
+          {
+            "icon": "Factory",
+            "name": "Pabrik & Kawasan Industri"
+          },
+          {
+            "icon": "Store",
+            "name": "Mall & Pusat Perbelanjaan"
+          },
+          {
+            "icon": "Activity",
+            "name": "Rumah Sakit & Fasilitas Medis"
+          },
+          {
+            "icon": "Truck",
+            "name": "Pergudangan & Logistik"
+          },
+          {
+            "icon": "GraduationCap",
+            "name": "Institusi Pendidikan"
+          }
+        ],
+        "roles": [
+          {
+            "tag": "Personel Tersertifikasi",
+            "desc": "Perlindungan aset fisik & korporat berstandar regulasi",
+            "icon": "ShieldCheck",
+            "title": "Satuan Pengamanan (Gada Pratama / Madya)"
+          },
+          {
+            "tag": "Standar Higienis",
+            "desc": "Perawatan gedung, kantor, dan fasilitas komersial prima",
+            "icon": "Sparkles",
+            "title": "Jasa Kebersihan & Manajemen Fasilitas"
+          },
+          {
+            "tag": "Safety Driving",
+            "desc": "Disiplin waktu, berlisensi, dan penguasaan rute handal",
+            "icon": "Car",
+            "title": "Pengemudi Profesional & Eksekutif"
+          },
+          {
+            "tag": "Siap Kerja",
+            "desc": "Tenaga terampil siap dukung target operasional industri",
+            "icon": "Wrench",
+            "title": "Operator Pabrik & Teknisi Pemeliharaan"
+          }
+        ],
+        "ctaText": "Konsultasi Kebutuhan Mitra →",
+        "ctaLink": "#contact",
+        "profileText": "Profil Perusahaan",
+        "profileLink": "#about"
       }
-    ],
+    },
+    "about": {
+      "tag": "ABOUT US",
+      "heading": "Mitra Strategis Ketenagakerjaan Anda",
+      "subtitle": "ABOUT US",
+      "title": "Mitra Strategis Ketenagakerjaan Anda",
+      "p1": "PT. Empat Sinergi Utama adalah perusahaan penyedia tenaga kerja alih daya yang berkomitmen memberikan solusi terbaik untuk kebutuhan operasional bisnis Anda.",
+      "p2": "Sumber daya manusia yang kami miliki adalah tenaga kerja yang sudah dieksekusi pelatihan di bidangnya masing-masing, siap bekerja.",
+      "leadershipTitle": "Rekam Jejak Teruji",
+      "leadershipDesc": "Dengan pengalaman CEO selama lebih dari 15 tahun bekerja di industri Penyedia Jasa Tenaga Kerja Non Grade.",
+      "quote": "Integritas, Profesionalisme, Kualitas"
+    },
+    "servicesHeader": {
+      "tag": "OUR CAPABILITIES",
+      "heading": "LAYANAN ALIH DAYA KAMI",
+      "note": "*Seluruh penempatan dikontrol sah melalui Perjanjian Kerja Waktu Tertentu (PKWT)."
+    },
+    "portfolioHeader": {
+      "tag": "PROVEN TRACK RECORD",
+      "heading": "PROJECT PORTFOLIO",
+      "note": "Serta dipercaya mendukung pengerjaan proyek harian entitas swasta nasional."
+    },
     "careerHeader": {
       "tag": "JOIN OUR TEAM",
       "heading": "CAREER OPPORTUNITIES",
@@ -670,151 +1006,805 @@
       "heading": "GALERI DOKUMENTASI",
       "note": "Dokumentasi kegiatan operasional, fasilitas, dan proyek perusahaan."
     },
+    "footer": {
+      "description": "Penyedia Layanan Jasa Tenaga Kerja Alih Daya terpercaya, unggul, dan akuntabel di Indonesia.",
+      "address": "Casa De Bosco No.3, Tangerang Selatan 1",
+      "phone": "+6281584805000",
+      "whatsapp": "+6281584805000",
+      "email": "manpower.services@empatsinergiumata.com",
+      "socialMedia": {
+        "tiktok": "",
+        "enabled": true,
+        "youtube": "",
+        "facebook": "https://facebook.com/empatsinergiutama",
+        "linkedin": "https://linkedin.com/company/empat-sinergi-utama",
+        "instagram": "https://instagram.com/empatsinergiutama"
+      },
+      "inquiryTemplates": {
+        "emailBody": "Halo Tim PT. Empat Sinergi Utama,\n\nSaya ingin mendapatkan informasi dan penawaran terkait kebutuhan operasional perusahaan kami:\n\nNama: \nPerusahaan / Instansi: \nKebutuhan Layanan (Keamanan / Kebersihan / Tenaga Pendukung / Taman): \nKontak / No. Telepon: \n\nMohon informasi lebih lanjut. Terima kasih.",
+        "waMessage": "Halo PT. Empat Sinergi Utama, saya ingin berkonsultasi mengenai kebutuhan layanan alih daya / ketenagakerjaan untuk perusahaan kami.",
+        "emailSubject": "Konsultasi Layanan Alih Daya & Ketenagakerjaan - PT. Empat Sinergi Utama"
+      }
+    },
+    "scheduledContents": [],
     "privacyPolicy": {
       "title": "Kebijakan Privasi",
       "content": "PT. Empat Sinergi Utama berkomitmen untuk melindungi dan menghormati privasi Anda. Kebijakan Privasi ini menjelaskan bagaimana kami mengumpulkan, menggunakan, dan melindungi data pribadi yang Anda berikan melalui situs web ini.\n\n1. Pengumpulan Informasi\nKami mengumpulkan informasi pribadi yang Anda berikan secara sukarela saat menghubungi kami atau mengirimkan lamaran pekerjaan melalui situs web kami, termasuk namun tidak terbatas pada nama, alamat email, nomor telepon, riwayat pekerjaan, dan dokumen kurikulum vitae (CV).\n\n2. Penggunaan Informasi\nInformasi yang kami kumpulkan digunakan untuk:\n- Memproses lamaran kerja dan proses seleksi ketenagakerjaan.\n- Merespons pertanyaan, permintaan penawaran, atau konsultasi layanan alih daya.\n- Meningkatkan kualitas layanan dan pengalaman operasional situs web kami.\n\n3. Perlindungan & Keamanan Data\nKami menerapkan langkah-langkah keamanan teknis dan organisasi yang ketat untuk mencegah akses tanpa izin, pengungkapan, perubahan, atau penghancuran data pribadi Anda. Berkas lamaran dan dokumen sensitif disimpan dalam penyimpanan aman dengan hak akses terbatas.\n\n4. Pembagian Data kepada Pihak Ketiga\nKami tidak menjual atau menyewakan informasi pribadi Anda kepada pihak ketiga. Data hanya dibagikan kepada mitra bisnis resmi atau klien pengguna jasa tenaga kerja jika relevan dengan penempatan kerja Anda dan dengan persetujuan Anda.\n\n5. Hak Pengguna\nAnda berhak untuk meminta akses, perbaikan, atau penghapusan data pribadi Anda yang tersimpan di sistem kami dengan menghubungi tim kami melalui kontak resmi yang tercantum di situs ini.",
       "lastUpdated": "17 Oktober 2026"
-    },
-    "servicesHeader": {
-      "tag": "OUR CAPABILITIES",
-      "heading": "LAYANAN ALIH DAYA KAMI",
-      "note": "*Seluruh penempatan dikontrol sah melalui Perjanjian Kerja Waktu Tertentu (PKWT)."
     },
     "termsOfService": {
       "title": "Syarat dan Ketentuan",
       "content": "Selamat datang di situs resmi PT. Empat Sinergi Utama. Dengan mengakses dan menggunakan situs web ini, Anda menyetujui untuk terikat oleh Syarat dan Ketentuan berikut.\n\n1. Penggunaan Situs Web\nSitus web ini disediakan untuk tujuan informasi mengenai layanan ketenagakerjaan, manajemen fasilitas, keamanan, kebersihan, serta informasi lowongan kerja resmi PT. Empat Sinergi Utama. Anda setuju untuk menggunakan situs ini hanya untuk tujuan yang sah dan tidak melanggar hukum.\n\n2. Pengajuan Lamaran Pekerjaan\nPengunjung yang melamar pekerjaan melalui formulir karir menjamin bahwa seluruh data, dokumen identitas, dan berkas CV yang diunggah adalah asli, akurat, dan dapat dipertanggungjawabkan kebenarannya. Manipulasi data atau dokumen palsu dapat mengakibatkan diskualifikasi otomatis.\n\n3. Hak Kekayaan Intelektual\nSeluruh konten, merek dagang, logo, desain grafis, teks, dan media visual yang terdapat dalam situs web ini adalah hak milik eksklusif PT. Empat Sinergi Utama atau pemegang lisensi terkait. Dilarang menggandakan, menyebarluaskan, atau memodifikasi konten tanpa izin tertulis.\n\n4. Batasan Tanggung Jawab\nPT. Empat Sinergi Utama berupaya menjaga keakuratan informasi di situs web, namun tidak menjamin bahwa situs akan selalu bebas gangguan teknis atau kesalahan. Kami tidak bertanggung jawab atas kerugian langsung maupun tidak langsung yang timbul dari penggunaan situs ini.\n\n5. Perubahan Ketentuan\nKami berhak untuk mengubah, memperbarui, atau memodifikasi Syarat dan Ketentuan ini sewaktu-waktu tanpa pemberitahuan sebelumnya. Penggunaan berkelanjutan atas situs ini setelah perubahan menandakan persetujuan Anda terhadap ketentuan yang diperbarui.",
       "lastUpdated": "17 Oktober 2026"
     },
-    "portfolioHeader": {
-      "tag": "PROVEN TRACK RECORD",
-      "heading": "PROJECT PORTFOLIO",
-      "note": "Serta dipercaya mendukung pengerjaan proyek harian entitas swasta nasional."
-    },
-    "scheduledContents": [
+    "directors": [
       {
-        "id": "sc-1792248970685-y3yj",
-        "type": "daily",
-        "badge": "DAILY HIGHLIGHT",
-        "title": "Tips",
-        "content": "testing",
-        "endDate": "2026-10-18",
-        "imageUrl": "http://127.0.0.1:55321/storage/v1/object/public/uploads/content-daily-1792248970551.jpeg",
-        "isActive": true,
-        "createdAt": 1792248970685,
-        "startDate": "2026-10-17"
+        "id": "dir-1",
+        "bio": "Berpengalaman lebih dari 20 tahun dalam kepemimpinan korporasi alih daya ketenagakerjaan dan manajemen fasilitas terpadu. Memiliki keahlian strategis dalam tata kelola SDM, kepatuhan hukum ketenagakerjaan, dan kemitraan skala nasional.",
+        "name": "Drs. H. Bambang Soeprapto, M.M.",
+        "order": 1,
+        "photoUrl": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=80",
+        "position": "Direktur Utama (President Director)",
+        "education": "Magister Manajemen Sumber Daya Manusia - Universitas Indonesia",
+        "isVisible": true,
+        "experiences": [
+          "Mantan Eksekutif Senior Perusahaan Manpower Services Nasional",
+          "Pengurus Bidang Hukum Asosiasi Pengusaha Alih Daya Indonesia",
+          "Konsultan Kepatuhan UU Ketenagakerjaan & Hubungan Industrial"
+        ]
+      },
+      {
+        "id": "dir-2",
+        "bio": "Pakar operasional manajemen fasilitas gedung bertingkat dan pengelolaan keamanan terpadu. Mengantongi lisensi K3 BNSP tingkat utama dan sertifikasi Gada Utama Kepolisian RI.",
+        "name": "Ir. Hendra Gunawan, S.T., IPM.",
+        "order": 2,
+        "photoUrl": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=800&q=80",
+        "position": "Direktur Operasional & K3 (COO)",
+        "education": "Sarjana Teknik Industri - Institut Teknologi Bandung (ITB)",
+        "isVisible": true,
+        "experiences": [
+          "15+ Tahun Pengelolaan Operasional Gedung Perkantoran & Kawasan Industri",
+          "Auditor Sistem Manajemen K3 & ISO 45001:2018",
+          "Pembina Standar Operasional Prosedur Pengamanan Fisik Korporat"
+        ]
+      },
+      {
+        "id": "dir-3",
+        "bio": "Menangani akuntabilitas finansial, transparansi sistem penggajian (payroll), dan kepatuhan perpajakan serta BPJS Ketenagakerjaan dan Kesehatan untuk ribuan tenaga kerja terkelola.",
+        "name": "Siti Rahmawati, S.E., Ak., CA.",
+        "order": 3,
+        "photoUrl": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&q=80",
+        "position": "Direktur Keuangan & Kepatuhan Bisnis (CFO)",
+        "education": "Sarjana Ekonomi Akuntansi - Universitas Gadjah Mada (UGM)",
+        "isVisible": true,
+        "experiences": [
+          "12+ Tahun Akuntansi Forensik & Manajemen Keuangan Alih Daya",
+          "Spesialis Audit Payroll & Perlindungan Jaminan Sosial Tenaga Kerja",
+          "Anggota Ikatan Akuntan Indonesia (IAI)"
+        ]
       }
-    ]
+    ],
+    "certifications": [
+      {
+        "id": "cert-1",
+        "desc": "Standar pengakuan internasional untuk mutu pelayanan jasa penyedia tenaga kerja, manajemen fasilitas, dan sistem operasional alih daya yang konsisten dan prima.",
+        "order": 1,
+        "title": "ISO 9001:2015 - Sistem Manajemen Mutu",
+        "issuer": "Badan Sertifikasi Mutu Internasional",
+        "imageUrl": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=900&q=80",
+        "isVisible": true,
+        "issueDate": "15 Januari 2024",
+        "certNumber": "QMS/2024/ESU-88912",
+        "expiryDate": "14 Januari 2027",
+        "watermarkText": "PT. EMPAT SINERGI UTAMA - DOKUMEN RESMI - TIDAK UNTUK DIKANDANGKAN"
+      },
+      {
+        "id": "cert-2",
+        "desc": "Sertifikasi kepatuhan sistem manajemen keselamatan dan kesehatan kerja guna menjamin perlindungan maksimal bagi seluruh personel lapangan dan aset mitra.",
+        "order": 2,
+        "title": "ISO 45001:2018 - Keselamatan & Kesehatan Kerja (K3)",
+        "issuer": "Badan Akreditasi K3 Internasional",
+        "imageUrl": "https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=900&q=80",
+        "isVisible": true,
+        "issueDate": "20 Mei 2023",
+        "certNumber": "OHSAS/2023/ESU-45019",
+        "expiryDate": "19 Mei 2026",
+        "watermarkText": "PT. EMPAT SINERGI UTAMA - DOKUMEN RESMI - TIDAK UNTUK DIKANDANGKAN"
+      },
+      {
+        "id": "cert-3",
+        "desc": "Izin legal resmi dari Mabes POLRI untuk menyelenggarakan jasa penyediaan, pelatihan, dan pengelolaan personel satuan pengamanan (Satpam).",
+        "order": 3,
+        "title": "Surat Izin Operasional Badan Usaha Jasa Pengamanan (SIO-BUJP)",
+        "issuer": "Kepolisian Negara Republik Indonesia (MABES POLRI)",
+        "imageUrl": "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=900&q=80",
+        "isVisible": true,
+        "issueDate": "10 Februari 2023",
+        "certNumber": "SIO/POLRI/BUJP/2023-9912",
+        "expiryDate": "09 Februari 2028",
+        "watermarkText": "PT. EMPAT SINERGI UTAMA - DOKUMEN RESMI - TIDAK UNTUK DIKANDANGKAN"
+      },
+      {
+        "id": "cert-4",
+        "desc": "Legalitas resmi kementerian ketenagakerjaan sebagai perusahaan alih daya yang memenuhi syarat UU Ketenagakerjaan dan perlindungan hak pekerja.",
+        "order": 4,
+        "title": "Surat Izin Penyalur Penyedia Jasa Pekerja (PPJP)",
+        "issuer": "Kementerian Ketenagakerjaan Republik Indonesia (KEMENAKER)",
+        "imageUrl": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=900&q=80",
+        "isVisible": true,
+        "issueDate": "18 Oktober 2022",
+        "certNumber": "KEP.541/MENAKER/PPJP/2022",
+        "expiryDate": "17 Oktober 2027",
+        "watermarkText": "PT. EMPAT SINERGI UTAMA - DOKUMEN RESMI - TIDAK UNTUK DIKANDANGKAN"
+      },
+      {
+        "id": "cert-5",
+        "desc": "Keanggotaan aktif dalam asosiasi resmi jasa pengamanan Indonesia yang menjamin standar kompetensi personel Satpam.",
+        "order": 5,
+        "title": "Sertifikat Keanggotaan ABUJAPI",
+        "issuer": "Asosiasi Badan Usaha Jasa Pengamanan Indonesia (ABUJAPI)",
+        "imageUrl": "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=900&q=80",
+        "isVisible": true,
+        "issueDate": "05 Maret 2023",
+        "certNumber": "ABUJAPI/DKI/2023-01827",
+        "expiryDate": "04 Maret 2026",
+        "watermarkText": "PT. EMPAT SINERGI UTAMA - DOKUMEN RESMI - TIDAK UNTUK DIKANDANGKAN"
+      },
+      {
+        "id": "cert-6",
+        "desc": "Standarisasi metode pembersihan, higienitas fasilitas, dan tata kelola bahan kimia ramah lingkungan.",
+        "order": 6,
+        "title": "Sertifikat Keanggotaan APKLINDO",
+        "issuer": "Asosiasi Perusahaan Klining Servis Indonesia (APKLINDO)",
+        "imageUrl": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=900&q=80",
+        "isVisible": true,
+        "issueDate": "12 Agustus 2023",
+        "certNumber": "APKLINDO/BANTEN/2023-5521",
+        "expiryDate": "11 Agustus 2026",
+        "watermarkText": "PT. EMPAT SINERGI UTAMA - DOKUMEN RESMI - TIDAK UNTUK DIKANDANGKAN"
+      }
+    ],
+    "comproEmailTemplate": {
+      "body": "Yth. Bapak/Ibu {name},\nDari {company},\n\nTerima kasih atas minat dan kepercayaan Anda kepada PT. Empat Sinergi Utama.\n\nMenindaklanjuti permintaan Company Profile yang Anda ajukan melalui situs web resmi kami, bersama pesan ini kami lampirkan informasi Company Profile (Compro) resmi PT. Empat Sinergi Utama.\n\nDokumen ini memuat informasi lengkap mengenai:\n- Profil dan legalitas perusahaan\n- Portofolio layanan alih daya (Keamanan, Kebersihan, Tenaga Pendukung, Fasilitas)\n- Rekam jejak mitra dan sertifikasi mutu (ISO 9001, ISO 45001, SIO-BUJP, PPJP Kemenaker)\n- Skema kemitraan yang fleksibel, transparan, dan akuntabel\n\nAnda juga dapat mengunduh berkas langsung melalui tautan resmi berikut:\n{compro_url}\n\nTim konsultan kami siap berdiskusi lebih lanjut mengenai solusi operasional di perusahaan Anda. Silakan hubungi kami via balasan email ini atau WhatsApp di nomor hotline resmi kami.\n\nSalam hormat,\nTim Kemitraan Korporat\nPT. Empat Sinergi Utama\nWeb: {site_url}\nHotline: +62 815 8480 5000",
+      "subject": "Company Profile Resmi - PT. Empat Sinergi Utama",
+      "senderName": "PT. Empat Sinergi Utama"
+    }
   },
   "notifications": [
     {
+      "id": "notif-1792686188606",
+      "message": "Mengaktifkan publikasi Profil Pimpinan ke website.",
+      "time": "23.23",
+      "type": "UPDATE",
+      "category": "system"
+    },
+    {
+      "id": "notif-1792686187312",
+      "message": "Menonaktifkan / menyembunyikan Profil Pimpinan dari website.",
+      "time": "23.23",
+      "type": "UPDATE",
+      "category": "system"
+    },
+    {
+      "id": "notif-1792686182545",
+      "message": "Mengaktifkan publikasi Profil Pimpinan ke website.",
+      "time": "23.23",
+      "type": "UPDATE",
+      "category": "system"
+    },
+    {
+      "id": "notif-1792686180758",
+      "message": "Menonaktifkan / menyembunyikan Profil Pimpinan dari website.",
+      "time": "23.23",
+      "type": "UPDATE",
+      "category": "system"
+    },
+    {
+      "id": "notif-1792684807028",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "time": "23.00",
+      "type": "DEPLOY",
+      "category": "system"
+    },
+    {
+      "id": "notif-1792683116338",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "time": "22.31",
+      "type": "DEPLOY",
+      "category": "system"
+    },
+    {
+      "id": "notif-1792682583163",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "time": "22.23",
+      "type": "DEPLOY",
+      "category": "system",
+      "viewedAt": 1792682613860
+    },
+    {
+      "id": "notif-1792682579473",
+      "message": "Memperbarui Pengaturan Global, Logo, Background, Visibilitas Modul, dan Tata Letak Seksi.",
+      "time": "22.22",
+      "type": "UPDATE",
+      "category": "system",
+      "viewedAt": 1792682613860
+    },
+    {
+      "id": "notif-1792682573441",
+      "message": "Memperbarui Pengaturan Global, Logo, Background, Visibilitas Modul, dan Tata Letak Seksi.",
+      "time": "22.22",
+      "type": "UPDATE",
+      "category": "system",
+      "viewedAt": 1792682613860
+    },
+    {
+      "id": "notif-1792682549852",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "time": "22.22",
+      "type": "DEPLOY",
+      "category": "system",
+      "viewedAt": 1792682613860
+    },
+    {
+      "id": "notif-1792679685584",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "time": "21.34",
+      "type": "DEPLOY",
+      "category": "system",
+      "viewedAt": 1792682613860
+    },
+    {
+      "id": "notif-1792679684242",
+      "message": "Memperbarui konfigurasi Hero Section & Kartu Showcase Korporat.",
+      "time": "21.34",
+      "type": "UPDATE",
+      "category": "system",
+      "viewedAt": 1792682613860
+    },
+    {
+      "id": "notif-1792679681189",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "time": "21.34",
+      "type": "DEPLOY",
+      "category": "system",
+      "viewedAt": 1792682613860
+    },
+    {
+      "id": "notif-1792678781844",
+      "message": "Menghapus konten terjadwal: \"Tips\".",
+      "time": "21.19",
+      "type": "DELETE",
+      "category": "system",
+      "viewedAt": 1792682613860
+    },
+    {
+      "id": "notif-1792677541147",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "time": "20.59",
+      "type": "DEPLOY",
+      "category": "system",
+      "viewedAt": 1792682613860
+    },
+    {
+      "id": "notif-1792677539279",
+      "message": "Memperbarui konfigurasi Hero Section & Kartu Showcase Korporat.",
+      "time": "20.58",
+      "type": "UPDATE",
+      "category": "system",
+      "viewedAt": 1792682613860
+    },
+    {
+      "id": "notif-1792675790262",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "time": "20.29",
+      "type": "DEPLOY",
+      "category": "system",
+      "viewedAt": 1792682613860
+    },
+    {
+      "id": "notif-1792675383173",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "time": "20.23",
+      "type": "DEPLOY",
+      "category": "system",
+      "viewedAt": 1792682613860
+    },
+    {
+      "id": "notif-1792675343570",
+      "message": "Mengaktifkan publikasi Profil Pimpinan ke website.",
+      "time": "20.22",
+      "type": "UPDATE",
+      "category": "system",
+      "viewedAt": 1792682613860
+    },
+    {
+      "id": "notif-1792530752128",
+      "time": "04.12",
+      "type": "AUTH",
+      "message": "Pengguna \"admin\" telah logout dari sistem CMS.",
+      "category": "system",
+      "viewedAt": 1792682613860
+    },
+    {
+      "id": "notif-1792524455333",
+      "time": "02.27",
+      "type": "DEPLOY",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "category": "system",
+      "viewedAt": 1792682613860
+    },
+    {
+      "id": "notif-1792524453472",
+      "time": "02.27",
+      "type": "UPDATE",
+      "message": "Menonaktifkan / menyembunyikan Profil Pimpinan dari website.",
+      "category": "system",
+      "viewedAt": 1792682613860
+    },
+    {
+      "id": "notif-1792523343692",
+      "time": "02.09",
+      "type": "DEPLOY",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "category": "system",
+      "viewedAt": 1792682613860
+    },
+    {
+      "id": "notif-1792523239099",
+      "time": "02.07",
+      "type": "UPDATE",
+      "message": "Menonaktifkan / menyembunyikan Halaman Sertifikasi dari website.",
+      "category": "system",
+      "viewedAt": 1792682613860
+    },
+    {
+      "id": "notif-1792523230680",
+      "time": "02.07",
+      "type": "UPDATE",
+      "message": "Mengaktifkan publikasi Profil Pimpinan ke website.",
+      "category": "system",
+      "viewedAt": 1792682613860
+    },
+    {
+      "id": "notif-1792523227774",
+      "time": "02.07",
+      "type": "UPDATE",
+      "message": "Menonaktifkan / menyembunyikan Profil Pimpinan dari website.",
+      "category": "system",
+      "viewedAt": 1792682613860
+    },
+    {
+      "id": "notif-1792517352720",
+      "time": "00.29",
+      "type": "DEPLOY",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "category": "system",
+      "viewedAt": 1792517428216
+    },
+    {
       "id": "notif-1792262740658",
-      "message": "Menambahkan pengguna CMS baru: \"admin2\" (@admin2) dengan role \"admin\".",
       "time": "01.45",
       "type": "CREATE",
-      "category": "system"
+      "message": "Menambahkan pengguna CMS baru: \"admin2\" (@admin2) dengan role \"admin\".",
+      "category": "system",
+      "viewedAt": 1792517348600
     },
     {
       "id": "notif-1792261452034",
       "time": "01.24",
       "type": "CREATE",
       "message": "Menambahkan pengguna CMS baru: \"HRD\" (@hrd) dengan role \"HRD\".",
-      "category": "system"
+      "category": "system",
+      "viewedAt": 1792517348600
     },
     {
       "id": "notif-1792255235437",
       "time": "23.40",
       "type": "DEPLOY",
       "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
-      "category": "system"
+      "category": "system",
+      "viewedAt": 1792517348600
     },
     {
       "id": "notif-1792255049631",
       "time": "23.37",
       "type": "DEPLOY",
       "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
-      "category": "system"
+      "category": "system",
+      "viewedAt": 1792517348600
     },
     {
       "id": "notif-1792254646937",
       "time": "23.30",
       "type": "DEPLOY",
       "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
-      "category": "system"
+      "category": "system",
+      "viewedAt": 1792517348600
     },
     {
       "id": "notif-1792250153972",
       "time": "22.15",
       "type": "CREATE",
       "message": "Lamaran baru diterima untuk posisi \"Security Officer (Satpam)\" dari Calon Berkas Besar (ESU-WMZBQ4).",
-      "category": "career"
+      "category": "career",
+      "viewedAt": 1792517348600
     },
     {
       "id": "notif-1792250153429",
       "time": "22.15",
       "type": "CREATE",
       "message": "Lamaran baru diterima untuk posisi \"Security Officer (Satpam)\" dari Budi Tester (ESU-DNRSSB).",
-      "category": "career"
+      "category": "career",
+      "viewedAt": 1792517348600
     },
     {
       "id": "notif-1792248977635",
       "time": "21.56",
       "type": "DEPLOY",
       "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
-      "category": "system"
+      "category": "system",
+      "viewedAt": 1792517348600
     },
     {
       "id": "notif-1792248970743",
       "time": "21.56",
       "type": "CREATE",
       "message": "Menambahkan konten terjadwal (daily): \"Tips\".",
-      "category": "system"
+      "category": "system",
+      "viewedAt": 1792517348600
     },
     {
       "id": "notif-1792248892915",
       "time": "21.54",
       "type": "CREATE",
       "message": "Lamaran baru diterima untuk posisi \"Security Officer (Satpam)\" dari Calon Berkas Besar (ESU-ZMHCCJ).",
-      "category": "career"
+      "category": "career",
+      "viewedAt": 1792517348600
     },
     {
       "id": "notif-1792248892537",
       "time": "21.54",
       "type": "CREATE",
       "message": "Lamaran baru diterima untuk posisi \"Security Officer (Satpam)\" dari Budi Tester (ESU-C4Y7XS).",
-      "category": "career"
+      "category": "career",
+      "viewedAt": 1792517348600
     },
     {
       "id": "notif-1792248294441",
       "time": "21.44",
       "type": "DEPLOY",
       "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
-      "category": "system"
+      "category": "system",
+      "viewedAt": 1792517348600
     },
     {
       "id": "notif-1792245884880",
       "time": "21.04",
       "type": "CREATE",
       "message": "Lamaran baru diterima untuk posisi \"Security Officer (Satpam)\" dari Calon Berkas Besar (ESU-RN8VPF).",
-      "category": "career"
+      "category": "career",
+      "viewedAt": 1792517348600
     },
     {
       "id": "notif-1792245884154",
       "time": "21.04",
       "type": "CREATE",
       "message": "Lamaran baru diterima untuk posisi \"Security Officer (Satpam)\" dari Budi Tester (ESU-AKNJVY).",
-      "category": "career"
+      "category": "career",
+      "viewedAt": 1792517348600
     }
   ],
   "auditLogs": [
     {
-      "id": "log-1792262740657-j8e4",
-      "message": "Menambahkan pengguna CMS baru: \"admin2\" (@admin2) dengan role \"admin\".",
-      "timestamp": 1792262740657,
-      "type": "CREATE",
+      "id": "log-1792686188606-cuy5",
+      "message": "Mengaktifkan publikasi Profil Pimpinan ke website.",
+      "timestamp": 1792686188606,
+      "type": "UPDATE",
+      "category": "system",
+      "userName": "Administrator Master",
+      "userEmail": "admin",
+      "userRole": "Superadmin"
+    },
+    {
+      "id": "log-1792686187312-ifbj",
+      "message": "Menonaktifkan / menyembunyikan Profil Pimpinan dari website.",
+      "timestamp": 1792686187312,
+      "type": "UPDATE",
+      "category": "system",
+      "userName": "Administrator Master",
+      "userEmail": "admin",
+      "userRole": "Superadmin"
+    },
+    {
+      "id": "log-1792686182545-djoe",
+      "message": "Mengaktifkan publikasi Profil Pimpinan ke website.",
+      "timestamp": 1792686182545,
+      "type": "UPDATE",
+      "category": "system",
+      "userName": "Administrator Master",
+      "userEmail": "admin",
+      "userRole": "Superadmin"
+    },
+    {
+      "id": "log-1792686180758-9m4y",
+      "message": "Menonaktifkan / menyembunyikan Profil Pimpinan dari website.",
+      "timestamp": 1792686180758,
+      "type": "UPDATE",
+      "category": "system",
+      "userName": "Administrator Master",
+      "userEmail": "admin",
+      "userRole": "Superadmin"
+    },
+    {
+      "id": "log-1792684807028",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "timestamp": 1792684807028,
+      "type": "DEPLOY",
+      "category": "system",
+      "userName": "Administrator Master",
+      "userEmail": "admin",
+      "userRole": "Superadmin"
+    },
+    {
+      "id": "log-1792683116338",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "timestamp": 1792683116338,
+      "type": "DEPLOY",
+      "category": "system",
+      "userName": "Administrator Master",
+      "userEmail": "admin",
+      "userRole": "Superadmin"
+    },
+    {
+      "id": "log-1792682583163",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "timestamp": 1792682583163,
+      "type": "DEPLOY",
+      "category": "system",
+      "userName": "Administrator Master",
+      "userEmail": "admin",
+      "userRole": "Superadmin"
+    },
+    {
+      "id": "log-1792682579473-0qcs",
+      "message": "Memperbarui Pengaturan Global, Logo, Background, Visibilitas Modul, dan Tata Letak Seksi.",
+      "timestamp": 1792682579473,
+      "type": "UPDATE",
       "category": "system",
       "userName": "Administrator",
       "userEmail": "admin",
       "userRole": "Superadmin"
+    },
+    {
+      "id": "log-1792682573441-0vye",
+      "message": "Memperbarui Pengaturan Global, Logo, Background, Visibilitas Modul, dan Tata Letak Seksi.",
+      "timestamp": 1792682573441,
+      "type": "UPDATE",
+      "category": "system",
+      "userName": "Administrator",
+      "userEmail": "admin",
+      "userRole": "Superadmin"
+    },
+    {
+      "id": "log-1792682549852",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "timestamp": 1792682549852,
+      "type": "DEPLOY",
+      "category": "system",
+      "userName": "Administrator Master",
+      "userEmail": "admin",
+      "userRole": "Superadmin"
+    },
+    {
+      "id": "log-1792679685584",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "timestamp": 1792679685584,
+      "type": "DEPLOY",
+      "category": "system",
+      "userName": "Administrator Master",
+      "userEmail": "admin",
+      "userRole": "Superadmin"
+    },
+    {
+      "id": "log-1792679684242-3urm",
+      "message": "Memperbarui konfigurasi Hero Section & Kartu Showcase Korporat.",
+      "timestamp": 1792679684242,
+      "type": "UPDATE",
+      "category": "system",
+      "userName": "Administrator Master",
+      "userEmail": "admin",
+      "userRole": "Superadmin"
+    },
+    {
+      "id": "log-1792679681189",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "timestamp": 1792679681189,
+      "type": "DEPLOY",
+      "category": "system",
+      "userName": "Administrator Master",
+      "userEmail": "admin",
+      "userRole": "Superadmin"
+    },
+    {
+      "id": "log-1792678781844-ak3s",
+      "message": "Menghapus konten terjadwal: \"Tips\".",
+      "timestamp": 1792678781844,
+      "type": "DELETE",
+      "category": "system",
+      "userName": "Administrator",
+      "userEmail": "admin",
+      "userRole": "Superadmin"
+    },
+    {
+      "id": "log-1792677541147",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "timestamp": 1792677541147,
+      "type": "DEPLOY",
+      "category": "system",
+      "userName": "Administrator Master",
+      "userEmail": "admin",
+      "userRole": "Superadmin"
+    },
+    {
+      "id": "log-1792677539279-opp7",
+      "message": "Memperbarui konfigurasi Hero Section & Kartu Showcase Korporat.",
+      "timestamp": 1792677539279,
+      "type": "UPDATE",
+      "category": "system",
+      "userName": "Administrator Master",
+      "userEmail": "admin",
+      "userRole": "Superadmin"
+    },
+    {
+      "id": "log-1792675790262",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "timestamp": 1792675790262,
+      "type": "DEPLOY",
+      "category": "system",
+      "userName": "Administrator Master",
+      "userEmail": "admin",
+      "userRole": "Superadmin"
+    },
+    {
+      "id": "log-1792675383173",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "timestamp": 1792675383173,
+      "type": "DEPLOY",
+      "category": "system",
+      "userName": "Administrator Master",
+      "userEmail": "admin",
+      "userRole": "Superadmin"
+    },
+    {
+      "id": "log-1792675343570-slhy",
+      "message": "Mengaktifkan publikasi Profil Pimpinan ke website.",
+      "timestamp": 1792675343570,
+      "type": "UPDATE",
+      "category": "system",
+      "userName": "Administrator Master",
+      "userEmail": "admin",
+      "userRole": "Superadmin"
+    },
+    {
+      "id": "log-auth-1792675292678",
+      "message": "Login berhasil oleh Administrator Master dari IP: ::1.",
+      "timestamp": 1792675292678,
+      "type": "AUTH",
+      "category": "system",
+      "userName": "Administrator Master",
+      "userEmail": "admin",
+      "userRole": "Superadmin",
+      "ip": "::1"
+    },
+    {
+      "id": "log-auth-1792530755801",
+      "ip": "::1",
+      "type": "AUTH",
+      "message": "Login berhasil oleh Administrator Master dari IP: ::1.",
+      "category": "system",
+      "userName": "Administrator Master",
+      "userRole": "Superadmin",
+      "timestamp": 1792530755801,
+      "userEmail": "admin"
+    },
+    {
+      "id": "log-1792530752128-skvc",
+      "type": "AUTH",
+      "message": "Pengguna \"admin\" telah logout dari sistem CMS.",
+      "category": "system",
+      "userName": "admin",
+      "userRole": "CMS User",
+      "timestamp": 1792530752128,
+      "userEmail": "admin"
+    },
+    {
+      "id": "log-compro-1792526740536",
+      "type": "COMPRO",
+      "message": "Permintaan Compro PDF baru dari \"Seno Agung Prakoso\" (resr). Email: senoap.project@gmail.com, Telp: 082226947565.",
+      "category": "compro",
+      "userName": "Seno Agung Prakoso",
+      "userRole": "Klien Pemohon",
+      "timestamp": 1792526740536
+    },
+    {
+      "id": "log-1792524455333",
+      "type": "DEPLOY",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "category": "system",
+      "userName": "Administrator Master",
+      "userRole": "Superadmin",
+      "timestamp": 1792524455333,
+      "userEmail": "admin"
+    },
+    {
+      "id": "log-1792524453472-270v",
+      "type": "UPDATE",
+      "message": "Menonaktifkan / menyembunyikan Profil Pimpinan dari website.",
+      "category": "system",
+      "userName": "Administrator Master",
+      "userRole": "Superadmin",
+      "timestamp": 1792524453472,
+      "userEmail": "admin"
+    },
+    {
+      "id": "log-1792523343692",
+      "type": "DEPLOY",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "category": "system",
+      "userName": "Administrator Master",
+      "userRole": "Superadmin",
+      "timestamp": 1792523343692,
+      "userEmail": "admin"
+    },
+    {
+      "id": "log-1792523239099-2wex",
+      "type": "UPDATE",
+      "message": "Menonaktifkan / menyembunyikan Halaman Sertifikasi dari website.",
+      "category": "system",
+      "userName": "Administrator Master",
+      "userRole": "Superadmin",
+      "timestamp": 1792523239099,
+      "userEmail": "admin"
+    },
+    {
+      "id": "log-1792523230680-u9bc",
+      "type": "UPDATE",
+      "message": "Mengaktifkan publikasi Profil Pimpinan ke website.",
+      "category": "system",
+      "userName": "Administrator Master",
+      "userRole": "Superadmin",
+      "timestamp": 1792523230680,
+      "userEmail": "admin"
+    },
+    {
+      "id": "log-1792523227774-ijxi",
+      "type": "UPDATE",
+      "message": "Menonaktifkan / menyembunyikan Profil Pimpinan dari website.",
+      "category": "system",
+      "userName": "Administrator Master",
+      "userRole": "Superadmin",
+      "timestamp": 1792523227774,
+      "userEmail": "admin"
+    },
+    {
+      "id": "log-1792517352720",
+      "type": "DEPLOY",
+      "message": "Semua perubahan draft berhasil di-deploy ke halaman utama.",
+      "category": "system",
+      "userName": "Administrator Master",
+      "userRole": "Superadmin",
+      "timestamp": 1792517352720,
+      "userEmail": "admin"
+    },
+    {
+      "id": "log-1792262740657-j8e4",
+      "type": "CREATE",
+      "message": "Menambahkan pengguna CMS baru: \"admin2\" (@admin2) dengan role \"admin\".",
+      "category": "system",
+      "userName": "Administrator",
+      "userRole": "Superadmin",
+      "timestamp": 1792262740657,
+      "userEmail": "admin"
     },
     {
       "id": "log-1792261452034-smi8",
@@ -1009,6 +1999,52 @@
     }
   ],
   "hasDraft": true,
+  "comproRequests": [
+    {
+      "id": "req-1792526740536-hmz0",
+      "name": "Seno Agung Prakoso",
+      "email": "senoap.project@gmail.com",
+      "notes": "test",
+      "phone": "082226947565",
+      "sentAt": 1792526740536,
+      "status": "sent",
+      "company": "resr",
+      "createdAt": 1792526740536
+    }
+  ],
+  "visitorLogs": [],
+  "dailyVisitorCounts": [
+    {
+      "date": "2026-10-22",
+      "count": 21,
+      "paths": {
+        "/": 14,
+        "/portfolio/2": 1,
+        "/portfolio/1": 1,
+        "/login": 1,
+        "/leadership": 2,
+        "/career/1": 1,
+        "/privacy-policy": 1
+      }
+    },
+    {
+      "date": "2026-10-21",
+      "count": 22,
+      "paths": {
+        "/": 20,
+        "/login": 2
+      }
+    }
+  ],
+  "activeSessions": {
+    "admin": {
+      "token": "1792761692679.fdece401-2489-406a-b09e-940e98b4df14.admin.acfde25d74e18c7baa00d4c824b226e3f7220ef82e81e26dc9782b0b6a31b03d",
+      "ip": "::1",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+      "lastSeen": 1792686174547,
+      "loggedInAt": 1792675292678
+    }
+  },
   "cmsUsers": [
     {
       "id": "usr-1792261451918-p9y6",
@@ -1051,6 +2087,7 @@
       "canReceiveCareerNotif": false
     }
   ],
+  "loginAttempts": {},
   "careerTemplates": [
     {
       "id": "tpl-interview",
@@ -1077,18 +2114,12 @@
       "createdAt": 1700000000000
     }
   ],
-  "scheduledContents": [
-    {
-      "id": "sc-1792248970685-y3yj",
-      "type": "daily",
-      "badge": "DAILY HIGHLIGHT",
-      "title": "Tips",
-      "content": "testing",
-      "endDate": "2026-10-18",
-      "imageUrl": "http://127.0.0.1:55321/storage/v1/object/public/uploads/content-daily-1792248970551.jpeg",
-      "isActive": true,
-      "createdAt": 1792248970685,
-      "startDate": "2026-10-17"
-    }
-  ]
+  "scheduledContents": [],
+  "draftLock": {
+    "userId": "admin",
+    "userName": "Administrator Master",
+    "userEmail": "admin",
+    "lockedAt": 1792686180748,
+    "lastActive": 1792686188596
+  }
 }

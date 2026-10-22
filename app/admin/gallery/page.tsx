@@ -32,6 +32,8 @@ export default async function AdminGalleryPage() {
     await writeDB(db)
     await addNotification('Memperbarui Header Gallery Section.', 'UPDATE')
     revalidatePath('/admin/gallery')
+    revalidatePath('/admin', 'layout')
+    revalidatePath('/')
   }
 
   async function addGalleryAction(formData: FormData) {
@@ -65,6 +67,8 @@ export default async function AdminGalleryPage() {
     await writeDB(db)
     await addNotification(`Menambahkan foto galeri: "${title}" ke kategori "${category}".`, 'CREATE')
     revalidatePath('/admin/gallery')
+    revalidatePath('/admin', 'layout')
+    revalidatePath('/')
   }
 
   async function updateGalleryAction(formData: FormData) {
@@ -96,6 +100,8 @@ export default async function AdminGalleryPage() {
       await writeDB(db)
       await addNotification(`Memperbarui foto galeri: "${title}".`, 'UPDATE')
       revalidatePath('/admin/gallery')
+      revalidatePath('/admin', 'layout')
+      revalidatePath('/')
     }
   }
 
@@ -115,6 +121,8 @@ export default async function AdminGalleryPage() {
     await writeDB(db)
     await addNotification('Menghapus foto dari galeri.', 'DELETE')
     revalidatePath('/admin/gallery')
+    revalidatePath('/admin', 'layout')
+    revalidatePath('/')
   }
 
   return (

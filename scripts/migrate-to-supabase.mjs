@@ -108,7 +108,7 @@ async function runMigration() {
   }
 
   console.log('⏳ Mengirim data CMS ke tabel `site_content` di Supabase...')
-  const { data: upsertData, error: upsertErr } = await supabase
+  const { error: upsertErr } = await supabase
     .from('site_content')
     .upsert({
       id: 1,

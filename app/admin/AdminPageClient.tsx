@@ -1,8 +1,8 @@
 // app/admin/AdminPageClient.tsx
 'use client'
-import { useState, useTransition } from 'react'
+import { useState, useMemo, useTransition } from 'react'
 import { extractColorPalette } from '@/lib/colorExtractor'
-import { Save, Building2, Eye, Image as ImageIcon } from 'lucide-react'
+import { Save, Building2, Eye, Image as ImageIcon, Users, Award, Shield, Layers } from 'lucide-react'
 
 interface Section {
   id: string
@@ -23,6 +23,9 @@ interface AdminPageClientProps {
     slideDuration: number
     logoUrl?: string
     bgImageUrl?: string
+    showLeadership?: boolean
+    showCertifications?: boolean
+    leadershipLabel?: string
   }
   initialSections: Section[]
   updateConfigAction: (formData: FormData) => Promise<void>
@@ -76,16 +79,70 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
     [...initialSections].sort((a, b) => a.order - b.order)
   )
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
-  const [isDirty, setIsDirty] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [showSuccessToast, setShowSuccessToast] = useState(false)
 
-  // 3 Warna Utama & Warna Layar Loading
+  // Controlled form states
+  const [siteName, setSiteName] = useState(initialSetting.siteName || '')
+  const [tagline, setTagline] = useState(initialSetting.tagline || '')
   const [primaryColor, setPrimaryColor] = useState(initialSetting.primaryColor || '#7E1D0C')
   const [secondaryColor, setSecondaryColor] = useState(initialSetting.secondaryColor || '#D4AF37')
   const [accentColor, setAccentColor] = useState(initialSetting.accentColor || '#1E293B')
   const [loadingBgColor, setLoadingBgColor] = useState(initialSetting.loadingBgColor || initialSetting.primaryColor || '#7E1D0C')
+  const [slideDuration, setSlideDuration] = useState(Number(initialSetting.slideDuration) || 3)
+  const [showLeadership, setShowLeadership] = useState(initialSetting.showLeadership !== false)
+  const [leadershipLabel, setLeadershipLabel] = useState(initialSetting.leadershipLabel || 'Profil Pimpinan')
+  const [showCertifications, setShowCertifications] = useState(initialSetting.showCertifications !== false)
+  const [hasLogoFile, setHasLogoFile] = useState(false)
+  const [hasBgImageFile, setHasBgImageFile] = useState(false)
   const [isExtracting, setIsExtracting] = useState(false)
+
+  // Baseline data tersimpan untuk evaluasi reaktif
+  const initialSectionsNormalized = useMemo(() => {
+    return [...initialSections]
+      .sort((a, b) => a.order - b.order)
+      .map((s, idx) => ({ id: s.id, isVisible: s.isVisible, order: idx + 1, label: (s.label || '').trim() }))
+  }, [initialSections])
+
+  const [savedBaseline, setSavedBaseline] = useState(() => ({
+    siteName: (initialSetting.siteName || '').trim(),
+    tagline: (initialSetting.tagline || '').trim(),
+    primaryColor: (initialSetting.primaryColor || '#7E1D0C').toLowerCase(),
+    secondaryColor: (initialSetting.secondaryColor || '#D4AF37').toLowerCase(),
+    accentColor: (initialSetting.accentColor || '#1E293B').toLowerCase(),
+    loadingBgColor: (initialSetting.loadingBgColor || initialSetting.primaryColor || '#7E1D0C').toLowerCase(),
+    slideDuration: Number(initialSetting.slideDuration) || 3,
+    showLeadership: initialSetting.showLeadership !== false,
+    leadershipLabel: (initialSetting.leadershipLabel || 'Profil Pimpinan').trim(),
+    showCertifications: initialSetting.showCertifications !== false,
+    sections: initialSectionsNormalized,
+  }))
+
+  // Evaluasi isDirty dinamis: hanya bernilai TRUE jika ada perbedaan aktual dengan baseline data
+  const isDirty = useMemo(() => {
+    if (hasLogoFile || hasBgImageFile) return true
+    const current = {
+      siteName: (siteName || '').trim(),
+      tagline: (tagline || '').trim(),
+      primaryColor: (primaryColor || '#7E1D0C').toLowerCase(),
+      secondaryColor: (secondaryColor || '#D4AF37').toLowerCase(),
+      accentColor: (accentColor || '#1E293B').toLowerCase(),
+      loadingBgColor: (loadingBgColor || primaryColor || '#7E1D0C').toLowerCase(),
+      slideDuration: Number(slideDuration) || 3,
+      showLeadership,
+      leadershipLabel: (leadershipLabel || 'Profil Pimpinan').trim(),
+      showCertifications,
+      sections: sections.map((s, idx) => ({ id: s.id, isVisible: s.isVisible, order: idx + 1, label: (s.label || '').trim() })),
+    }
+    return JSON.stringify(current) !== JSON.stringify(savedBaseline)
+  }, [
+    siteName, tagline, primaryColor, secondaryColor, accentColor, loadingBgColor,
+    slideDuration, showLeadership, leadershipLabel, showCertifications, sections,
+    hasLogoFile, hasBgImageFile, savedBaseline
+  ])
+
+  // No-op setter untuk kompatibilitas jika ada fungsi yang memanggil setIsDirty
+  const setIsDirty = (_val: boolean) => {}
 
   // Terapkan Palet Preset
   const handleApplyPreset = (preset: typeof PRESET_PALETTES[0]) => {
@@ -93,7 +150,6 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
     setSecondaryColor(preset.secondary)
     setAccentColor(preset.accent)
     setLoadingBgColor(preset.loading)
-    setIsDirty(true)
   }
 
   // Auto-generate 3 warna sekaligus dari logo
@@ -110,7 +166,6 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
       setSecondaryColor(palette.secondary)
       setAccentColor(palette.accent)
       setLoadingBgColor(palette.primary)
-      setIsDirty(true)
       alert(`Berhasil mendeteksi kombinasi 3 warna dari logo:\n• Warna Utama: ${palette.primary}\n• Warna Sekunder: ${palette.secondary}\n• Warna Tersier: ${palette.accent}`)
     } catch (error) {
       console.error(error)
@@ -140,26 +195,51 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
 
     setSections(updatedSections)
     setDraggedIndex(null)
-    setIsDirty(true)
-  }
-
-  const handleChange = () => {
-    if (!isDirty) setIsDirty(true)
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
 
-    // Menyimpan 3 warna korporat + warna loading ke database
+    // Menyimpan form data terpadu ke database
+    formData.set('siteName', siteName)
+    formData.set('tagline', tagline)
     formData.set('primaryColor', primaryColor)
     formData.set('secondaryColor', secondaryColor)
     formData.set('accentColor', accentColor)
     formData.set('loadingBgColor', loadingBgColor)
+    formData.set('slideDuration', String(slideDuration))
+    formData.set('showLeadership', showLeadership ? 'on' : 'off')
+    formData.set('leadershipLabel', leadershipLabel)
+    formData.set('showCertifications', showCertifications ? 'on' : 'off')
+
+    sections.forEach((sec, idx) => {
+      formData.set(`order_${sec.id}`, String(idx + 1))
+      if (sec.isVisible) {
+        formData.set(`visible_${sec.id}`, 'on')
+      } else {
+        formData.delete(`visible_${sec.id}`)
+      }
+      formData.set(`label_${sec.id}`, sec.label)
+    })
 
     startTransition(async () => {
       await updateConfigAction(formData)
-      setIsDirty(false)
+      setSavedBaseline({
+        siteName: (siteName || '').trim(),
+        tagline: (tagline || '').trim(),
+        primaryColor: (primaryColor || '#7E1D0C').toLowerCase(),
+        secondaryColor: (secondaryColor || '#D4AF37').toLowerCase(),
+        accentColor: (accentColor || '#1E293B').toLowerCase(),
+        loadingBgColor: (loadingBgColor || primaryColor || '#7E1D0C').toLowerCase(),
+        slideDuration: Number(slideDuration) || 3,
+        showLeadership,
+        leadershipLabel: (leadershipLabel || 'Profil Pimpinan').trim(),
+        showCertifications,
+        sections: sections.map((s, idx) => ({ id: s.id, isVisible: s.isVisible, order: idx + 1, label: (s.label || '').trim() })),
+      })
+      setHasLogoFile(false)
+      setHasBgImageFile(false)
       setShowSuccessToast(true)
       setTimeout(() => {
         setShowSuccessToast(false)
@@ -182,16 +262,11 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} onChange={handleChange} className="space-y-8 font-sans pb-32">
+      <form onSubmit={handleSubmit} className="space-y-8 font-sans pb-32">
 
         {/* Top Header Banner */}
-        <div className="bg-white dark:bg-gradient-to-r dark:from-[#141721] dark:to-[#0E1017] p-8 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-800/80 relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
-
+        <div className="bg-white dark:bg-[#10131C] p-8 rounded-3xl shadow-sm border border-gray-200 dark:border-gray-800/80 relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="space-y-1 relative z-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 text-[10px] font-black uppercase tracking-widest mb-2">
-              <span>System Core</span>
-            </div>
             <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight">Pengaturan Global & Logo</h1>
             <p className="text-gray-600 dark:text-gray-400 text-xs md:text-sm font-medium">Atur identitas korporat, logo, urutan seksi, dan simpan perubahan ke draft.</p>
           </div>
@@ -212,7 +287,8 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
               <input
                 type="text"
                 name="siteName"
-                defaultValue={initialSetting.siteName}
+                value={siteName}
+                onChange={(e) => setSiteName(e.target.value)}
                 className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 transition-colors shadow-inner font-medium"
               />
             </div>
@@ -221,7 +297,8 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
               <input
                 type="text"
                 name="tagline"
-                defaultValue={initialSetting.tagline}
+                value={tagline}
+                onChange={(e) => setTagline(e.target.value)}
                 className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 transition-colors shadow-inner font-medium"
               />
             </div>
@@ -455,7 +532,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
                     <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold text-white shadow-sm" style={{ backgroundColor: primaryColor }}>
                       LIVE
                     </span>
-                    <span className="text-xs font-bold" style={{ color: secondaryColor }}>★ 99.8%</span>
+                    <span className="text-xs font-bold" style={{ color: secondaryColor }}>99.8%</span>
                   </div>
                   <p className="text-xs text-gray-300 font-medium">Kontras tinggi & nyaman dibaca di layar gelap.</p>
                   <button
@@ -474,7 +551,8 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
               <input
                 type="number"
                 name="slideDuration"
-                defaultValue={initialSetting.slideDuration || 3}
+                value={slideDuration}
+                onChange={(e) => setSlideDuration(Number(e.target.value) || 3)}
                 min={1}
                 max={10}
                 className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 transition-colors shadow-inner font-medium"
@@ -490,6 +568,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
                 type="file"
                 name="logoFile"
                 accept="image/*"
+                onChange={(e) => setHasLogoFile(!!(e.target.files && e.target.files.length > 0))}
                 className="w-full sm:flex-1 text-gray-600 dark:text-gray-400 text-xs file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-xs file:font-extrabold file:bg-gray-200 dark:file:bg-gray-800 file:text-gray-800 dark:file:text-white hover:file:bg-gray-300 dark:hover:file:bg-gray-700 cursor-pointer"
               />
               {initialSetting.logoUrl && (
@@ -515,6 +594,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
                 type="file"
                 name="bgImageFile"
                 accept="image/*"
+                onChange={(e) => setHasBgImageFile(!!(e.target.files && e.target.files.length > 0))}
                 className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2 text-gray-900 dark:text-white text-xs cursor-pointer"
               />
               <p className="text-[11px] text-gray-500">Format: JPG, PNG, WebP. Disarankan resolusi tinggi (HD/4K).</p>
@@ -531,12 +611,87 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
           </div>
         </div>
 
+        {/* Modul Visibilitas Tambahan Card */}
+        <div className="bg-white dark:bg-[#10131C] p-8 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-800/80 space-y-6">
+          <div className="border-b border-gray-200 dark:border-gray-800 pb-4">
+            <h2 className="text-base font-black text-amber-600 dark:text-amber-500 tracking-wide uppercase flex items-center gap-2">
+              <Shield className="w-4 h-4 text-amber-600 dark:text-amber-500" />
+              <span>Visibilitas Modul Publik (Pimpinan & Sertifikasi)</span>
+            </h2>
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-1">
+              Aktifkan atau sembunyikan modul khusus jika perusahaan sedang dalam masa perintisan dan belum ingin mempublikasikan pimpinan atau dokumen sertifikasi.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Toggle 1: Profil Pimpinan */}
+            <div className="p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#090A0F] space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white flex items-center gap-2">
+                  <Users className="w-4 h-4 text-amber-500" />
+                  <span>Modul Profil Pimpinan</span>
+                </span>
+                <label className="relative inline-flex items-center cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    name="showLeadership"
+                    checked={showLeadership}
+                    onChange={(e) => setShowLeadership(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-14 h-7 bg-gray-300 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:bg-emerald-500 transition-colors duration-300 ease-in-out"></div>
+                  <div className="absolute left-0.5 top-0.5 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300 ease-in-out peer-checked:translate-x-7"></div>
+                </label>
+              </div>
+              <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
+                Tampilkan halaman /leadership dan submenu di bawah &quot;Tentang Kami&quot;. Jika dinonaktifkan, pimpinan tidak akan ditampilkan di website.
+              </p>
+              <div className="pt-2">
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Label Menu / Tombol</label>
+                <input
+                  type="text"
+                  name="leadershipLabel"
+                  value={leadershipLabel}
+                  onChange={(e) => setLeadershipLabel(e.target.value)}
+                  placeholder="Profil Pimpinan"
+                  className="w-full bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-1.5 text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:border-amber-500"
+                />
+              </div>
+            </div>
+
+            {/* Toggle 2: Sertifikasi Perusahaan */}
+            <div className="p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#090A0F] space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white flex items-center gap-2">
+                  <Award className="w-4 h-4 text-amber-500" />
+                  <span>Modul Sertifikasi Perusahaan</span>
+                </span>
+                <label className="relative inline-flex items-center cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    name="showCertifications"
+                    checked={showCertifications}
+                    onChange={(e) => setShowCertifications(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-14 h-7 bg-gray-300 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:bg-emerald-500 transition-colors duration-300 ease-in-out"></div>
+                  <div className="absolute left-0.5 top-0.5 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300 ease-in-out peer-checked:translate-x-7"></div>
+                </label>
+              </div>
+              <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
+                Tampilkan halaman /certifications dan submenu di bawah &quot;Tentang Kami&quot;. Jika dinonaktifkan, sertifikasi tidak akan ditampilkan di website.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Tata Letak & Urutan Seksi Card */}
         <div className="bg-white dark:bg-[#10131C] p-8 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-800/80 space-y-6">
           <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-800 pb-4">
             <div className="space-y-0.5">
               <h2 className="text-base font-black text-amber-600 dark:text-amber-500 tracking-wide uppercase flex items-center gap-2">
-                <span>📋</span> Tata Letak & Urutan Seksi Website
+                <Layers className="w-4 h-4 text-amber-600 dark:text-amber-500" />
+                <span>Tata Letak & Urutan Seksi Website</span>
               </h2>
               <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Seret dan letakkan (*drag*) kotak seksi untuk mengubah susunan tampilan website.</p>
             </div>
@@ -564,18 +719,30 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
                     ⠿
                   </div>
 
-                  <input
-                    type="checkbox"
-                    name={`visible_${sec.id}`}
-                    defaultChecked={sec.isVisible}
-                    className="w-5 h-5 accent-amber-600 rounded-lg cursor-pointer flex-shrink-0"
-                  />
+                  <label className="relative inline-flex items-center cursor-pointer select-none shrink-0" title={sec.isVisible ? 'Seksi Aktif' : 'Seksi Nonaktif'}>
+                    <input
+                      type="checkbox"
+                      name={`visible_${sec.id}`}
+                      checked={sec.isVisible}
+                      onChange={(e) => {
+                        const checked = e.target.checked
+                        setSections(prev => prev.map((s, i) => i === index ? { ...s, isVisible: checked } : s))
+                      }}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-300 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:bg-emerald-500 transition-colors duration-300 ease-in-out"></div>
+                    <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-300 ease-in-out peer-checked:translate-x-5"></div>
+                  </label>
 
                   <div className="flex-1">
                     <input
                       type="text"
                       name={`label_${sec.id}`}
-                      defaultValue={sec.label}
+                      value={sec.label}
+                      onChange={(e) => {
+                        const val = e.target.value
+                        setSections(prev => prev.map((s, i) => i === index ? { ...s, label: val } : s))
+                      }}
                       className="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-800 rounded-xl px-3.5 py-2 text-gray-900 dark:text-white text-xs font-extrabold focus:border-amber-500 focus:outline-none shadow-inner"
                     />
                     <span className="text-[10px] text-amber-600 dark:text-amber-500/90 font-bold uppercase tracking-wider block mt-1">
@@ -595,7 +762,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
             disabled={!isDirty || isPending}
             className={`px-5 h-12 rounded-full shadow-2xl flex items-center gap-2.5 text-xs font-black tracking-widest uppercase transition-all duration-300 border backdrop-blur-md cursor-pointer ${!isDirty || isPending
                 ? 'bg-gray-200 dark:bg-gray-900/40 text-gray-400 dark:text-gray-600 border-gray-300 dark:border-gray-800/40 cursor-not-allowed opacity-50 shadow-none'
-                : 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white border-amber-500/40 shadow-xl shadow-amber-900/50 hover:scale-105 animate-pulse'
+                : 'bg-amber-600 hover:bg-amber-700 text-white border-amber-600 shadow-md shadow-black/20 cursor-pointer'
               }`}
             title={isDirty ? 'Simpan perubahan ke draft' : 'Belum ada perubahan untuk disimpan'}
           >

@@ -12,7 +12,7 @@ import {
   X, 
   Copy, 
   Code2, 
-  Sparkles,
+  Layers,
   Phone
 } from 'lucide-react'
 import { createCareerTemplateAction, updateCareerTemplateAction, deleteCareerTemplateAction } from './actions'
@@ -157,7 +157,7 @@ export default function CareerTemplatesClient({ templates }: CareerTemplatesClie
         <button
           type="button"
           onClick={openAddModal}
-          className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs font-black uppercase tracking-wider text-white bg-gradient-to-r from-amber-500 to-amber-700 hover:from-amber-400 hover:to-amber-600 shadow-lg shadow-amber-900/30 transition-all transform hover:-translate-y-0.5 cursor-pointer shrink-0"
+          className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs font-black uppercase tracking-wider text-white bg-amber-600 hover:bg-amber-700 shadow-sm transition-all transform hover:-translate-y-0.5 cursor-pointer shrink-0"
         >
           <Plus className="w-4 h-4" />
           <span>Buat Template Baru</span>
@@ -242,7 +242,7 @@ export default function CareerTemplatesClient({ templates }: CareerTemplatesClie
                     )}
                     {tpl.channel === 'both' && (
                       <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-purple-500/10 text-purple-700 dark:text-purple-400 border border-purple-500/20 flex items-center gap-1">
-                        <Sparkles className="w-3 h-3" /> WA & Email
+                        <Layers className="w-3 h-3" /> WA & Email
                       </span>
                     )}
                   </div>
@@ -425,7 +425,7 @@ export default function CareerTemplatesClient({ templates }: CareerTemplatesClie
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider text-white bg-gradient-to-r from-amber-500 to-amber-700 hover:from-amber-400 hover:to-amber-600 shadow-lg shadow-amber-900/30 transition-all cursor-pointer disabled:opacity-50"
+                  className="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider text-white bg-amber-600 hover:bg-amber-700 shadow-sm transition-all cursor-pointer disabled:opacity-50"
                 >
                   {isPending ? 'Menyimpan...' : (editingTemplate ? 'Simpan Perubahan' : 'Buat Template')}
                 </button>

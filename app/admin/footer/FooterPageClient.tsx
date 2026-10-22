@@ -1,7 +1,7 @@
 // app/admin/footer/FooterPageClient.tsx
 'use client'
-import { useState, useTransition } from 'react'
-import { Save, PhoneCall, Share2, MessageSquare, Mail, Globe } from 'lucide-react'
+import { useState, useTransition, useMemo } from 'react'
+import { Save, PhoneCall, Share2, MessageSquare, Mail } from 'lucide-react'
 import type { FooterContent } from '@/lib/db'
 
 interface FooterPageClientProps {
@@ -10,17 +10,65 @@ interface FooterPageClientProps {
 }
 
 export default function FooterPageClient({ initialFooter, updateFooterAction }: FooterPageClientProps) {
-  const [isDirty, setIsDirty] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [showSuccessToast, setShowSuccessToast] = useState(false)
   
+  const [description, setDescription] = useState(initialFooter.description || '')
+  const [address, setAddress] = useState(initialFooter.address || '')
+  const [phone, setPhone] = useState(initialFooter.phone || '')
+  const [whatsapp, setWhatsapp] = useState(initialFooter.whatsapp || initialFooter.phone || '')
+  const [email, setEmail] = useState(initialFooter.email || '')
   const [socialEnabled, setSocialEnabled] = useState(
     initialFooter.socialMedia?.enabled !== false
   )
+  const [instagram, setInstagram] = useState(initialFooter.socialMedia?.instagram || '')
+  const [linkedin, setLinkedin] = useState(initialFooter.socialMedia?.linkedin || '')
+  const [facebook, setFacebook] = useState(initialFooter.socialMedia?.facebook || '')
+  const [tiktok, setTiktok] = useState(initialFooter.socialMedia?.tiktok || '')
+  const [youtube, setYoutube] = useState(initialFooter.socialMedia?.youtube || '')
+  const [waMessage, setWaMessage] = useState(initialFooter.inquiryTemplates?.waMessage || '')
+  const [emailSubject, setEmailSubject] = useState(initialFooter.inquiryTemplates?.emailSubject || '')
+  const [emailBody, setEmailBody] = useState(initialFooter.inquiryTemplates?.emailBody || '')
 
-  const handleChange = () => {
-    if (!isDirty) setIsDirty(true)
-  }
+  const [savedBaseline, setSavedBaseline] = useState({
+    description: initialFooter.description || '',
+    address: initialFooter.address || '',
+    phone: initialFooter.phone || '',
+    whatsapp: initialFooter.whatsapp || initialFooter.phone || '',
+    email: initialFooter.email || '',
+    socialEnabled: initialFooter.socialMedia?.enabled !== false,
+    instagram: initialFooter.socialMedia?.instagram || '',
+    linkedin: initialFooter.socialMedia?.linkedin || '',
+    facebook: initialFooter.socialMedia?.facebook || '',
+    tiktok: initialFooter.socialMedia?.tiktok || '',
+    youtube: initialFooter.socialMedia?.youtube || '',
+    waMessage: initialFooter.inquiryTemplates?.waMessage || '',
+    emailSubject: initialFooter.inquiryTemplates?.emailSubject || '',
+    emailBody: initialFooter.inquiryTemplates?.emailBody || '',
+  })
+
+  const isDirty = useMemo(() => {
+    return (
+      description !== savedBaseline.description ||
+      address !== savedBaseline.address ||
+      phone !== savedBaseline.phone ||
+      whatsapp !== savedBaseline.whatsapp ||
+      email !== savedBaseline.email ||
+      socialEnabled !== savedBaseline.socialEnabled ||
+      instagram !== savedBaseline.instagram ||
+      linkedin !== savedBaseline.linkedin ||
+      facebook !== savedBaseline.facebook ||
+      tiktok !== savedBaseline.tiktok ||
+      youtube !== savedBaseline.youtube ||
+      waMessage !== savedBaseline.waMessage ||
+      emailSubject !== savedBaseline.emailSubject ||
+      emailBody !== savedBaseline.emailBody
+    )
+  }, [
+    description, address, phone, whatsapp, email, socialEnabled,
+    instagram, linkedin, facebook, tiktok, youtube,
+    waMessage, emailSubject, emailBody, savedBaseline
+  ])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -29,7 +77,22 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
 
     startTransition(async () => {
       await updateFooterAction(formData)
-      setIsDirty(false)
+      setSavedBaseline({
+        description,
+        address,
+        phone,
+        whatsapp,
+        email,
+        socialEnabled,
+        instagram,
+        linkedin,
+        facebook,
+        tiktok,
+        youtube,
+        waMessage,
+        emailSubject,
+        emailBody,
+      })
       setShowSuccessToast(true)
       setTimeout(() => {
         setShowSuccessToast(false)
@@ -54,19 +117,14 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
       </div>
 
       <div className="max-w-4xl mx-auto space-y-8">
-        <div className="bg-white dark:bg-[#10131C] p-8 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-800/80 relative overflow-hidden transition-colors">
-          <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div className="bg-white dark:bg-[#10131C] p-8 rounded-3xl shadow-sm border border-gray-200 dark:border-gray-800/80 relative overflow-hidden transition-colors">
           <div className="space-y-1 relative z-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-[10px] font-black uppercase tracking-widest mb-2">
-              <PhoneCall className="w-3.5 h-3.5" />
-              <span>Section Management</span>
-            </div>
             <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight">Setting Footer, Kontak & Sosmed</h1>
             <p className="text-gray-600 dark:text-gray-400 text-xs md:text-sm font-medium">Ubah informasi kontak, alamat, tautan media sosial, serta template pesan konsultasi pengunjung.</p>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} onChange={handleChange} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-8">
           
           {/* BAGIAN 1: INFORMASI UTAMA & KONTAK */}
           <div className="bg-white dark:bg-[#10131C] p-8 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-800/80 space-y-6 transition-colors">
@@ -77,27 +135,61 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
 
             <div className="space-y-2">
               <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Deskripsi Footer</label>
-              <textarea name="description" rows={3} defaultValue={initialFooter.description} className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner transition-colors"></textarea>
+              <textarea 
+                name="description" 
+                rows={3} 
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner transition-colors"
+              />
             </div>
 
             <div className="space-y-2">
               <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Alamat Perusahaan</label>
-              <input type="text" name="address" defaultValue={initialFooter.address} className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner transition-colors" placeholder="Contoh: Casa De Bosco No.3, Tangerang Selatan" />
+              <input 
+                type="text" 
+                name="address" 
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner transition-colors" 
+                placeholder="Contoh: Casa De Bosco No.3, Tangerang Selatan" 
+              />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Telepon (Seluler)</label>
-                <input type="text" name="phone" defaultValue={initialFooter.phone} className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner transition-colors" placeholder="021-5551234" />
+                <input 
+                  type="text" 
+                  name="phone" 
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner transition-colors" 
+                  placeholder="021-5551234" 
+                />
               </div>
               <div className="space-y-2">
                 <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Nomor WhatsApp</label>
-                <input type="text" name="whatsapp" defaultValue={initialFooter.whatsapp || initialFooter.phone} className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner transition-colors" placeholder="6281234567890" />
+                <input 
+                  type="text" 
+                  name="whatsapp" 
+                  value={whatsapp}
+                  onChange={(e) => setWhatsapp(e.target.value)}
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner transition-colors" 
+                  placeholder="6281234567890" 
+                />
                 <p className="text-[10px] text-gray-500 dark:text-gray-400">Gunakan format kode negara (contoh: 628...)</p>
               </div>
               <div className="space-y-2">
                 <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Email Tujuan</label>
-                <input type="text" name="email" defaultValue={initialFooter.email} className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner transition-colors" placeholder="info@perusahaan.com" />
+                <input 
+                  type="text" 
+                  name="email" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner transition-colors" 
+                  placeholder="info@perusahaan.com" 
+                />
               </div>
             </div>
           </div>
@@ -115,23 +207,32 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
                 </p>
               </div>
 
-              {/* TOGGLE ON / OFF */}
-              <button
-                type="button"
-                onClick={() => {
-                  setSocialEnabled(!socialEnabled)
-                  handleChange()
-                }}
-                className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  socialEnabled ? 'bg-amber-600' : 'bg-gray-300 dark:bg-gray-700'
-                }`}
-              >
-                <span
-                  className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
-                    socialEnabled ? 'translate-x-7' : 'translate-x-0'
+              {/* Saklar Geser ala Apple (iOS Toggle Switch) */}
+              <div className="flex items-center gap-3.5 self-start sm:self-auto shrink-0">
+                <span className={`text-xs font-black uppercase tracking-wider transition-colors select-none ${
+                  socialEnabled
+                    ? 'text-emerald-700 dark:text-emerald-400'
+                    : 'text-gray-400 dark:text-gray-500'
+                }`}>
+                  {socialEnabled ? 'Aktif (Tampil)' : 'Nonaktif (Sembunyi)'}
+                </span>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={socialEnabled}
+                  aria-label="Toggle Media Sosial Footer"
+                  onClick={() => setSocialEnabled(!socialEnabled)}
+                  className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
+                    socialEnabled ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-gray-700'
                   }`}
-                />
-              </button>
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md ring-0 transition duration-300 ease-in-out ${
+                      socialEnabled ? 'translate-x-7' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
             </div>
 
             {socialEnabled ? (
@@ -143,7 +244,8 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
                   <input
                     type="url"
                     name="instagram"
-                    defaultValue={initialFooter.socialMedia?.instagram || ''}
+                    value={instagram}
+                    onChange={(e) => setInstagram(e.target.value)}
                     placeholder="https://instagram.com/empatsinergiutama"
                     className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-2.5 text-gray-900 dark:text-white text-xs focus:outline-none focus:border-amber-500 font-medium shadow-inner"
                   />
@@ -156,7 +258,8 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
                   <input
                     type="url"
                     name="linkedin"
-                    defaultValue={initialFooter.socialMedia?.linkedin || ''}
+                    value={linkedin}
+                    onChange={(e) => setLinkedin(e.target.value)}
                     placeholder="https://linkedin.com/company/empat-sinergi-utama"
                     className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-2.5 text-gray-900 dark:text-white text-xs focus:outline-none focus:border-amber-500 font-medium shadow-inner"
                   />
@@ -169,7 +272,8 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
                   <input
                     type="url"
                     name="facebook"
-                    defaultValue={initialFooter.socialMedia?.facebook || ''}
+                    value={facebook}
+                    onChange={(e) => setFacebook(e.target.value)}
                     placeholder="https://facebook.com/empatsinergiutama"
                     className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-2.5 text-gray-900 dark:text-white text-xs focus:outline-none focus:border-amber-500 font-medium shadow-inner"
                   />
@@ -182,7 +286,8 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
                   <input
                     type="url"
                     name="tiktok"
-                    defaultValue={initialFooter.socialMedia?.tiktok || ''}
+                    value={tiktok}
+                    onChange={(e) => setTiktok(e.target.value)}
                     placeholder="https://tiktok.com/@empatsinergiutama"
                     className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-2.5 text-gray-900 dark:text-white text-xs focus:outline-none focus:border-amber-500 font-medium shadow-inner"
                   />
@@ -195,7 +300,8 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
                   <input
                     type="url"
                     name="youtube"
-                    defaultValue={initialFooter.socialMedia?.youtube || ''}
+                    value={youtube}
+                    onChange={(e) => setYoutube(e.target.value)}
                     placeholder="https://youtube.com/@empatsinergiutama"
                     className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-2.5 text-gray-900 dark:text-white text-xs focus:outline-none focus:border-amber-500 font-medium shadow-inner"
                   />
@@ -227,7 +333,8 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
               <textarea
                 name="waMessage"
                 rows={3}
-                defaultValue={initialFooter.inquiryTemplates?.waMessage || ''}
+                value={waMessage}
+                onChange={(e) => setWaMessage(e.target.value)}
                 placeholder="Contoh: Halo PT. Empat Sinergi Utama, saya ingin berkonsultasi mengenai kebutuhan layanan alih daya..."
                 className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner"
               />
@@ -246,7 +353,8 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
                 <input
                   type="text"
                   name="emailSubject"
-                  defaultValue={initialFooter.inquiryTemplates?.emailSubject || ''}
+                  value={emailSubject}
+                  onChange={(e) => setEmailSubject(e.target.value)}
                   placeholder="Contoh: Konsultasi Layanan Alih Daya - PT. Empat Sinergi Utama"
                   className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-2.5 text-gray-900 dark:text-white text-xs focus:outline-none focus:border-amber-500 font-medium shadow-inner"
                 />
@@ -259,7 +367,8 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
                 <textarea
                   name="emailBody"
                   rows={6}
-                  defaultValue={initialFooter.inquiryTemplates?.emailBody || ''}
+                  value={emailBody}
+                  onChange={(e) => setEmailBody(e.target.value)}
                   placeholder="Contoh template isi email pengunjung..."
                   className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-mono text-xs leading-relaxed shadow-inner"
                 />
@@ -275,7 +384,7 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
               className={`px-5 h-12 rounded-full shadow-2xl flex items-center gap-2.5 text-xs font-black tracking-widest uppercase transition-all duration-300 border backdrop-blur-md cursor-pointer ${
                 !isDirty || isPending
                   ? 'bg-gray-200 dark:bg-gray-900/40 text-gray-400 dark:text-gray-600 border-gray-300 dark:border-gray-800/40 cursor-not-allowed opacity-50 shadow-none'
-                  : 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white border-amber-500/40 shadow-xl shadow-amber-900/50 hover:scale-105 animate-pulse'
+                  : 'bg-amber-600 hover:bg-amber-700 text-white border-amber-600 shadow-md shadow-black/20 cursor-pointer'
               }`}
             >
               {isPending ? (

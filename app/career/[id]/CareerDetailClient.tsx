@@ -25,7 +25,6 @@ export default function CareerDetailClient({
   job,
   allJobs,
   setting,
-  footer: _footer,
   hrEmail
 }: {
   job: CareerItem
@@ -94,7 +93,7 @@ export default function CareerDetailClient({
         logoUrl={setting.logoUrl}
       />
 
-      <main className="max-w-5xl mx-auto py-16 sm:py-24 px-4 sm:px-6 md:px-8 space-y-12">
+      <main className="max-w-5xl mx-auto pt-24 pb-16 sm:pt-28 sm:pb-24 px-4 sm:px-6 md:px-8 space-y-12">
         {/* Navigation Breadcrumb */}
         <div>
           <Link

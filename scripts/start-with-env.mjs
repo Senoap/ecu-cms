@@ -42,7 +42,7 @@ for (const line of envContent.split('\n')) {
 console.log('====================================================')
 console.log(`🚀 MENJALANKAN NEXT.JS [TARGET: ${targetEnv.toUpperCase()}]`)
 console.log(`📄 Menggunakan env : ${envFile}`)
-console.log(`🌐 Supabase URL    : ${parsedEnv.NEXT_PUBLIC_SUPABASE_URL}`)
+console.log(`🌐 Supabase URL    : ${parsedEnv.NEXT_PUBLIC_SUPABASE_URL || '(Mode Mandiri / Lokal di VPS)'}`)
 console.log('====================================================\n')
 
 const isWindows = process.platform === 'win32'

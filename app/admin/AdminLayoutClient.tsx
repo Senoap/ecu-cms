@@ -3,9 +3,9 @@
 import Link from 'next/link'
 import { useState, useEffect, useTransition } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { logoutAdmin } from '@/app/login/actions'
+import { logoutAdmin, heartbeatAdminSession } from '@/app/login/actions'
 import {
-  Rocket,
+  UploadCloud,
   Bell,
   Menu,
   Settings,
@@ -22,14 +22,19 @@ import {
   Image as ImageIcon,
   PhoneCall,
   ArrowRight,
-  LucideIcon,
   Calendar,
   MessageSquare,
   Shield,
   ChevronDown,
-  Layers
+  Layers,
+  Award,
+  FileDown,
+  Lock
 } from 'lucide-react'
 import type { CurrentAdminUser } from '@/lib/auth'
+import type { CmsDraftLock } from '@/lib/db'
+
+const WEBSITE_PATHS = ['/admin/hero', '/admin/scheduled-content', '/admin/about', '/admin/services', '/admin/portfolio', '/admin/gallery', '/admin/certifications', '/admin/compro-requests', '/admin/footer', '/admin/legal']
 
 interface SectionConfig {
   id: string
@@ -54,6 +59,8 @@ interface AdminLayoutClientProps {
   sections: SectionConfig[]
   notifications: NotificationItem[]
   hasDraft: boolean
+  draftLock?: CmsDraftLock
+  isLockedByOther?: boolean
   logoUrl?: string
   deployAction: () => Promise<void>
   clearNotificationsAction?: () => Promise<void>
@@ -66,6 +73,8 @@ export default function AdminLayoutClient({
   sections, 
   notifications, 
   hasDraft, 
+  draftLock,
+  isLockedByOther = false,
   logoUrl, 
   deployAction,
   clearNotificationsAction,
@@ -84,9 +93,25 @@ export default function AdminLayoutClient({
   const router = useRouter()
   const pathname = usePathname()
 
+  // Sesi tunggal & heartbeat berkala (Point 7)
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        const res = await heartbeatAdminSession()
+        if (res && !res.valid && res.message) {
+          alert(res.message)
+          router.push('/login')
+        }
+      } catch (err) {
+        console.warn('Heartbeat check error:', err)
+      }
+    }, 2 * 60 * 1000)
+    return () => clearInterval(interval)
+  }, [router])
+
   // State Submenus (terbuka / tertutup)
   const [openSubmenus, setOpenSubmenus] = useState<Record<string, boolean>>(() => ({
-    website: ['/admin/hero', '/admin/scheduled-content', '/admin/about', '/admin/services', '/admin/portfolio', '/admin/gallery', '/admin/footer', '/admin/legal'].some((p) => pathname?.startsWith(p)),
+    website: WEBSITE_PATHS.some((p) => pathname?.startsWith(p)),
     career: ['/admin/career', '/admin/applications', '/admin/career-templates'].some((p) => pathname?.startsWith(p)),
     system: ['/admin/users', '/admin/audit-log'].some((p) => pathname?.startsWith(p)),
   }))
@@ -97,7 +122,7 @@ export default function AdminLayoutClient({
       if (typeof window !== 'undefined' && window.innerWidth < 1024) {
         setIsSidebarOpen(false)
       }
-      if (['/admin/hero', '/admin/scheduled-content', '/admin/about', '/admin/services', '/admin/portfolio', '/admin/gallery', '/admin/footer', '/admin/legal'].some((p) => pathname?.startsWith(p))) {
+      if (WEBSITE_PATHS.some((p) => pathname?.startsWith(p))) {
         setOpenSubmenus((prev) => ({ ...prev, website: true }))
       } else if (['/admin/career', '/admin/applications', '/admin/career-templates'].some((p) => pathname?.startsWith(p))) {
         setOpenSubmenus((prev) => ({ ...prev, career: true }))
@@ -243,6 +268,8 @@ export default function AdminLayoutClient({
     { id: 'services', label: getSectionLabel('services', 'Layanan'), href: '/admin/services', icon: Briefcase },
     { id: 'portfolio', label: getSectionLabel('portfolio', 'Portofolio'), href: '/admin/portfolio', icon: FolderKanban },
     { id: 'gallery', label: getSectionLabel('gallery', 'Galeri Foto'), href: '/admin/gallery', icon: ImageIcon },
+    { id: 'certifications', label: 'Sertifikasi Perusahaan', href: '/admin/certifications', icon: Award },
+    { id: 'compro-requests', label: 'Permintaan Compro PDF', href: '/admin/compro-requests', icon: FileDown },
     { id: 'footer', label: getSectionLabel('contact', 'Kontak & Footer'), href: '/admin/footer', icon: PhoneCall },
     { id: 'legal', label: 'Kebijakan & Ketentuan', href: '/admin/legal', icon: FileText },
   ].filter((item) => canAccess(item.id))
@@ -264,7 +291,10 @@ export default function AdminLayoutClient({
   ].filter((item) => canAccess(item.id))
 
   return (
-    <div className={`h-screen w-screen overflow-hidden flex font-sans transition-colors duration-300 relative ${
+    <div 
+      translate="no" 
+      data-admin-scope="true"
+      className={`notranslate h-screen w-screen overflow-hidden flex font-sans transition-colors duration-300 relative ${
       isDarkMode ? 'dark bg-[#090A0F] text-gray-100' : 'bg-[#F4F6F9] text-gray-900'
     }`}>
       
@@ -273,7 +303,7 @@ export default function AdminLayoutClient({
         showSuccessToast ? 'translate-y-0 opacity-100 scale-100' : '-translate-y-4 opacity-0 scale-95 pointer-events-none'
       }`}>
         <div className="bg-emerald-950/95 text-emerald-300 border border-emerald-500/40 px-6 py-4 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3">
-          <Rocket className="w-5 h-5 text-emerald-400" />
+          <UploadCloud className="w-5 h-5 text-emerald-400" />
           <div>
             <h4 className="text-xs font-black uppercase tracking-wider">Deployment Berhasil!</h4>
             <p className="text-[11px] text-emerald-400/80 font-medium">Semua draft perubahan telah diterbitkan ke website utama.</p>
@@ -362,7 +392,7 @@ export default function AdminLayoutClient({
           <div className="flex-shrink-0 space-y-3 pb-2">
             <div className="flex items-center justify-between px-1 pt-1">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-white font-black text-sm shadow-md shadow-amber-900/20 overflow-hidden p-1 flex-shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-[#6B0808] flex items-center justify-center text-white font-black text-sm shadow-sm overflow-hidden p-1 flex-shrink-0">
                   {logoUrl ? (
                     <img src={logoUrl} alt="CMS Logo" className="w-full h-full object-contain bg-white rounded-lg p-0.5" />
                   ) : (
@@ -400,11 +430,6 @@ export default function AdminLayoutClient({
                     {currentUser.role}
                   </div>
                 </div>
-                {currentUser.isSuperadmin && (
-                  <span className="text-[8px] bg-amber-500 text-gray-950 font-black px-1.5 py-0.5 rounded-full uppercase shrink-0">
-                    Master
-                  </span>
-                )}
               </div>
             )}
           </div>
@@ -464,16 +489,9 @@ export default function AdminLayoutClient({
                       <Layers className="w-4 h-4 text-amber-500" />
                       <span>Halaman Website</span>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className={`text-[10px] px-1.5 py-0.2 rounded-md font-bold ${
-                        isDarkMode ? 'bg-gray-800 text-gray-400' : 'bg-gray-100 text-gray-600'
-                      }`}>
-                        {websiteItems.length}
-                      </span>
-                      <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${
-                        openSubmenus.website ? 'rotate-180 text-amber-500' : 'text-gray-400'
-                      }`} />
-                    </div>
+                    <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${
+                      openSubmenus.website ? 'rotate-180 text-amber-500' : 'text-gray-400'
+                    }`} />
                   </button>
 
                   <div className={`overflow-hidden transition-all duration-300 ease-in-out ${
@@ -529,16 +547,9 @@ export default function AdminLayoutClient({
                       <UserCheck className="w-4 h-4 text-amber-500" />
                       <span>Karir & Rekrutmen</span>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      {unreadCount > 0 && (
-                        <span className="text-[10px] px-1.5 py-0.2 rounded-full font-black bg-amber-500 text-gray-950">
-                          {unreadCount}
-                        </span>
-                      )}
-                      <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${
-                        openSubmenus.career ? 'rotate-180 text-amber-500' : 'text-gray-400'
-                      }`} />
-                    </div>
+                    <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${
+                      openSubmenus.career ? 'rotate-180 text-amber-500' : 'text-gray-400'
+                    }`} />
                   </button>
 
                   <div className={`overflow-hidden transition-all duration-300 ease-in-out ${
@@ -705,6 +716,16 @@ export default function AdminLayoutClient({
         isDarkMode ? 'bg-[#090A0F]' : 'bg-[#F4F6F9]'
       }`}>
         <div className="max-w-4xl mx-auto relative z-10 pb-32 pt-10">
+          {/* BANNER DRAFT LOCK (Point 8) */}
+          {isLockedByOther && (
+            <div className="mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 flex items-center gap-3 backdrop-blur-md shadow-lg">
+              <Lock className="w-5 h-5 text-amber-400 shrink-0" />
+              <div className="text-xs">
+                <span className="font-bold uppercase tracking-wider text-amber-400 block mb-0.5">Mode Read-Only Aktif</span>
+                Draf sedang dikelola oleh <strong className="font-semibold text-white">{draftLock?.userName}</strong>. Anda berada dalam mode hanya baca (Read-Only) dan tidak dapat menyimpan perubahan baru atau menerbitkan draft hingga pengguna tersebut selesai dan melakukan deploy.
+              </div>
+            </div>
+          )}
           {children}
         </div>
       </main>
@@ -716,15 +737,21 @@ export default function AdminLayoutClient({
         <button
           type="button"
           onClick={handleDeploy}
-          disabled={!hasDraft || isPending}
+          disabled={!hasDraft || isPending || isLockedByOther}
           className={`w-12 h-12 rounded-full shadow-2xl flex items-center justify-center text-lg transition-all duration-300 hover:scale-110 border backdrop-blur-md cursor-pointer ${
-            !hasDraft || isPending
+            !hasDraft || isPending || isLockedByOther
               ? isDarkMode 
                 ? 'bg-gray-900/40 text-gray-600 border-gray-800/40 cursor-not-allowed opacity-50 shadow-none' 
                 : 'bg-gray-200/50 text-gray-400 border-gray-300/40 cursor-not-allowed opacity-50 shadow-none'
-              : 'bg-gradient-to-r from-amber-500 to-amber-700 hover:from-amber-400 hover:to-amber-600 text-white border-amber-400/40 shadow-amber-900/50 cursor-pointer animate-pulse'
+              : 'bg-amber-600 hover:bg-amber-700 text-white border-amber-600 shadow-md shadow-black/20 cursor-pointer'
           }`}
-          title={hasDraft ? 'Terbitkan draft perubahan ke website' : 'Belum ada perubahan baru (Draft kosong)'}
+          title={
+            isLockedByOther 
+              ? `Terkunci: Draf sedang dikelola oleh ${draftLock?.userName}` 
+              : hasDraft 
+                ? 'Terbitkan draft perubahan ke website' 
+                : 'Belum ada perubahan baru (Draft kosong)'
+          }
         >
           {isPending ? (
             <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
@@ -732,7 +759,7 @@ export default function AdminLayoutClient({
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
           ) : (
-            <Rocket className="w-5 h-5 text-white" />
+            <UploadCloud className="w-5 h-5 text-white" />
           )}
         </button>
 

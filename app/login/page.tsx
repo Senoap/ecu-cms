@@ -15,7 +15,7 @@ export default function AdminLoginPage() {
   // Sinkronisasi tema gelap/terang CMS
   useEffect(() => {
     const savedTheme = localStorage.getItem('esu_cms_theme')
-    const dark = savedTheme === 'dark' || savedTheme === null
+    const dark = savedTheme !== null ? savedTheme === 'dark' : true
     setTimeout(() => {
       setIsDarkMode(dark)
     }, 0)
@@ -45,25 +45,25 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className={`min-h-screen w-full flex items-center justify-center p-6 font-sans transition-colors duration-300 ${
-      isDarkMode ? 'bg-[#090A0F] text-gray-100' : 'bg-[#F4F6F9] text-gray-900'
-    }`}>
-      {/* Background Glow Aksen */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full opacity-10 pointer-events-none blur-3xl bg-amber-500"></div>
-
+    <div 
+      data-admin-scope="true" 
+      className={`min-h-screen w-full flex items-center justify-center p-6 font-sans transition-colors duration-300 ${
+        isDarkMode ? 'bg-[#090A0F] text-gray-100' : 'bg-[#F4F6F9] text-gray-900'
+      }`}
+    >
       <div className="relative z-10 w-full max-w-md">
-        <div className={`p-8 md:p-10 rounded-3xl shadow-2xl border backdrop-blur-xl space-y-8 ${
+        <div className={`p-8 md:p-10 rounded-3xl shadow-xl border backdrop-blur-xl space-y-8 ${
           isDarkMode ? 'bg-gray-900/90 border-gray-800' : 'bg-white/95 border-gray-200'
         }`}>
           
           {/* Header Logo */}
           <div className="text-center space-y-3">
-            <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-amber-900/30">
+            <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-600 flex items-center justify-center text-white font-black text-2xl shadow-md">
               ESU
             </div>
             <div>
               <h1 className="text-2xl font-black tracking-tight uppercase">CMS Authentication</h1>
-              <p className="text-xs text-amber-500 font-bold tracking-widest uppercase mt-1">Enterprise Control Panel</p>
+              <p className="text-xs text-amber-600 dark:text-amber-400 font-bold tracking-widest uppercase mt-1">Enterprise Control Panel</p>
             </div>
           </div>
 
@@ -111,7 +111,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={isPending}
-              className="w-full py-4 rounded-2xl text-sm font-black text-white bg-gradient-to-r from-amber-500 to-amber-700 hover:from-amber-400 hover:to-amber-600 shadow-lg shadow-amber-900/40 transition-all duration-300 transform hover:-translate-y-0.5 uppercase tracking-wider cursor-pointer disabled:opacity-50"
+              className="w-full py-4 rounded-2xl text-sm font-black text-white bg-amber-600 hover:bg-amber-700 shadow-md transition-all duration-200 uppercase tracking-wider cursor-pointer disabled:opacity-50"
             >
               {isPending ? 'Memverifikasi...' : 'Masuk ke CMS ➔'}
             </button>

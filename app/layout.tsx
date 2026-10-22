@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { readDB } from '@/lib/db'
 import { LanguageProvider } from '@/components/LanguageContext'
+import VisitorTracker from '@/components/VisitorTracker'
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -57,7 +58,7 @@ export default async function RootLayout({
   const { primaryColor, fontFamily } = db.setting
 
   return (
-    <html lang="id" suppressHydrationWarning>
+    <html lang="id" data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -82,6 +83,7 @@ export default async function RootLayout({
         className="bg-[#F8F7F4] dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased selection:bg-amber-500/20 selection:text-amber-400 min-h-screen transition-colors duration-200"
       >
         <LanguageProvider>
+          <VisitorTracker />
           {children}
         </LanguageProvider>
       </body>

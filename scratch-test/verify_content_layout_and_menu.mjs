@@ -69,7 +69,7 @@ async function testServer() {
   console.log('✔ Server route /admin/scheduled-content responded with HTTP', res.status)
 
   const homeRes = await fetch('http://localhost:3001')
-  const homeHtml = await homeRes.text()
+  await homeRes.text()
   assert(homeRes.status === 200, 'Home page must return 200')
   console.log('✔ Home page loads successfully (HTTP 200)')
 }

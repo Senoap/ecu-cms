@@ -18,11 +18,17 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>('id')
 
   useEffect(() => {
+    // Hapus sisa cookie googtrans jika pernah tersimpan di browser
+    try {
+      document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+      document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname};`
+    } catch {}
+
     const saved = localStorage.getItem('esu_locale') as Locale
     if (saved === 'id' || saved === 'en') {
-      setTimeout(() => {
+      queueMicrotask(() => {
         setLocaleState(saved)
-      }, 0)
+      })
     }
   }, [])
 
@@ -56,7 +62,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 export function useLanguage() {
   const context = useContext(LanguageContext)
   if (!context) {
-    // Fallback if rendered outside provider
     return {
       locale: 'id' as Locale,
       setLocale: () => {},

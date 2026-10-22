@@ -1,7 +1,8 @@
 // components/AboutSectionClient.tsx
 'use client'
+import Link from 'next/link'
 import { useLanguage } from '@/components/LanguageContext'
-import { Award } from 'lucide-react'
+import { Award, ArrowRight, Users, ShieldCheck } from 'lucide-react'
 
 interface AboutContent {
   tag: string
@@ -15,7 +16,21 @@ interface AboutContent {
   quote: string
 }
 
-export default function AboutSectionClient({ about, primaryColor }: { about: AboutContent; primaryColor: string }) {
+interface AboutSectionClientProps {
+  about: AboutContent
+  primaryColor: string
+  showLeadership?: boolean
+  showCertifications?: boolean
+  leadershipLabel?: string
+}
+
+export default function AboutSectionClient({ 
+  about, 
+  primaryColor,
+  showLeadership = true,
+  showCertifications = true,
+  leadershipLabel = 'Profil Pimpinan'
+}: AboutSectionClientProps) {
   const { locale, t } = useLanguage()
 
   const subtitle = (locale === 'en' && !about.subtitle) ? t.about.subtitle : (about.subtitle || t.about.subtitle)
@@ -58,10 +73,10 @@ export default function AboutSectionClient({ about, primaryColor }: { about: Abo
 
         {/* Kolom Kanan: Kotak Rekam Jejak & Pengalaman Pimpinan */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 text-white p-6 sm:p-8 md:p-10 rounded-3xl shadow-2xl border border-gray-700/80 space-y-6 relative overflow-hidden group">
+          <div className="bg-gradient-to-br from-[#1C1F28] via-[#151720] to-[#0E1017] text-white p-7 sm:p-9 md:p-10 rounded-2xl shadow-xl border border-gray-800 space-y-6 relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
             
-            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center text-amber-400 shadow-inner">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center text-amber-400 shadow-inner">
               <Award className="w-7 h-7 sm:w-8 sm:h-8" />
             </div>
 
@@ -81,6 +96,37 @@ export default function AboutSectionClient({ about, primaryColor }: { about: Abo
               <span>{t.about.corporateBadge}</span>
               <span className="text-amber-400">{t.about.established}</span>
             </div>
+
+            {/* TOMBOL SUBMENU TENTANG KAMI: PIMPINAN & SERTIFIKASI (KONDISIONAL SESUAI FITUR AKTIF) */}
+            {(showLeadership || showCertifications) && (
+              <div className={`pt-2 grid ${(showLeadership && showCertifications) ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'} gap-2.5`}>
+                {showLeadership && (
+                  <Link
+                    href="/leadership"
+                    className="py-3 px-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-gray-950 font-black text-xs uppercase tracking-wider flex items-center justify-between shadow-lg transition-all duration-300 hover:scale-[1.02] cursor-pointer group/btn"
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      <Users className="w-4 h-4 shrink-0" />
+                      <span className="truncate">{leadershipLabel || 'Profil Pimpinan'}</span>
+                    </div>
+                    <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform shrink-0" />
+                  </Link>
+                )}
+
+                {showCertifications && (
+                  <Link
+                    href="/certifications"
+                    className="py-3 px-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-black text-xs uppercase tracking-wider flex items-center justify-between border border-white/20 shadow-lg transition-all duration-300 hover:scale-[1.02] cursor-pointer group/btn"
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      <ShieldCheck className="w-4 h-4 text-amber-400 shrink-0" />
+                      <span className="truncate">Sertifikasi & Izin</span>
+                    </div>
+                    <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform shrink-0" />
+                  </Link>
+                )}
+              </div>
+            )}
           </div>
         </div>
 

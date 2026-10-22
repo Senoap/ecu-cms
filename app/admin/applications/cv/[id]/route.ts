@@ -1,16 +1,25 @@
 // app/admin/applications/cv/[id]/route.ts
 import { NextResponse } from 'next/server'
 import { isAdmin } from '@/lib/auth'
-import { getAdminClient } from '@/lib/supabaseAdmin'
+import { getCvDownload } from '@/lib/applications'
 
-// Redirect ke signed URL (berlaku 60 detik). Hanya admin.
+// Buka / Unduh CV pelamar (Signed URL jika di Supabase, atau langsung kirim buffer jika di VPS lokal). Hanya admin.
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   if (!(await isAdmin())) return new NextResponse('Unauthorized', { status: 401 })
   const { id } = await params
-  const supabase = getAdminClient()
-  const { data } = await supabase.from('applications').select('cv_path').eq('id', id).maybeSingle()
-  if (!data?.cv_path) return new NextResponse('Not found', { status: 404 })
-  const { data: signed, error } = await supabase.storage.from('cv').createSignedUrl(data.cv_path as string, 60)
-  if (error || !signed) return new NextResponse('Gagal membuat tautan', { status: 500 })
-  return NextResponse.redirect(signed.signedUrl)
+
+  const result = await getCvDownload(id)
+  if (!result) return new NextResponse('Berkas CV tidak ditemukan', { status: 404 })
+
+  if ('signedUrl' in result) {
+    return NextResponse.redirect(result.signedUrl)
+  }
+
+  return new NextResponse(new Uint8Array(result.buffer), {
+    status: 200,
+    headers: {
+      'Content-Type': result.mimeType,
+      'Content-Disposition': `inline; filename="${result.fileName}"`,
+    },
+  })
 }

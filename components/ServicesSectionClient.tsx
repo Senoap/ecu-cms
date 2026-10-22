@@ -101,16 +101,16 @@ export default function ServicesSectionClient({
 
       <section id="services" className="py-24 bg-white dark:bg-[#090A0F] border-t border-b border-gray-200 dark:border-gray-800 px-4 sm:px-8 md:px-16 relative transition-colors duration-500">
         {/* Header Section */}
-        <div className="max-w-7xl mx-auto text-center space-y-3 mb-16">
-          <span className="inline-block text-xs font-extrabold tracking-widest text-amber-700 dark:text-amber-300 uppercase bg-amber-50 dark:bg-amber-900/30 px-3.5 py-1 rounded-full border border-amber-200/50 dark:border-amber-700/30">
+        <div className="max-w-7xl mx-auto text-center space-y-3 mb-14">
+          <span className="inline-block text-xs font-extrabold tracking-widest text-amber-700 dark:text-amber-300 uppercase bg-amber-50 dark:bg-amber-900/30 px-3.5 py-1.5 rounded-xl border border-amber-200/50 dark:border-amber-700/30 shadow-sm">
             {srvTag}
           </span>
-          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">{srvHeading}</h2>
-          <div className="w-16 h-1 mx-auto rounded-full mt-2" style={{ backgroundColor: secondaryColor }}></div>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight">{srvHeading}</h2>
+          <div className="w-12 h-1 mx-auto rounded-full mt-2.5" style={{ backgroundColor: secondaryColor }}></div>
         </div>
 
-        {/* Kontainer Layanan */}
-        <div className="max-w-7xl mx-auto flex flex-wrap justify-around lg:justify-between items-start gap-6 sm:gap-8 px-2 sm:px-4">
+        {/* Kontainer Layanan: Executive B2B Card Grid */}
+        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-2 sm:px-4">
           {(services || []).map((srv) => {
             const fb = getFallbackContent('services', srv.id)
             const srvTitle = (locale === 'en' && fb?.title) ? fb.title : srv.title
@@ -120,34 +120,30 @@ export default function ServicesSectionClient({
               <div
                 key={srv.id}
                 onClick={() => handleOpenModal(srv)}
-                className="group relative flex flex-col items-center text-center space-y-3 cursor-pointer transition-transform duration-300 hover:-translate-y-2 active:scale-95 w-32 sm:w-36 flex-shrink-0"
+                className="group relative flex flex-col justify-between p-6 sm:p-7 rounded-2xl border transition-all duration-300 cursor-pointer hover:-translate-y-1.5 hover:shadow-xl active:scale-[0.98] bg-white dark:bg-[#0E111A] border-gray-200/90 dark:border-gray-800 hover:border-amber-500/50 dark:hover:border-amber-500/50 shadow-sm"
               >
-                {/* Ikon Lingkaran */}
-                <div className="w-20 h-20 rounded-full bg-amber-50 dark:bg-gray-800/90 group-hover:bg-amber-100 dark:group-hover:bg-gray-700/90 flex items-center justify-center text-amber-800 dark:text-amber-400 transition-all duration-300 shadow-sm border border-amber-200/60 dark:border-gray-700">
-                  <DynamicIcon name={srv.icon} className="w-9 h-9" />
+                <div>
+                  {/* Ikon Box Korporat */}
+                  <div className="w-14 h-14 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/25 flex items-center justify-center text-amber-700 dark:text-amber-400 transition-all duration-300 group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-gray-950 group-hover:border-amber-400 shadow-sm mb-5">
+                    <DynamicIcon name={srv.icon} className="w-7 h-7" />
+                  </div>
+
+                  {/* Judul Layanan */}
+                  <h3 className="font-black text-base sm:text-lg text-gray-900 dark:text-white tracking-tight group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors leading-snug mb-2.5">
+                    {srvTitle}
+                  </h3>
+
+                  {/* Deskripsi Singkat Langsung Terbaca */}
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 leading-relaxed font-medium line-clamp-3 mb-5">
+                    {srvDesc}
+                  </p>
                 </div>
 
-                {/* Judul Layanan */}
-                <h3 className="font-bold text-xs md:text-sm text-gray-900 dark:text-gray-100 tracking-wide group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors leading-tight relative z-0">
-                  {srvTitle}
-                </h3>
-
-                {/* Hover Preview Box */}
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 sm:w-72 bg-gray-900/80 dark:bg-black/90 backdrop-blur-md border border-white/20 rounded-2xl p-5 text-white opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-300 ease-out flex flex-col text-left shadow-2xl z-25 scale-50 group-hover:scale-100 origin-center">
-                  <div className="space-y-2 mb-3">
-                    <div className="flex items-center gap-2 text-amber-300 text-xs font-bold uppercase tracking-wider border-b border-white/20 pb-2">
-                      <DynamicIcon name={srv.icon} className="w-4 h-4" />
-                      <span className="truncate">{srvTitle}</span>
-                    </div>
-                    <p className="text-[11px] text-gray-100 leading-relaxed line-clamp-3 font-medium drop-shadow-sm">
-                      {srvDesc}
-                    </p>
-                  </div>
-                  <div className="pt-2 border-t border-white/20 flex items-center justify-between text-[10px] font-semibold text-amber-300">
-                    <span>{t.services.clickForDetail} &rarr;</span>
-                    {srv.images && srv.images.length > 0 && (
-                      <span className="bg-black/30 px-2 py-1 rounded backdrop-blur-sm border border-white/10">{srv.images.length} {t.gallery.photoCount}</span>
-                    )}
+                {/* Footer Kartu: Call to Action Halus */}
+                <div className="pt-4 border-t border-gray-100 dark:border-gray-800/80 flex items-center justify-between text-xs font-black text-amber-700 dark:text-amber-400 group-hover:text-amber-600 dark:group-hover:text-amber-300 transition-colors">
+                  <span className="tracking-wide">{t.services.clickForDetail}</span>
+                  <div className="w-7 h-7 rounded-xl bg-amber-500/10 dark:bg-amber-500/20 flex items-center justify-center group-hover:translate-x-1 group-hover:bg-amber-500 group-hover:text-gray-950 transition-all">
+                    &rarr;
                   </div>
                 </div>
               </div>
@@ -156,7 +152,7 @@ export default function ServicesSectionClient({
         </div>
 
         {srvNote && (
-          <p className="max-w-7xl mx-auto text-center text-xs text-gray-500 dark:text-gray-400 mt-16 italic">
+          <p className="max-w-7xl mx-auto text-center text-xs text-gray-500 dark:text-gray-400 mt-12 italic">
             {srvNote}
           </p>
         )}

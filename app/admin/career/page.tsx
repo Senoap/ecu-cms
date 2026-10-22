@@ -33,6 +33,8 @@ export default async function CareerPage() {
     await writeDB(db)
     await addNotification('Memperbarui konfigurasi Header Career Section.', 'UPDATE')
     revalidatePath('/admin/career')
+    revalidatePath('/admin', 'layout')
+    revalidatePath('/')
   }
 
   async function handleAddCareer(formData: FormData) {
@@ -55,6 +57,8 @@ export default async function CareerPage() {
     await writeDB(db)
     await addNotification(`Menambahkan lowongan kerja baru: "${newCareer.title}".`, 'CREATE')
     revalidatePath('/admin/career')
+    revalidatePath('/admin', 'layout')
+    revalidatePath('/')
   }
 
   async function handleUpdateCareer(formData: FormData) {
@@ -81,6 +85,8 @@ export default async function CareerPage() {
     await writeDB(db)
     await addNotification('Memperbarui data lowongan kerja.', 'UPDATE')
     revalidatePath('/admin/career')
+    revalidatePath('/admin', 'layout')
+    revalidatePath('/')
   }
 
   async function handleDeleteCareer(formData: FormData) {
@@ -93,6 +99,8 @@ export default async function CareerPage() {
     await writeDB(db)
     await addNotification('Menghapus posisi lowongan kerja.', 'DELETE')
     revalidatePath('/admin/career')
+    revalidatePath('/admin', 'layout')
+    revalidatePath('/')
   }
 
   return (

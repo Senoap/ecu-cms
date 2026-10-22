@@ -2,30 +2,17 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useLanguage } from '@/components/LanguageContext'
-import { HeroShowcaseConfig } from '@/lib/db'
+import type { HeroShowcaseConfig } from '@/lib/showcaseConstants'
 import {
   Award,
   BarChart3,
   Globe,
-  Zap,
-  Users,
-  ShieldCheck,
-  Building2,
-  Factory,
-  Store,
-  Activity,
-  Truck,
-  GraduationCap,
-  Sparkles,
-  Car,
-  Wrench,
-  CheckCircle2,
-  LucideIcon
 } from 'lucide-react'
+import { renderShowcaseIcon } from '@/lib/showcaseIcons'
 
 interface HeroShowcaseCardProps {
-  siteName: string
-  tagline: string
+  siteName?: string
+  tagline?: string
   primaryColor: string
   secondaryColor?: string
   accentColor?: string
@@ -34,53 +21,12 @@ interface HeroShowcaseCardProps {
   showcaseData?: HeroShowcaseConfig
 }
 
-function renderShowcaseIcon(iconStr?: string, className = 'w-4 h-4') {
-  if (!iconStr) return <ShieldCheck className={className} />
-
-  const map: Record<string, LucideIcon> = {
-    '⚡': Zap,
-    'Zap': Zap,
-    '🎖️': Award,
-    'Award': Award,
-    '🤝': Users,
-    'Users': Users,
-    '🛡️': ShieldCheck,
-    'ShieldCheck': ShieldCheck,
-    'Shield': ShieldCheck,
-    '🏢': Building2,
-    'Building': Building2,
-    'Building2': Building2,
-    '🏭': Factory,
-    'Factory': Factory,
-    '🏬': Store,
-    'Store': Store,
-    '🏥': Activity,
-    'Activity': Activity,
-    'Hospital': Activity,
-    '🚛': Truck,
-    'Truck': Truck,
-    '🏫': GraduationCap,
-    'GraduationCap': GraduationCap,
-    '🧹': Sparkles,
-    'Sparkles': Sparkles,
-    '🚗': Car,
-    'Car': Car,
-    '⚙️': Wrench,
-    'Wrench': Wrench,
-    'Settings': Wrench,
-    'CheckCircle': CheckCircle2
-  }
-
-  const Component = map[iconStr] || ShieldCheck
-  return <Component className={className} />
-}
-
 export default function HeroShowcaseCard({
-  siteName,
-  tagline,
+  siteName: _siteName,
+  tagline: _tagline,
   primaryColor,
   secondaryColor = '#D4AF37',
-  logoUrl,
+  logoUrl: _logoUrl,
   isDarkMode,
   showcaseData
 }: HeroShowcaseCardProps) {
@@ -191,65 +137,17 @@ export default function HeroShowcaseCard({
 
   const sectors = (showcaseData?.sectors && showcaseData.sectors.length > 0) ? showcaseData.sectors : defaultSectors
 
-  const liveBadge = showcaseData?.liveBadgeText || (locale === 'en' ? 'Active System' : 'Sistem Aktif')
   const ctaText = showcaseData?.ctaText || (locale === 'en' ? 'Consult Enterprise Workforce →' : 'Konsultasi Kebutuhan Mitra →')
   const ctaLink = showcaseData?.ctaLink || '#contact'
   const profileText = showcaseData?.profileText || (locale === 'en' ? 'Company Profile' : 'Profil Perusahaan')
   const profileLink = showcaseData?.profileLink || '#about'
 
   return (
-    <div className={`relative rounded-3xl overflow-hidden shadow-2xl border transition-all duration-500 flex flex-col justify-between ${
+    <div className={`relative rounded-2xl overflow-hidden shadow-xl border transition-all duration-500 flex flex-col justify-between ${
       isDarkMode
-        ? 'bg-[#0B0E17]/90 border-gray-800 text-white shadow-black/80'
-        : 'bg-white/95 border-gray-200/90 text-gray-900 shadow-xl shadow-gray-200/50'
-    } backdrop-blur-2xl p-6 sm:p-7 space-y-5 group`}>
-      
-      {/* Dynamic Ambient Glow Behind Card */}
-      <div
-        className="absolute -top-24 -right-24 w-60 h-60 rounded-full blur-3xl opacity-20 pointer-events-none transition-all duration-700"
-        style={{ backgroundColor: secondaryColor }}
-      />
-      <div
-        className="absolute -bottom-24 -left-24 w-60 h-60 rounded-full blur-3xl opacity-15 pointer-events-none transition-all duration-700"
-        style={{ backgroundColor: primaryColor }}
-      />
-
-      {/* TOP HEADER: Verified Partner Beacon & Brand Identity */}
-      <div className={`relative z-10 flex items-center justify-between border-b pb-4 gap-3 ${
-        isDarkMode ? 'border-gray-800/80' : 'border-gray-100'
-      }`}>
-        <div className="flex items-center gap-3">
-          {logoUrl ? (
-            <div className="w-12 h-12 rounded-2xl bg-white p-1.5 shadow-md border border-gray-200/80 flex items-center justify-center flex-shrink-0">
-              <img src={logoUrl} alt={siteName} className="max-h-full max-w-full object-contain" />
-            </div>
-          ) : (
-            <div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center font-black text-white text-lg shadow-md flex-shrink-0"
-              style={{ backgroundColor: primaryColor }}
-            >
-              <Building2 className="w-6 h-6 text-white" />
-            </div>
-          )}
-          <div className="min-w-0">
-            <h3 className={`font-black text-sm sm:text-base tracking-tight truncate ${
-              isDarkMode ? 'text-white' : 'text-gray-900'
-            }`}>
-              {siteName}
-            </h3>
-            <p className="text-[11px] font-bold tracking-wider uppercase text-amber-600 dark:text-amber-400 truncate">
-              {tagline}
-            </p>
-          </div>
-        </div>
-
-        {/* Live System Indicator */}
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase tracking-wider flex-shrink-0">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>{liveBadge}</span>
-        </div>
-      </div>
-
+        ? 'bg-[#0E111A]/95 border-gray-800 text-white shadow-black/60'
+        : 'bg-white/95 border-gray-200/90 text-gray-900 shadow-xl shadow-gray-200/40'
+    } backdrop-blur-xl p-6 sm:p-7 space-y-5 group`}>
       {/* INTERACTIVE TAB NAVIGATION */}
       <div className="relative z-10 flex items-center bg-gray-100 dark:bg-gray-900/90 p-1 rounded-2xl border border-gray-200/60 dark:border-gray-800 text-xs font-black">
         <button
@@ -366,11 +264,11 @@ export default function HeroShowcaseCard({
 
       {/* AUTO-CYCLING ROLE TICKER (MINI CAROUSEL) */}
       {roles && roles.length > 0 && (
-        <div className="relative z-10 overflow-hidden rounded-2xl p-3 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/25">
+        <div className="relative z-10 overflow-hidden rounded-xl p-3 bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/20">
           <div className="flex items-center justify-between text-[10px] font-bold text-amber-700 dark:text-amber-400 mb-1">
             <span className="uppercase tracking-widest flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-              {locale === 'en' ? 'Active Deployment Roster' : 'Penempatan Personel Unggulan'}
+              <Award className="w-3 h-3 text-amber-500 shrink-0" />
+              <span>{locale === 'en' ? 'Active Deployment Roster' : 'Penempatan Personel Unggulan'}</span>
             </span>
             <span className="font-mono text-[10px]">{currentRoleIndex + 1} / {roles.length}</span>
           </div>
@@ -400,14 +298,14 @@ export default function HeroShowcaseCard({
       <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-gray-200/60 dark:border-gray-800 text-xs">
         <a
           href={ctaLink}
-          className="w-full sm:w-auto flex-1 py-2.5 px-4 rounded-xl text-center font-black text-white shadow-md transition-all duration-300 hover:opacity-95 uppercase tracking-wider text-[11px] active:scale-95"
+          className="w-full sm:w-auto flex-1 py-2.5 px-4 rounded-xl text-center font-black text-white shadow-md transition-all duration-300 hover:opacity-95 uppercase tracking-wider text-[11px] active:scale-95 flex items-center justify-center gap-1.5"
           style={{ backgroundColor: primaryColor }}
         >
-          {ctaText}
+          <span>{ctaText}</span>
         </a>
         <a
           href={profileLink}
-          className="w-full sm:w-auto py-2.5 px-4 rounded-xl text-center font-bold text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 transition-all text-[11px] active:scale-95"
+          className="w-full sm:w-auto py-2.5 px-4 rounded-xl text-center font-bold text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white bg-gray-100 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 transition-all text-[11px] active:scale-95"
         >
           {profileText}
         </a>

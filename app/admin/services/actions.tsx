@@ -32,6 +32,8 @@ export async function addService(formData: FormData) {
   await writeDB(db)
   await addNotification(`Menambahkan layanan baru: "${title}".`, 'CREATE')
   revalidatePath('/admin/services')
+  revalidatePath('/admin', 'layout')
+  revalidatePath('/')
 }
 
 export async function updateService(formData: FormData) {
@@ -120,6 +122,8 @@ export async function updateService(formData: FormData) {
   await writeDB(db)
   await addNotification(`Memperbarui layanan: "${title}".`, 'UPDATE')
   revalidatePath('/admin/services')
+  revalidatePath('/admin', 'layout')
+  revalidatePath('/')
 }
 
 export async function deleteServiceImage(formData: FormData) {
@@ -146,6 +150,8 @@ export async function deleteServiceImage(formData: FormData) {
   await writeDB(db)
   await addNotification(`Menghapus foto galeri layanan "${srv.title}".`, 'DELETE')
   revalidatePath('/admin/services')
+  revalidatePath('/admin', 'layout')
+  revalidatePath('/')
 }
 
 export async function deleteService(formData: FormData) {
@@ -157,4 +163,6 @@ export async function deleteService(formData: FormData) {
   await writeDB(db)
   await addNotification(`Menghapus layanan: "${target?.title || id}".`, 'DELETE')
   revalidatePath('/admin/services')
+  revalidatePath('/admin', 'layout')
+  revalidatePath('/')
 }

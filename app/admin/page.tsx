@@ -49,6 +49,10 @@ async function updateConfig(formData: FormData) {
     bgImageUrl = await uploadFile(buffer, filename, bgImageFile.type)
   }
 
+  const showLeadership = formData.get('showLeadership') === 'on'
+  const showCertifications = formData.get('showCertifications') === 'on'
+  const leadershipLabel = (formData.get('leadershipLabel') as string) || db.setting.leadershipLabel || 'Profil Pimpinan'
+
   db.setting = {
     ...db.setting,
     siteName,
@@ -60,6 +64,9 @@ async function updateConfig(formData: FormData) {
     logoUrl,
     bgImageUrl,
     slideDuration,
+    showLeadership,
+    showCertifications,
+    leadershipLabel,
   }
 
   db.sections = db.sections.map((sec) => {
@@ -73,9 +80,11 @@ async function updateConfig(formData: FormData) {
 
   await writeDB(db)
 
-  await addNotification('Memperbarui Pengaturan Global, Logo, Background, dan Tata Letak Seksi.', 'UPDATE')
+  await addNotification('Memperbarui Pengaturan Global, Logo, Background, Visibilitas Modul, dan Tata Letak Seksi.', 'UPDATE')
 
+  revalidatePath('/admin', 'layout')
   revalidatePath('/admin')
+  revalidatePath('/')
 }
 
 export default async function AdminDashboardPage() {

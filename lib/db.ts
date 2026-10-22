@@ -1,12 +1,43 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import { 
+  defaultHeroShowcase,
+  type HeroShowcaseConfig, 
+  type ShowcaseStrengthItem, 
+  type ShowcaseMetricItem, 
+  type ShowcaseSectorItem, 
+  type ShowcaseRoleItem 
+} from './showcaseConstants'
+
+let lastSupabaseFailure = 0
+const SUPABASE_COOLDOWN_MS = 15000 // Cooldown 15 detik jika backend Supabase tidak aktif/mati
 
 function getSupabase(): SupabaseClient | null {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
   if (!supabaseUrl || !supabaseKey) return null
+
+  // Jika Supabase baru saja gagal dihubungi (misal Docker lokal belum menyala), langsung fallback ke lokal tanpa delay
+  if (Date.now() - lastSupabaseFailure < SUPABASE_COOLDOWN_MS) {
+    return null
+  }
+
   try {
-    return createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false } })
+    return createClient(supabaseUrl, supabaseKey, {
+      auth: { persistSession: false },
+      global: {
+        fetch: (url, options) => {
+          return fetch(url, {
+            ...options,
+            signal: AbortSignal.timeout(1500), // Timeout cepat 1.5 detik agar tidak menggantung berdetik-detik
+          }).catch((err) => {
+            lastSupabaseFailure = Date.now()
+            throw err
+          })
+        },
+      },
+    })
   } catch {
+    lastSupabaseFailure = Date.now()
     return null
   }
 }
@@ -104,12 +135,99 @@ export interface CmsUser {
   createdAt: number
 }
 
+export interface DirectorItem {
+  id: string
+  name: string
+  position: string
+  photoUrl?: string
+  bio?: string
+  experiences?: string[]
+  education?: string
+  order: number
+  isVisible: boolean
+}
+
+export interface CertificationItem {
+  id: string
+  title: string
+  issuer: string
+  certNumber?: string
+  issueDate?: string
+  expiryDate?: string
+  desc?: string
+  imageUrl: string
+  watermarkText?: string
+  order: number
+  isVisible: boolean
+}
+
+export interface ComproRequestItem {
+  id: string
+  name: string
+  company: string
+  email: string
+  phone: string
+  notes?: string
+  status: 'sent' | 'pending' | 'followed_up'
+  createdAt: number
+  sentAt?: number
+  ip?: string
+}
+
+export interface ComproEmailTemplate {
+  subject: string
+  body: string
+  senderName: string
+  heading?: string
+  bodyIntro?: string
+  pdfUrl?: string
+  footerText?: string
+}
+
+export interface DailyVisitorCount {
+  date: string // format: 'YYYY-MM-DD'
+  count: number // total counter kunjungan hari ini
+  paths?: Record<string, number> // rincian per path yang dikunjungi
+}
+
+export interface VisitorLogItem {
+  id: string
+  path: string
+  ip: string
+  userAgent: string
+  referer?: string
+  timestamp: number
+}
+
+export interface ActiveSessionRecord {
+  token: string
+  ip: string
+  userAgent: string
+  lastSeen: number
+  loggedInAt: number
+}
+
+export interface LoginAttemptRecord {
+  count: number
+  resetAt: number
+  lastAttemptAt: number
+  lockedUntil?: number
+}
+
+export interface CmsDraftLock {
+  userId: string
+  userName: string
+  userEmail?: string
+  lockedAt: number
+  lastActive: number
+}
+
 export interface NotificationItem {
   id: string
   message: string
   time: string
-  type: 'CREATE' | 'UPDATE' | 'DELETE' | 'DEPLOY' | 'CAREER'
-  category?: 'system' | 'career' | string
+  type: 'CREATE' | 'UPDATE' | 'DELETE' | 'DEPLOY' | 'CAREER' | 'COMPRO' | 'VISITOR' | 'AUTH'
+  category?: 'system' | 'visitor' | 'career' | 'compro' | string
   viewedAt?: number
 }
 
@@ -117,128 +235,24 @@ export interface AuditLogItem {
   id: string
   message: string
   timestamp: number
-  type: 'CREATE' | 'UPDATE' | 'DELETE' | 'DEPLOY' | 'CAREER'
-  category?: 'system' | 'career' | string
+  type: 'CREATE' | 'UPDATE' | 'DELETE' | 'DEPLOY' | 'CAREER' | 'COMPRO' | 'VISITOR' | 'AUTH'
+  category: 'system' | 'visitor' | 'career' | 'compro'
   userName?: string
   userEmail?: string
   userRole?: string
+  ip?: string
+  details?: Record<string, unknown>
 }
 
-export interface HeroShowcaseConfig {
-  enabled: boolean
-  liveBadgeText: string
-  strengths: Array<{
-    icon: string
-    title: string
-    desc: string
-  }>
-  metrics: Array<{
-    num: string
-    label: string
-    sub: string
-  }>
-  sectors: Array<{
-    icon: string
-    name: string
-  }>
-  roles: Array<{
-    icon: string
-    title: string
-    tag: string
-    desc: string
-  }>
-  ctaText?: string
-  ctaLink?: string
-  profileText?: string
-  profileLink?: string
+export { 
+  defaultHeroShowcase,
+  type HeroShowcaseConfig, 
+  type ShowcaseStrengthItem, 
+  type ShowcaseMetricItem, 
+  type ShowcaseSectorItem, 
+  type ShowcaseRoleItem 
 }
 
-export const defaultHeroShowcase: HeroShowcaseConfig = {
-  enabled: true,
-  liveBadgeText: 'SISTEM AKTIF',
-  strengths: [
-    {
-      icon: 'Zap',
-      title: 'Respons Tanggap Cepat 24/7',
-      desc: 'Penanganan insiden & pergantian personel darurat < 2 jam.'
-    },
-    {
-      icon: 'Award',
-      title: 'Personel Tersertifikasi Legal',
-      desc: 'Tersertifikasi resmi BNSP dan dibekali pelatihan berkala.'
-    },
-    {
-      icon: 'Users',
-      title: 'Bebas Sengketa & Akuntabel',
-      desc: 'Jaminan kepatuhan UU Ketenagakerjaan, BPJS, & payroll transparan.'
-    },
-    {
-      icon: 'ShieldCheck',
-      title: 'Budaya K3 & Zero-Accident',
-      desc: 'Disiplin keselamatan kerja tinggi untuk perlindungan aset optimal.'
-    }
-  ],
-  metrics: [
-    {
-      num: '15+',
-      label: 'Tahun Pengalaman',
-      sub: 'Pimpinan Teruji'
-    },
-    {
-      num: '500+',
-      label: 'Tenaga Siap Kerja',
-      sub: 'Penempatan Cepat'
-    },
-    {
-      num: '99.8%',
-      label: 'Kepuasan Klien',
-      sub: 'Pemenuhan SLA'
-    },
-    {
-      num: '100%',
-      label: 'Kepatuhan Legalitas',
-      sub: 'Izin Kemenaker Resmi'
-    }
-  ],
-  sectors: [
-    { icon: 'Building2', name: 'Perkantoran Komersial' },
-    { icon: 'Factory', name: 'Pabrik & Kawasan Industri' },
-    { icon: 'Store', name: 'Mall & Pusat Perbelanjaan' },
-    { icon: 'Activity', name: 'Rumah Sakit & Fasilitas Medis' },
-    { icon: 'Truck', name: 'Pergudangan & Logistik' },
-    { icon: 'GraduationCap', name: 'Institusi Pendidikan' }
-  ],
-  roles: [
-    {
-      icon: 'ShieldCheck',
-      title: 'Satuan Pengamanan (Gada Pratama / Madya)',
-      tag: 'Personel Tersertifikasi',
-      desc: 'Perlindungan aset fisik & korporat berstandar regulasi'
-    },
-    {
-      icon: 'Sparkles',
-      title: 'Jasa Kebersihan & Manajemen Fasilitas',
-      tag: 'Standar Higienis',
-      desc: 'Perawatan gedung, kantor, dan fasilitas komersial prima'
-    },
-    {
-      icon: 'Car',
-      title: 'Pengemudi Profesional & Eksekutif',
-      tag: 'Safety Driving',
-      desc: 'Disiplin waktu, berlisensi, dan penguasaan rute handal'
-    },
-    {
-      icon: 'Wrench',
-      title: 'Operator Pabrik & Teknisi Pemeliharaan',
-      tag: 'Siap Kerja',
-      desc: 'Tenaga terampil siap dukung target operasional industri'
-    }
-  ],
-  ctaText: 'Konsultasi Kebutuhan Mitra →',
-  ctaLink: '#contact',
-  profileText: 'Profil Perusahaan',
-  profileLink: '#about'
-}
 
 export interface HeroContent {
   badge: string
@@ -327,6 +341,9 @@ export interface DatabaseContent {
     logoUrl?: string
     bgImageUrl?: string
     slideDuration: number
+    showLeadership?: boolean
+    showCertifications?: boolean
+    leadershipLabel?: string
   }
   sections: SectionConfig[]
   services: ServiceItem[]
@@ -343,6 +360,9 @@ export interface DatabaseContent {
   scheduledContents?: ScheduledContentItem[]
   privacyPolicy?: LegalContent
   termsOfService?: LegalContent
+  directors?: DirectorItem[]
+  certifications?: CertificationItem[]
+  comproEmailTemplate?: ComproEmailTemplate
 }
 
 export const defaultCareerTemplates: CareerReplyTemplate[] = [
@@ -441,6 +461,165 @@ PT. Empat Sinergi Utama berupaya menjaga keakuratan informasi di situs web, namu
 Kami berhak untuk mengubah, memperbarui, atau memodifikasi Syarat dan Ketentuan ini sewaktu-waktu tanpa pemberitahuan sebelumnya. Penggunaan berkelanjutan atas situs ini setelah perubahan menandakan persetujuan Anda terhadap ketentuan yang diperbarui.`
 }
 
+export const defaultDirectors: DirectorItem[] = [
+  {
+    id: 'dir-1',
+    name: 'Drs. H. Bambang Soeprapto, M.M.',
+    position: 'Direktur Utama (President Director)',
+    photoUrl: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=80',
+    bio: 'Berpengalaman lebih dari 20 tahun dalam kepemimpinan korporasi alih daya ketenagakerjaan dan manajemen fasilitas terpadu. Memiliki keahlian strategis dalam tata kelola SDM, kepatuhan hukum ketenagakerjaan, dan kemitraan skala nasional.',
+    experiences: [
+      'Mantan Eksekutif Senior Perusahaan Manpower Services Nasional',
+      'Pengurus Bidang Hukum Asosiasi Pengusaha Alih Daya Indonesia',
+      'Konsultan Kepatuhan UU Ketenagakerjaan & Hubungan Industrial'
+    ],
+    education: 'Magister Manajemen Sumber Daya Manusia - Universitas Indonesia',
+    order: 1,
+    isVisible: true
+  },
+  {
+    id: 'dir-2',
+    name: 'Ir. Hendra Gunawan, S.T., IPM.',
+    position: 'Direktur Operasional & K3 (COO)',
+    photoUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=800&q=80',
+    bio: 'Pakar operasional manajemen fasilitas gedung bertingkat dan pengelolaan keamanan terpadu. Mengantongi lisensi K3 BNSP tingkat utama dan sertifikasi Gada Utama Kepolisian RI.',
+    experiences: [
+      '15+ Tahun Pengelolaan Operasional Gedung Perkantoran & Kawasan Industri',
+      'Auditor Sistem Manajemen K3 & ISO 45001:2018',
+      'Pembina Standar Operasional Prosedur Pengamanan Fisik Korporat'
+    ],
+    education: 'Sarjana Teknik Industri - Institut Teknologi Bandung (ITB)',
+    order: 2,
+    isVisible: true
+  },
+  {
+    id: 'dir-3',
+    name: 'Siti Rahmawati, S.E., Ak., CA.',
+    position: 'Direktur Keuangan & Kepatuhan Bisnis (CFO)',
+    photoUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&q=80',
+    bio: 'Menangani akuntabilitas finansial, transparansi sistem penggajian (payroll), dan kepatuhan perpajakan serta BPJS Ketenagakerjaan dan Kesehatan untuk ribuan tenaga kerja terkelola.',
+    experiences: [
+      '12+ Tahun Akuntansi Forensik & Manajemen Keuangan Alih Daya',
+      'Spesialis Audit Payroll & Perlindungan Jaminan Sosial Tenaga Kerja',
+      'Anggota Ikatan Akuntan Indonesia (IAI)'
+    ],
+    education: 'Sarjana Ekonomi Akuntansi - Universitas Gadjah Mada (UGM)',
+    order: 3,
+    isVisible: true
+  }
+]
+
+export const defaultCertifications: CertificationItem[] = [
+  {
+    id: 'cert-1',
+    title: 'ISO 9001:2015 - Sistem Manajemen Mutu',
+    issuer: 'Badan Sertifikasi Mutu Internasional',
+    certNumber: 'QMS/2024/ESU-88912',
+    issueDate: '15 Januari 2024',
+    expiryDate: '14 Januari 2027',
+    desc: 'Standar pengakuan internasional untuk mutu pelayanan jasa penyedia tenaga kerja, manajemen fasilitas, dan sistem operasional alih daya yang konsisten dan prima.',
+    imageUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=900&q=80',
+    watermarkText: 'PT. EMPAT SINERGI UTAMA - DOKUMEN RESMI - TIDAK UNTUK DIKANDANGKAN',
+    order: 1,
+    isVisible: true
+  },
+  {
+    id: 'cert-2',
+    title: 'ISO 45001:2018 - Keselamatan & Kesehatan Kerja (K3)',
+    issuer: 'Badan Akreditasi K3 Internasional',
+    certNumber: 'OHSAS/2023/ESU-45019',
+    issueDate: '20 Mei 2023',
+    expiryDate: '19 Mei 2026',
+    desc: 'Sertifikasi kepatuhan sistem manajemen keselamatan dan kesehatan kerja guna menjamin perlindungan maksimal bagi seluruh personel lapangan dan aset mitra.',
+    imageUrl: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=900&q=80',
+    watermarkText: 'PT. EMPAT SINERGI UTAMA - DOKUMEN RESMI - TIDAK UNTUK DIKANDANGKAN',
+    order: 2,
+    isVisible: true
+  },
+  {
+    id: 'cert-3',
+    title: 'Surat Izin Operasional Badan Usaha Jasa Pengamanan (SIO-BUJP)',
+    issuer: 'Kepolisian Negara Republik Indonesia (MABES POLRI)',
+    certNumber: 'SIO/POLRI/BUJP/2023-9912',
+    issueDate: '10 Februari 2023',
+    expiryDate: '09 Februari 2028',
+    desc: 'Izin legal resmi dari Mabes POLRI untuk menyelenggarakan jasa penyediaan, pelatihan, dan pengelolaan personel satuan pengamanan (Satpam).',
+    imageUrl: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=900&q=80',
+    watermarkText: 'PT. EMPAT SINERGI UTAMA - DOKUMEN RESMI - TIDAK UNTUK DIKANDANGKAN',
+    order: 3,
+    isVisible: true
+  },
+  {
+    id: 'cert-4',
+    title: 'Surat Izin Penyalur Penyedia Jasa Pekerja (PPJP)',
+    issuer: 'Kementerian Ketenagakerjaan Republik Indonesia (KEMENAKER)',
+    certNumber: 'KEP.541/MENAKER/PPJP/2022',
+    issueDate: '18 Oktober 2022',
+    expiryDate: '17 Oktober 2027',
+    desc: 'Legalitas resmi kementerian ketenagakerjaan sebagai perusahaan alih daya yang memenuhi syarat UU Ketenagakerjaan dan perlindungan hak pekerja.',
+    imageUrl: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=900&q=80',
+    watermarkText: 'PT. EMPAT SINERGI UTAMA - DOKUMEN RESMI - TIDAK UNTUK DIKANDANGKAN',
+    order: 4,
+    isVisible: true
+  },
+  {
+    id: 'cert-5',
+    title: 'Sertifikat Keanggotaan ABUJAPI',
+    issuer: 'Asosiasi Badan Usaha Jasa Pengamanan Indonesia (ABUJAPI)',
+    certNumber: 'ABUJAPI/DKI/2023-01827',
+    issueDate: '05 Maret 2023',
+    expiryDate: '04 Maret 2026',
+    desc: 'Keanggotaan aktif dalam asosiasi resmi jasa pengamanan Indonesia yang menjamin standar kompetensi personel Satpam.',
+    imageUrl: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=900&q=80',
+    watermarkText: 'PT. EMPAT SINERGI UTAMA - DOKUMEN RESMI - TIDAK UNTUK DIKANDANGKAN',
+    order: 5,
+    isVisible: true
+  },
+  {
+    id: 'cert-6',
+    title: 'Sertifikat Keanggotaan APKLINDO',
+    issuer: 'Asosiasi Perusahaan Klining Servis Indonesia (APKLINDO)',
+    certNumber: 'APKLINDO/BANTEN/2023-5521',
+    issueDate: '12 Agustus 2023',
+    expiryDate: '11 Agustus 2026',
+    desc: 'Standarisasi metode pembersihan, higienitas fasilitas, dan tata kelola bahan kimia ramah lingkungan.',
+    imageUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=900&q=80',
+    watermarkText: 'PT. EMPAT SINERGI UTAMA - DOKUMEN RESMI - TIDAK UNTUK DIKANDANGKAN',
+    order: 6,
+    isVisible: true
+  }
+]
+
+export const defaultComproEmailTemplate: ComproEmailTemplate = {
+  subject: 'Company Profile Resmi - PT. Empat Sinergi Utama',
+  senderName: 'PT. Empat Sinergi Utama',
+  heading: 'Company Profile Resmi - PT. Empat Sinergi Utama',
+  bodyIntro: 'Terima kasih atas minat dan kepercayaan Anda kepada PT. Empat Sinergi Utama. Menindaklanjuti permintaan yang Anda ajukan, dokumen resmi Company Profile telah kami lampirkan langsung pada email ini.',
+  pdfUrl: '/compro.pdf',
+  footerText: 'PT Empat Sinergi Utama • Mitra Strategis Ketenagakerjaan & Fasilitas Korporat Terpadu',
+  body: `Yth. Bapak/Ibu {name},
+Dari {company},
+
+Terima kasih atas minat dan kepercayaan Anda kepada PT. Empat Sinergi Utama.
+
+Menindaklanjuti permintaan Company Profile yang Anda ajukan melalui situs web resmi kami, bersama pesan ini kami lampirkan langsung berkas dokumen Company Profile resmi PT. Empat Sinergi Utama (terlampir berkas PDF).
+
+Dokumen ini memuat informasi lengkap mengenai:
+- Profil dan legalitas resmi perusahaan
+- Portofolio layanan alih daya (Keamanan, Kebersihan, Tenaga Pendukung, Fasilitas)
+- Rekam jejak mitra dan sertifikasi mutu (ISO 9001, ISO 45001, SIO-BUJP, PPJP Kemenaker)
+- Skema kemitraan yang fleksibel, transparan, dan akuntabel
+
+Berkas dokumen resmi dapat Anda buka dan unduh langsung melalui lampiran (attachment) pada email ini.
+
+Tim konsultan kami siap berdiskusi lebih lanjut mengenai solusi operasional di perusahaan Anda. Silakan hubungi kami via balasan email ini atau WhatsApp di nomor hotline resmi kami.
+
+Salam hormat,
+Tim Kemitraan Korporat
+PT. Empat Sinergi Utama
+Hotline: +62 815 8480 5000`
+}
+
 export interface Database extends DatabaseContent {
   published: DatabaseContent
   notifications: NotificationItem[]
@@ -448,6 +627,12 @@ export interface Database extends DatabaseContent {
   hasDraft: boolean
   cmsUsers?: CmsUser[]
   careerTemplates?: CareerReplyTemplate[]
+  comproRequests?: ComproRequestItem[]
+  visitorLogs?: VisitorLogItem[]
+  dailyVisitorCounts?: DailyVisitorCount[]
+  activeSessions?: Record<string, ActiveSessionRecord>
+  loginAttempts?: Record<string, LoginAttemptRecord>
+  draftLock?: CmsDraftLock
 }
 
 const defaultDataContent: DatabaseContent = {
@@ -462,6 +647,9 @@ const defaultDataContent: DatabaseContent = {
     logoUrl: '',
     bgImageUrl: '',
     slideDuration: 3,
+    showLeadership: true,
+    showCertifications: true,
+    leadershipLabel: 'Profil Pimpinan',
   },
   sections: [
     {
@@ -603,7 +791,10 @@ const defaultDataContent: DatabaseContent = {
     inquiryTemplates: defaultInquiryTemplates
   },
   privacyPolicy: defaultPrivacyPolicy,
-  termsOfService: defaultTermsOfService
+  termsOfService: defaultTermsOfService,
+  directors: defaultDirectors,
+  certifications: defaultCertifications,
+  comproEmailTemplate: defaultComproEmailTemplate
 }
 
 const defaultData: Database = {
@@ -612,6 +803,10 @@ const defaultData: Database = {
   notifications: [],
   auditLogs: [],
   hasDraft: false,
+  comproRequests: [],
+  visitorLogs: [],
+  dailyVisitorCounts: [],
+  activeSessions: {},
 }
 
 function enrichContent(content: DatabaseContent): DatabaseContent {
@@ -647,7 +842,17 @@ function enrichContent(content: DatabaseContent): DatabaseContent {
       titleLine1: heroSec.titleLine1 || '',
       titleHighlight: heroSec.titleHighlight || '',
       description: heroSec.content || '',
-      showcaseCard: heroSec.showcaseCard || content.hero?.showcaseCard || defaultHeroShowcase,
+      showcaseCard: (() => {
+        const raw = heroSec.showcaseCard || content.hero?.showcaseCard || defaultHeroShowcase
+        return {
+          ...defaultHeroShowcase,
+          ...raw,
+          strengths: (raw.strengths && raw.strengths.length > 0) ? raw.strengths : defaultHeroShowcase.strengths,
+          metrics: (raw.metrics && raw.metrics.length > 0) ? raw.metrics : defaultHeroShowcase.metrics,
+          sectors: (raw.sectors && raw.sectors.length > 0) ? raw.sectors : defaultHeroShowcase.sectors,
+          roles: (raw.roles && raw.roles.length > 0) ? raw.roles : defaultHeroShowcase.roles,
+        }
+      })(),
     },
     about: {
       tag: aboutSec.subtitle || '',
@@ -749,7 +954,14 @@ function processParsedData(parsed: Partial<Database>): Database {
       secondaryColor: parsed.setting?.secondaryColor || parsed.published?.setting?.secondaryColor || defaultData.setting.secondaryColor,
       accentColor: parsed.setting?.accentColor || parsed.published?.setting?.accentColor || defaultData.setting.accentColor,
       loadingBgColor: parsed.setting?.loadingBgColor || parsed.published?.setting?.loadingBgColor || parsed.setting?.primaryColor || defaultData.setting.primaryColor,
-      slideDuration: parsed.setting?.slideDuration ?? parsed.published?.setting?.slideDuration ?? defaultData.setting.slideDuration
+      slideDuration: parsed.setting?.slideDuration ?? parsed.published?.setting?.slideDuration ?? defaultData.setting.slideDuration,
+      showLeadership: typeof (parsed.setting?.showLeadership ?? parsed.published?.setting?.showLeadership) === 'boolean'
+        ? (parsed.setting?.showLeadership ?? parsed.published?.setting?.showLeadership)
+        : true,
+      showCertifications: typeof (parsed.setting?.showCertifications ?? parsed.published?.setting?.showCertifications) === 'boolean'
+        ? (parsed.setting?.showCertifications ?? parsed.published?.setting?.showCertifications)
+        : true,
+      leadershipLabel: parsed.setting?.leadershipLabel || parsed.published?.setting?.leadershipLabel || 'Profil Pimpinan',
     },
     sections,
     services: ((parsed.services as ServiceItem[]) || (parsed.published?.services as ServiceItem[]) || defaultData.services).map((s: ServiceItem & { desc?: string }) => ({
@@ -766,10 +978,19 @@ function processParsedData(parsed: Partial<Database>): Database {
     careerTemplates: (parsed.careerTemplates && parsed.careerTemplates.length > 0) ? parsed.careerTemplates : defaultCareerTemplates,
     privacyPolicy: (parsed.privacyPolicy as LegalContent) || (parsed.published?.privacyPolicy as LegalContent) || defaultPrivacyPolicy,
     termsOfService: (parsed.termsOfService as LegalContent) || (parsed.published?.termsOfService as LegalContent) || defaultTermsOfService,
+    directors: (parsed.directors && parsed.directors.length > 0) ? parsed.directors : ((parsed.published?.directors && parsed.published.directors.length > 0) ? parsed.published.directors : defaultDirectors),
+    certifications: (parsed.certifications && parsed.certifications.length > 0) ? parsed.certifications : ((parsed.published?.certifications && parsed.published.certifications.length > 0) ? parsed.published.certifications : defaultCertifications),
+    comproEmailTemplate: parsed.comproEmailTemplate || parsed.published?.comproEmailTemplate || defaultComproEmailTemplate,
     published,
     notifications: parsed.notifications || [],
     auditLogs: parsed.auditLogs || [],
     hasDraft: typeof parsed.hasDraft === 'boolean' ? parsed.hasDraft : false,
+    comproRequests: parsed.comproRequests || [],
+    visitorLogs: parsed.visitorLogs || [],
+    dailyVisitorCounts: parsed.dailyVisitorCounts || [],
+    activeSessions: parsed.activeSessions || {},
+    loginAttempts: parsed.loginAttempts || {},
+    draftLock: parsed.draftLock,
   }
 
   const enriched = enrichContent(rawBase)
@@ -777,6 +998,25 @@ function processParsedData(parsed: Partial<Database>): Database {
     ...rawBase,
     ...enriched,
     published: enrichContent(rawBase.published)
+  }
+}
+
+// Helper aman untuk fs dan path agar bundler Turbopack / client tidak berusaha membundel node built-in
+function getFs() {
+  if (typeof window !== 'undefined') return null
+  try {
+    return eval("require('fs')").promises
+  } catch {
+    return null
+  }
+}
+
+function getPath() {
+  if (typeof window !== 'undefined') return null
+  try {
+    return eval("require('path')")
+  } catch {
+    return null
   }
 }
 
@@ -793,15 +1033,20 @@ export async function readDB(): Promise<Database> {
       if (!error && data && data.data) {
         return processParsedData(data.data as Partial<Database>)
       }
+      if (error) {
+        lastSupabaseFailure = Date.now()
+      }
     }
   } catch (err) {
+    lastSupabaseFailure = Date.now()
     console.warn('Supabase tidak dapat dihubungi saat readDB, menggunakan data lokal:', err)
   }
 
   // Fallback: baca dari data/db.json jika ada
   try {
-    const fs = (await import('fs')).promises
-    const path = await import('path')
+    const fs = getFs()
+    const path = getPath()
+    if (!fs || !path) return defaultData
     const localContent = await fs.readFile(path.join(process.cwd(), 'data/db.json'), 'utf-8')
     const parsed = JSON.parse(localContent)
     return processParsedData(parsed)
@@ -829,6 +1074,9 @@ export async function readPublishedDB(): Promise<DatabaseContent> {
     scheduledContents: db.scheduledContents || [],
     privacyPolicy: db.privacyPolicy || defaultPrivacyPolicy,
     termsOfService: db.termsOfService || defaultTermsOfService,
+    directors: db.directors || defaultDirectors,
+    certifications: db.certifications || defaultCertifications,
+    comproEmailTemplate: db.comproEmailTemplate || defaultComproEmailTemplate,
   })
 
   if (!pub.scheduledContents || pub.scheduledContents.length === 0) {
@@ -839,6 +1087,15 @@ export async function readPublishedDB(): Promise<DatabaseContent> {
   }
   if (!pub.termsOfService) {
     pub.termsOfService = db.termsOfService || defaultTermsOfService
+  }
+  if (!pub.directors || pub.directors.length === 0) {
+    pub.directors = db.directors || defaultDirectors
+  }
+  if (!pub.certifications || pub.certifications.length === 0) {
+    pub.certifications = db.certifications || defaultCertifications
+  }
+  if (!pub.comproEmailTemplate) {
+    pub.comproEmailTemplate = db.comproEmailTemplate || defaultComproEmailTemplate
   }
   if (!pub.footer) {
     pub.footer = { ...defaultDataContent.footer }
@@ -865,20 +1122,24 @@ async function writeSupabaseRaw(data: Database) {
       if (!error) {
         supabaseSuccess = true
       } else {
+        lastSupabaseFailure = Date.now()
         console.warn('Gagal menulis ke Supabase:', error.message)
       }
     }
   } catch (err) {
+    lastSupabaseFailure = Date.now()
     console.warn('Supabase tidak dapat dihubungi saat writeDB:', err)
   }
 
   // Selalu cadangkan / fallback ke data/db.json secara lokal
   try {
-    const fs = (await import('fs')).promises
-    const path = await import('path')
-    const dataDir = path.join(process.cwd(), 'data')
-    await fs.mkdir(dataDir, { recursive: true })
-    await fs.writeFile(path.join(dataDir, 'db.json'), JSON.stringify(data, null, 2), 'utf-8')
+    const fs = getFs()
+    const path = getPath()
+    if (fs && path) {
+      const dataDir = path.join(process.cwd(), 'data')
+      await fs.mkdir(dataDir, { recursive: true })
+      await fs.writeFile(path.join(dataDir, 'db.json'), JSON.stringify(data, null, 2), 'utf-8')
+    }
   } catch (fileErr) {
     console.error('Gagal menyimpan ke data/db.json:', fileErr)
     if (!supabaseSuccess) {
@@ -887,7 +1148,23 @@ async function writeSupabaseRaw(data: Database) {
   }
 }
 
-export async function writeDB(data: Database) {
+export async function writeDB(data: Database, customUser?: { id?: string; name?: string; username?: string }) {
+  if (customUser && customUser.id) {
+    if (data.draftLock && data.draftLock.userId !== customUser.id) {
+      const DRAFT_LOCK_TIMEOUT = 30 * 60 * 1000
+      if (Date.now() - data.draftLock.lastActive < DRAFT_LOCK_TIMEOUT) {
+        throw new Error(`Perubahan ditolak: Draft sedang dikunci oleh ${data.draftLock.userName}. Tunggu hingga pengguna tersebut selesai atau sesi berakhir.`)
+      }
+    }
+    data.draftLock = {
+      userId: customUser.id,
+      userName: customUser.name || 'User CMS',
+      userEmail: customUser.username,
+      lockedAt: data.draftLock?.userId === customUser.id ? data.draftLock.lockedAt : Date.now(),
+      lastActive: Date.now(),
+    }
+  }
+
   const payload = {
     ...data,
     hasDraft: true
@@ -895,8 +1172,19 @@ export async function writeDB(data: Database) {
   await writeSupabaseRaw(payload)
 }
 
-export async function deployDB(customUser?: { userName?: string; userEmail?: string; userRole?: string }) {
+export async function deployDB(customUser?: { userName?: string; userEmail?: string; userRole?: string; id?: string }) {
   const db = await readDB()
+
+  // Periksa draft lock (Point 8)
+  if (db.draftLock) {
+    const DRAFT_LOCK_TIMEOUT = 30 * 60 * 1000
+    if (Date.now() - db.draftLock.lastActive < DRAFT_LOCK_TIMEOUT) {
+      if (customUser?.id && db.draftLock.userId !== customUser.id && customUser.userRole?.toLowerCase() !== 'superadmin') {
+        throw new Error(`Deploy ditolak: Konten draft sedang dikunci dan dikerjakan oleh ${db.draftLock.userName}. Hanya pengguna tersebut yang dapat men-deploy perubahan.`)
+      }
+    }
+  }
+
   db.published = {
     setting: JSON.parse(JSON.stringify(db.setting)),
     sections: JSON.parse(JSON.stringify(db.sections)),
@@ -914,9 +1202,13 @@ export async function deployDB(customUser?: { userName?: string; userEmail?: str
     scheduledContents: JSON.parse(JSON.stringify(db.scheduledContents || [])),
     privacyPolicy: JSON.parse(JSON.stringify(db.privacyPolicy || defaultPrivacyPolicy)),
     termsOfService: JSON.parse(JSON.stringify(db.termsOfService || defaultTermsOfService)),
+    directors: JSON.parse(JSON.stringify(db.directors || defaultDirectors)),
+    certifications: JSON.parse(JSON.stringify(db.certifications || defaultCertifications)),
+    comproEmailTemplate: JSON.parse(JSON.stringify(db.comproEmailTemplate || defaultComproEmailTemplate)),
   }
   db.published = enrichContent(db.published)
   db.hasDraft = false
+  db.draftLock = undefined // Release draft lock on deploy!
 
   if (!db.notifications) db.notifications = []
   if (!db.auditLogs) db.auditLogs = []
@@ -946,9 +1238,9 @@ export async function deployDB(customUser?: { userName?: string; userEmail?: str
 
 export async function addNotification(
   message: string, 
-  type: 'CREATE' | 'UPDATE' | 'DELETE' | 'DEPLOY' | 'CAREER',
-  category: 'system' | 'career' = 'system',
-  customUser?: { userName?: string; userEmail?: string; userRole?: string }
+  type: 'CREATE' | 'UPDATE' | 'DELETE' | 'DEPLOY' | 'CAREER' | 'COMPRO' | 'VISITOR' | 'AUTH',
+  category: 'system' | 'visitor' | 'career' | 'compro' = 'system',
+  customUser?: { userName?: string; userEmail?: string; userRole?: string; ip?: string }
 ) {
   const db = await readDB()
   if (!db.notifications) db.notifications = []
@@ -963,6 +1255,7 @@ export async function addNotification(
     userName: customUser?.userName || 'Administrator',
     userEmail: customUser?.userEmail || 'admin',
     userRole: customUser?.userRole || 'Superadmin',
+    ip: customUser?.ip,
   }
 
   db.notifications.unshift({
@@ -974,7 +1267,16 @@ export async function addNotification(
   })
   db.auditLogs.unshift(logItem)
 
-  db.hasDraft = type !== 'DEPLOY'
+  // Otomasi Retensi 90 Hari & Backup TXT (Point 10)
+  try {
+    await archiveAndPurgeAuditLogs(db)
+  } catch (purgeErr) {
+    console.warn('Gagal memproses arsip audit log 90 hari:', purgeErr)
+  }
+
+  if (category === 'system' && type !== 'DEPLOY') {
+    db.hasDraft = true
+  }
   await writeSupabaseRaw(db)
 }
 
@@ -1002,20 +1304,31 @@ export async function uploadFile(
   fileName: string,
   contentType: string = 'image/jpeg'
 ): Promise<string> {
+  const { sanitizeFilename, validateImageBuffer } = await import('@/lib/fileSecurity')
+  const safeName = sanitizeFilename(fileName)
+
+  // Validasi biner berkas gambar demi mencegah Stored XSS / file script
+  const imgCheck = validateImageBuffer(buffer)
+  if (!imgCheck.valid) {
+    throw new Error(imgCheck.message || 'Berkas bukan gambar yang valid atau format ditolak demi alasan keamanan.')
+  }
+
+  const effectiveContentType = imgCheck.mime || contentType
+
   try {
     const client = getSupabase()
     if (client) {
       const { error } = await client.storage
         .from('uploads')
-        .upload(fileName, buffer, {
-          contentType,
+        .upload(safeName, buffer, {
+          contentType: effectiveContentType,
           upsert: true,
         })
 
       if (!error) {
         const { data: publicUrlData } = client.storage
           .from('uploads')
-          .getPublicUrl(fileName)
+          .getPublicUrl(safeName)
         return publicUrlData.publicUrl
       }
       console.warn('Gagal upload ke Supabase Storage, beralih ke penyimpanan lokal:', error.message)
@@ -1030,8 +1343,8 @@ export async function uploadFile(
     const path = await import('path')
     const uploadsDir = path.join(process.cwd(), 'public', 'uploads')
     await fs.mkdir(uploadsDir, { recursive: true })
-    await fs.writeFile(path.join(uploadsDir, fileName), buffer)
-    return `/uploads/${fileName}`
+    await fs.writeFile(path.join(uploadsDir, safeName), buffer)
+    return `/uploads/${safeName}`
   } catch (localErr) {
     console.error('Gagal upload ke penyimpanan lokal:', localErr)
     throw new Error('Gagal menyimpan file.')
@@ -1039,10 +1352,13 @@ export async function uploadFile(
 }
 
 export async function deleteFile(fileName: string): Promise<void> {
+  const { sanitizeFilename } = await import('@/lib/fileSecurity')
+  const safeName = sanitizeFilename(fileName)
+
   try {
     const client = getSupabase()
     if (client) {
-      await client.storage.from('uploads').remove([fileName])
+      await client.storage.from('uploads').remove([safeName])
     }
   } catch {
     // Abaikan jika Supabase offline
@@ -1051,9 +1367,221 @@ export async function deleteFile(fileName: string): Promise<void> {
   try {
     const fs = (await import('fs')).promises
     const path = await import('path')
-    const localPath = path.join(process.cwd(), 'public', 'uploads', fileName)
+    const localPath = path.join(process.cwd(), 'public', 'uploads', safeName)
     await fs.unlink(localPath)
   } catch {
     // Abaikan jika file tidak ditemukan
   }
+}
+
+// ==================== POINT 10: AUDIT LOG AUTO-PURGE (90 HARI) & TXT BACKUP ====================
+export async function archiveAndPurgeAuditLogs(db: Database): Promise<{ purgedCount: number; backupPath?: string }> {
+  if (!db.auditLogs || db.auditLogs.length === 0) return { purgedCount: 0 }
+  const NINETY_DAYS_MS = 90 * 24 * 60 * 60 * 1000
+  const cutoff = Date.now() - NINETY_DAYS_MS
+
+  const oldLogs = db.auditLogs.filter((l) => l.timestamp < cutoff)
+  if (oldLogs.length === 0) return { purgedCount: 0 }
+
+  const fs = getFs()
+  const path = getPath()
+  if (!fs || !path) return { purgedCount: 0 }
+  let backupPath: string | undefined
+  try {
+    const backupDir = path.join(process.cwd(), 'data', 'backups')
+    await fs.mkdir(backupDir, { recursive: true })
+
+    const now = new Date()
+    const dateStr = now.toISOString().split('T')[0]
+    const fileName = `audit_backup_${dateStr}_${Date.now()}.txt`
+    const filePath = path.join(backupDir, fileName)
+
+    let content = `================================================================================\n`
+    content += `ARSIF AUDIT LOG OTOMATIS (RETENSI 90 HARI) - PT EMPAT SINERGI UTAMA\n`
+    content += `Tanggal Backup: ${now.toLocaleString('id-ID')}\n`
+    content += `Jumlah Entri Terbackup: ${oldLogs.length} entri\n`
+    content += `================================================================================\n\n`
+
+    for (const log of oldLogs) {
+      const t = new Date(log.timestamp).toLocaleString('id-ID')
+      const user = log.userName ? `${log.userName} (${log.userRole || 'User'})` : 'Sistem'
+      content += `[${t}] [${(log.category || 'system').toUpperCase()}] [${log.type}] [${user}]\n`
+      content += `Pesan: ${log.message}\n`
+      if (log.ip) content += `IP: ${log.ip}\n`
+      content += `--------------------------------------------------------------------------------\n`
+    }
+
+    await fs.writeFile(filePath, content, 'utf-8')
+    backupPath = filePath
+  } catch {
+    // Pada environment read-only (seperti Vercel), lewati penulisan backup fisik
+  }
+
+  // Pangkas dari array database aktif
+  db.auditLogs = db.auditLogs.filter((l) => l.timestamp >= cutoff)
+  return { purgedCount: oldLogs.length, backupPath }
+}
+
+export function generateAuditLogTxt(logs: AuditLogItem[], dailyVisitors?: DailyVisitorCount[]): string {
+  let content = `================================================================================\n`
+  content += `EKSPOR RIWAYAT AUDIT LOG & STATISTIK - PT EMPAT SINERGI UTAMA\n`
+  content += `Tanggal Ekspor: ${new Date().toLocaleString('id-ID')}\n`
+  content += `Total Rekaman Log: ${logs.length} entri\n`
+  content += `================================================================================\n\n`
+
+  if (dailyVisitors && dailyVisitors.length > 0) {
+    content += `================================================================================\n`
+    content += `REKAPITULASI COUNTER PENGUNJUNG HARIAN (MAKSIMAL 30 HARI BERGULIR)\n`
+    content += `================================================================================\n`
+    for (const v of dailyVisitors) {
+      content += `Tanggal: ${v.date} | Total Kunjungan: ${v.count} kali\n`
+      if (v.paths) {
+        const breakdown = Object.entries(v.paths).map(([p, c]) => `${p}: ${c}`).join(', ')
+        content += `  Rincian Halaman: ${breakdown}\n`
+      }
+    }
+    content += `================================================================================\n\n`
+  }
+
+  content += `--------------------------------------------------------------------------------\n`
+  content += `LOG AKTIVITAS SISTEM, LAMARAN & COMPRO\n`
+  content += `--------------------------------------------------------------------------------\n`
+  for (const log of logs) {
+    const t = new Date(log.timestamp).toLocaleString('id-ID')
+    const user = log.userName ? `${log.userName} (${log.userRole || 'User'})` : 'Sistem'
+    content += `[${t}] [${(log.category || 'system').toUpperCase()}] [${log.type}] [${user}]\n`
+    content += `Pesan: ${log.message}\n`
+    if (log.ip) content += `IP: ${log.ip}\n`
+    content += `--------------------------------------------------------------------------------\n`
+  }
+  return content
+}
+
+// ==================== POINT 6 REVISI: VISITOR DAILY COUNTER (30 HARI BERGULIR) ====================
+export async function addVisitorLog(pathName: string, _ip?: string, _userAgent?: string, _referer?: string) {
+  void _ip
+  void _userAgent
+  void _referer
+  try {
+    if (pathName.startsWith('/admin') || pathName.startsWith('/api') || pathName.includes('.')) {
+      return
+    }
+
+    const db = await readDB()
+    if (!db.dailyVisitorCounts) db.dailyVisitorCounts = []
+
+    // Format tanggal hari ini WIB / Asia/Jakarta (YYYY-MM-DD)
+    const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta' }).format(new Date())
+
+    let todayEntry = db.dailyVisitorCounts.find((item) => item.date === todayStr)
+    if (!todayEntry) {
+      todayEntry = {
+        date: todayStr,
+        count: 1,
+        paths: { [pathName]: 1 }
+      }
+      db.dailyVisitorCounts.unshift(todayEntry)
+    } else {
+      todayEntry.count = (todayEntry.count || 0) + 1
+      if (!todayEntry.paths) todayEntry.paths = {}
+      todayEntry.paths[pathName] = (todayEntry.paths[pathName] || 0) + 1
+    }
+
+    // Urutkan tanggal terbaru ke terlama
+    db.dailyVisitorCounts.sort((a, b) => b.date.localeCompare(a.date))
+
+    // Batasi strictly 30 hari. Jika sudah hari ke-31, data hari pertama (terlama) otomatis tertimpa / terhapus
+    if (db.dailyVisitorCounts.length > 30) {
+      db.dailyVisitorCounts = db.dailyVisitorCounts.slice(0, 30)
+    }
+
+    // Bersihkan auditLogs dari catatan visitor individual lama agar database tetap ramping
+    if (db.auditLogs && db.auditLogs.some((l) => l.category === 'visitor' || l.type === 'VISITOR')) {
+      db.auditLogs = db.auditLogs.filter((l) => l.category !== 'visitor' && l.type !== 'VISITOR')
+    }
+    // Hapus visitorLogs lama jika ada
+    if (db.visitorLogs) {
+      delete db.visitorLogs
+    }
+
+    await writeSupabaseRaw(db)
+  } catch (err) {
+    console.warn('Gagal mencatat visitor counter:', err)
+  }
+}
+
+// ==================== POINT 8: DRAFT LOCK LOGIC ====================
+export function checkDraftLock(
+  user: { id: string; name: string },
+  db: Database
+): { isLockedByOther: boolean; lockHolderName?: string; lockedAt?: number } {
+  if (!db.draftLock) return { isLockedByOther: false }
+  const now = Date.now()
+  const DRAFT_LOCK_TIMEOUT = 30 * 60 * 1000 // 30 menit
+  if (now - db.draftLock.lastActive > DRAFT_LOCK_TIMEOUT) {
+    return { isLockedByOther: false }
+  }
+  if (db.draftLock.userId === user.id) {
+    return { isLockedByOther: false }
+  }
+  return {
+    isLockedByOther: true,
+    lockHolderName: db.draftLock.userName,
+    lockedAt: db.draftLock.lockedAt,
+  }
+}
+
+export function releaseDraftLock(db: Database) {
+  db.draftLock = undefined
+}
+
+// ==================== POINT 3 & 5: PERMINTAAN COMPRO PDF ====================
+export async function addComproRequest(item: Omit<ComproRequestItem, 'id' | 'createdAt' | 'status'>): Promise<ComproRequestItem> {
+  const db = await readDB()
+  if (!db.comproRequests) db.comproRequests = []
+  if (!db.auditLogs) db.auditLogs = []
+
+  const now = Date.now()
+  const newRequest: ComproRequestItem = {
+    ...item,
+    id: 'req-' + now + '-' + Math.random().toString(36).substring(2, 6),
+    status: 'sent',
+    createdAt: now,
+    sentAt: now,
+  }
+
+  db.comproRequests.unshift(newRequest)
+
+  // Catat ke Audit Log kategori 'compro' (Point 6)
+  db.auditLogs.unshift({
+    id: 'log-compro-' + now,
+    message: `Permintaan Compro PDF baru dari "${newRequest.name}" (${newRequest.company || 'Pribadi/Instansi'}). Email: ${newRequest.email}, Telp: ${newRequest.phone}.`,
+    timestamp: now,
+    type: 'COMPRO',
+    category: 'compro',
+    userName: newRequest.name,
+    userRole: 'Klien Pemohon',
+    ip: newRequest.ip,
+  })
+
+  await archiveAndPurgeAuditLogs(db)
+  await writeSupabaseRaw(db)
+  return newRequest
+}
+
+export async function updateComproRequestStatus(id: string, status: 'sent' | 'pending' | 'followed_up') {
+  const db = await readDB()
+  if (!db.comproRequests) return
+  const req = db.comproRequests.find((r) => r.id === id)
+  if (req) {
+    req.status = status
+    await writeSupabaseRaw(db)
+  }
+}
+
+export async function deleteComproRequest(id: string) {
+  const db = await readDB()
+  if (!db.comproRequests) return
+  db.comproRequests = db.comproRequests.filter((r) => r.id !== id)
+  await writeSupabaseRaw(db)
 }

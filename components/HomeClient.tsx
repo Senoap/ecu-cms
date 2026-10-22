@@ -111,8 +111,8 @@ export default function HomeClient({ db }: { db: DatabaseContent }) {
 
       {/* Overlay Tipis agar teks tetap kontras terbaca di atas background foto */}
       <div className={`absolute inset-0 pointer-events-none fixed z-0 ${
-        isDarkMode ? 'bg-black/85' : 'bg-[#F8F7F4]/90'
-      } backdrop-blur-[1px]`}></div>
+        isDarkMode ? 'bg-black/90' : 'bg-[#F9F8F5]/92'
+      }`}></div>
 
       <div className="relative z-10">
         {/* 1. NAVBAR */}
@@ -124,6 +124,9 @@ export default function HomeClient({ db }: { db: DatabaseContent }) {
           accentColor={setting.accentColor}
           loadingBgColor={setting.loadingBgColor}
           logoUrl={setting.logoUrl}
+          showLeadership={setting.showLeadership !== false}
+          showCertifications={setting.showCertifications !== false}
+          leadershipLabel={setting.leadershipLabel || 'Profil Pimpinan'}
         />
 
         {/* RENDER FALLBACK HANYA JIKA SEKSI KONTEN TERJADWAL BELUM ADA SAMA SEKALI DI CONFIG */}
@@ -150,48 +153,42 @@ export default function HomeClient({ db }: { db: DatabaseContent }) {
                 <section key={sec.id} id="home" className="min-h-screen w-full relative py-24 md:py-28 px-4 sm:px-8 md:px-20 bg-transparent border-b border-gray-200/10 overflow-hidden flex flex-col justify-center">
                   <div className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-5 pointer-events-none blur-3xl" style={{ backgroundColor: setting.primaryColor }}></div>
 
-                  <div className={`max-w-7xl mx-auto items-center relative z-10 w-full gap-10 md:gap-12 ${
+                  <div className={`max-w-7xl mx-auto items-center relative z-10 w-full gap-10 md:gap-14 ${
                     isShowcaseActive ? 'grid grid-cols-1 md:grid-cols-2' : 'flex flex-col max-w-4xl text-center mx-auto'
                   }`}>
-                    <div className={`space-y-6 ${!isShowcaseActive ? 'flex flex-col items-center' : ''}`}>
-                      <div className={`inline-flex items-center gap-2.5 px-3.5 sm:px-4 py-2 backdrop-blur-sm border rounded-full text-xs md:text-sm font-extrabold tracking-wider shadow-sm ${
-                        isDarkMode ? 'bg-gray-900/80 border-amber-500/30 text-amber-400' : 'bg-amber-50/90 border-amber-200/80 text-amber-800'
-                      }`}>
-                        <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
-                        <span className="truncate max-w-[280px] sm:max-w-none">{heroBadge}</span>
-                      </div>
-
+                    <div className={`space-y-6 sm:space-y-7 ${!isShowcaseActive ? 'flex flex-col items-center' : ''}`}>
                       {/* Judul Utama Responsif */}
                       <h1 className={`text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[1.1] sm:leading-[1.08] ${
                         isDarkMode ? 'text-white' : 'text-gray-900'
                       }`}>
                         {heroTitleLine1} <br />
-                        <span className="underline decoration-amber-500/30 decoration-wavy break-words" style={{ color: setting.primaryColor }}>
+                        <span className="inline-block break-words" style={{ color: setting.primaryColor }}>
                           {heroTitleHighlight}
                         </span>
                       </h1>
 
-                      {/* Deskripsi Hero */}
-                      <p className={`text-sm sm:text-base md:text-lg lg:text-xl leading-relaxed font-medium max-w-2xl backdrop-blur-sm p-4 sm:p-5 rounded-2xl border ${
-                        isDarkMode ? 'bg-gray-900/60 border-gray-800 text-gray-300' : 'bg-white/60 border-gray-200/60 text-gray-700'
+                      {/* Deskripsi Hero - Bersih & Tipografi Terbaca Nyaman */}
+                      <p className={`text-base sm:text-lg md:text-xl leading-relaxed font-normal max-w-2xl ${
+                        isDarkMode ? 'text-gray-300' : 'text-gray-600'
                       }`}>
                         {heroDesc}
                       </p>
 
-                      <div className={`flex flex-wrap gap-3 sm:gap-4 pt-2 ${!isShowcaseActive ? 'justify-center' : ''}`}>
+                      <div className={`flex flex-wrap gap-3.5 sm:gap-4 pt-1 ${!isShowcaseActive ? 'justify-center' : ''}`}>
                         <a
                           href="#services"
-                          className="px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl text-xs sm:text-sm md:text-base font-black text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 tracking-wide text-center active:scale-95"
+                          className="px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl text-xs sm:text-sm md:text-base font-black text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 tracking-wide text-center active:scale-95 flex items-center gap-2 group"
                           style={{ backgroundColor: setting.primaryColor }}
                         >
-                          {t.hero.exploreServices} &rarr;
+                          <span>{t.hero.exploreServices}</span>
+                          <span className="group-hover:translate-x-1 transition-transform">&rarr;</span>
                         </a>
                         <a
                           href="#about"
-                          className={`px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl text-xs sm:text-sm md:text-base font-black backdrop-blur-sm border transition-all duration-300 shadow-sm tracking-wide text-center active:scale-95 ${
+                          className={`px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl text-xs sm:text-sm md:text-base font-black border transition-all duration-300 shadow-sm tracking-wide text-center active:scale-95 ${
                             isDarkMode
                               ? 'bg-gray-900/80 border-gray-700 text-gray-200 hover:bg-gray-800 hover:border-gray-600'
-                              : 'bg-white/90 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'
+                              : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'
                           }`}
                         >
                           {t.hero.whoWeAre}
@@ -223,6 +220,9 @@ export default function HomeClient({ db }: { db: DatabaseContent }) {
                   key={sec.id}
                   about={about}
                   primaryColor={setting.primaryColor}
+                  showLeadership={setting.showLeadership !== false}
+                  showCertifications={setting.showCertifications !== false}
+                  leadershipLabel={setting.leadershipLabel || 'Profil Pimpinan'}
                 />
               )
 
@@ -253,16 +253,16 @@ export default function HomeClient({ db }: { db: DatabaseContent }) {
 
               return (
                 <section key={sec.id} id="portfolio" className="min-h-screen w-full py-24 md:py-28 px-4 sm:px-8 md:px-20 max-w-7xl mx-auto flex flex-col justify-center space-y-12">
-                  <div className="space-y-4 text-center">
-                    <span className={`inline-block text-xs md:text-sm font-black tracking-widest uppercase px-4 py-2 rounded-full border shadow-sm ${
+                  <div className="space-y-3.5 text-center">
+                    <span className={`inline-block text-xs md:text-sm font-extrabold tracking-widest uppercase px-3.5 py-1.5 rounded-xl border shadow-sm ${
                       isDarkMode ? 'bg-amber-500/10 border-amber-500/30 text-amber-400' : 'bg-amber-50 border-amber-200/60 text-amber-800'
                     }`}>
                       {portTag}
                     </span>
-                    <h2 className={`text-3xl sm:text-5xl md:text-6xl font-black tracking-tight ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <h2 className={`text-3xl sm:text-4xl md:text-5xl font-black tracking-tight ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       {portHeading}
                     </h2>
-                    <div className="w-20 h-1.5 bg-amber-500 mx-auto rounded-full mt-3"></div>
+                    <div className="w-12 h-1 bg-amber-500 mx-auto rounded-full mt-2.5"></div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
@@ -274,12 +274,12 @@ export default function HomeClient({ db }: { db: DatabaseContent }) {
                       return (
                         <div
                           key={item.id}
-                          className={`p-6 sm:p-8 rounded-3xl border shadow-xl transition-all duration-300 flex flex-col justify-between space-y-5 group ${
-                            isDarkMode ? 'bg-gray-900/80 border-gray-800 hover:border-gray-700' : 'bg-white border-gray-200/80 hover:shadow-2xl'
+                          className={`p-6 sm:p-7 rounded-2xl border shadow-sm transition-all duration-300 flex flex-col justify-between space-y-5 group hover:-translate-y-1 hover:shadow-xl ${
+                            isDarkMode ? 'bg-[#0E111A] border-gray-800 hover:border-gray-700' : 'bg-white border-gray-200/90 hover:border-amber-500/40'
                           }`}
                         >
                           {item.imageUrl && (
-                            <Link href={`/portfolio/${item.id}`} className="block h-52 sm:h-56 rounded-2xl overflow-hidden bg-gray-900 relative">
+                            <Link href={`/portfolio/${item.id}`} className="block h-52 sm:h-56 rounded-xl overflow-hidden bg-gray-900 relative">
                               <img src={item.imageUrl} alt={itemName} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
                             </Link>
@@ -299,7 +299,7 @@ export default function HomeClient({ db }: { db: DatabaseContent }) {
                             </p>
                           </div>
 
-                          <div className="pt-2 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                          <div className="pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
                             <Link
                               href={`/portfolio/${item.id}`}
                               className="inline-flex items-center gap-2 text-xs sm:text-sm font-black text-amber-700 dark:text-amber-400 hover:text-amber-600 dark:hover:text-amber-300 transition-all transform group-hover:translate-x-1"
@@ -350,21 +350,21 @@ export default function HomeClient({ db }: { db: DatabaseContent }) {
 
               return (
                 <section key={sec.id} id="career" className="min-h-screen w-full py-24 md:py-28 px-4 sm:px-8 md:px-20 max-w-7xl mx-auto flex flex-col justify-center space-y-12">
-                  <div className="space-y-4 text-center">
-                    <span className={`inline-block text-xs md:text-sm font-black tracking-widest uppercase px-4 py-2 rounded-full border shadow-sm ${
+                  <div className="space-y-3.5 text-center">
+                    <span className={`inline-block text-xs md:text-sm font-extrabold tracking-widest uppercase px-3.5 py-1.5 rounded-xl border shadow-sm ${
                       isDarkMode ? 'bg-amber-500/10 border-amber-500/30 text-amber-400' : 'bg-amber-50 border-amber-200/60 text-amber-800'
                     }`}>
                       {crTag}
                     </span>
-                    <h2 className={`text-3xl sm:text-5xl md:text-6xl font-black tracking-tight ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <h2 className={`text-3xl sm:text-4xl md:text-5xl font-black tracking-tight ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                       {crHeading}
                     </h2>
-                    <div className="w-20 h-1.5 bg-amber-500 mx-auto rounded-full mt-3"></div>
+                    <div className="w-12 h-1 bg-amber-500 mx-auto rounded-full mt-2.5"></div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
                     {activeJobs.length === 0 ? (
-                      <div className={`col-span-full text-center py-16 rounded-3xl border shadow-sm ${
+                      <div className={`col-span-full text-center py-16 rounded-2xl border shadow-sm ${
                         isDarkMode ? 'bg-gray-900/80 border-gray-800 text-gray-400' : 'bg-white border-gray-200 text-gray-600'
                       }`}>
                         <p className="text-base md:text-lg font-bold">{t.career.noJobs}</p>
@@ -378,8 +378,8 @@ export default function HomeClient({ db }: { db: DatabaseContent }) {
                         const jobLoc = (locale === 'en' && fb?.location) ? fb.location : job.location
 
                         return (
-                          <div key={job.id} className={`p-6 sm:p-8 md:p-10 rounded-3xl border shadow-xl transition-all duration-300 flex flex-col justify-between space-y-6 group ${
-                            isDarkMode ? 'bg-gray-900/80 border-gray-800 hover:border-gray-700' : 'bg-white border-gray-200/80 hover:shadow-2xl'
+                          <div key={job.id} className={`p-6 sm:p-8 rounded-2xl border shadow-sm transition-all duration-300 flex flex-col justify-between space-y-6 group hover:-translate-y-1 hover:shadow-xl ${
+                            isDarkMode ? 'bg-[#0E111A] border-gray-800 hover:border-gray-700' : 'bg-white border-gray-200/90 hover:border-amber-500/40'
                           }`}>
                             <div className="space-y-4">
                               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -657,7 +657,17 @@ export default function HomeClient({ db }: { db: DatabaseContent }) {
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-6 sm:gap-8">
+                      <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+                        {setting.showLeadership !== false && (
+                          <Link href="/leadership" className="hover:text-amber-300 transition-colors">
+                            {setting.leadershipLabel || 'Profil Pimpinan'}
+                          </Link>
+                        )}
+                        {setting.showCertifications !== false && (
+                          <Link href="/certifications" className="hover:text-amber-300 transition-colors">
+                            Sertifikasi
+                          </Link>
+                        )}
                         <Link href="/privacy-policy" className="hover:text-amber-300 transition-colors">{t.footer.privacyPolicy}</Link>
                         <Link href="/terms" className="hover:text-amber-300 transition-colors">{t.footer.termsOfService}</Link>
                       </div>

@@ -1,7 +1,7 @@
 // app/admin/layout.tsx
 import { redirect } from 'next/navigation'
 import { getCurrentUser, requireAdmin } from '@/lib/auth'
-import { readDB, clearNotifications, markNotificationsAsViewed } from '@/lib/db'
+import { readDB, clearNotifications, markNotificationsAsViewed, checkDraftLock } from '@/lib/db'
 import { deployWithAudit } from '@/lib/audit'
 import { revalidatePath } from 'next/cache'
 import AdminLayoutClient from './AdminLayoutClient'
@@ -44,6 +44,7 @@ export default async function AdminLayout({
   const sections = [...(db.sections || [])].sort((a, b) => a.order - b.order)
   const notifications = db.notifications || []
   const hasDraft = db.hasDraft ?? false
+  const isDraftLocked = checkDraftLock(user, db).isLockedByOther
 
   return (
     <AdminLayoutClient 
@@ -51,6 +52,8 @@ export default async function AdminLayout({
       sections={sections} 
       notifications={notifications} 
       hasDraft={hasDraft} 
+      draftLock={db.draftLock}
+      isLockedByOther={isDraftLocked}
       logoUrl={db.setting?.logoUrl}
       deployAction={handleDeployAction}
       clearNotificationsAction={handleClearNotifications}

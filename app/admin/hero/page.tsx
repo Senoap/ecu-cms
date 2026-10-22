@@ -20,22 +20,40 @@ async function updateHero(formData: FormData) {
   }
 
   // Memperbarui seksi 'hero' di dalam array sections agar konsisten
+  const updatedHero = {
+    badge: (formData.get('badge') as string) || '',
+    titleLine1: (formData.get('titleLine1') as string) || '',
+    titleHighlight: (formData.get('titleHighlight') as string) || '',
+    content: (formData.get('description') as string) || '',
+    showcaseCard: showcaseCard !== undefined ? showcaseCard : db.hero?.showcaseCard,
+  }
+
   db.sections = db.sections.map((sec) => {
     if (sec.id === 'hero') {
       return {
         ...sec,
-        badge: formData.get('badge') as string,
-        titleLine1: formData.get('titleLine1') as string,
-        titleHighlight: formData.get('titleHighlight') as string,
-        content: formData.get('description') as string,
-        showcaseCard: showcaseCard !== undefined ? showcaseCard : sec.showcaseCard,
+        ...updatedHero,
       }
     }
     return sec
   })
 
-  await writeDB(db)
-  await addNotification('Memperbarui konfigurasi Hero Section & Kartu Showcase Korporat.', 'UPDATE')
+  db.hero = {
+    ...db.hero,
+    badge: updatedHero.badge,
+    titleLine1: updatedHero.titleLine1,
+    titleHighlight: updatedHero.titleHighlight,
+    description: updatedHero.content,
+    showcaseCard: updatedHero.showcaseCard,
+  }
+
+  const currentUser = await requirePermission('hero')
+  await writeDB(db, currentUser)
+  await addNotification('Memperbarui konfigurasi Hero Section & Kartu Showcase Korporat.', 'UPDATE', 'system', {
+    userName: currentUser.name,
+    userRole: currentUser.role
+  })
+  revalidatePath('/admin', 'layout')
   revalidatePath('/admin/hero')
   revalidatePath('/')
 }

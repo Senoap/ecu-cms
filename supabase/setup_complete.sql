@@ -15,26 +15,22 @@ create table if not exists public.site_content (
 );
 alter table public.site_content add column if not exists updated_at timestamptz default now();
 
--- RLS untuk site_content
+-- RLS untuk site_content (HANYA service_role / backend server yang berhak akses demi keamanan data CMS)
 alter table public.site_content enable row level security;
 
--- Publik (anon & authenticated) dapat membaca konten website
+-- Cabut akses baca langsung publik untuk mencegah pengunduhan hash password & data sesi
+revoke select on public.site_content from anon, authenticated;
 drop policy if exists "Allow public read site_content" on public.site_content;
-create policy "Allow public read site_content"
-  on public.site_content for select
-  to anon, authenticated, service_role
-  using (true);
-
--- Backend (service_role) dapat mengupdate & insert konten website
 drop policy if exists "Allow service_role write site_content" on public.site_content;
-create policy "Allow service_role write site_content"
+drop policy if exists "Allow service_role all site_content" on public.site_content;
+
+create policy "Allow service_role all site_content"
   on public.site_content for all
   to service_role
   using (true)
   with check (true);
 
 grant all on public.site_content to service_role;
-grant select on public.site_content to anon, authenticated;
 
 
 -- 2. TABEL: applications (Menyimpan data lamaran karir / pelamar kerja)

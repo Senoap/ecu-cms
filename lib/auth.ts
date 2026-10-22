@@ -20,25 +20,35 @@ export interface CurrentAdminUser {
 export async function getCurrentUser(): Promise<CurrentAdminUser | null> {
   const store = await cookies()
   const token = store.get(SESSION_COOKIE)?.value
+  if (!token) return null
+
   const payload = await getSessionPayload(token)
   if (!payload) return null
 
-  // Jika master admin ('admin')
-  if (payload.userId === 'admin') {
-    return {
-      id: 'admin',
-      username: 'admin',
-      name: 'Administrator Master',
-      role: 'Superadmin',
-      isSuperadmin: true,
-      permissions: [...ALL_MENU_IDS],
-      canReceiveCareerNotif: true,
-    }
-  }
-
-  // Jika user dari database
   try {
     const db = await readDB()
+
+    // Validasi sesi aktif di database (Single-Device Session Enforcement)
+    const activeSession = db.activeSessions?.[payload.userId]
+    if (activeSession && activeSession.token !== token) {
+      // Token tidak cocok dengan sesi aktif terakhir (sudah login di perangkat lain atau di-logout)
+      return null
+    }
+
+    // Jika master admin ('admin')
+    if (payload.userId === 'admin') {
+      return {
+        id: 'admin',
+        username: 'admin',
+        name: 'Administrator Master',
+        role: 'Superadmin',
+        isSuperadmin: true,
+        permissions: [...ALL_MENU_IDS],
+        canReceiveCareerNotif: true,
+      }
+    }
+
+    // Jika user dari database
     const user = db.cmsUsers?.find((u) => u.id === payload.userId && u.isActive !== false)
     if (!user) return null
 
@@ -52,7 +62,8 @@ export async function getCurrentUser(): Promise<CurrentAdminUser | null> {
       permissions: isSuper ? [...ALL_MENU_IDS] : user.permissions,
       canReceiveCareerNotif: Boolean(user.canReceiveCareerNotif),
     }
-  } catch {
+  } catch (err) {
+    console.error('Gagal memvalidasi sesi pengguna di getCurrentUser:', err)
     return null
   }
 }

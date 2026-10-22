@@ -1,6 +1,6 @@
 // app/admin/career/CareerClient.tsx
 'use client'
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useMemo } from 'react'
 import { Save, Briefcase, MapPin, ClipboardList, Plus, X } from 'lucide-react'
 
 interface CareerItem {
@@ -33,9 +33,43 @@ export default function CareerClient({
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [editingCareer, setEditingCareer] = useState<CareerItem | null>(null)
 
-  // State untuk Header Section Form & Edit Modal Form
-  const [isHeaderDirty, setIsHeaderDirty] = useState(false)
-  const [isEditDirty, setIsEditDirty] = useState(false)
+  // Controlled states untuk Header Section
+  const [headerSubtitle, setHeaderSubtitle] = useState(careerSection.subtitle || '')
+  const [headerTitle, setHeaderTitle] = useState(careerSection.title || '')
+  const [headerContent, setHeaderContent] = useState(careerSection.content || '')
+  const [headerBaseline, setHeaderBaseline] = useState({
+    subtitle: careerSection.subtitle || '',
+    title: careerSection.title || '',
+    content: careerSection.content || '',
+  })
+
+  const isHeaderDirty = useMemo(() => {
+    return (
+      headerSubtitle !== headerBaseline.subtitle ||
+      headerTitle !== headerBaseline.title ||
+      headerContent !== headerBaseline.content
+    )
+  }, [headerSubtitle, headerTitle, headerContent, headerBaseline])
+
+  // Controlled states untuk Edit Modal
+  const [editTitle, setEditTitle] = useState('')
+  const [editLocation, setEditLocation] = useState('')
+  const [editType, setEditType] = useState('Full-time')
+  const [editDesc, setEditDesc] = useState('')
+  const [editRequirements, setEditRequirements] = useState('')
+  const [editIsActive, setEditIsActive] = useState(true)
+
+  const isEditDirty = useMemo(() => {
+    if (!editingCareer) return false
+    return (
+      editTitle !== (editingCareer.title || '') ||
+      editLocation !== (editingCareer.location || '') ||
+      editType !== (editingCareer.type || 'Full-time') ||
+      editDesc !== (editingCareer.desc || '') ||
+      editRequirements !== (editingCareer.requirements || '') ||
+      editIsActive !== (editingCareer.isActive !== false)
+    )
+  }, [editingCareer, editTitle, editLocation, editType, editDesc, editRequirements, editIsActive])
 
   // State Transisi & Toast
   const [isPending, startTransition] = useTransition()
@@ -44,12 +78,16 @@ export default function CareerClient({
 
   const handleOpenEdit = (career: CareerItem) => {
     setEditingCareer(career)
-    setIsEditDirty(false)
+    setEditTitle(career.title || '')
+    setEditLocation(career.location || '')
+    setEditType(career.type || 'Full-time')
+    setEditDesc(career.desc || '')
+    setEditRequirements(career.requirements || '')
+    setEditIsActive(career.isActive !== false)
   }
 
   const handleCloseEdit = () => {
     setEditingCareer(null)
-    setIsEditDirty(false)
   }
 
   return (
@@ -69,20 +107,15 @@ export default function CareerClient({
       </div>
 
       {/* Banner Header Halaman */}
-      <div className="flex justify-between items-center bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-xl relative overflow-hidden">
-        <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+      <div className="flex justify-between items-center bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-sm relative overflow-hidden">
         <div className="space-y-1 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 text-[10px] font-black uppercase tracking-widest mb-2">
-            <Briefcase className="w-3.5 h-3.5" />
-            <span>Recruitment Portal</span>
-          </div>
           <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight">Kelola Lowongan Kerja (Career)</h1>
           <p className="text-gray-600 dark:text-gray-400 text-xs md:text-sm font-medium">Atur informasi header seksi karir dan daftar posisi lowongan pekerjaan.</p>
         </div>
         <button
           type="button"
           onClick={() => setIsAddModalOpen(true)}
-          className="relative z-10 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-black text-xs uppercase tracking-widest px-6 py-3.5 rounded-2xl transition-all shadow-lg shadow-amber-950/50 cursor-pointer flex items-center gap-2"
+          className="relative z-10 bg-amber-600 hover:bg-amber-700 text-white font-black text-xs uppercase tracking-widest px-6 py-3.5 rounded-2xl transition-all shadow-sm cursor-pointer flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
           <span>Tambah Lowongan</span>
@@ -93,14 +126,19 @@ export default function CareerClient({
       <form action={async (formData) => {
         startTransition(async () => {
           await saveHeaderAction(formData)
-          setIsHeaderDirty(false)
+          setHeaderBaseline({
+            subtitle: headerSubtitle,
+            title: headerTitle,
+            content: headerContent,
+          })
           setToastMessage('Header Career berhasil disimpan ke Draft!')
           setShowSuccessToast(true)
           setTimeout(() => setShowSuccessToast(false), 4000)
         })
-      }} onChange={() => setIsHeaderDirty(true)} className="bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-xl space-y-6">
+      }} className="bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-xl space-y-6">
         <h2 className="text-base font-black text-amber-600 dark:text-amber-500 tracking-wide uppercase flex items-center gap-2">
-          <span>📝</span> Header & Judul Seksi Karir
+          <Briefcase className="w-4 h-4 text-amber-600 dark:text-amber-500" />
+          <span>Header & Judul Seksi Karir</span>
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -109,7 +147,8 @@ export default function CareerClient({
             <input 
               type="text" 
               name="subtitle" 
-              defaultValue={careerSection.subtitle || ''} 
+              value={headerSubtitle}
+              onChange={(e) => setHeaderSubtitle(e.target.value)}
               className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner" 
             />
           </div>
@@ -118,7 +157,8 @@ export default function CareerClient({
             <input 
               type="text" 
               name="title" 
-              defaultValue={careerSection.title || ''} 
+              value={headerTitle}
+              onChange={(e) => setHeaderTitle(e.target.value)}
               className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner" 
             />
           </div>
@@ -129,7 +169,8 @@ export default function CareerClient({
           <textarea 
             name="content" 
             rows={2} 
-            defaultValue={careerSection.content || ''} 
+            value={headerContent}
+            onChange={(e) => setHeaderContent(e.target.value)}
             className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner resize-none"
           ></textarea>
         </div>
@@ -142,7 +183,7 @@ export default function CareerClient({
             className={`px-6 h-12 rounded-full shadow-2xl flex items-center gap-2.5 text-xs font-black tracking-widest uppercase transition-all duration-300 border backdrop-blur-md cursor-pointer ${
               !isHeaderDirty || isPending
                 ? 'bg-gray-200 dark:bg-gray-900/40 text-gray-400 dark:text-gray-600 border-gray-300 dark:border-gray-800/40 cursor-not-allowed opacity-50 shadow-none'
-                : 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white border-amber-500/40 shadow-xl shadow-amber-900/50 hover:scale-105 animate-pulse'
+                : 'bg-amber-600 hover:bg-amber-700 text-white border-amber-600 shadow-md shadow-black/20 cursor-pointer'
             }`}
           >
             {isPending ? (
@@ -268,7 +309,7 @@ export default function CareerClient({
               <input type="hidden" name="isActive" value="true" />
               <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-800">
                 <button type="button" onClick={() => setIsAddModalOpen(false)} className="px-5 py-2.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-300 rounded-xl text-xs font-extrabold uppercase transition-colors cursor-pointer">Batal</button>
-                <button type="submit" disabled={isPending} className="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-black text-xs uppercase tracking-widest px-6 py-2.5 rounded-xl transition-all shadow-lg cursor-pointer">
+                <button type="submit" disabled={isPending} className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs uppercase tracking-widest px-6 py-2.5 rounded-xl transition-all shadow-sm cursor-pointer">
                   {isPending ? 'Menyimpan...' : 'Simpan Lowongan'}
                 </button>
               </div>
@@ -289,6 +330,7 @@ export default function CareerClient({
             </div>
 
             <form action={async (formData) => {
+              formData.set('isActive', editIsActive ? 'true' : 'false')
               startTransition(async () => {
                 await updateCareerAction(formData)
                 setToastMessage('Perubahan lowongan disimpan ke Draft!')
@@ -296,21 +338,42 @@ export default function CareerClient({
                 setTimeout(() => setShowSuccessToast(false), 4000)
                 handleCloseEdit()
               })
-            }} onChange={() => setIsEditDirty(true)} className="space-y-4">
+            }} className="space-y-4">
               <input type="hidden" name="id" value={editingCareer.id} />
+              <input type="hidden" name="isActive" value={editIsActive ? 'true' : 'false'} />
               
               <div className="space-y-1">
                 <label className="text-xs font-extrabold text-gray-700 dark:text-gray-400 uppercase">Posisi / Jabatan</label>
-                <input type="text" name="title" defaultValue={editingCareer.title} required className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-amber-500" />
+                <input 
+                  type="text" 
+                  name="title" 
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  required 
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-amber-500" 
+                />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="text-xs font-extrabold text-gray-700 dark:text-gray-400 uppercase">Lokasi Penempatan</label>
-                  <input type="text" name="location" defaultValue={editingCareer.location} required className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-amber-500" />
+                  <input 
+                    type="text" 
+                    name="location" 
+                    value={editLocation}
+                    onChange={(e) => setEditLocation(e.target.value)}
+                    required 
+                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-amber-500" 
+                  />
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs font-extrabold text-gray-700 dark:text-gray-400 uppercase">Tipe Pekerjaan</label>
-                  <select name="type" defaultValue={editingCareer.type} required className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-amber-500 cursor-pointer">
+                  <select 
+                    name="type" 
+                    value={editType}
+                    onChange={(e) => setEditType(e.target.value)}
+                    required 
+                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-amber-500 cursor-pointer"
+                  >
                     <option value="Full-time">Full-time</option>
                     <option value="Part-time">Part-time</option>
                   </select>
@@ -318,18 +381,50 @@ export default function CareerClient({
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-extrabold text-gray-700 dark:text-gray-400 uppercase">Deskripsi Pekerjaan</label>
-                <textarea name="desc" rows={2} defaultValue={editingCareer.desc} required className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-amber-500 resize-none"></textarea>
+                <textarea 
+                  name="desc" 
+                  rows={2} 
+                  value={editDesc}
+                  onChange={(e) => setEditDesc(e.target.value)}
+                  required 
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-amber-500 resize-none"
+                ></textarea>
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-extrabold text-gray-700 dark:text-gray-400 uppercase">Kualifikasi / Persyaratan</label>
-                <textarea name="requirements" rows={2} defaultValue={editingCareer.requirements} required className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-amber-500 resize-none"></textarea>
+                <textarea 
+                  name="requirements" 
+                  rows={2} 
+                  value={editRequirements}
+                  onChange={(e) => setEditRequirements(e.target.value)}
+                  required 
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-amber-500 resize-none"
+                ></textarea>
               </div>
 
-              <div className="flex items-center gap-2 pt-2">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" name="isActive" value="true" defaultChecked={editingCareer.isActive} className="rounded border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-amber-600 focus:ring-amber-500 w-4 h-4 cursor-pointer" />
-                  <span className="text-xs text-gray-700 dark:text-gray-300 font-bold">Status Aktif di Website</span>
-                </label>
+              <div className="pt-2 flex items-center justify-between p-3.5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950">
+                <div className="flex flex-col">
+                  <span className="text-xs font-bold text-gray-700 dark:text-gray-300">Status Aktif di Website</span>
+                  <span className={`text-[10px] font-bold ${editIsActive ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'}`}>
+                    {editIsActive ? 'Lowongan Dibuka' : 'Lowongan Ditutup'}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={editIsActive}
+                  aria-label="Toggle Status Aktif Lowongan"
+                  onClick={() => setEditIsActive(!editIsActive)}
+                  className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
+                    editIsActive ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-gray-700'
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md ring-0 transition duration-300 ease-in-out ${
+                      editIsActive ? 'translate-x-7' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
               </div>
 
               <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-800">
@@ -340,7 +435,7 @@ export default function CareerClient({
                   className={`px-6 py-2.5 rounded-xl text-xs font-black tracking-widest uppercase transition-all duration-300 border backdrop-blur-md cursor-pointer ${
                     !isEditDirty || isPending
                       ? 'bg-gray-200 dark:bg-gray-900/40 text-gray-400 dark:text-gray-600 border-gray-300 dark:border-gray-800/40 cursor-not-allowed opacity-50'
-                      : 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white border-amber-500/40 shadow-lg shadow-amber-900/50 hover:scale-105 animate-pulse'
+                      : 'bg-amber-600 hover:bg-amber-700 text-white border-amber-600 shadow-sm cursor-pointer'
                   }`}
                 >
                   {isPending ? 'Menyimpan...' : (

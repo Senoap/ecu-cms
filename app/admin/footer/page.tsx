@@ -62,13 +62,10 @@ async function updateFooter(formData: FormData) {
     return sec
   })
 
-  if (db.published) {
-    db.published.footer = db.footer
-  }
-
   await writeDB(db)
   await addNotification('Memperbarui informasi Footer, Media Sosial, dan Template Pertanyaan.', 'UPDATE')
   revalidatePath('/admin/footer')
+  revalidatePath('/admin', 'layout')
   revalidatePath('/')
 }
 

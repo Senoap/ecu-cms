@@ -5,17 +5,18 @@ import { addNotification as addDbNotification, deployDB as deployDbBase } from '
 
 export async function addAuditNotification(
   message: string,
-  type: 'CREATE' | 'UPDATE' | 'DELETE' | 'DEPLOY' | 'CAREER',
-  category: 'system' | 'career' = 'system'
+  type: 'CREATE' | 'UPDATE' | 'DELETE' | 'DEPLOY' | 'CAREER' | 'COMPRO' | 'VISITOR' | 'AUTH',
+  category: 'system' | 'visitor' | 'career' | 'compro' = 'system'
 ) {
-  let userInfo: { userName?: string; userEmail?: string; userRole?: string } | undefined
+  let userInfo: { userName?: string; userEmail?: string; userRole?: string; id?: string } | undefined
   try {
     const user = await getCurrentUser()
     if (user) {
       userInfo = {
         userName: user.name,
         userEmail: user.username,
-        userRole: user.role
+        userRole: user.role,
+        id: user.id,
       }
     }
   } catch {
@@ -25,14 +26,15 @@ export async function addAuditNotification(
 }
 
 export async function deployWithAudit() {
-  let userInfo: { userName?: string; userEmail?: string; userRole?: string } | undefined
+  let userInfo: { userName?: string; userEmail?: string; userRole?: string; id?: string } | undefined
   try {
     const user = await getCurrentUser()
     if (user) {
       userInfo = {
         userName: user.name,
         userEmail: user.username,
-        userRole: user.role
+        userRole: user.role,
+        id: user.id,
       }
     }
   } catch {

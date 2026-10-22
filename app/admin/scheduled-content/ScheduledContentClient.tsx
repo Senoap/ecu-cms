@@ -11,7 +11,7 @@ import {
   CheckCircle2, 
   X, 
   Image as ImageIcon,
-  Sparkles,
+  CalendarCheck,
   CalendarDays,
   SunMedium
 } from 'lucide-react'
@@ -171,7 +171,7 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
     if (todayStr > item.endDate) {
       return { label: 'Kedaluwarsa', color: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20' }
     }
-    return { label: 'Sedang Tayang', color: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 font-black animate-pulse' }
+    return { label: 'Sedang Tayang', color: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 font-black' }
   }
 
   const totalLive = contents.filter((c) => c.isActive && todayStr >= c.startDate && todayStr <= c.endDate).length
@@ -197,7 +197,7 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
         <button
           type="button"
           onClick={() => openAddModal('daily')}
-          className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs font-black uppercase tracking-wider text-white bg-gradient-to-r from-amber-500 to-amber-700 hover:from-amber-400 hover:to-amber-600 shadow-lg shadow-amber-900/30 transition-all transform hover:-translate-y-0.5 cursor-pointer shrink-0"
+          className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs font-black uppercase tracking-wider text-white bg-amber-600 hover:bg-amber-700 shadow-sm transition-all transform hover:-translate-y-0.5 cursor-pointer shrink-0"
         >
           <Plus className="w-4 h-4" />
           <span>Tambah Konten</span>
@@ -285,7 +285,7 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
               : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
           }`}
         >
-          <Sparkles className="w-3.5 h-3.5" />
+          <CalendarCheck className="w-3.5 h-3.5" />
           <span>Bulanan / Monthly ({contents.filter((c) => c.type === 'monthly').length})</span>
         </button>
       </div>
@@ -325,7 +325,7 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
                         />
                       ) : (
                         <div className="w-16 h-16 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-400 shrink-0">
-                          {item.type === 'daily' ? <SunMedium className="w-7 h-7 text-amber-500" /> : <Sparkles className="w-7 h-7 text-indigo-500" />}
+                          {item.type === 'daily' ? <SunMedium className="w-7 h-7 text-amber-500" /> : <CalendarCheck className="w-7 h-7 text-indigo-500" />}
                         </div>
                       )}
                       <div>
@@ -355,17 +355,22 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
                     </div>
 
                     <div className="flex items-center gap-2 self-end sm:self-start">
+                      {/* Apple Switch Toggle Konten */}
                       <button
                         type="button"
+                        role="switch"
+                        aria-checked={item.isActive}
                         onClick={() => handleToggleActive(item.id)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-colors cursor-pointer ${
-                          item.isActive
-                            ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20'
-                            : 'bg-gray-100 dark:bg-gray-800 text-gray-500 border-gray-300 dark:border-gray-700 hover:bg-gray-200'
+                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
+                          item.isActive ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-gray-700'
                         }`}
                         title={item.isActive ? 'Nonaktifkan konten' : 'Aktifkan konten'}
                       >
-                        {item.isActive ? '● Aktif' : '○ Non-aktif'}
+                        <span
+                          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-300 ease-in-out ${
+                            item.isActive ? 'translate-x-5' : 'translate-x-0'
+                          }`}
+                        />
                       </button>
                       <button
                         type="button"
@@ -454,7 +459,7 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
                         : 'border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                     }`}
                   >
-                    <Sparkles className="w-4 h-4" />
+                    <CalendarCheck className="w-4 h-4" />
                     <span>Konten Bulanan (Monthly)</span>
                   </button>
                 </div>
@@ -558,22 +563,33 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
               </div>
 
               {/* STATUS AKTIF */}
-              <div className="flex items-center justify-between p-3.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950">
+              <div className="flex items-center justify-between p-3.5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950">
                 <div>
                   <div className="text-xs font-bold text-gray-700 dark:text-gray-300">Status Tayang Konten</div>
                   <div className="text-[10px] text-gray-400">Jika dinonaktifkan, konten tidak akan tampil di website publik meskipun tanggal masih berlaku.</div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setFormIsActive(!formIsActive)}
-                  className={`px-3 py-1 rounded-full text-xs font-extrabold cursor-pointer transition-colors ${
-                    formIsActive 
-                      ? 'bg-emerald-500 text-white' 
-                      : 'bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-                  }`}
-                >
-                  {formIsActive ? 'AKTIF' : 'NON-AKTIF'}
-                </button>
+                <div className="flex items-center gap-3 shrink-0">
+                  <span className={`text-[11px] font-black uppercase tracking-wider ${
+                    formIsActive ? 'text-emerald-700 dark:text-emerald-400' : 'text-gray-400'
+                  }`}>
+                    {formIsActive ? 'Aktif' : 'Nonaktif'}
+                  </span>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={formIsActive}
+                    onClick={() => setFormIsActive(!formIsActive)}
+                    className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
+                      formIsActive ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-gray-700'
+                    }`}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md ring-0 transition duration-300 ease-in-out ${
+                        formIsActive ? 'translate-x-7' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
               </div>
 
               {/* ACTION BUTTONS */}
@@ -588,7 +604,7 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider text-white bg-gradient-to-r from-amber-500 to-amber-700 hover:from-amber-400 hover:to-amber-600 shadow-lg shadow-amber-900/30 transition-all cursor-pointer disabled:opacity-50"
+                  className="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider text-white bg-amber-600 hover:bg-amber-700 shadow-sm transition-all cursor-pointer disabled:opacity-50"
                 >
                   {isPending ? 'Menyimpan...' : (editingItem ? 'Simpan Perubahan' : 'Jadwalkan Konten')}
                 </button>

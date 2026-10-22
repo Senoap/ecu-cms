@@ -19,14 +19,12 @@ export async function updatePrivacyPolicyAction(formData: FormData) {
   }
 
   db.privacyPolicy = privacyPolicy
-  if (db.published) {
-    db.published.privacyPolicy = privacyPolicy
-  }
 
   await writeDB(db)
   await addNotification(`Memperbarui halaman Kebijakan Privasi.`, 'UPDATE', 'system')
 
   revalidatePath('/admin/legal')
+  revalidatePath('/admin', 'layout')
   revalidatePath('/privacy-policy')
   revalidatePath('/')
 }
@@ -45,14 +43,12 @@ export async function updateTermsAction(formData: FormData) {
   }
 
   db.termsOfService = termsOfService
-  if (db.published) {
-    db.published.termsOfService = termsOfService
-  }
 
   await writeDB(db)
   await addNotification(`Memperbarui halaman Syarat & Ketentuan.`, 'UPDATE', 'system')
 
   revalidatePath('/admin/legal')
+  revalidatePath('/admin', 'layout')
   revalidatePath('/terms')
   revalidatePath('/')
 }

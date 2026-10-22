@@ -196,7 +196,7 @@ export default function UsersClient({ users, masterAdminUsername }: UsersClientP
         <button
           type="button"
           onClick={openAddModal}
-          className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs font-black uppercase tracking-wider text-white bg-gradient-to-r from-amber-500 to-amber-700 hover:from-amber-400 hover:to-amber-600 shadow-lg shadow-amber-900/30 transition-all transform hover:-translate-y-0.5 cursor-pointer shrink-0"
+          className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs font-black uppercase tracking-wider text-white bg-amber-600 hover:bg-amber-700 shadow-sm transition-all transform hover:-translate-y-0.5 cursor-pointer shrink-0"
         >
           <Plus className="w-4 h-4" />
           <span>Tambah Pengguna</span>
@@ -251,16 +251,16 @@ export default function UsersClient({ users, masterAdminUsername }: UsersClientP
       </div>
 
       {/* MASTER ADMIN CARD */}
-      <div className="p-5 rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-500/5 via-amber-600/5 to-transparent dark:bg-amber-950/20 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-5 rounded-2xl border border-amber-500/30 bg-amber-50/50 dark:bg-amber-950/20 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700 text-white font-black flex items-center justify-center text-lg shadow-md shrink-0">
+          <div className="w-12 h-12 rounded-2xl bg-amber-700 text-white font-black flex items-center justify-center text-lg shadow-sm shrink-0">
             ADM
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h3 className="font-black text-base text-gray-900 dark:text-white">Administrator Master</h3>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-amber-500 text-gray-950">
-                Superadmin
+              <span className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                · Superadmin
               </span>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
@@ -326,17 +326,22 @@ export default function UsersClient({ users, masterAdminUsername }: UsersClientP
                   </div>
 
                   <div className="flex items-center gap-2 self-end sm:self-start">
+                    {/* Apple Switch Toggle Akun */}
                     <button
                       type="button"
+                      role="switch"
+                      aria-checked={u.isActive}
                       onClick={() => handleToggleStatus(u.id)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-colors cursor-pointer ${
-                        u.isActive
-                          ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20'
-                          : 'bg-gray-100 dark:bg-gray-800 text-gray-500 border-gray-300 dark:border-gray-700 hover:bg-gray-200'
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
+                        u.isActive ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-gray-700'
                       }`}
                       title={u.isActive ? 'Nonaktifkan akun' : 'Aktifkan akun'}
                     >
-                      {u.isActive ? '● Aktif' : '○ Non-aktif'}
+                      <span
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-300 ease-in-out ${
+                          u.isActive ? 'translate-x-5' : 'translate-x-0'
+                        }`}
+                      />
                     </button>
                     <button
                       type="button"
@@ -503,19 +508,30 @@ export default function UsersClient({ users, masterAdminUsername }: UsersClientP
               </div>
 
               {/* STATUS AKTIF */}
-              <div className="flex items-center justify-between p-3.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950">
+              <div className="flex items-center justify-between p-3.5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950">
                 <span className="text-xs font-bold text-gray-700 dark:text-gray-300">Status Akun Aktif</span>
-                <button
-                  type="button"
-                  onClick={() => setFormIsActive(!formIsActive)}
-                  className={`px-3 py-1 rounded-full text-xs font-extrabold cursor-pointer transition-colors ${
-                    formIsActive 
-                      ? 'bg-emerald-500 text-white' 
-                      : 'bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-                  }`}
-                >
-                  {formIsActive ? 'AKTIF' : 'NON-AKTIF'}
-                </button>
+                <div className="flex items-center gap-3">
+                  <span className={`text-[11px] font-black uppercase tracking-wider ${
+                    formIsActive ? 'text-emerald-700 dark:text-emerald-400' : 'text-gray-400'
+                  }`}>
+                    {formIsActive ? 'Aktif' : 'Nonaktif'}
+                  </span>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={formIsActive}
+                    onClick={() => setFormIsActive(!formIsActive)}
+                    className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
+                      formIsActive ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-gray-700'
+                    }`}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md ring-0 transition duration-300 ease-in-out ${
+                        formIsActive ? 'translate-x-7' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
               </div>
 
               {/* CHECKLIST HAK AKSES MENU (POINT 1) */}
@@ -581,7 +597,7 @@ export default function UsersClient({ users, masterAdminUsername }: UsersClientP
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider text-white bg-gradient-to-r from-amber-500 to-amber-700 hover:from-amber-400 hover:to-amber-600 shadow-lg shadow-amber-900/30 transition-all cursor-pointer disabled:opacity-50"
+                  className="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider text-white bg-amber-600 hover:bg-amber-700 shadow-sm transition-all cursor-pointer disabled:opacity-50"
                 >
                   {isPending ? 'Menyimpan...' : (editingUser ? 'Simpan Perubahan' : 'Buat Pengguna')}
                 </button>

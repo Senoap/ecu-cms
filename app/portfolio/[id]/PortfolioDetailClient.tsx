@@ -46,7 +46,7 @@ export default function PortfolioDetailClient({
         logoUrl={setting.logoUrl}
       />
 
-      <main className="max-w-6xl mx-auto py-16 sm:py-24 px-4 sm:px-6 md:px-8 space-y-12">
+      <main className="max-w-6xl mx-auto pt-24 pb-16 sm:pt-28 sm:pb-24 px-4 sm:px-6 md:px-8 space-y-12">
         {/* Navigation Breadcrumb */}
         <div>
           <Link

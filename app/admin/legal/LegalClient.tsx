@@ -1,7 +1,7 @@
 // app/admin/legal/LegalClient.tsx
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useMemo } from 'react'
 import { ShieldCheck, FileText, Save, ExternalLink, Calendar, CheckCircle2 } from 'lucide-react'
 import type { LegalContent } from '@/lib/db'
 import { updatePrivacyPolicyAction, updateTermsAction } from './actions'
@@ -21,9 +21,37 @@ export default function LegalClient({ initialPrivacy, initialTerms }: LegalClien
   const [privacyDate, setPrivacyDate] = useState(initialPrivacy.lastUpdated)
   const [privacyContent, setPrivacyContent] = useState(initialPrivacy.content)
 
+  const [privacyBaseline, setPrivacyBaseline] = useState({
+    title: initialPrivacy.title,
+    lastUpdated: initialPrivacy.lastUpdated,
+    content: initialPrivacy.content,
+  })
+
+  const isPrivacyDirty = useMemo(() => {
+    return (
+      privacyTitle !== privacyBaseline.title ||
+      privacyDate !== privacyBaseline.lastUpdated ||
+      privacyContent !== privacyBaseline.content
+    )
+  }, [privacyTitle, privacyDate, privacyContent, privacyBaseline])
+
   const [termsTitle, setTermsTitle] = useState(initialTerms.title)
   const [termsDate, setTermsDate] = useState(initialTerms.lastUpdated)
   const [termsContent, setTermsContent] = useState(initialTerms.content)
+
+  const [termsBaseline, setTermsBaseline] = useState({
+    title: initialTerms.title,
+    lastUpdated: initialTerms.lastUpdated,
+    content: initialTerms.content,
+  })
+
+  const isTermsDirty = useMemo(() => {
+    return (
+      termsTitle !== termsBaseline.title ||
+      termsDate !== termsBaseline.lastUpdated ||
+      termsContent !== termsBaseline.content
+    )
+  }, [termsTitle, termsDate, termsContent, termsBaseline])
 
   const showToast = (msg: string) => {
     setToastMsg(msg)
@@ -35,6 +63,11 @@ export default function LegalClient({ initialPrivacy, initialTerms }: LegalClien
     const formData = new FormData(e.currentTarget)
     startTransition(async () => {
       await updatePrivacyPolicyAction(formData)
+      setPrivacyBaseline({
+        title: privacyTitle,
+        lastUpdated: privacyDate,
+        content: privacyContent,
+      })
       showToast('Kebijakan Privasi berhasil disimpan!')
     })
   }
@@ -44,6 +77,11 @@ export default function LegalClient({ initialPrivacy, initialTerms }: LegalClien
     const formData = new FormData(e.currentTarget)
     startTransition(async () => {
       await updateTermsAction(formData)
+      setTermsBaseline({
+        title: termsTitle,
+        lastUpdated: termsDate,
+        content: termsContent,
+      })
       showToast('Syarat & Ketentuan berhasil disimpan!')
     })
   }
@@ -65,13 +103,8 @@ export default function LegalClient({ initialPrivacy, initialTerms }: LegalClien
 
       <div className="max-w-4xl mx-auto space-y-8">
         {/* HEADER BANNER */}
-        <div className="bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-xl relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div className="bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-sm relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="space-y-1 relative z-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 text-[10px] font-black uppercase tracking-widest mb-2">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Legal & Compliance</span>
-            </div>
             <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
               Kebijakan Privasi & Syarat Ketentuan
             </h1>
@@ -178,8 +211,12 @@ export default function LegalClient({ initialPrivacy, initialTerms }: LegalClien
             <div className="flex justify-end pt-2">
               <button
                 type="submit"
-                disabled={isPending}
-                className="px-6 py-3 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-black text-xs uppercase tracking-wider transition-all duration-300 shadow-lg shadow-amber-950/40 hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                disabled={!isPrivacyDirty || isPending}
+                className={`px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${
+                  !isPrivacyDirty || isPending
+                    ? 'bg-gray-200 dark:bg-gray-900/40 text-gray-400 dark:text-gray-600 border border-gray-300 dark:border-gray-800/40 cursor-not-allowed opacity-50 shadow-none'
+                    : 'bg-amber-600 hover:bg-amber-700 text-white shadow-lg shadow-amber-950/40 hover:scale-105 active:scale-95 cursor-pointer'
+                }`}
               >
                 <Save className="w-4 h-4" />
                 <span>{isPending ? 'Menyimpan...' : 'Simpan Kebijakan Privasi'}</span>
@@ -245,8 +282,12 @@ export default function LegalClient({ initialPrivacy, initialTerms }: LegalClien
             <div className="flex justify-end pt-2">
               <button
                 type="submit"
-                disabled={isPending}
-                className="px-6 py-3 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-black text-xs uppercase tracking-wider transition-all duration-300 shadow-lg shadow-amber-950/40 hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                disabled={!isTermsDirty || isPending}
+                className={`px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${
+                  !isTermsDirty || isPending
+                    ? 'bg-gray-200 dark:bg-gray-900/40 text-gray-400 dark:text-gray-600 border border-gray-300 dark:border-gray-800/40 cursor-not-allowed opacity-50 shadow-none'
+                    : 'bg-amber-600 hover:bg-amber-700 text-white shadow-lg shadow-amber-950/40 hover:scale-105 active:scale-95 cursor-pointer'
+                }`}
               >
                 <Save className="w-4 h-4" />
                 <span>{isPending ? 'Menyimpan...' : 'Simpan Syarat & Ketentuan'}</span>

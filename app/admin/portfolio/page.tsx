@@ -35,6 +35,7 @@ export default async function AdminPortfolioPage() {
     await writeDB(db)
     await addNotification('Memperbarui Header & Catatan Portfolio Section.', 'UPDATE')
     revalidatePath('/admin/portfolio')
+    revalidatePath('/admin', 'layout')
     revalidatePath('/')
   }
 
@@ -67,6 +68,7 @@ export default async function AdminPortfolioPage() {
     await writeDB(db)
     await addNotification(`Menambahkan portofolio klien: "${name}".`, 'CREATE')
     revalidatePath('/admin/portfolio')
+    revalidatePath('/admin', 'layout')
     revalidatePath('/')
   }
 
@@ -97,6 +99,7 @@ export default async function AdminPortfolioPage() {
       await writeDB(db)
       await addNotification(`Memperbarui portofolio: "${name}".`, 'UPDATE')
       revalidatePath('/admin/portfolio')
+      revalidatePath('/admin', 'layout')
       revalidatePath('/')
     }
   }
@@ -117,6 +120,7 @@ export default async function AdminPortfolioPage() {
     await writeDB(db)
     await addNotification('Menghapus item dari portofolio.', 'DELETE')
     revalidatePath('/admin/portfolio')
+    revalidatePath('/admin', 'layout')
     revalidatePath('/')
   }
 

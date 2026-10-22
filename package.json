@@ -10,6 +10,8 @@
     "build:stg": "node scripts/start-with-env.mjs stg build",
     "build:prod": "node scripts/start-with-env.mjs prod build",
     "start": "next start",
+    "start:stg": "node scripts/start-with-env.mjs stg start",
+    "start:prod": "node scripts/start-with-env.mjs prod start",
     "lint": "eslint",
     "test:e2e": "node scratch-test/e2e.mjs",
     "db:migrate": "node scripts/migrate-to-supabase.mjs stg",

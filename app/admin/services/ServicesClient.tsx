@@ -1,7 +1,7 @@
 // app/admin/services/ServicesClient.tsx
 'use client'
 import { useState, useMemo, useTransition } from 'react'
-import { Save } from 'lucide-react'
+import { Save, Briefcase, Layers, Plus } from 'lucide-react'
 import { ServiceItem } from '@/lib/db'
 import { AVAILABLE_ICONS, DynamicIcon } from '@/components/DynamicIcon'
 import { addService, updateService, deleteService, deleteServiceImage } from './actions'
@@ -155,19 +155,36 @@ export default function ServicesClient({ initialServices }: { initialServices: S
   const [editServiceIcon, setEditServiceIcon] = useState('Briefcase')
   const [iconSearchQuery, setIconSearchQuery] = useState('')
 
-  // State untuk Draft & Transisi
-  const [isDirty, setIsDirty] = useState(false)
+  // Controlled states untuk Edit Service Modal
+  const [editTitle, setEditTitle] = useState('')
+  const [editDesc, setEditDesc] = useState('')
+  const [editContent, setEditContent] = useState('')
+
+  // State Transisi & Toast
   const [isPending, startTransition] = useTransition()
   const [showSuccessToast, setShowSuccessToast] = useState(false)
   const [toastMessage, setToastMessage] = useState('Berhasil Disimpan ke Draft!')
 
+  const isDirty = useMemo(() => {
+    if (!editingService) return false
+    return (
+      editTitle !== (editingService.title || '') ||
+      editDesc !== (editingService.desc || '') ||
+      editContent !== (editingService.content || editingService.desc || '') ||
+      editServiceIcon !== (editingService.icon || 'Briefcase') ||
+      previewUrls.length > 0
+    )
+  }, [editingService, editTitle, editDesc, editContent, editServiceIcon, previewUrls])
+
   const handleOpenEdit = (srv: ServiceItem) => {
     setEditingService(srv)
+    setEditTitle(srv.title || '')
+    setEditDesc(srv.desc || '')
+    setEditContent(srv.content || srv.desc || '')
     setEditServiceIcon(srv.icon || 'Briefcase')
     setPreviewUrls([])
     setApplyWatermark(true)
     setWatermarkCaption('PT. EMPAT SINERGI UTAMA')
-    setIsDirty(false)
     setIsModalOpen(true)
   }
 
@@ -175,7 +192,6 @@ export default function ServicesClient({ initialServices }: { initialServices: S
     setIsModalOpen(false)
     setEditingService(null)
     setPreviewUrls([])
-    setIsDirty(false)
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -183,7 +199,6 @@ export default function ServicesClient({ initialServices }: { initialServices: S
       const filesArray = Array.from(e.target.files)
       const urls = filesArray.map(file => URL.createObjectURL(file))
       setPreviewUrls(urls)
-      setIsDirty(true)
     }
   }
 
@@ -212,7 +227,6 @@ export default function ServicesClient({ initialServices }: { initialServices: S
       setNewServiceIcon(iconValue)
     } else {
       setEditServiceIcon(iconValue)
-      setIsDirty(true)
     }
     setIsIconModalOpen(false)
     setIconSearchQuery('')
@@ -241,12 +255,8 @@ export default function ServicesClient({ initialServices }: { initialServices: S
         </div>
       </div>
 
-      <div className="flex justify-between items-center bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-xl relative overflow-hidden transition-colors">
-        <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+      <div className="flex justify-between items-center bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-sm relative overflow-hidden transition-colors">
         <div className="space-y-1 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-[10px] font-black uppercase tracking-widest mb-2">
-            <span>💼 Section Management</span>
-          </div>
           <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight">Kelola Layanan (Services)</h1>
           <p className="text-gray-600 dark:text-gray-400 text-xs md:text-sm font-medium">Tambah, edit isi konten, ikon visual, dan foto galeri dengan opsi watermark diagonal.</p>
         </div>
@@ -255,7 +265,8 @@ export default function ServicesClient({ initialServices }: { initialServices: S
       {/* Form Tambah Layanan Baru */}
       <div className="bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-xl space-y-6 transition-colors">
         <h2 className="text-base font-black text-amber-600 dark:text-amber-500 tracking-wide uppercase flex items-center gap-2">
-          <span>➕</span> Tambah Layanan Baru
+          <Plus className="w-4 h-4" />
+          <span>Tambah Layanan Baru</span>
         </h2>
         <form action={async (formData) => {
           startTransition(async () => {
@@ -291,7 +302,7 @@ export default function ServicesClient({ initialServices }: { initialServices: S
             <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Deskripsi Singkat (Card Home)</label>
             <textarea name="desc" rows={2} placeholder="Penjelasan ringkas..." className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner transition-colors"></textarea>
           </div>
-          <button type="submit" disabled={isPending} className="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-black text-xs uppercase tracking-widest px-6 py-3.5 rounded-xl transition-all shadow-lg cursor-pointer">
+          <button type="submit" disabled={isPending} className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs uppercase tracking-widest px-6 py-3.5 rounded-xl transition-all shadow-sm cursor-pointer">
             {isPending ? 'Menyimpan...' : 'Simpan Layanan Baru ke Draft'}
           </button>
         </form>
@@ -300,7 +311,8 @@ export default function ServicesClient({ initialServices }: { initialServices: S
       {/* List Daftar Layanan */}
       <div className="bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-xl space-y-6 transition-colors">
         <h2 className="text-base font-black text-amber-600 dark:text-amber-500 tracking-wide uppercase flex items-center gap-2">
-          <span>📋</span> Daftar Layanan Saat Ini
+          <Layers className="w-4 h-4" />
+          <span>Daftar Layanan Saat Ini</span>
         </h2>
         <div className="space-y-4">
           {(initialServices || []).map((srv) => (
@@ -371,7 +383,7 @@ export default function ServicesClient({ initialServices }: { initialServices: S
                 setTimeout(() => setShowSuccessToast(false), 4000)
                 handleCloseModal()
               })
-            }} onChange={() => setIsDirty(true)} className="space-y-5">
+            }} className="space-y-5">
               <input type="hidden" name="id" value={editingService.id} />
               <input type="hidden" name="icon" value={editServiceIcon} />
               <input type="hidden" name="watermarkText" value={watermarkCaption} />
@@ -379,7 +391,14 @@ export default function ServicesClient({ initialServices }: { initialServices: S
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="md:col-span-2 space-y-2">
                   <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Judul Layanan</label>
-                  <input type="text" name="title" defaultValue={editingService.title} required className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm font-medium shadow-inner transition-colors" />
+                  <input 
+                    type="text" 
+                    name="title" 
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                    required 
+                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm font-medium shadow-inner transition-colors" 
+                  />
                 </div>
                 <div className="space-y-2">
                   <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Pilih Ikon Visual</label>
@@ -399,12 +418,24 @@ export default function ServicesClient({ initialServices }: { initialServices: S
 
               <div className="space-y-2">
                 <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Deskripsi Singkat (Card Home)</label>
-                <input type="text" name="desc" defaultValue={editingService.desc} className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm font-medium shadow-inner transition-colors" />
+                <input 
+                  type="text" 
+                  name="desc" 
+                  value={editDesc}
+                  onChange={(e) => setEditDesc(e.target.value)}
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm font-medium shadow-inner transition-colors" 
+                />
               </div>
 
               <div className="space-y-2">
                 <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Konten / Deskripsi Lengkap (Halaman Detail)</label>
-                <textarea name="content" rows={4} defaultValue={editingService.content || editingService.desc} className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm font-medium shadow-inner leading-relaxed transition-colors"></textarea>
+                <textarea 
+                  name="content" 
+                  rows={4} 
+                  value={editContent}
+                  onChange={(e) => setEditContent(e.target.value)}
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm font-medium shadow-inner leading-relaxed transition-colors"
+                ></textarea>
               </div>
 
               {/* PENGATURAN WATERMARK & UPLOAD FOTO */}
@@ -414,18 +445,31 @@ export default function ServicesClient({ initialServices }: { initialServices: S
                 <div className="flex items-center justify-between bg-gray-50 dark:bg-[#090A0F] p-4 rounded-2xl border border-gray-200 dark:border-gray-800 transition-colors">
                   <div>
                     <span className="text-xs font-bold text-gray-900 dark:text-white block">Terapkan Watermark Diagonal</span>
-                    <span className="text-[11px] text-gray-600 dark:text-gray-400">Geser untuk mengaktifkan/menonaktifkan watermark transparan pada foto baru.</span>
+                    <span className="text-[11px] text-gray-600 dark:text-gray-400">Aktifkan atau nonaktifkan watermark transparan pada foto baru.</span>
                   </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="applyWatermark"
-                      checked={applyWatermark}
-                      onChange={(e) => setApplyWatermark(e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 dark:bg-gray-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
-                  </label>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className={`text-[11px] font-black uppercase tracking-wider select-none ${
+                      applyWatermark ? 'text-emerald-700 dark:text-emerald-400' : 'text-gray-400'
+                    }`}>
+                      {applyWatermark ? 'Aktif' : 'Nonaktif'}
+                    </span>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={applyWatermark}
+                      onClick={() => setApplyWatermark(!applyWatermark)}
+                      className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
+                        applyWatermark ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-gray-700'
+                      }`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md ring-0 transition duration-300 ease-in-out ${
+                          applyWatermark ? 'translate-x-7' : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                    <input type="hidden" name="applyWatermark" value={applyWatermark ? 'true' : 'false'} />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -517,7 +561,7 @@ export default function ServicesClient({ initialServices }: { initialServices: S
                   className={`px-6 py-2.5 rounded-xl text-xs font-black tracking-widest uppercase transition-all duration-300 border backdrop-blur-md cursor-pointer ${
                     !isDirty || isPending
                       ? 'bg-gray-200 dark:bg-gray-900/40 text-gray-400 dark:text-gray-600 border-gray-300 dark:border-gray-800/40 cursor-not-allowed opacity-50'
-                      : 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white border-amber-500/40 shadow-lg shadow-amber-900/50 hover:scale-105 animate-pulse'
+                      : 'bg-amber-600 hover:bg-amber-700 text-white border-amber-600 shadow-sm cursor-pointer'
                   }`}
                 >
                   {isPending ? 'Menyimpan...' : (

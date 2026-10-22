@@ -4,8 +4,13 @@
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { requirePermission } from '@/lib/auth'
-import { getAdminClient } from '@/lib/supabaseAdmin'
-import { APPLICATION_STATUSES, HR_EMAIL_KEY, setAppSetting } from '@/lib/applications'
+import { 
+  APPLICATION_STATUSES, 
+  HR_EMAIL_KEY, 
+  setAppSetting,
+  updateApplicationStatus as updateAppStatusDB,
+  deleteApplication as deleteAppDB
+} from '@/lib/applications'
 import { addNotification, readDB } from '@/lib/db'
 
 export async function saveHrEmail(formData: FormData) {
@@ -23,8 +28,7 @@ export async function updateApplicationStatus(formData: FormData) {
   const id = String(formData.get('id') ?? '')
   const status = String(formData.get('status') ?? '')
   if (!id || !(APPLICATION_STATUSES as string[]).includes(status as never)) return
-  const { error } = await getAdminClient().from('applications').update({ status }).eq('id', id)
-  if (error) throw new Error(error.message)
+  await updateAppStatusDB(id, status as never)
   await addNotification(`Status lamaran kerja diperbarui menjadi "${status}".`, 'UPDATE', 'career')
   revalidatePath('/admin/applications')
 }
@@ -33,10 +37,7 @@ export async function deleteApplication(formData: FormData) {
   await requirePermission('applications')
   const id = String(formData.get('id') ?? '')
   if (!id) return
-  const supabase = getAdminClient()
-  const { data } = await supabase.from('applications').select('cv_path').eq('id', id).maybeSingle()
-  if (data?.cv_path) await supabase.storage.from('cv').remove([data.cv_path as string])
-  await supabase.from('applications').delete().eq('id', id)
+  await deleteAppDB(id)
   await addNotification(`Menghapus data lamaran kerja.`, 'DELETE', 'career')
   revalidatePath('/admin/applications')
 }

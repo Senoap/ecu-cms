@@ -4,8 +4,7 @@
 import { headers } from 'next/headers'
 import { z } from 'zod'
 import { readPublishedDB, addNotification } from '@/lib/db'
-import { getAdminClient } from '@/lib/supabaseAdmin'
-import { getAppSetting, HR_EMAIL_KEY } from '@/lib/applications'
+import { getAppSetting, HR_EMAIL_KEY, saveNewApplication } from '@/lib/applications'
 import { sendMail, escapeHtml } from '@/lib/mailer'
 
 export interface ApplyState {
@@ -117,29 +116,22 @@ export async function submitApplication(_prev: ApplyState, formData: FormData): 
   const cvPath = `${data.careerId}/${ref}-${crypto.randomUUID().slice(0, 8)}.${detected}`
 
   try {
-    const supabase = getAdminClient()
-
-    const { error: upErr } = await supabase.storage.from('cv').upload(cvPath, buffer, {
-      contentType: mime,
-      upsert: false,
-    })
-    if (upErr) throw new Error('Upload CV gagal: ' + upErr.message)
-
-    const { error: insErr } = await supabase.from('applications').insert({
-      ref_code: ref,
-      career_id: job.id,
-      career_title: job.title,
-      name: data.name,
-      phone: data.phone,
-      email: data.email,
-      education: data.education || null,
-      cover_note: data.coverNote || null,
-      cv_path: cvPath,
-    })
-    if (insErr) {
-      await supabase.storage.from('cv').remove([cvPath]) // rollback file
-      throw new Error('Simpan lamaran gagal: ' + insErr.message)
-    }
+    await saveNewApplication(
+      {
+        ref_code: ref,
+        career_id: job.id,
+        career_title: job.title,
+        name: data.name,
+        phone: data.phone,
+        email: data.email,
+        education: data.education || null,
+        cover_note: data.coverNote || null,
+        cv_path: cvPath,
+        status: 'new',
+      },
+      buffer,
+      mime
+    )
 
     try {
       await addNotification(
