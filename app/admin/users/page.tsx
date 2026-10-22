@@ -6,7 +6,7 @@ import UsersClient, { type CmsUserDisplay } from './UsersClient'
 export const dynamic = 'force-dynamic'
 
 export default async function UsersPage() {
-  await requirePagePermission('users')
+  const currentUser = await requirePagePermission('users')
 
   const db = await readDB()
   const users: CmsUserDisplay[] = (db.cmsUsers || []).map((u) => ({
@@ -18,12 +18,16 @@ export default async function UsersPage() {
     canReceiveCareerNotif: Boolean(u.canReceiveCareerNotif),
     isActive: u.isActive !== false,
     createdAt: u.createdAt || 0,
+    passwordUpdatedAt: u.passwordUpdatedAt || u.createdAt || 0,
+    mustResetPassword: Boolean(u.mustResetPassword),
   }))
 
   return (
     <UsersClient 
       users={users} 
       masterAdminUsername="admin" 
+      isRootAdmin={currentUser.isRootAdmin}
+      currentUserId={currentUser.id}
     />
   )
 }

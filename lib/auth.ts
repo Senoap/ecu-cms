@@ -13,6 +13,7 @@ export interface CurrentAdminUser {
   name: string
   role: string
   isSuperadmin: boolean
+  isRootAdmin: boolean
   permissions: string[]
   canReceiveCareerNotif: boolean
 }
@@ -35,7 +36,7 @@ export async function getCurrentUser(): Promise<CurrentAdminUser | null> {
       return null
     }
 
-    // Jika master admin ('admin')
+    // Jika master admin ('admin') -> Ini adalah Admin Root
     if (payload.userId === 'admin') {
       return {
         id: 'admin',
@@ -43,12 +44,13 @@ export async function getCurrentUser(): Promise<CurrentAdminUser | null> {
         name: 'Administrator Master',
         role: 'Superadmin',
         isSuperadmin: true,
+        isRootAdmin: true,
         permissions: [...ALL_MENU_IDS],
         canReceiveCareerNotif: true,
       }
     }
 
-    // Jika user dari database
+    // Jika user dari database -> User tambahan (bukan Admin Root walaupun role-nya admin/superadmin)
     const user = db.cmsUsers?.find((u) => u.id === payload.userId && u.isActive !== false)
     if (!user) return null
 
@@ -59,6 +61,7 @@ export async function getCurrentUser(): Promise<CurrentAdminUser | null> {
       name: user.name,
       role: user.role,
       isSuperadmin: isSuper,
+      isRootAdmin: false, // User tambahan tidak pernah menjadi Root Admin
       permissions: isSuper ? [...ALL_MENU_IDS] : user.permissions,
       canReceiveCareerNotif: Boolean(user.canReceiveCareerNotif),
     }

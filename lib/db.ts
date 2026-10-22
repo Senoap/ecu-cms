@@ -147,6 +147,8 @@ export interface CmsUser {
   canReceiveCareerNotif: boolean
   isActive: boolean
   createdAt: number
+  passwordUpdatedAt?: number
+  mustResetPassword?: boolean
 }
 
 export interface DirectorItem {

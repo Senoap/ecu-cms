@@ -91,3 +91,34 @@ export async function getSessionPayload(token: string | undefined): Promise<{ us
   }
   return null
 }
+
+/**
+ * Buat token reset password bertanda tangan HMAC dengan masa berlaku 15 menit.
+ * Digunakan untuk alur pergantian password saat login ketika password expired/H-7.
+ */
+export async function createPasswordResetToken(userId: string): Promise<string> {
+  const exp = Date.now() + 15 * 60 * 1000 // 15 menit
+  const nonce = crypto.randomUUID()
+  const payload = `pwdreset.${exp}.${nonce}.${userId}`
+  return `${payload}.${await hmac(payload)}`
+}
+
+/**
+ * Verifikasi token reset password bertanda tangan HMAC.
+ */
+export async function verifyPasswordResetToken(token: string | undefined): Promise<{ valid: boolean; userId?: string }> {
+  if (!token) return { valid: false }
+  const parts = token.split('.')
+  if (parts.length !== 5 || parts[0] !== 'pwdreset') return { valid: false }
+  const [prefix, expStr, nonce, userId, sig] = parts
+  const exp = Number(expStr)
+  if (!Number.isFinite(exp) || exp < Date.now()) return { valid: false }
+  try {
+    const payload = `${prefix}.${expStr}.${nonce}.${userId}`
+    const isValid = safeEqual(sig, await hmac(payload))
+    if (!isValid) return { valid: false }
+    return { valid: true, userId }
+  } catch {
+    return { valid: false }
+  }
+}
