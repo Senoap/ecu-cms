@@ -107,12 +107,65 @@ async function runMigration() {
     process.exit(1)
   }
 
+  console.log('📦 1. Memeriksa data remote di Supabase...')
+  const { data: remoteRow } = await supabase
+    .from('site_content')
+    .select('data')
+    .eq('id', 1)
+    .single()
+
+  let finalData = { ...dbJson }
+
+  // Bersihkan data runtime / transaksi lokal agar tidak terbawa ke Supabase
+  finalData.activeSessions = {}
+  finalData.loginAttempts = {}
+  finalData.draftLock = null
+  finalData.visitorLogs = []
+  finalData.dailyVisitorCounts = []
+  finalData.notifications = []
+  finalData.hasDraft = false
+
+  if (remoteRow && remoteRow.data) {
+    console.log('ℹ️ Data di Supabase sudah ada. Melakukan penggabungan aditif (hanya menambahkan field/struktur baru tanpa menimpa data yang ada)...')
+    const existing = remoteRow.data
+    // Pertahankan data remote yang sudah ada, cukup tambahkan field/struktur baru yang belum ada
+    finalData = {
+      ...finalData,
+      ...existing,
+      setting: { ...finalData.setting, ...(existing.setting || {}) },
+      hero: { ...finalData.hero, ...(existing.hero || {}) },
+      about: { ...finalData.about, ...(existing.about || {}) },
+      servicesHeader: { ...finalData.servicesHeader, ...(existing.servicesHeader || {}) },
+      portfolioHeader: { ...finalData.portfolioHeader, ...(existing.portfolioHeader || {}) },
+      careerHeader: { ...finalData.careerHeader, ...(existing.careerHeader || {}) },
+      galleryHeader: { ...finalData.galleryHeader, ...(existing.galleryHeader || {}) },
+      footer: { ...finalData.footer, ...(existing.footer || {}) },
+      privacyPolicy: existing.privacyPolicy || finalData.privacyPolicy,
+      termsOfService: existing.termsOfService || finalData.termsOfService,
+      directors: (existing.directors && existing.directors.length > 0) ? existing.directors : finalData.directors,
+      certifications: (existing.certifications && existing.certifications.length > 0) ? existing.certifications : finalData.certifications,
+      comproEmailTemplate: existing.comproEmailTemplate || finalData.comproEmailTemplate,
+      careerTemplates: (existing.careerTemplates && existing.careerTemplates.length > 0) ? existing.careerTemplates : finalData.careerTemplates,
+      auditLogs: existing.auditLogs || [],
+      comproRequests: existing.comproRequests || [],
+      cmsUsers: (existing.cmsUsers && existing.cmsUsers.length > 0) ? existing.cmsUsers : (finalData.cmsUsers || []),
+      activeSessions: existing.activeSessions || {},
+      dailyVisitorCounts: existing.dailyVisitorCounts || [],
+      draftLock: null,
+      hasDraft: false,
+    }
+  } else {
+    // Fresh setup: kosongkan data transaksional
+    finalData.auditLogs = []
+    finalData.comproRequests = []
+  }
+
   console.log('⏳ Mengirim data CMS ke tabel `site_content` di Supabase...')
   const { error: upsertErr } = await supabase
     .from('site_content')
     .upsert({
       id: 1,
-      data: dbJson,
+      data: finalData,
     })
     .select()
 
@@ -122,7 +175,7 @@ async function runMigration() {
     process.exit(1)
   }
 
-  console.log('✅ Berhasil menyimpan data CMS ke tabel `site_content` (id: 1)!')
+  console.log('✅ Berhasil menyelaraskan struktur database CMS ke Supabase!')
 
   // 2. Migrasi File Media (public/uploads/) -> Supabase Storage (uploads)
   const uploadsDir = path.join(projectRoot, 'public', 'uploads')
