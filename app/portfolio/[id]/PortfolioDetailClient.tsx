@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { MessageSquare } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import { useLanguage } from '@/components/LanguageContext'
-import { PortfolioItem, DatabaseContent, FooterContent } from '@/lib/db'
+import type { PortfolioItem, DatabaseContent, FooterContent } from '@/lib/db'
 
 export default function PortfolioDetailClient({
   item,

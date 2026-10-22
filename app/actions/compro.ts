@@ -325,3 +325,32 @@ export async function testSmtpAction(testEmail?: string): Promise<{ success: boo
   await requirePermission('compro-requests')
   return await verifyAndTestSmtp(testEmail)
 }
+
+export async function toggleComproVisibilityAction(showCompro: boolean): Promise<{ success: boolean }> {
+  const currentUser = await requirePermission('compro-requests')
+  const db = await readDB()
+  if (!db.setting) {
+    db.setting = {
+      siteName: 'PT. EMPAT SINERGI UTAMA',
+      tagline: 'MANPOWER SERVICES',
+      primaryColor: '#7E1D0C',
+      secondaryColor: '#D4AF37',
+      accentColor: '#1E293B',
+      loadingBgColor: '#7E1D0C',
+      fontFamily: 'Inter',
+      logoUrl: '',
+      bgImageUrl: '',
+      slideDuration: 3,
+      showLeadership: true,
+      showCertifications: true,
+      showCompro: true,
+      leadershipLabel: 'Profil Pimpinan',
+    }
+  }
+  db.setting.showCompro = showCompro
+  await writeDB(db, currentUser)
+  revalidatePath('/', 'layout')
+  revalidatePath('/admin/compro-requests')
+  return { success: true }
+}
+

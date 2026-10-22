@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Users, GraduationCap, Briefcase, Award, ShieldCheck, Sun, Moon, PhoneCall } from 'lucide-react'
 import type { DatabaseContent, DirectorItem } from '@/lib/db'
+import { defaultLeadershipPageConfig, type LeadershipPageConfig } from '@/lib/leadershipConstants'
 
 interface LeadershipClientProps {
   db: DatabaseContent
@@ -14,6 +15,10 @@ interface LeadershipClientProps {
 export default function LeadershipClient({ db, directors }: LeadershipClientProps) {
   const [isDarkMode, setIsDarkMode] = useState(false)
   const setting = db.setting
+  const pageConfig: LeadershipPageConfig = {
+    ...defaultLeadershipPageConfig,
+    ...(db.leadershipPage || {}),
+  }
 
   useEffect(() => {
     const isDark = document.documentElement.classList.contains('dark')
@@ -37,27 +42,27 @@ export default function LeadershipClient({ db, directors }: LeadershipClientProp
     .sort((a, b) => a.order - b.order)
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#0B0E17] text-gray-900 dark:text-gray-100 font-sans transition-colors duration-500 flex flex-col justify-between selection:bg-amber-500 selection:text-white">
-      
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0B0E17] text-gray-900 dark:text-gray-100 font-sans transition-colors duration-500 flex flex-col justify-between selection:bg-primary selection:text-white">
+
       {/* HEADER TOP BAR */}
       <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#0B0E17]/80 backdrop-blur-xl border-b border-gray-200/80 dark:border-gray-800/80 transition-colors">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <Link
-            href="/"
-            className="flex items-center gap-2.5 text-xs sm:text-sm font-extrabold text-gray-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-amber-400 transition-colors group cursor-pointer"
+            href={pageConfig.backButtonLink || '/'}
+            className="flex items-center gap-2.5 text-xs sm:text-sm font-extrabold text-gray-700 dark:text-gray-300 hover:text-primary transition-colors group cursor-pointer"
           >
             <div className="w-8 h-8 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center border border-gray-200 dark:border-gray-700 group-hover:scale-105 transition-transform">
               <ArrowLeft className="w-4 h-4" />
             </div>
-            <span>Kembali ke Beranda</span>
+            <span>{pageConfig.backButtonText || 'Kembali ke Beranda'}</span>
           </Link>
 
           <Link href="/" className="flex items-center gap-3">
             {setting.logoUrl ? (
-              <img 
-                src={setting.logoUrl} 
-                alt={setting.siteName} 
-                className="h-8 md:h-10 w-auto object-contain max-h-8 md:max-h-10 max-w-[140px]" 
+              <img
+                src={setting.logoUrl}
+                alt={setting.siteName}
+                className="h-8 md:h-10 w-auto object-contain max-h-8 md:max-h-10 max-w-[140px]"
               />
             ) : (
               <span className="font-black text-lg text-gray-900 dark:text-white tracking-wider">
@@ -69,7 +74,7 @@ export default function LeadershipClient({ db, directors }: LeadershipClientProp
           <button
             type="button"
             onClick={toggleTheme}
-            className="w-10 h-10 rounded-2xl bg-gray-100 dark:bg-gray-800/80 border border-gray-200/80 dark:border-gray-700 flex items-center justify-center text-gray-700 dark:text-amber-400 hover:scale-105 transition-all shadow-sm"
+            className="w-10 h-10 rounded-2xl bg-gray-100 dark:bg-gray-800/80 border border-gray-200/80 dark:border-gray-700 flex items-center justify-center text-gray-700 dark:text-primary hover:scale-105 transition-all shadow-sm"
             title="Ganti Tema"
           >
             {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -79,20 +84,24 @@ export default function LeadershipClient({ db, directors }: LeadershipClientProp
 
       {/* KONTEN UTAMA */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 flex-1 w-full space-y-16">
-        
+
         {/* BANNER HEADER */}
         <div className="text-center space-y-4 max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-black uppercase tracking-widest">
-            <Users className="w-4 h-4" />
-            <span>Pimpinan & Pengelola Operasional</span>
-          </div>
+          {pageConfig.headerBadge && (
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/40 text-amber-800 dark:text-amber-300 text-xs font-black uppercase tracking-wider">
+              <Users className="w-4 h-4 text-amber-700 dark:text-amber-400" />
+              <span>{pageConfig.headerBadge}</span>
+            </div>
+          )}
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight leading-tight">
-            Profil Pimpinan & Tim Manajemen
+            {pageConfig.headerTitle || 'Profil Pimpinan & Tim Manajemen'}
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base md:text-lg leading-relaxed font-medium">
-            Mengenal tim pengelola dan pimpinan di balik komitmen mutu pelayanan prima, integritas kerja, dan tata kelola ketenagakerjaan terpercaya {setting.siteName}.
-          </p>
-          <div className="w-20 h-1 bg-amber-500 mx-auto rounded-full mt-4"></div>
+          {pageConfig.headerDesc && (
+            <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base md:text-lg leading-relaxed font-medium">
+              {pageConfig.headerDesc.replace('{company}', setting.siteName)}
+            </p>
+          )}
+          <div className="w-16 h-1 mx-auto rounded-full mt-4" style={{ backgroundColor: setting.primaryColor || '#6B0808' }}></div>
         </div>
 
         {/* DAFTAR DIREKSI */}
@@ -117,10 +126,10 @@ export default function LeadershipClient({ db, directors }: LeadershipClientProp
                     </div>
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-                  
+
                   {/* BADGE JABATAN */}
                   <div className="absolute bottom-4 left-4 right-4">
-                    <span className="inline-block text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-amber-500 text-gray-950 shadow-md">
+                    <span className="inline-block text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-md bg-black/75 backdrop-blur-md text-white border border-white/20 shadow-md">
                       {director.position}
                     </span>
                   </div>
@@ -176,52 +185,58 @@ export default function LeadershipClient({ db, directors }: LeadershipClientProp
                   )}
                 </div>
               </div>
-
-              {/* FOOTER KARTU */}
-              <div className="p-4 bg-gray-50 dark:bg-gray-900/40 border-t border-gray-100 dark:border-gray-800/80 flex items-center justify-between text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
-                <span>Manajemen Eksekutif</span>
-                <span className="text-amber-500 font-extrabold">{setting.siteName}</span>
-              </div>
             </div>
           ))}
         </div>
 
-        {/* KOTAK KOMITMEN TATA KELOLA (GCG) */}
-        <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-amber-950 text-white p-8 sm:p-10 md:p-12 rounded-3xl border border-amber-500/20 shadow-2xl space-y-6 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
-          
-          <div className="relative z-10 max-w-3xl space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-amber-400 text-xs font-black uppercase tracking-widest">
-              <ShieldCheck className="w-4 h-4" />
-              <span>Prinsip Good Corporate Governance (GCG)</span>
+        {/* KOTAK KOMITMEN TATA KELOLA (GCG) - Desain Korporat Elegan Selaras */}
+        {pageConfig.showGcgCard !== false && (
+          <div
+            className="bg-white dark:bg-[#0E111A] text-gray-900 dark:text-white p-8 sm:p-10 md:p-12 rounded-3xl border border-gray-200/90 dark:border-gray-800 shadow-xl space-y-6 relative overflow-hidden transition-all duration-300 border-l-8"
+            style={{ borderLeftColor: setting.primaryColor || '#6B0808' }}
+          >
+            <div className="relative z-10 max-w-3xl space-y-4">
+              {pageConfig.gcgBadge && (
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-xs font-black uppercase tracking-wider border border-amber-200/80 dark:border-amber-800/40">
+                  <ShieldCheck className="w-4 h-4 text-amber-700 dark:text-amber-400" />
+                  <span>{pageConfig.gcgBadge}</span>
+                </div>
+              )}
+              {pageConfig.gcgTitle && (
+                <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-gray-900 dark:text-white">
+                  {pageConfig.gcgTitle}
+                </h2>
+              )}
+              {pageConfig.gcgDesc && (
+                <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm md:text-base leading-relaxed font-medium text-justify">
+                  {pageConfig.gcgDesc.replace('{company}', setting.siteName)}
+                </p>
+              )}
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-              Integritas, Transparansi, dan Akuntabilitas Tanpa Kompromi
-            </h2>
-            <p className="text-gray-300 text-xs sm:text-sm md:text-base leading-relaxed font-medium text-justify">
-              Pimpinan dan segenap tim manajemen {setting.siteName} senantiasa memegang teguh kepatuhan terhadap regulasi ketenagakerjaan Republik Indonesia (UU Ketenagakerjaan & UU Cipta Kerja), jaminan perlindungan BPJS Ketenagakerjaan dan Kesehatan seluruh personel, serta ketepatan sistem penggajian yang transparan untuk menjaga reputasi dan stabilitas operasional mitra.
-            </p>
-          </div>
 
-          <div className="relative z-10 pt-4 flex flex-wrap gap-4 items-center">
-            <Link
-              href="/#contact"
-              className="px-6 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-gray-950 font-black text-xs uppercase tracking-wider shadow-xl transition-all duration-300 hover:scale-105 flex items-center gap-2 cursor-pointer"
-            >
-              <PhoneCall className="w-4 h-4" />
-              <span>Konsultasi Kemitraan</span>
-            </Link>
-            {setting.showCertifications !== false && (
-              <Link
-                href="/certifications"
-                className="px-6 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider border border-white/20 transition-all duration-300 flex items-center gap-2 cursor-pointer"
-              >
-                <Award className="w-4 h-4 text-amber-400" />
-                <span>Lihat Sertifikasi Perusahaan</span>
-              </Link>
-            )}
+            <div className="relative z-10 pt-4 flex flex-wrap gap-4 items-center">
+              {pageConfig.gcgCtaText && (
+                <Link
+                  href={pageConfig.gcgCtaLink || '/#contact'}
+                  className="px-6 py-3.5 rounded-xl text-white font-black text-xs uppercase tracking-wider shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] flex items-center gap-2 cursor-pointer"
+                  style={{ backgroundColor: setting.primaryColor || '#6B0808' }}
+                >
+                  <PhoneCall className="w-4 h-4" />
+                  <span>{pageConfig.gcgCtaText}</span>
+                </Link>
+              )}
+              {pageConfig.gcgShowCertBtn !== false && setting.showCertifications !== false && (
+                <Link
+                  href={pageConfig.gcgCertLink || '/certifications'}
+                  className="px-6 py-3.5 rounded-xl bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-200 font-bold text-xs uppercase tracking-wider border border-gray-300 dark:border-gray-700 transition-all flex items-center gap-2 cursor-pointer"
+                >
+                  <Award className="w-4 h-4 text-amber-700 dark:text-amber-400" />
+                  <span>{pageConfig.gcgCertText || 'Lihat Sertifikasi Perusahaan'}</span>
+                </Link>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
       </main>
 

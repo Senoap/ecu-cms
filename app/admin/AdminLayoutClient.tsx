@@ -29,7 +29,12 @@ import {
   Layers,
   Award,
   FileDown,
-  Lock
+  Lock,
+  Smartphone,
+  Download,
+  Share,
+  CheckCircle2,
+  X
 } from 'lucide-react'
 import type { CurrentAdminUser } from '@/lib/auth'
 import type { CmsDraftLock } from '@/lib/db'
@@ -108,6 +113,94 @@ export default function AdminLayoutClient({
     }, 2 * 60 * 1000)
     return () => clearInterval(interval)
   }, [router])
+
+  // PWA (Progressive Web App) States (Point 4)
+  interface BeforeInstallPromptEvent extends Event {
+    prompt: () => Promise<void>
+    userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
+  }
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
+  const [isStandalone, setIsStandalone] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return (
+        window.matchMedia('(display-mode: standalone)').matches ||
+        (window.navigator as unknown as { standalone?: boolean }).standalone === true ||
+        document.referrer.includes('android-app://')
+      )
+    }
+    return false
+  })
+  const [isIos, setIsIos] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase())
+    }
+    return false
+  })
+  const [showIosInstallModal, setShowIosInstallModal] = useState(false)
+  const [showInstalledToast, setShowInstalledToast] = useState(false)
+
+  // Inisialisasi Service Worker & Deteksi PWA khusus CMS Admin
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    // 1. Daftarkan Service Worker untuk scope admin
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker
+          .register('/admin-sw.js', { scope: '/admin' })
+          .then((reg) => {
+            console.log('[PWA] Service Worker terdaftar pada scope:', reg.scope)
+          })
+          .catch((err) => {
+            console.warn('[PWA] Service Worker gagal mendaftar:', err)
+          })
+      })
+    }
+
+    // 2. Pantau perubahan display-mode jika pengguna menginstal PWA saat sesi aktif
+    const mediaQuery = window.matchMedia('(display-mode: standalone)')
+    const handleDisplayModeChange = (e: MediaQueryListEvent) => {
+      setIsStandalone(e.matches)
+    }
+    mediaQuery.addEventListener('change', handleDisplayModeChange)
+
+    // 3. Tangkap event prompt instalasi otomatis untuk browser Chromium
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault()
+      setDeferredPrompt(e as BeforeInstallPromptEvent)
+    }
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+
+    return () => {
+      mediaQuery.removeEventListener('change', handleDisplayModeChange)
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+    }
+  }, [])
+
+  const handleInstallPwa = async () => {
+    if (isStandalone) {
+      setShowInstalledToast(true)
+      setTimeout(() => setShowInstalledToast(false), 3000)
+      return
+    }
+
+    if (deferredPrompt) {
+      try {
+        await deferredPrompt.prompt()
+        const choice = await deferredPrompt.userChoice
+        if (choice.outcome === 'accepted') {
+          setDeferredPrompt(null)
+          setIsStandalone(true)
+        }
+      } catch (err) {
+        console.warn('Install prompt error:', err)
+        setShowIosInstallModal(true)
+      }
+    } else {
+      setShowIosInstallModal(true)
+    }
+  }
 
   // State Submenus (terbuka / tertutup)
   const [openSubmenus, setOpenSubmenus] = useState<Record<string, boolean>>(() => ({
@@ -655,6 +748,30 @@ export default function AdminLayoutClient({
 
           {/* FOOTER ACTIONS (DITAMBATKAN DI BAGIAN BAWAH) */}
           <div className={`flex-shrink-0 pt-3 border-t space-y-2.5 ${isDarkMode ? 'border-gray-800/80' : 'border-gray-200'}`}>
+            {/* TOMBOL INSTALASI / STATUS PWA (Point 4) */}
+            <button
+              type="button"
+              onClick={handleInstallPwa}
+              className={`flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl text-xs font-black tracking-wider uppercase transition-all duration-200 border shadow-sm cursor-pointer ${
+                isStandalone
+                  ? isDarkMode
+                    ? 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+                    : 'bg-amber-50 text-amber-900 border-amber-300'
+                  : 'bg-amber-600 hover:bg-amber-700 text-white border-amber-600 shadow-md shadow-amber-900/20'
+              }`}
+              title="Pasang Panel Admin CMS sebagai Aplikasi PWA"
+            >
+              <div className="flex items-center gap-2 truncate">
+                <Smartphone className="w-4 h-4 shrink-0" />
+                <span className="truncate">{isStandalone ? 'Aplikasi Terpasang' : 'Pasang Aplikasi CMS'}</span>
+              </div>
+              {isStandalone ? (
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              ) : (
+                <Download className="w-3.5 h-3.5 shrink-0 animate-bounce" />
+              )}
+            </button>
+
             <Link 
               href="/" 
               target="_blank"
@@ -777,6 +894,111 @@ export default function AdminLayoutClient({
           {isDarkMode ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-amber-600" />}
         </button>
       </div>
+
+      {/* TOAST SUDAH TERPASANG */}
+      <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] transform ${
+        showInstalledToast ? 'translate-y-0 opacity-100 scale-100' : '-translate-y-4 opacity-0 scale-95 pointer-events-none'
+      }`}>
+        <div className="bg-amber-950/95 text-amber-300 border border-amber-500/40 px-6 py-4 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3">
+          <CheckCircle2 className="w-5 h-5 text-amber-400" />
+          <div>
+            <h4 className="text-xs font-black uppercase tracking-wider">Aplikasi PWA Sudah Aktif!</h4>
+            <p className="text-[11px] text-amber-300/80 font-medium">Anda sedang menjalankan ESU CMS langsung dari Layar Utama perangkat Anda.</p>
+          </div>
+        </div>
+      </div>
+
+      {/* MODAL PANDUAN INSTALASI PWA (IOS & BROWSER LAINNYA) */}
+      {showIosInstallModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className={`w-full max-w-md p-6 rounded-3xl shadow-2xl border space-y-5 animate-in zoom-in-95 duration-200 ${
+            isDarkMode ? 'bg-[#0E1017] text-white border-gray-800' : 'bg-white text-gray-900 border-gray-200'
+          }`}>
+            <div className="flex items-center justify-between pb-3 border-b border-gray-200 dark:border-gray-800">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-amber-600 flex items-center justify-center text-white shadow-md">
+                  <Smartphone className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black uppercase tracking-wider">Pasang Aplikasi CMS</h3>
+                  <p className="text-[11px] text-gray-500 dark:text-gray-400">Akses instan tanpa bilah URL browser</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowIosInstallModal(false)}
+                className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {isIos ? (
+              <div className="space-y-3.5 text-xs">
+                <p className="font-semibold text-gray-700 dark:text-gray-300">
+                  Untuk menginstal <strong className="text-amber-500 font-bold">ESU CMS</strong> di perangkat Apple (iPhone / iPad):
+                </p>
+                <div className="space-y-2.5 bg-gray-50 dark:bg-gray-900/60 p-4 rounded-2xl border border-gray-200 dark:border-gray-800">
+                  <div className="flex items-start gap-3">
+                    <span className="w-5 h-5 rounded-full bg-amber-600 text-white text-[11px] font-black flex items-center justify-center shrink-0">1</span>
+                    <p className="text-gray-600 dark:text-gray-300">
+                      Buka panel admin ini menggunakan browser <strong className="text-gray-900 dark:text-white">Safari</strong> bawaan Apple.
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="w-5 h-5 rounded-full bg-amber-600 text-white text-[11px] font-black flex items-center justify-center shrink-0">2</span>
+                    <p className="text-gray-600 dark:text-gray-300 flex items-center flex-wrap gap-1">
+                      Ketuk ikon <strong className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white font-bold"><Share className="w-3.5 h-3.5" /> Bagikan (Share)</strong> di bilah menu Safari (bawah layar iPhone, atas layar iPad).
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="w-5 h-5 rounded-full bg-amber-600 text-white text-[11px] font-black flex items-center justify-center shrink-0">3</span>
+                    <p className="text-gray-600 dark:text-gray-300">
+                      Pilih menu <strong className="text-gray-900 dark:text-white font-bold">&quot;Tambah ke Layar Utama&quot; (Add to Home Screen)</strong>.
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="w-5 h-5 rounded-full bg-amber-600 text-white text-[11px] font-black flex items-center justify-center shrink-0">4</span>
+                    <p className="text-gray-600 dark:text-gray-300">
+                      Ketuk <strong className="text-gray-900 dark:text-white font-bold">&quot;Tambah&quot; (Add)</strong> di pojok kanan atas. Ikon ESU CMS kini siap digunakan layaknya aplikasi asli!
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3.5 text-xs">
+                <p className="font-semibold text-gray-700 dark:text-gray-300">
+                  Untuk menginstal <strong className="text-amber-500 font-bold">ESU CMS</strong> di Android atau Komputer:
+                </p>
+                <div className="space-y-2.5 bg-gray-50 dark:bg-gray-900/60 p-4 rounded-2xl border border-gray-200 dark:border-gray-800">
+                  <div className="flex items-start gap-3">
+                    <span className="w-5 h-5 rounded-full bg-amber-600 text-white text-[11px] font-black flex items-center justify-center shrink-0">1</span>
+                    <p className="text-gray-600 dark:text-gray-300">
+                      Buka menu browser Anda (ikon titik tiga ⋮ atau ikon instal di bilah alamat).
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="w-5 h-5 rounded-full bg-amber-600 text-white text-[11px] font-black flex items-center justify-center shrink-0">2</span>
+                    <p className="text-gray-600 dark:text-gray-300">
+                      Pilih opsi <strong className="text-gray-900 dark:text-white font-bold">&quot;Pasang Aplikasi&quot; (Install App)</strong> atau &quot;Tambahkan ke Layar Utama&quot;.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => setShowIosInstallModal(false)}
+                className="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider transition-colors shadow-md cursor-pointer"
+              >
+                Saya Mengerti
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

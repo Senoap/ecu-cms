@@ -51,6 +51,7 @@ async function updateConfig(formData: FormData) {
 
   const showLeadership = formData.get('showLeadership') === 'on'
   const showCertifications = formData.get('showCertifications') === 'on'
+  const showCompro = formData.has('showCompro') ? formData.get('showCompro') === 'on' : db.setting.showCompro !== false
   const leadershipLabel = (formData.get('leadershipLabel') as string) || db.setting.leadershipLabel || 'Profil Pimpinan'
 
   db.setting = {
@@ -66,6 +67,7 @@ async function updateConfig(formData: FormData) {
     slideDuration,
     showLeadership,
     showCertifications,
+    showCompro,
     leadershipLabel,
   }
 

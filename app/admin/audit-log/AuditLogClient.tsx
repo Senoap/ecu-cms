@@ -267,10 +267,13 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
   const [currentPage, setCurrentPage] = useState<number>(1)
   const listRef = useRef<HTMLDivElement>(null)
 
-  // Reset ke halaman 1 saat filter, pencarian, atau pageSize berubah
-  useEffect(() => {
+  // Reset ke halaman 1 saat filter, pencarian, atau pageSize berubah (React pattern tanpa effect)
+  const [prevFilterKey, setPrevFilterKey] = useState('')
+  const currentFilterKey = `${categoryFilter}-${timeFilter}-${searchTerm}-${pageSize}`
+  if (prevFilterKey !== currentFilterKey) {
+    setPrevFilterKey(currentFilterKey)
     setCurrentPage(1)
-  }, [categoryFilter, timeFilter, searchTerm, pageSize])
+  }
 
   const totalPages = Math.max(1, Math.ceil(filteredLogs.length / pageSize))
   const activePage = Math.min(currentPage, totalPages)

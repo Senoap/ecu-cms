@@ -11,7 +11,8 @@
     "bgImageUrl": "/uploads/bg-1788085817983.jpg",
     "slideDuration": 3,
     "showLeadership": true,
-    "showCertifications": false,
+    "showCertifications": true,
+    "showCompro": true,
     "leadershipLabel": "Profil Pimpinan"
   },
   "sections": [
@@ -455,10 +456,10 @@
     {
       "id": "dir-1",
       "bio": "Berpengalaman lebih dari 20 tahun dalam kepemimpinan korporasi alih daya ketenagakerjaan dan manajemen fasilitas terpadu. Memiliki keahlian strategis dalam tata kelola SDM, kepatuhan hukum ketenagakerjaan, dan kemitraan skala nasional.",
-      "name": "Drs. H. Bambang Soeprapto, M.M.",
+      "name": "Buchori Ramdhan",
       "order": 1,
-      "photoUrl": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=80",
-      "position": "Direktur Utama (President Director)",
+      "photoUrl": "",
+      "position": "PLT Presiden",
       "education": "Magister Manajemen Sumber Daya Manusia - Universitas Indonesia",
       "isVisible": true,
       "experiences": [
@@ -583,6 +584,38 @@
     "subject": "Company Profile Resmi - PT. Empat Sinergi Utama",
     "senderName": "PT. Empat Sinergi Utama"
   },
+  "leadershipPage": {
+    "headerBadge": "Pimpinan & Pengelola Operasional",
+    "headerTitle": "Profil Pimpinan & Tim Manajemen",
+    "headerDesc": "Mengenal tim pengelola dan pimpinan di balik komitmen mutu pelayanan prima, integritas kerja, dan tata kelola ketenagakerjaan terpercaya {company}.",
+    "backButtonText": "Kembali ke Beranda",
+    "backButtonLink": "/",
+    "showGcgCard": true,
+    "gcgBadge": "Prinsip Good Corporate Governance (GCG)",
+    "gcgTitle": "Integritas, Transparansi, dan Akuntabilitas Tanpa Kompromi",
+    "gcgDesc": "Pimpinan dan segenap tim manajemen {company} senantiasa memegang teguh kepatuhan terhadap regulasi ketenagakerjaan Republik Indonesia (UU Ketenagakerjaan & UU Cipta Kerja), jaminan perlindungan BPJS Ketenagakerjaan dan Kesehatan seluruh personel, serta ketepatan sistem penggajian yang transparan untuk menjaga reputasi dan stabilitas operasional mitra.",
+    "gcgCtaText": "Konsultasi Kemitraan",
+    "gcgCtaLink": "/#contact",
+    "gcgShowCertBtn": true,
+    "gcgCertText": "Lihat Sertifikasi Perusahaan",
+    "gcgCertLink": "/certifications"
+  },
+  "certificationsPage": {
+    "headerBadge": "Kepatuhan Regulasi & Standar Mutu",
+    "headerTitle": "Sertifikasi & Izin Operasional Resmi",
+    "headerDesc": "Bukti legalitas, keabsahan akreditasi internasional, dan izin resmi dari lembaga berwenang Republik Indonesia yang mengukuhkan dedikasi kualitas layanan {company}.",
+    "backButtonText": "Kembali ke Beranda",
+    "backButtonLink": "/",
+    "showProtectionCard": true,
+    "protectionBadge": "Proteksi Keaslian Dokumen Legal",
+    "protectionTitle": "Verifikasi & Validasi Dokumen Legal Perusahaan",
+    "protectionDesc": "Seluruh sertifikat akreditasi ISO, lisensi operasional BUJP POLRI, serta izin ketenagakerjaan yang ditampilkan telah melewati audit kepatuhan resmi. Seluruh tampilan gambar dilindungi watermark anti-duplikasi digital untuk menjaga integritas korporat {company}.",
+    "protectionCtaText": "Verifikasi Berkas Kemitraan",
+    "protectionCtaLink": "/#contact",
+    "protectionShowLeadershipBtn": true,
+    "protectionLeadershipText": "Lihat Profil Pimpinan",
+    "protectionLeadershipLink": "/leadership"
+  },
   "published": {
     "setting": {
       "siteName": "PT. EMPAT SINERGI UTAMA",
@@ -596,7 +629,7 @@
       "bgImageUrl": "/uploads/bg-1788085817983.jpg",
       "slideDuration": 3,
       "showLeadership": true,
-      "showCertifications": false,
+      "showCertifications": true,
       "leadershipLabel": "Profil Pimpinan"
     },
     "sections": [
@@ -1041,10 +1074,10 @@
       {
         "id": "dir-1",
         "bio": "Berpengalaman lebih dari 20 tahun dalam kepemimpinan korporasi alih daya ketenagakerjaan dan manajemen fasilitas terpadu. Memiliki keahlian strategis dalam tata kelola SDM, kepatuhan hukum ketenagakerjaan, dan kemitraan skala nasional.",
-        "name": "Drs. H. Bambang Soeprapto, M.M.",
+        "name": "Buchori Ramdhan",
         "order": 1,
-        "photoUrl": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=80",
-        "position": "Direktur Utama (President Director)",
+        "photoUrl": "",
+        "position": "PLT Presiden",
         "education": "Magister Manajemen Sumber Daya Manusia - Universitas Indonesia",
         "isVisible": true,
         "experiences": [
@@ -1168,6 +1201,38 @@
       "body": "Yth. Bapak/Ibu {name},\nDari {company},\n\nTerima kasih atas minat dan kepercayaan Anda kepada PT. Empat Sinergi Utama.\n\nMenindaklanjuti permintaan Company Profile yang Anda ajukan melalui situs web resmi kami, bersama pesan ini kami lampirkan informasi Company Profile (Compro) resmi PT. Empat Sinergi Utama.\n\nDokumen ini memuat informasi lengkap mengenai:\n- Profil dan legalitas perusahaan\n- Portofolio layanan alih daya (Keamanan, Kebersihan, Tenaga Pendukung, Fasilitas)\n- Rekam jejak mitra dan sertifikasi mutu (ISO 9001, ISO 45001, SIO-BUJP, PPJP Kemenaker)\n- Skema kemitraan yang fleksibel, transparan, dan akuntabel\n\nAnda juga dapat mengunduh berkas langsung melalui tautan resmi berikut:\n{compro_url}\n\nTim konsultan kami siap berdiskusi lebih lanjut mengenai solusi operasional di perusahaan Anda. Silakan hubungi kami via balasan email ini atau WhatsApp di nomor hotline resmi kami.\n\nSalam hormat,\nTim Kemitraan Korporat\nPT. Empat Sinergi Utama\nWeb: {site_url}\nHotline: +62 815 8480 5000",
       "subject": "Company Profile Resmi - PT. Empat Sinergi Utama",
       "senderName": "PT. Empat Sinergi Utama"
+    },
+    "leadershipPage": {
+      "headerBadge": "Pimpinan & Pengelola Operasional",
+      "headerTitle": "Profil Pimpinan & Tim Manajemen",
+      "headerDesc": "Mengenal tim pengelola dan pimpinan di balik komitmen mutu pelayanan prima, integritas kerja, dan tata kelola ketenagakerjaan terpercaya {company}.",
+      "backButtonText": "Kembali ke Beranda",
+      "backButtonLink": "/",
+      "showGcgCard": true,
+      "gcgBadge": "Prinsip Good Corporate Governance (GCG)",
+      "gcgTitle": "Integritas, Transparansi, dan Akuntabilitas Tanpa Kompromi",
+      "gcgDesc": "Pimpinan dan segenap tim manajemen {company} senantiasa memegang teguh kepatuhan terhadap regulasi ketenagakerjaan Republik Indonesia (UU Ketenagakerjaan & UU Cipta Kerja), jaminan perlindungan BPJS Ketenagakerjaan dan Kesehatan seluruh personel, serta ketepatan sistem penggajian yang transparan untuk menjaga reputasi dan stabilitas operasional mitra.",
+      "gcgCtaText": "Konsultasi Kemitraan",
+      "gcgCtaLink": "/#contact",
+      "gcgShowCertBtn": true,
+      "gcgCertText": "Lihat Sertifikasi Perusahaan",
+      "gcgCertLink": "/certifications"
+    },
+    "certificationsPage": {
+      "headerBadge": "Kepatuhan Regulasi & Standar Mutu",
+      "headerTitle": "Sertifikasi & Izin Operasional Resmi",
+      "headerDesc": "Bukti legalitas, keabsahan akreditasi internasional, dan izin resmi dari lembaga berwenang Republik Indonesia yang mengukuhkan dedikasi kualitas layanan {company}.",
+      "backButtonText": "Kembali ke Beranda",
+      "backButtonLink": "/",
+      "showProtectionCard": true,
+      "protectionBadge": "Proteksi Keaslian Dokumen Legal",
+      "protectionTitle": "Verifikasi & Validasi Dokumen Legal Perusahaan",
+      "protectionDesc": "Seluruh sertifikat akreditasi ISO, lisensi operasional BUJP POLRI, serta izin ketenagakerjaan yang ditampilkan telah melewati audit kepatuhan resmi. Seluruh tampilan gambar dilindungi watermark anti-duplikasi digital untuk menjaga integritas korporat {company}.",
+      "protectionCtaText": "Verifikasi Berkas Kemitraan",
+      "protectionCtaLink": "/#contact",
+      "protectionShowLeadershipBtn": true,
+      "protectionLeadershipText": "Lihat Profil Pimpinan",
+      "protectionLeadershipLink": "/leadership"
     }
   },
   "notifications": [],

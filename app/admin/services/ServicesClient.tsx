@@ -2,7 +2,7 @@
 'use client'
 import { useState, useMemo, useTransition } from 'react'
 import { Save, Briefcase, Layers, Plus } from 'lucide-react'
-import { ServiceItem } from '@/lib/db'
+import type { ServiceItem } from '@/lib/db'
 import { AVAILABLE_ICONS, DynamicIcon } from '@/components/DynamicIcon'
 import { addService, updateService, deleteService, deleteServiceImage } from './actions'
 
@@ -449,7 +449,7 @@ export default function ServicesClient({ initialServices }: { initialServices: S
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
                     <span className={`text-[11px] font-black uppercase tracking-wider select-none ${
-                      applyWatermark ? 'text-emerald-700 dark:text-emerald-400' : 'text-gray-400'
+                      applyWatermark ? 'text-amber-700 dark:text-amber-400' : 'text-gray-400'
                     }`}>
                       {applyWatermark ? 'Aktif' : 'Nonaktif'}
                     </span>
@@ -458,8 +458,8 @@ export default function ServicesClient({ initialServices }: { initialServices: S
                       role="switch"
                       aria-checked={applyWatermark}
                       onClick={() => setApplyWatermark(!applyWatermark)}
-                      className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
-                        applyWatermark ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-gray-700'
+                      className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500/30 ${
+                        applyWatermark ? 'bg-amber-600' : 'bg-gray-300 dark:bg-gray-700'
                       }`}
                     >
                       <span

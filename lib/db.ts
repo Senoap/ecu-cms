@@ -7,6 +7,20 @@ import {
   type ShowcaseSectorItem, 
   type ShowcaseRoleItem 
 } from './showcaseConstants'
+import {
+  defaultLeadershipPageConfig,
+  type LeadershipPageConfig
+} from './leadershipConstants'
+import {
+  defaultCertificationsPageConfig,
+  type CertificationsPageConfig
+} from './certificationsConstants'
+export {
+  defaultLeadershipPageConfig,
+  type LeadershipPageConfig,
+  defaultCertificationsPageConfig,
+  type CertificationsPageConfig
+}
 
 let lastSupabaseFailure = 0
 const SUPABASE_COOLDOWN_MS = 15000 // Cooldown 15 detik jika backend Supabase tidak aktif/mati
@@ -274,6 +288,8 @@ export interface AboutContent {
   quote: string
 }
 
+
+
 export interface ServicesHeaderContent {
   tag: string
   heading: string
@@ -343,6 +359,7 @@ export interface DatabaseContent {
     slideDuration: number
     showLeadership?: boolean
     showCertifications?: boolean
+    showCompro?: boolean
     leadershipLabel?: string
   }
   sections: SectionConfig[]
@@ -363,6 +380,8 @@ export interface DatabaseContent {
   directors?: DirectorItem[]
   certifications?: CertificationItem[]
   comproEmailTemplate?: ComproEmailTemplate
+  leadershipPage?: LeadershipPageConfig
+  certificationsPage?: CertificationsPageConfig
 }
 
 export const defaultCareerTemplates: CareerReplyTemplate[] = [
@@ -620,6 +639,8 @@ PT. Empat Sinergi Utama
 Hotline: +62 815 8480 5000`
 }
 
+
+
 export interface Database extends DatabaseContent {
   published: DatabaseContent
   notifications: NotificationItem[]
@@ -649,6 +670,7 @@ const defaultDataContent: DatabaseContent = {
     slideDuration: 3,
     showLeadership: true,
     showCertifications: true,
+    showCompro: true,
     leadershipLabel: 'Profil Pimpinan',
   },
   sections: [
@@ -794,7 +816,9 @@ const defaultDataContent: DatabaseContent = {
   termsOfService: defaultTermsOfService,
   directors: defaultDirectors,
   certifications: defaultCertifications,
-  comproEmailTemplate: defaultComproEmailTemplate
+  comproEmailTemplate: defaultComproEmailTemplate,
+  leadershipPage: defaultLeadershipPageConfig,
+  certificationsPage: defaultCertificationsPageConfig
 }
 
 const defaultData: Database = {
@@ -896,6 +920,14 @@ function enrichContent(content: DatabaseContent): DatabaseContent {
     },
     privacyPolicy: content.privacyPolicy || defaultPrivacyPolicy,
     termsOfService: content.termsOfService || defaultTermsOfService,
+    leadershipPage: {
+      ...defaultLeadershipPageConfig,
+      ...(content.leadershipPage || {}),
+    },
+    certificationsPage: {
+      ...defaultCertificationsPageConfig,
+      ...(content.certificationsPage || {}),
+    },
   }
 }
 
@@ -960,6 +992,9 @@ function processParsedData(parsed: Partial<Database>): Database {
         : true,
       showCertifications: typeof (parsed.setting?.showCertifications ?? parsed.published?.setting?.showCertifications) === 'boolean'
         ? (parsed.setting?.showCertifications ?? parsed.published?.setting?.showCertifications)
+        : true,
+      showCompro: typeof (parsed.setting?.showCompro ?? parsed.published?.setting?.showCompro) === 'boolean'
+        ? (parsed.setting?.showCompro ?? parsed.published?.setting?.showCompro)
         : true,
       leadershipLabel: parsed.setting?.leadershipLabel || parsed.published?.setting?.leadershipLabel || 'Profil Pimpinan',
     },
@@ -1305,9 +1340,16 @@ export async function uploadFile(
   contentType: string = 'image/jpeg'
 ): Promise<string> {
   const { sanitizeFilename, validateImageBuffer } = await import('@/lib/fileSecurity')
+  const { MAX_IMAGE_FILE_SIZE } = await import('@/lib/imageOptimizer')
   const safeName = sanitizeFilename(fileName)
 
-  // Validasi biner berkas gambar demi mencegah Stored XSS / file script
+  // 1. Validasi batas maksimal 10MB
+  if (buffer.length > MAX_IMAGE_FILE_SIZE) {
+    const sizeInMB = (buffer.length / (1024 * 1024)).toFixed(2)
+    throw new Error(`Ukuran berkas (${sizeInMB}MB) melebihi batas maksimal 10MB.`)
+  }
+
+  // 2. Validasi biner berkas gambar demi mencegah Stored XSS / file script
   const imgCheck = validateImageBuffer(buffer)
   if (!imgCheck.valid) {
     throw new Error(imgCheck.message || 'Berkas bukan gambar yang valid atau format ditolak demi alasan keamanan.')
@@ -1315,20 +1357,38 @@ export async function uploadFile(
 
   const effectiveContentType = imgCheck.mime || contentType
 
+  // 3. Sistem Pintar Kompresi Gambar: Kecilkan ukuran hingga KB menggunakan Sharp (WebP)
+  let uploadBuffer = buffer
+  let targetFileName = safeName
+  let finalContentType = effectiveContentType
+
+  try {
+    const { optimizeImage } = await import('@/lib/imageOptimizer')
+    const optResult = await optimizeImage(buffer, safeName)
+    uploadBuffer = optResult.buffer
+    targetFileName = optResult.fileName
+    finalContentType = optResult.contentType
+    console.log(
+      `[ImageOptimizer] Berhasil optimasi: ${safeName} (${optResult.originalSizeKB}KB) -> ${targetFileName} (${optResult.optimizedSizeKB}KB, hemat ${optResult.compressionRatio})`
+    )
+  } catch (optErr) {
+    console.warn('[ImageOptimizer] Optimasi otomatis dilewati, menggunakan buffer asli:', optErr)
+  }
+
   try {
     const client = getSupabase()
     if (client) {
       const { error } = await client.storage
         .from('uploads')
-        .upload(safeName, buffer, {
-          contentType: effectiveContentType,
+        .upload(targetFileName, uploadBuffer, {
+          contentType: finalContentType,
           upsert: true,
         })
 
       if (!error) {
         const { data: publicUrlData } = client.storage
           .from('uploads')
-          .getPublicUrl(safeName)
+          .getPublicUrl(targetFileName)
         return publicUrlData.publicUrl
       }
       console.warn('Gagal upload ke Supabase Storage, beralih ke penyimpanan lokal:', error.message)
@@ -1343,8 +1403,8 @@ export async function uploadFile(
     const path = await import('path')
     const uploadsDir = path.join(process.cwd(), 'public', 'uploads')
     await fs.mkdir(uploadsDir, { recursive: true })
-    await fs.writeFile(path.join(uploadsDir, safeName), buffer)
-    return `/uploads/${safeName}`
+    await fs.writeFile(path.join(uploadsDir, targetFileName), uploadBuffer)
+    return `/uploads/${targetFileName}`
   } catch (localErr) {
     console.error('Gagal upload ke penyimpanan lokal:', localErr)
     throw new Error('Gagal menyimpan file.')

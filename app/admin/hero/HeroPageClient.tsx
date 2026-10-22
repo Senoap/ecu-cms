@@ -324,7 +324,7 @@ export default function HeroPageClient({ initialHero, updateHeroAction }: HeroPa
               <div className="flex items-center gap-3.5 self-start sm:self-auto">
                 <span className={`text-xs font-black uppercase tracking-wider transition-colors select-none ${
                   showcase.enabled
-                    ? 'text-emerald-700 dark:text-emerald-400'
+                    ? 'text-amber-700 dark:text-amber-400'
                     : 'text-gray-400 dark:text-gray-500'
                 }`}>
                   {showcase.enabled ? 'Aktif (Tampil)' : 'Nonaktif (Sembunyi)'}
@@ -338,8 +338,8 @@ export default function HeroPageClient({ initialHero, updateHeroAction }: HeroPa
                   onClick={() => {
                     setShowcase((prev) => ({ ...prev, enabled: !prev.enabled }))
                   }}
-                  className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
-                    showcase.enabled ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-gray-700'
+                  className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500/30 ${
+                    showcase.enabled ? 'bg-amber-600' : 'bg-gray-300 dark:bg-gray-700'
                   }`}
                 >
                   <span

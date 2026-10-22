@@ -1,0 +1,101 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
+const fs = require('fs');
+const path = require('path');
+const sharp = require('sharp');
+
+async function generateIcons() {
+  const inputLogo = path.join(__dirname, '..', 'public', 'uploads', 'logo-1788085817981.png');
+  const outputDir = path.join(__dirname, '..', 'public', 'icons');
+
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir, { recursive: true });
+  }
+
+  // 1. Apple Touch Icon (180x180) with dark corporate background
+  const appleTouchSize = 180;
+  const appleLogoSize = 130;
+  const resizedLogoApple = await sharp(inputLogo)
+    .resize(appleLogoSize, appleLogoSize, { fit: 'inside' })
+    .toBuffer();
+
+  await sharp({
+    create: {
+      width: appleTouchSize,
+      height: appleTouchSize,
+      channels: 4,
+      background: { r: 9, g: 10, b: 15, alpha: 1 } // #090A0F
+    }
+  })
+  .composite([{ input: resizedLogoApple, gravity: 'center' }])
+  .png()
+  .toFile(path.join(outputDir, 'apple-touch-icon.png'));
+
+  console.log('Generated apple-touch-icon.png (180x180)');
+
+  // 2. Icon 192x192
+  const icon192Size = 192;
+  const logo192Size = 140;
+  const resizedLogo192 = await sharp(inputLogo)
+    .resize(logo192Size, logo192Size, { fit: 'inside' })
+    .toBuffer();
+
+  await sharp({
+    create: {
+      width: icon192Size,
+      height: icon192Size,
+      channels: 4,
+      background: { r: 9, g: 10, b: 15, alpha: 1 }
+    }
+  })
+  .composite([{ input: resizedLogo192, gravity: 'center' }])
+  .png()
+  .toFile(path.join(outputDir, 'icon-192x192.png'));
+
+  console.log('Generated icon-192x192.png (192x192)');
+
+  // 3. Icon 512x512
+  const icon512Size = 512;
+  const logo512Size = 380;
+  const resizedLogo512 = await sharp(inputLogo)
+    .resize(logo512Size, logo512Size, { fit: 'inside' })
+    .toBuffer();
+
+  await sharp({
+    create: {
+      width: icon512Size,
+      height: icon512Size,
+      channels: 4,
+      background: { r: 9, g: 10, b: 15, alpha: 1 }
+    }
+  })
+  .composite([{ input: resizedLogo512, gravity: 'center' }])
+  .png()
+  .toFile(path.join(outputDir, 'icon-512x512.png'));
+
+  console.log('Generated icon-512x512.png (512x512)');
+
+  // 4. Maskable Icon 512x512 (with safe area margin)
+  const maskableLogoSize = 320;
+  const resizedLogoMaskable = await sharp(inputLogo)
+    .resize(maskableLogoSize, maskableLogoSize, { fit: 'inside' })
+    .toBuffer();
+
+  await sharp({
+    create: {
+      width: icon512Size,
+      height: icon512Size,
+      channels: 4,
+      background: { r: 107, g: 8, b: 8, alpha: 1 } // #6B0808 ESU Maroon
+    }
+  })
+  .composite([{ input: resizedLogoMaskable, gravity: 'center' }])
+  .png()
+  .toFile(path.join(outputDir, 'icon-maskable-512x512.png'));
+
+  console.log('Generated icon-maskable-512x512.png (512x512)');
+}
+
+generateIcons().catch(err => {
+  console.error('Error generating icons:', err);
+  process.exit(1);
+});

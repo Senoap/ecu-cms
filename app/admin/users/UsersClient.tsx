@@ -332,8 +332,8 @@ export default function UsersClient({ users, masterAdminUsername }: UsersClientP
                       role="switch"
                       aria-checked={u.isActive}
                       onClick={() => handleToggleStatus(u.id)}
-                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
-                        u.isActive ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-gray-700'
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500/30 ${
+                        u.isActive ? 'bg-amber-600' : 'bg-gray-300 dark:bg-gray-700'
                       }`}
                       title={u.isActive ? 'Nonaktifkan akun' : 'Aktifkan akun'}
                     >
@@ -521,8 +521,8 @@ export default function UsersClient({ users, masterAdminUsername }: UsersClientP
                     role="switch"
                     aria-checked={formIsActive}
                     onClick={() => setFormIsActive(!formIsActive)}
-                    className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
-                      formIsActive ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-gray-700'
+                    className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500/30 ${
+                      formIsActive ? 'bg-amber-600' : 'bg-gray-300 dark:bg-gray-700'
                     }`}
                   >
                     <span

@@ -6,7 +6,7 @@ import { MessageSquare, Sun, Moon } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import { DynamicIcon } from '@/components/DynamicIcon'
 import { useLanguage } from '@/components/LanguageContext'
-import { ServiceItem, DatabaseContent, FooterContent } from '@/lib/db'
+import type { ServiceItem, DatabaseContent, FooterContent } from '@/lib/db'
 
 export default function ServiceDetailClient({
   srv,

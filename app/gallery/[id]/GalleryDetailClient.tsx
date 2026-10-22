@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { MessageSquare } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import { useLanguage } from '@/components/LanguageContext'
-import { GalleryItem, DatabaseContent, FooterContent } from '@/lib/db'
+import type { GalleryItem, DatabaseContent, FooterContent } from '@/lib/db'
 
 export default function GalleryDetailClient({
   item,

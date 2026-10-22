@@ -10,7 +10,8 @@ import {
   uploadComproPdfAction,
   getComproPdfInfoAction,
   getSmtpStatusAction,
-  testSmtpAction
+  testSmtpAction,
+  toggleComproVisibilityAction
 } from '@/app/actions/compro'
 
 export default async function AdminComproRequestsPage() {
@@ -28,6 +29,8 @@ export default async function AdminComproRequestsPage() {
       template={template}
       pdfInfo={pdfInfo}
       smtpStatus={smtpStatus}
+      showCompro={db.setting?.showCompro !== false}
+      toggleComproVisibilityAction={toggleComproVisibilityAction}
       resendEmailAction={resendComproEmailAction}
       updateStatusAction={updateComproStatusAction}
       deleteRequestAction={deleteComproRequestAction}

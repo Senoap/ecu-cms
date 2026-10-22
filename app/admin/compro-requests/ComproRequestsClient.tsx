@@ -41,6 +41,8 @@ interface ComproRequestsClientProps {
   saveTemplateAction: (tpl: ComproEmailTemplate) => Promise<{ success: boolean; message?: string }>
   uploadPdfAction: (formData: FormData) => Promise<{ success: boolean; message: string; pdfUrl?: string; sizeKb?: number }>
   testSmtpAction?: (testEmail?: string) => Promise<{ success: boolean; message: string }>
+  showCompro?: boolean
+  toggleComproVisibilityAction?: (showCompro: boolean) => Promise<{ success: boolean }>
 }
 
 export default function ComproRequestsClient({
@@ -48,6 +50,8 @@ export default function ComproRequestsClient({
   template: initialTemplate,
   pdfInfo: initialPdfInfo = { exists: true, sizeKb: 399, filename: 'compro.pdf' },
   smtpStatus,
+  showCompro = true,
+  toggleComproVisibilityAction,
   resendEmailAction,
   updateStatusAction,
   deleteRequestAction,
@@ -59,6 +63,7 @@ export default function ComproRequestsClient({
   const [requestsList, setRequestsList] = useState<ComproRequestItem[]>(initialRequests)
   const [templateData, setTemplateData] = useState<ComproEmailTemplate>(initialTemplate)
   const [currentPdfInfo, setCurrentPdfInfo] = useState(initialPdfInfo)
+  const [isComproEnabled, setIsComproEnabled] = useState(showCompro !== false)
   const [searchQuery, setSearchQuery] = useState('')
   const [filterStatus, setFilterStatus] = useState<'all' | 'sent' | 'pending' | 'followed_up'>('all')
   const [isPending, startTransition] = useTransition()
@@ -87,6 +92,22 @@ export default function ComproRequestsClient({
     setToastMessage(msg)
     setShowToast(true)
     setTimeout(() => setShowToast(false), 4000)
+  }
+
+  // Toggle Fitur Permintaan Compro PDF Publik
+  const handleToggleCompro = () => {
+    const nextVal = !isComproEnabled
+    setIsComproEnabled(nextVal)
+    startTransition(async () => {
+      if (toggleComproVisibilityAction) {
+        await toggleComproVisibilityAction(nextVal)
+        triggerToast(
+          nextVal
+            ? 'Fitur Permintaan Compro PDF sekarang ditampilkan di website.'
+            : 'Fitur Permintaan Compro PDF berhasil disembunyikan dari website.'
+        )
+      }
+    })
   }
 
   // Filter permintaan
@@ -233,6 +254,55 @@ export default function ComproRequestsClient({
           >
             <Paperclip className="w-4 h-4" />
             <span>Lampiran & Template Email Otomatis</span>
+          </button>
+        </div>
+      </div>
+
+      {/* CARD KONTROL VISIBILITAS PUBLIK FITUR PERMINTAAN COMPRO */}
+      <div className={`p-6 rounded-3xl border transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm ${
+        isComproEnabled
+          ? 'bg-amber-50/60 dark:bg-amber-950/20 border-amber-500/30'
+          : 'bg-red-50/60 dark:bg-red-950/20 border-red-500/30'
+      }`}>
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className={`w-2.5 h-2.5 rounded-full ${isComproEnabled ? 'bg-amber-600' : 'bg-red-500'}`} />
+            <h3 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider">
+              Status Fitur: {isComproEnabled ? 'AKTIF DITAMPILKAN DI WEBSITE' : 'NONAKTIF / DISEMBUNYIKAN DARI WEBSITE'}
+            </h3>
+          </div>
+          <p className="text-xs text-gray-600 dark:text-gray-400 max-w-xl">
+            {isComproEnabled
+              ? 'Tombol & formulir permintaan Compro PDF aktif muncul di navigasi website (desktop & mobile menu) untuk pengunjung publik.'
+              : 'Fitur dan tombol permintaan Compro PDF dinonaktifkan / disembunyikan sepenuhnya dari pengunjung website.'}
+          </p>
+        </div>
+
+        {/* Saklar Geser ala Apple (iOS Toggle Switch) Berwarna Maroon Sesuai Palet Perusahaan */}
+        <div className="flex items-center gap-3.5 self-start sm:self-auto shrink-0">
+          <span className={`text-xs font-black uppercase tracking-wider transition-colors select-none ${
+            isComproEnabled
+              ? 'text-amber-700 dark:text-amber-400'
+              : 'text-gray-400 dark:text-gray-500'
+          }`}>
+            {isComproEnabled ? 'Aktif (Tampil)' : 'Nonaktif (Sembunyi)'}
+          </span>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={isComproEnabled}
+            aria-label="Toggle Fitur Permintaan Compro PDF"
+            onClick={handleToggleCompro}
+            disabled={isPending}
+            className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500/30 ${
+              isComproEnabled ? 'bg-amber-600' : 'bg-gray-300 dark:bg-gray-700'
+            }`}
+          >
+            <span
+              className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md ring-0 transition duration-300 ease-in-out ${
+                isComproEnabled ? 'translate-x-7' : 'translate-x-0'
+              }`}
+            />
           </button>
         </div>
       </div>

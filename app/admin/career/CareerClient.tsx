@@ -415,8 +415,8 @@ export default function CareerClient({
                   aria-checked={editIsActive}
                   aria-label="Toggle Status Aktif Lowongan"
                   onClick={() => setEditIsActive(!editIsActive)}
-                  className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
-                    editIsActive ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-gray-700'
+                  className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500/30 ${
+                    editIsActive ? 'bg-amber-600' : 'bg-gray-300 dark:bg-gray-700'
                   }`}
                 >
                   <span

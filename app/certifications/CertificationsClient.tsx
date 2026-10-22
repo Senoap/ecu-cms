@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Award, ShieldCheck, Calendar, FileText, Sun, Moon, Maximize2, X, PhoneCall, CheckCircle, Users } from 'lucide-react'
 import type { DatabaseContent, CertificationItem } from '@/lib/db'
+import { defaultCertificationsPageConfig, type CertificationsPageConfig } from '@/lib/certificationsConstants'
 
 interface CertificationsClientProps {
   db: DatabaseContent
@@ -15,6 +16,10 @@ export default function CertificationsClient({ db, certifications }: Certificati
   const [isDarkMode, setIsDarkMode] = useState(false)
   const [selectedCert, setSelectedCert] = useState<CertificationItem | null>(null)
   const setting = db.setting
+  const pageConfig: CertificationsPageConfig = {
+    ...defaultCertificationsPageConfig,
+    ...(db.certificationsPage || {}),
+  }
 
   useEffect(() => {
     const isDark = document.documentElement.classList.contains('dark')
@@ -44,13 +49,13 @@ export default function CertificationsClient({ db, certifications }: Certificati
       <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#0B0E17]/80 backdrop-blur-xl border-b border-gray-200/80 dark:border-gray-800/80 transition-colors">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <Link
-            href="/"
+            href={pageConfig.backButtonLink || '/'}
             className="flex items-center gap-2.5 text-xs sm:text-sm font-extrabold text-gray-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-amber-400 transition-colors group cursor-pointer"
           >
             <div className="w-8 h-8 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center border border-gray-200 dark:border-gray-700 group-hover:scale-105 transition-transform">
               <ArrowLeft className="w-4 h-4" />
             </div>
-            <span>Kembali ke Beranda</span>
+            <span>{pageConfig.backButtonText || 'Kembali ke Beranda'}</span>
           </Link>
 
           <Link href="/" className="flex items-center gap-3">
@@ -83,17 +88,21 @@ export default function CertificationsClient({ db, certifications }: Certificati
         
         {/* BANNER HEADER */}
         <div className="text-center space-y-4 max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-black uppercase tracking-widest">
-            <Award className="w-4 h-4" />
-            <span>Kepatuhan Regulasi & Standar Mutu</span>
-          </div>
+          {pageConfig.headerBadge && (
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/40 text-amber-800 dark:text-amber-300 text-xs font-black uppercase tracking-wider">
+              <Award className="w-4 h-4 text-amber-700 dark:text-amber-400" />
+              <span>{pageConfig.headerBadge}</span>
+            </div>
+          )}
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight leading-tight">
-            Sertifikasi & Izin Operasional Resmi
+            {pageConfig.headerTitle || 'Sertifikasi & Izin Operasional Resmi'}
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base md:text-lg leading-relaxed font-medium">
-            Bukti legalitas, keabsahan akreditasi internasional, dan izin resmi dari lembaga berwenang Republik Indonesia yang mengukuhkan dedikasi kualitas layanan {setting.siteName}.
-          </p>
-          <div className="w-20 h-1 bg-amber-500 mx-auto rounded-full mt-4"></div>
+          {pageConfig.headerDesc && (
+            <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base md:text-lg leading-relaxed font-medium">
+              {pageConfig.headerDesc.replace('{company}', setting.siteName)}
+            </p>
+          )}
+          <div className="w-16 h-1 mx-auto rounded-full mt-4" style={{ backgroundColor: setting.primaryColor || '#6B0808' }}></div>
         </div>
 
         {/* GRID SERTIFIKASI */}
@@ -196,42 +205,52 @@ export default function CertificationsClient({ db, certifications }: Certificati
           })}
         </div>
 
-        {/* BANNER INFORMASI KEASLIAN DOKUMEN */}
-        <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-amber-950 text-white p-8 sm:p-10 md:p-12 rounded-3xl border border-amber-500/20 shadow-2xl space-y-6 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
-          
-          <div className="relative z-10 max-w-3xl space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-amber-400 text-xs font-black uppercase tracking-widest">
-              <ShieldCheck className="w-4 h-4" />
-              <span>Proteksi Keaslian Dokumen Legal</span>
+        {/* BANNER INFORMASI KEASLIAN DOKUMEN - Desain Korporat Elegan Selaras */}
+        {pageConfig.showProtectionCard !== false && (
+          <div
+            className="bg-white dark:bg-[#0E111A] text-gray-900 dark:text-white p-8 sm:p-10 md:p-12 rounded-3xl border border-gray-200/90 dark:border-gray-800 shadow-xl space-y-6 relative overflow-hidden transition-all duration-300 border-l-8"
+            style={{ borderLeftColor: setting.primaryColor || '#6B0808' }}
+          >
+            <div className="relative z-10 max-w-3xl space-y-4">
+              {pageConfig.protectionBadge && (
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-xs font-black uppercase tracking-wider border border-amber-200/80 dark:border-amber-800/40">
+                  <ShieldCheck className="w-4 h-4 text-amber-700 dark:text-amber-400" />
+                  <span>{pageConfig.protectionBadge}</span>
+                </div>
+              )}
+              <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-gray-900 dark:text-white">
+                {pageConfig.protectionTitle || 'Verifikasi & Validasi Dokumen Legal Perusahaan'}
+              </h2>
+              {pageConfig.protectionDesc && (
+                <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm md:text-base leading-relaxed font-medium text-justify">
+                  {pageConfig.protectionDesc.replace('{company}', setting.siteName)}
+                </p>
+              )}
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-              Verifikasi & Validasi Dokumen Legal Perusahaan
-            </h2>
-            <p className="text-gray-300 text-xs sm:text-sm md:text-base leading-relaxed font-medium text-justify">
-              Seluruh sertifikat akreditasi ISO, lisensi operasional BUJP POLRI, serta izin ketenagakerjaan yang ditampilkan telah melewati audit kepatuhan resmi. Seluruh tampilan gambar dilindungi watermark anti-duplikasi digital untuk menjaga integritas korporat {setting.siteName}.
-            </p>
-          </div>
 
-          <div className="relative z-10 pt-4 flex flex-wrap gap-4 items-center">
-            <Link
-              href="/#contact"
-              className="px-6 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-gray-950 font-black text-xs uppercase tracking-wider shadow-xl transition-all duration-300 hover:scale-105 flex items-center gap-2 cursor-pointer"
-            >
-              <PhoneCall className="w-4 h-4" />
-              <span>Verifikasi Berkas Kemitraan</span>
-            </Link>
-            {setting.showLeadership !== false && (
-              <Link
-                href="/leadership"
-                className="px-6 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider border border-white/20 transition-all duration-300 flex items-center gap-2 cursor-pointer"
-              >
-                <Users className="w-4 h-4 text-amber-400" />
-                <span>Lihat {setting.leadershipLabel || 'Profil Pimpinan'}</span>
-              </Link>
-            )}
+            <div className="relative z-10 pt-4 flex flex-wrap gap-4 items-center">
+              {pageConfig.protectionCtaText && (
+                <Link
+                  href={pageConfig.protectionCtaLink || '/#contact'}
+                  className="px-6 py-3.5 rounded-xl text-white font-black text-xs uppercase tracking-wider shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] flex items-center gap-2 cursor-pointer"
+                  style={{ backgroundColor: setting.primaryColor || '#6B0808' }}
+                >
+                  <PhoneCall className="w-4 h-4" />
+                  <span>{pageConfig.protectionCtaText}</span>
+                </Link>
+              )}
+              {pageConfig.protectionShowLeadershipBtn !== false && setting.showLeadership !== false && (
+                <Link
+                  href={pageConfig.protectionLeadershipLink || '/leadership'}
+                  className="px-6 py-3.5 rounded-xl bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-200 font-bold text-xs uppercase tracking-wider border border-gray-300 dark:border-gray-700 transition-all flex items-center gap-2 cursor-pointer"
+                >
+                  <Users className="w-4 h-4 text-amber-700 dark:text-amber-400" />
+                  <span>{pageConfig.protectionLeadershipText || `Lihat ${setting.leadershipLabel || 'Profil Pimpinan'}`}</span>
+                </Link>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
       </main>
 

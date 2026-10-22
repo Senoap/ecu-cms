@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Navbar from '@/components/Navbar'
 import { useLanguage } from '@/components/LanguageContext'
-import { CareerItem, DatabaseContent, FooterContent } from '@/lib/db'
+import type { CareerItem, DatabaseContent, FooterContent } from '@/lib/db'
 import ApplyForm from './ApplyForm'
 import {
   ArrowLeft,

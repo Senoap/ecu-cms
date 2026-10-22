@@ -9,9 +9,13 @@ export const dynamic = 'force-dynamic'
 export async function generateMetadata(): Promise<Metadata> {
   const db = await readPublishedDB()
   const siteName = db.setting?.siteName || 'PT Empat Sinergi Utama'
+  const title = db.certificationsPage?.headerTitle || 'Sertifikasi & Izin Operasional Resmi'
+  const desc = db.certificationsPage?.headerDesc
+    ? db.certificationsPage.headerDesc.replace('{company}', siteName)
+    : `Daftar sertifikasi ISO 9001, ISO 45001, dan izin operasional resmi BUJP POLRI milik ${siteName} terlindungi watermark digital.`
   return {
-    title: `Sertifikasi & Izin Operasional Resmi - ${siteName}`,
-    description: `Daftar sertifikasi ISO 9001, ISO 45001, dan izin operasional resmi BUJP POLRI milik ${siteName} terlindungi watermark digital.`,
+    title: `${title} - ${siteName}`,
+    description: desc,
   }
 }
 

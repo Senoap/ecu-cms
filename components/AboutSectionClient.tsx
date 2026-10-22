@@ -71,58 +71,62 @@ export default function AboutSectionClient({
           )}
         </div>
 
-        {/* Kolom Kanan: Kotak Rekam Jejak & Pengalaman Pimpinan */}
+        {/* Kolom Kanan: Kotak Rekam Jejak & Pengalaman Pimpinan (Desain Korporat Elegan) */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="bg-gradient-to-br from-[#1C1F28] via-[#151720] to-[#0E1017] text-white p-7 sm:p-9 md:p-10 rounded-2xl shadow-xl border border-gray-800 space-y-6 relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
-            
-            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center text-amber-400 shadow-inner">
-              <Award className="w-7 h-7 sm:w-8 sm:h-8" />
-            </div>
-
-            <div className="space-y-3 relative z-10">
-              <span className="text-[10px] font-black uppercase tracking-widest bg-amber-500/20 text-amber-300 px-3 py-1 rounded-full border border-amber-500/30">
+          <div
+            className="bg-white dark:bg-[#0E111A] text-gray-900 dark:text-white p-7 sm:p-9 md:p-10 rounded-2xl shadow-xl border border-gray-200/90 dark:border-gray-800 space-y-6 relative overflow-hidden transition-all duration-300 border-t-4 sm:border-t-0 sm:border-l-4"
+            style={{ borderLeftColor: primaryColor || '#6B0808', borderTopColor: primaryColor || '#6B0808' }}
+          >
+            <div className="flex items-center justify-between gap-4">
+              <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 flex items-center justify-center text-amber-800 dark:text-amber-400 shadow-sm">
+                <Award className="w-6 h-6" />
+              </div>
+              <span className="text-[11px] font-black uppercase tracking-wider bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 px-3 py-1 rounded-lg border border-amber-200/80 dark:border-amber-800/40">
                 {t.about.leadershipBadge}
               </span>
-              <h3 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-white">
+            </div>
+
+            <div className="space-y-2.5">
+              <h3 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-gray-900 dark:text-white">
                 {leadershipTitle}
               </h3>
-              <p className="text-gray-300 text-xs sm:text-sm md:text-base leading-relaxed font-medium pt-2 text-justify">
+              <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm md:text-base leading-relaxed font-medium text-justify">
                 {leadershipDesc}
               </p>
             </div>
 
-            <div className="pt-4 border-t border-white/10 flex items-center justify-between text-[11px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider">
+            <div className="pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-[11px] sm:text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
               <span>{t.about.corporateBadge}</span>
-              <span className="text-amber-400">{t.about.established}</span>
+              <span className="font-extrabold text-amber-800 dark:text-amber-400">{t.about.established}</span>
             </div>
 
-            {/* TOMBOL SUBMENU TENTANG KAMI: PIMPINAN & SERTIFIKASI (KONDISIONAL SESUAI FITUR AKTIF) */}
+            {/* TOMBOL SUBMENU TENTANG KAMI: PIMPINAN & SERTIFIKASI (KONDISIONAL SESUAI FITUR AKTIF, LABEL LENGKAP TANPA TRUNCATE) */}
             {(showLeadership || showCertifications) && (
-              <div className={`pt-2 grid ${(showLeadership && showCertifications) ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'} gap-2.5`}>
+              <div className="pt-2 flex flex-col sm:flex-row gap-3">
                 {showLeadership && (
                   <Link
                     href="/leadership"
-                    className="py-3 px-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-gray-950 font-black text-xs uppercase tracking-wider flex items-center justify-between shadow-lg transition-all duration-300 hover:scale-[1.02] cursor-pointer group/btn"
+                    className="flex-1 py-3 px-4 rounded-xl text-white font-black text-xs uppercase tracking-wider flex items-center justify-between shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.01] cursor-pointer group/btn"
+                    style={{ backgroundColor: primaryColor || '#6B0808' }}
                   >
-                    <div className="flex items-center gap-2 truncate">
+                    <div className="flex items-center gap-2">
                       <Users className="w-4 h-4 shrink-0" />
-                      <span className="truncate">{leadershipLabel || 'Profil Pimpinan'}</span>
+                      <span>{leadershipLabel || 'Profil Pimpinan'}</span>
                     </div>
-                    <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform shrink-0" />
+                    <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform shrink-0" />
                   </Link>
                 )}
 
                 {showCertifications && (
                   <Link
                     href="/certifications"
-                    className="py-3 px-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-black text-xs uppercase tracking-wider flex items-center justify-between border border-white/20 shadow-lg transition-all duration-300 hover:scale-[1.02] cursor-pointer group/btn"
+                    className="flex-1 py-3 px-4 rounded-xl bg-transparent hover:bg-gray-50 dark:hover:bg-gray-800/80 text-gray-800 dark:text-gray-200 font-bold text-xs uppercase tracking-wider flex items-center justify-between border border-gray-300 dark:border-gray-700 shadow-sm transition-all duration-300 hover:scale-[1.01] cursor-pointer group/btn"
                   >
-                    <div className="flex items-center gap-2 truncate">
-                      <ShieldCheck className="w-4 h-4 text-amber-400 shrink-0" />
-                      <span className="truncate">Sertifikasi & Izin</span>
+                    <div className="flex items-center gap-2">
+                      <ShieldCheck className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                      <span>Sertifikasi Resmi</span>
                     </div>
-                    <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform shrink-0" />
+                    <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform shrink-0" />
                   </Link>
                 )}
               </div>

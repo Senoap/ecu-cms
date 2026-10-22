@@ -1,5 +1,5 @@
 // app/admin/about/page.tsx
-import { readDB, writeDB, addNotification, DirectorItem } from '@/lib/db'
+import { readDB, writeDB, addNotification, uploadFile, DirectorItem, defaultLeadershipPageConfig, type LeadershipPageConfig } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import { requirePermission, requirePagePermission } from '@/lib/auth'
 import AboutClient from './AboutClient'
@@ -66,6 +66,48 @@ export default async function AdminAboutPage() {
     revalidatePath('/')
   }
 
+  async function uploadDirectorPhotoAction(formData: FormData): Promise<{ success: boolean; url?: string; error?: string }> {
+    'use server'
+    await requirePermission('about')
+    try {
+      const file = formData.get('photo') as File | null
+      if (!file || file.size === 0) {
+        return { success: false, error: 'Tidak ada berkas gambar yang dipilih.' }
+      }
+
+      if (file.size > 10 * 1024 * 1024) {
+        return { success: false, error: 'Ukuran berkas melebihi batas maksimal 10MB.' }
+      }
+
+      const buffer = Buffer.from(await file.arrayBuffer())
+      const timestamp = Date.now()
+      const rawName = file.name || 'director.jpg'
+      const cleanFileName = `director-${timestamp}-${rawName.replace(/\s+/g, '_')}`
+
+      const uploadedUrl = await uploadFile(buffer, cleanFileName, file.type || 'image/jpeg')
+      return { success: true, url: uploadedUrl }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Gagal mengunggah foto profil.'
+      return { success: false, error: msg }
+    }
+  }
+
+  async function saveLeadershipPageAction(config: LeadershipPageConfig) {
+    'use server'
+    const currentUser = await requirePermission('about')
+    const db = await readDB()
+    db.leadershipPage = config
+    await writeDB(db, currentUser)
+    await addNotification('Memperbarui kustomisasi konten & narasi halaman /leadership.', 'UPDATE', 'system', {
+      userName: currentUser.name,
+      userRole: currentUser.role
+    })
+    revalidatePath('/admin/about')
+    revalidatePath('/admin', 'layout')
+    revalidatePath('/leadership')
+    revalidatePath('/')
+  }
+
   async function toggleLeadershipVisibilityAction(showLeadership: boolean) {
     'use server'
     const currentUser = await requirePermission('about')
@@ -99,8 +141,11 @@ export default async function AdminAboutPage() {
       directors={db.directors || []}
       showLeadership={db.setting?.showLeadership !== false}
       leadershipLabel={db.setting?.leadershipLabel || 'Profil Pimpinan'}
+      leadershipPageConfig={db.leadershipPage || defaultLeadershipPageConfig}
       saveAboutAction={saveAboutAction}
       saveDirectorsAction={saveDirectorsAction}
+      saveLeadershipPageAction={saveLeadershipPageAction}
+      uploadDirectorPhotoAction={uploadDirectorPhotoAction}
       toggleLeadershipVisibilityAction={toggleLeadershipVisibilityAction}
     />
   )

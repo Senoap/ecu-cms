@@ -18,6 +18,7 @@ interface NavbarProps {
   logoUrl?: string
   showLeadership?: boolean
   showCertifications?: boolean
+  showCompro?: boolean
   leadershipLabel?: string
 }
 
@@ -30,6 +31,7 @@ export default function Navbar({
   logoUrl,
   showLeadership = true,
   showCertifications = true,
+  showCompro = true,
   leadershipLabel = 'Profil Pimpinan',
 }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -325,14 +327,16 @@ export default function Navbar({
               })}
               
               {/* Tombol Minta Compro PDF */}
-              <button
-                type="button"
-                onClick={() => setComproModalOpen(true)}
-                className="px-3 xl:px-3.5 py-1.5 sm:py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-gray-950 font-black transition-all duration-300 hover:scale-105 text-xs xl:text-sm cursor-pointer tracking-wider whitespace-nowrap flex items-center gap-1.5 shadow-md ml-1 shrink-0"
-              >
-                <FileDown className="w-3.5 h-3.5" />
-                <span>Compro PDF</span>
-              </button>
+              {showCompro !== false && (
+                <button
+                  type="button"
+                  onClick={() => setComproModalOpen(true)}
+                  className="px-3 xl:px-3.5 py-1.5 sm:py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white border border-white/25 font-black transition-all duration-300 hover:scale-105 text-xs xl:text-sm cursor-pointer tracking-wider whitespace-nowrap flex items-center gap-1.5 shadow-sm ml-1 shrink-0"
+                >
+                  <FileDown className="w-3.5 h-3.5 text-amber-300" />
+                  <span>Compro PDF</span>
+                </button>
+              )}
 
               {/* Tombol Hubungi Kami */}
               <Link 
@@ -439,17 +443,19 @@ export default function Navbar({
             })}
 
             {/* Tombol Minta Compro PDF di Mobile Menu */}
-            <button
-              type="button"
-              onClick={() => {
-                setMobileMenuOpen(false)
-                setComproModalOpen(true)
-              }}
-              className="w-full text-left text-sm sm:text-base font-extrabold tracking-wide text-amber-300 hover:text-white transition-colors py-2 border-b border-white/10 flex items-center gap-2 cursor-pointer"
-            >
-              <FileDown className="w-4 h-4 text-amber-400" />
-              <span>Minta Compro (PDF)</span>
-            </button>
+            {showCompro !== false && (
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                  setComproModalOpen(true)
+                }}
+                className="w-full text-left text-sm sm:text-base font-extrabold tracking-wide text-amber-300 hover:text-white transition-colors py-2 border-b border-white/10 flex items-center gap-2 cursor-pointer"
+              >
+                <FileDown className="w-4 h-4 text-amber-400" />
+                <span>Minta Compro (PDF)</span>
+              </button>
+            )}
 
             <Link
               href="/#contact"

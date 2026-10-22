@@ -2,7 +2,7 @@
 'use client'
 import { useState, useMemo, useTransition } from 'react'
 import { extractColorPalette } from '@/lib/colorExtractor'
-import { Save, Building2, Eye, Image as ImageIcon, Users, Award, Shield, Layers } from 'lucide-react'
+import { Save, Building2, Eye, Image as ImageIcon, Users, Award, Shield, Layers, FileDown } from 'lucide-react'
 
 interface Section {
   id: string
@@ -25,6 +25,7 @@ interface AdminPageClientProps {
     bgImageUrl?: string
     showLeadership?: boolean
     showCertifications?: boolean
+    showCompro?: boolean
     leadershipLabel?: string
   }
   initialSections: Section[]
@@ -93,6 +94,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
   const [showLeadership, setShowLeadership] = useState(initialSetting.showLeadership !== false)
   const [leadershipLabel, setLeadershipLabel] = useState(initialSetting.leadershipLabel || 'Profil Pimpinan')
   const [showCertifications, setShowCertifications] = useState(initialSetting.showCertifications !== false)
+  const [showCompro, setShowCompro] = useState(initialSetting.showCompro !== false)
   const [hasLogoFile, setHasLogoFile] = useState(false)
   const [hasBgImageFile, setHasBgImageFile] = useState(false)
   const [isExtracting, setIsExtracting] = useState(false)
@@ -115,6 +117,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
     showLeadership: initialSetting.showLeadership !== false,
     leadershipLabel: (initialSetting.leadershipLabel || 'Profil Pimpinan').trim(),
     showCertifications: initialSetting.showCertifications !== false,
+    showCompro: initialSetting.showCompro !== false,
     sections: initialSectionsNormalized,
   }))
 
@@ -132,12 +135,13 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
       showLeadership,
       leadershipLabel: (leadershipLabel || 'Profil Pimpinan').trim(),
       showCertifications,
+      showCompro,
       sections: sections.map((s, idx) => ({ id: s.id, isVisible: s.isVisible, order: idx + 1, label: (s.label || '').trim() })),
     }
     return JSON.stringify(current) !== JSON.stringify(savedBaseline)
   }, [
     siteName, tagline, primaryColor, secondaryColor, accentColor, loadingBgColor,
-    slideDuration, showLeadership, leadershipLabel, showCertifications, sections,
+    slideDuration, showLeadership, leadershipLabel, showCertifications, showCompro, sections,
     hasLogoFile, hasBgImageFile, savedBaseline
   ])
 
@@ -212,6 +216,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
     formData.set('showLeadership', showLeadership ? 'on' : 'off')
     formData.set('leadershipLabel', leadershipLabel)
     formData.set('showCertifications', showCertifications ? 'on' : 'off')
+    formData.set('showCompro', showCompro ? 'on' : 'off')
 
     sections.forEach((sec, idx) => {
       formData.set(`order_${sec.id}`, String(idx + 1))
@@ -236,6 +241,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
         showLeadership,
         leadershipLabel: (leadershipLabel || 'Profil Pimpinan').trim(),
         showCertifications,
+        showCompro,
         sections: sections.map((s, idx) => ({ id: s.id, isVisible: s.isVisible, order: idx + 1, label: (s.label || '').trim() })),
       })
       setHasLogoFile(false)
@@ -623,29 +629,31 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Toggle 1: Profil Pimpinan */}
-            <div className="p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#090A0F] space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white flex items-center gap-2">
-                  <Users className="w-4 h-4 text-amber-500" />
-                  <span>Modul Profil Pimpinan</span>
-                </span>
-                <label className="relative inline-flex items-center cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    name="showLeadership"
-                    checked={showLeadership}
-                    onChange={(e) => setShowLeadership(e.target.checked)}
-                    className="sr-only peer"
-                  />
-                  <div className="w-14 h-7 bg-gray-300 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:bg-emerald-500 transition-colors duration-300 ease-in-out"></div>
-                  <div className="absolute left-0.5 top-0.5 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300 ease-in-out peer-checked:translate-x-7"></div>
-                </label>
+            <div className="p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#090A0F] space-y-3 flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white flex items-center gap-2">
+                    <Users className="w-4 h-4 text-amber-500" />
+                    <span>Modul Profil Pimpinan</span>
+                  </span>
+                  <label className="relative inline-flex items-center cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      name="showLeadership"
+                      checked={showLeadership}
+                      onChange={(e) => setShowLeadership(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-14 h-7 bg-gray-300 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:bg-amber-600 transition-colors duration-300 ease-in-out"></div>
+                    <div className="absolute left-0.5 top-0.5 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300 ease-in-out peer-checked:translate-x-7"></div>
+                  </label>
+                </div>
+                <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
+                  Tampilkan halaman /leadership dan submenu di bawah &quot;Tentang Kami&quot;. Jika dinonaktifkan, pimpinan tidak akan ditampilkan di website.
+                </p>
               </div>
-              <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
-                Tampilkan halaman /leadership dan submenu di bawah &quot;Tentang Kami&quot;. Jika dinonaktifkan, pimpinan tidak akan ditampilkan di website.
-              </p>
               <div className="pt-2">
                 <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Label Menu / Tombol</label>
                 <input
@@ -660,27 +668,55 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
             </div>
 
             {/* Toggle 2: Sertifikasi Perusahaan */}
-            <div className="p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#090A0F] space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white flex items-center gap-2">
-                  <Award className="w-4 h-4 text-amber-500" />
-                  <span>Modul Sertifikasi Perusahaan</span>
-                </span>
-                <label className="relative inline-flex items-center cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    name="showCertifications"
-                    checked={showCertifications}
-                    onChange={(e) => setShowCertifications(e.target.checked)}
-                    className="sr-only peer"
-                  />
-                  <div className="w-14 h-7 bg-gray-300 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:bg-emerald-500 transition-colors duration-300 ease-in-out"></div>
-                  <div className="absolute left-0.5 top-0.5 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300 ease-in-out peer-checked:translate-x-7"></div>
-                </label>
+            <div className="p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#090A0F] space-y-3 flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white flex items-center gap-2">
+                    <Award className="w-4 h-4 text-amber-500" />
+                    <span>Modul Sertifikasi</span>
+                  </span>
+                  <label className="relative inline-flex items-center cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      name="showCertifications"
+                      checked={showCertifications}
+                      onChange={(e) => setShowCertifications(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-14 h-7 bg-gray-300 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:bg-amber-600 transition-colors duration-300 ease-in-out"></div>
+                    <div className="absolute left-0.5 top-0.5 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300 ease-in-out peer-checked:translate-x-7"></div>
+                  </label>
+                </div>
+                <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
+                  Tampilkan halaman /certifications dan submenu di bawah &quot;Tentang Kami&quot;. Jika dinonaktifkan, sertifikasi tidak akan ditampilkan di website.
+                </p>
               </div>
-              <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
-                Tampilkan halaman /certifications dan submenu di bawah &quot;Tentang Kami&quot;. Jika dinonaktifkan, sertifikasi tidak akan ditampilkan di website.
-              </p>
+            </div>
+
+            {/* Toggle 3: Permintaan Compro PDF */}
+            <div className="p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#090A0F] space-y-3 flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white flex items-center gap-2">
+                    <FileDown className="w-4 h-4 text-amber-500" />
+                    <span>Fitur Compro (PDF)</span>
+                  </span>
+                  <label className="relative inline-flex items-center cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      name="showCompro"
+                      checked={showCompro}
+                      onChange={(e) => setShowCompro(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-14 h-7 bg-gray-300 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:bg-amber-600 transition-colors duration-300 ease-in-out"></div>
+                    <div className="absolute left-0.5 top-0.5 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300 ease-in-out peer-checked:translate-x-7"></div>
+                  </label>
+                </div>
+                <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
+                  Tampilkan tombol unduh/permintaan Company Profile di header dan menu navigasi. Jika dinonaktifkan, tombol disembunyikan.
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -730,7 +766,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
                       }}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-gray-300 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:bg-emerald-500 transition-colors duration-300 ease-in-out"></div>
+                    <div className="w-11 h-6 bg-gray-300 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:bg-amber-600 transition-colors duration-300 ease-in-out"></div>
                     <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-300 ease-in-out peer-checked:translate-x-5"></div>
                   </label>
 
