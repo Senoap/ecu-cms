@@ -193,11 +193,16 @@ export default function Navbar({
         text={t.nav.loadingContent}
       />
 
-      {/* NAVBAR UTAMA (FIXED MELAYANG DI ATAS LAYAR DENGAN SPASING ATAS YANG ELEGAN & SMART MULTI-WINDOW) */}
+      {/* NAVBAR UTAMA (FIXED MELAYANG DI ATAS LAYAR DENGAN SPASING ATAS YANG ELEGAN & SAFE-AREA NOTCH IPHONE) */}
       <header 
-        className={`fixed left-0 right-0 z-50 w-full px-3 sm:px-6 md:px-10 lg:px-16 flex justify-between items-center pointer-events-none transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] font-sans ${
-          isCompactNav ? 'top-2.5 sm:top-3.5' : 'top-5 sm:top-7 lg:top-8'
-        }`}
+        style={{
+          top: isCompactNav
+            ? 'max(0.625rem, calc(env(safe-area-inset-top, 0px) + 0.375rem))'
+            : 'max(1.25rem, calc(env(safe-area-inset-top, 0px) + 0.625rem))',
+          paddingLeft: 'max(0.75rem, env(safe-area-inset-left, 0px))',
+          paddingRight: 'max(0.75rem, env(safe-area-inset-right, 0px))',
+        }}
+        className={`fixed left-0 right-0 z-50 w-full sm:px-6 md:px-10 lg:px-16 flex justify-between items-center pointer-events-none transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] font-sans`}
       >
         
         {/* 1. LOGO FLOATING CARD (Kiri: Menyusut menampilkan hanya logo saat di-scroll atau saat layar dibagi 2/4 jendela) */}

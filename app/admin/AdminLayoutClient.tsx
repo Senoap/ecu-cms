@@ -494,7 +494,12 @@ export default function AdminLayoutClient({
         isSidebarOpen ? 'w-72 sm:w-80 opacity-100 shadow-2xl lg:shadow-none' : 'w-0 opacity-0 border-transparent pointer-events-none'
       } ${isDarkMode ? 'bg-[#12141C] border-[#1E222D]' : 'bg-white border-gray-200'}`}>
         
-        <div className={`w-72 sm:w-80 h-full p-4 sm:p-5 flex flex-col justify-between transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        <div 
+          style={{
+            paddingTop: 'max(1rem, calc(env(safe-area-inset-top, 0px) + 0.5rem))',
+            paddingBottom: 'max(1rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem))',
+          }}
+          className={`w-72 sm:w-80 h-full px-4 sm:px-5 flex flex-col justify-between transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           isSidebarOpen ? 'translate-x-0 opacity-100' : '-translate-x-10 opacity-0'
         }`}>
           
@@ -821,10 +826,18 @@ export default function AdminLayoutClient({
       {/* AREA KANAN: TOPBAR TERPADU + KONTEN UTAMA (BEBAS TABRAKAN TOMBOL FLOATING) */}
       <div className="flex-1 flex flex-col h-screen h-[100dvh] overflow-hidden min-w-0 relative">
         
-        {/* STICKY TOPBAR HEADER CMS */}
-        <header className={`flex-shrink-0 z-30 h-13 sm:h-14 border-b px-3 sm:px-5 flex items-center justify-between transition-colors select-none ${
-          isDarkMode ? 'bg-[#12141C]/95 border-[#1E222D] text-zinc-100' : 'bg-white/95 border-gray-200 text-gray-900'
-        }`}>
+        {/* STICKY TOPBAR HEADER CMS (DENGAN SAFE-AREA INSET TOP UNTUK NOTCH / DYNAMIC ISLAND IPHONE) */}
+        <header 
+          style={{
+            paddingTop: 'env(safe-area-inset-top, 0px)',
+            paddingLeft: 'max(0.75rem, env(safe-area-inset-left, 0px))',
+            paddingRight: 'max(0.75rem, env(safe-area-inset-right, 0px))',
+          }}
+          className={`flex-shrink-0 z-30 border-b transition-colors select-none ${
+            isDarkMode ? 'bg-[#12141C]/95 border-[#1E222D] text-zinc-100' : 'bg-white/95 border-gray-200 text-gray-900'
+          }`}
+        >
+          <div className="h-13 sm:h-14 sm:px-2 flex items-center justify-between">
           {/* SISI KIRI: Tombol Toggle Menu Sidebar & Judul Modul */}
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
             <button
@@ -954,10 +967,15 @@ export default function AdminLayoutClient({
               {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-amber-600" />}
             </button>
           </div>
+          </div>
         </header>
 
         {/* KONTEN UTAMA */}
-        <main className={`flex-1 overflow-y-auto relative transition-colors ${
+        <main 
+          style={{
+            paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+          }}
+          className={`flex-1 overflow-y-auto relative transition-colors ${
           isDarkMode ? 'bg-[#0C0D12]' : 'bg-[#F4F6F9]'
         }`}>
           <div className={`mx-auto ${

@@ -171,7 +171,11 @@ export default function AdminLoginPage() {
   return (
     <div 
       data-admin-scope="true" 
-      className={`min-h-screen w-full flex items-center justify-center p-4 sm:p-6 font-sans transition-colors duration-300 ${
+      style={{
+        paddingTop: 'max(1rem, calc(env(safe-area-inset-top, 0px) + 0.75rem))',
+        paddingBottom: 'max(1rem, calc(env(safe-area-inset-bottom, 0px) + 0.75rem))',
+      }}
+      className={`min-h-screen min-h-[100dvh] w-full flex items-center justify-center px-4 sm:px-6 font-sans transition-colors duration-300 ${
         isDarkMode ? 'bg-[#0C0D12] text-zinc-100' : 'bg-[#F4F6F9] text-gray-900'
       }`}
     >
