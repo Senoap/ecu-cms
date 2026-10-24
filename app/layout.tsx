@@ -132,6 +132,16 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `(function(){
               try {
+                window.__deferredPwaPrompt = null;
+                window.addEventListener('beforeinstallprompt', function(e) {
+                  var p = window.location.pathname || '';
+                  var h = window.location.hostname || '';
+                  if (p.indexOf('/cms') === 0 || p.indexOf('/admin') === 0 || p.indexOf('/login') === 0 || /^(cms-4su|cms|admin)[.-]/i.test(h)) {
+                    e.preventDefault();
+                    window.__deferredPwaPrompt = e;
+                    window.dispatchEvent(new Event('esu-pwa-prompt-ready'));
+                  }
+                });
                 var t = localStorage.getItem('esu_site_theme');
                 var isDark = t === 'dark' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
                 if (isDark) {

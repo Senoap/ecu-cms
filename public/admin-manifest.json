@@ -4,7 +4,7 @@
   "short_name": "4SU CMS",
   "description": "Panel Manajemen Konten & Administrasi Resmi PT Empat Sinergi Utama (4SU)",
   "start_url": "/cms",
-  "scope": "/cms",
+  "scope": "/",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#090A0F",

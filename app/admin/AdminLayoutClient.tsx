@@ -129,7 +129,7 @@ export default function AdminLayoutClient({
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [isStandalone, setIsStandalone] = useState(false)
   const [isIos, setIsIos] = useState(false)
-  const [isAppleDevice, setIsAppleDevice] = useState(false)
+  const [isSafariDesktop, setIsSafariDesktop] = useState(false)
   const [showIosInstallModal, setShowIosInstallModal] = useState(false)
   const [showInstalledToast, setShowInstalledToast] = useState(false)
 
@@ -140,7 +140,9 @@ export default function AdminLayoutClient({
     const ua = window.navigator.userAgent.toLowerCase()
     const isAppleMobile = /iphone|ipad|ipod/.test(ua)
     const isIPadOS = ua.includes('macintosh') && Boolean(navigator.maxTouchPoints && navigator.maxTouchPoints > 1)
-    const apple = /iphone|ipad|ipod|macintosh|mac os x/.test(ua)
+    const iosDevice = isAppleMobile || isIPadOS
+    const macSafari = ua.includes('macintosh') && !isIPadOS && ua.includes('safari') && !/chrome|crios|edg|opr|firefox/.test(ua)
+
     const checkStandalone = () => {
       return (
         window.matchMedia('(display-mode: standalone)').matches ||
@@ -149,16 +151,21 @@ export default function AdminLayoutClient({
       )
     }
 
+    const winWithPrompt = window as unknown as { __deferredPwaPrompt?: BeforeInstallPromptEvent | null }
+
     queueMicrotask(() => {
-      setIsIos(isAppleMobile || isIPadOS)
-      setIsAppleDevice(apple)
+      setIsIos(iosDevice)
+      setIsSafariDesktop(macSafari)
       setIsStandalone(checkStandalone())
+      if (winWithPrompt.__deferredPwaPrompt) {
+        setDeferredPrompt(winWithPrompt.__deferredPwaPrompt)
+      }
     })
 
-    // 1. Daftarkan Service Worker untuk scope CMS
+    // 1. Daftarkan Service Worker pada scope '/' agar mendukung baik subdomain penuh (cms.4sinergiutama.co.id) maupun path /cms
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
-        .register('/admin-sw.js', { scope: '/cms' })
+        .register('/admin-sw.js', { scope: '/' })
         .then((reg) => {
           console.log('[PWA] Service Worker terdaftar pada scope:', reg.scope)
         })
@@ -174,17 +181,36 @@ export default function AdminLayoutClient({
     }
     mediaQuery.addEventListener('change', handleDisplayModeChange)
 
-    // 3. Tangkap event prompt instalasi otomatis untuk browser Chromium
+    // 3. Tangkap event prompt instalasi otomatis untuk browser Chromium (Windows, Android, macOS Chrome/Edge)
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault()
+      winWithPrompt.__deferredPwaPrompt = e as BeforeInstallPromptEvent
       setDeferredPrompt(e as BeforeInstallPromptEvent)
     }
 
+    const handleGlobalPromptReady = () => {
+      if (winWithPrompt.__deferredPwaPrompt) {
+        setDeferredPrompt(winWithPrompt.__deferredPwaPrompt)
+      }
+    }
+
+    const handleAppInstalled = () => {
+      winWithPrompt.__deferredPwaPrompt = null
+      setDeferredPrompt(null)
+      setIsStandalone(true)
+      setShowInstalledToast(true)
+      setTimeout(() => setShowInstalledToast(false), 3500)
+    }
+
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+    window.addEventListener('esu-pwa-prompt-ready', handleGlobalPromptReady)
+    window.addEventListener('appinstalled', handleAppInstalled)
 
     return () => {
       mediaQuery.removeEventListener('change', handleDisplayModeChange)
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+      window.removeEventListener('esu-pwa-prompt-ready', handleGlobalPromptReady)
+      window.removeEventListener('appinstalled', handleAppInstalled)
     }
   }, [])
 
@@ -195,20 +221,31 @@ export default function AdminLayoutClient({
       return
     }
 
-    if (deferredPrompt) {
+    const winWithPrompt = window as unknown as { __deferredPwaPrompt?: BeforeInstallPromptEvent | null }
+    const activePrompt = deferredPrompt || winWithPrompt.__deferredPwaPrompt
+
+    if (activePrompt) {
       try {
-        await deferredPrompt.prompt()
-        const choice = await deferredPrompt.userChoice
+        await activePrompt.prompt()
+        const choice = await activePrompt.userChoice
         if (choice.outcome === 'accepted') {
+          winWithPrompt.__deferredPwaPrompt = null
           setDeferredPrompt(null)
           setIsStandalone(true)
         }
       } catch (err) {
         console.warn('Install prompt error:', err)
-        setShowIosInstallModal(true)
       }
-    } else {
+      return
+    }
+
+    // Hanya tampilkan modal khusus untuk iOS (iPhone/iPad) atau Safari macOS karena Apple memblokir API beforeinstallprompt
+    if (isIos || isSafariDesktop) {
       setShowIosInstallModal(true)
+    } else {
+      // Pada Windows / Android / macOS Chromium jika aplikasi sudah terpasang di browser
+      setShowInstalledToast(true)
+      setTimeout(() => setShowInstalledToast(false), 3000)
     }
   }
 
@@ -715,31 +752,29 @@ export default function AdminLayoutClient({
 
           {/* FOOTER ACTIONS (DITAMBATKAN DI BAGIAN BAWAH) */}
           <div className={`flex-shrink-0 pt-3 border-t space-y-2.5 ${isDarkMode ? 'border-gray-800/80' : 'border-gray-200'}`}>
-            {/* TOMBOL INSTALASI / STATUS PWA (Selain iOS & macOS langsung tampil tombol Install PWA) */}
-            {!isAppleDevice && (
-              <button
-                type="button"
-                onClick={handleInstallPwa}
-                className={`flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl text-xs font-black tracking-wider uppercase transition-all duration-200 border shadow-sm cursor-pointer ${
-                  isStandalone
-                    ? isDarkMode
-                      ? 'bg-amber-500/10 text-amber-400 border-amber-500/30'
-                      : 'bg-amber-50 text-amber-900 border-amber-300'
-                    : 'bg-amber-600 hover:bg-amber-700 text-white border-amber-600 shadow-md shadow-amber-900/20'
-                }`}
-                title="Install 4SU CMS sebagai Aplikasi PWA"
-              >
-                <div className="flex items-center gap-2 truncate">
-                  <Smartphone className="w-4 h-4 shrink-0" />
-                  <span className="truncate">{isStandalone ? 'Aplikasi 4SU Terpasang' : 'Install PWA 4SU CMS'}</span>
-                </div>
-                {isStandalone ? (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                ) : (
-                  <Download className="w-3.5 h-3.5 shrink-0 animate-bounce" />
-                )}
-              </button>
-            )}
+            {/* TOMBOL INSTALASI / STATUS PWA */}
+            <button
+              type="button"
+              onClick={handleInstallPwa}
+              className={`flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl text-xs font-black tracking-wider uppercase transition-all duration-200 border shadow-sm cursor-pointer ${
+                isStandalone
+                  ? isDarkMode
+                    ? 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+                    : 'bg-amber-50 text-amber-900 border-amber-300'
+                  : 'bg-[#6B0808] hover:bg-[#8B1E1E] text-white border-[#6B0808] shadow-sm'
+              }`}
+              title="Install 4SU CMS sebagai Aplikasi PWA"
+            >
+              <div className="flex items-center gap-2 truncate">
+                <Smartphone className="w-4 h-4 shrink-0" />
+                <span className="truncate">{isStandalone ? 'Aplikasi 4SU Terpasang' : 'Install PWA 4SU CMS'}</span>
+              </div>
+              {isStandalone ? (
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              ) : (
+                <Download className="w-3.5 h-3.5 shrink-0" />
+              )}
+            </button>
 
             <Link 
               href="/" 
@@ -958,20 +993,22 @@ export default function AdminLayoutClient({
         </div>
       </div>
 
-      {/* MODAL PANDUAN INSTALASI PWA (IOS & BROWSER LAINNYA) */}
-      {showIosInstallModal && (
+      {/* MODAL KHUSUS SAFARI IOS & SAFARI MACOS (KARENA APPLE WEBKIT MEMBLOKIR AUTO-PROMPT) */}
+      {showIosInstallModal && (isIos || isSafariDesktop) && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className={`w-full max-w-md p-6 rounded-3xl shadow-2xl border space-y-5 animate-in zoom-in-95 duration-200 ${
-            isDarkMode ? 'bg-[#0E1017] text-white border-gray-800' : 'bg-white text-gray-900 border-gray-200'
+          <div className={`w-full max-w-md p-6 rounded-2xl shadow-2xl border space-y-5 animate-in zoom-in-95 duration-200 ${
+            isDarkMode ? 'bg-[#12141C] text-white border-[#222736]' : 'bg-white text-gray-900 border-gray-200'
           }`}>
             <div className="flex items-center justify-between pb-3 border-b border-gray-200 dark:border-gray-800">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-amber-600 flex items-center justify-center text-white shadow-md">
+                <div className="w-9 h-9 rounded-xl bg-[#6B0808] flex items-center justify-center text-white shadow-sm">
                   <Smartphone className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-black uppercase tracking-wider">Pasang Aplikasi CMS</h3>
-                  <p className="text-[11px] text-gray-500 dark:text-gray-400">Akses instan tanpa bilah URL browser</p>
+                  <h3 className="text-sm font-black uppercase tracking-wider">Pasang Aplikasi CMS (Apple)</h3>
+                  <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                    {isIos ? 'Instalasi untuk iPhone & iPad' : 'Instalasi untuk Safari macOS'}
+                  </p>
                 </div>
               </div>
               <button
@@ -986,31 +1023,19 @@ export default function AdminLayoutClient({
             {isIos ? (
               <div className="space-y-3.5 text-xs">
                 <p className="font-semibold text-gray-700 dark:text-gray-300">
-                  Untuk menginstal <strong className="text-amber-500 font-bold">4SU CMS</strong> di perangkat Apple (iPhone / iPad):
+                  Sistem keamanan Apple iOS mewajibkan konfirmasi dari tombol Share bawaan browser untuk memasang <strong className="text-[#A12323] dark:text-[#E05252] font-bold">4SU CMS</strong>:
                 </p>
-                <div className="space-y-2.5 bg-gray-50 dark:bg-gray-900/60 p-4 rounded-2xl border border-gray-200 dark:border-gray-800">
+                <div className="space-y-2.5 bg-gray-50 dark:bg-[#181B26] p-4 rounded-xl border border-gray-200 dark:border-[#222736]">
                   <div className="flex items-start gap-3">
-                    <span className="w-5 h-5 rounded-full bg-amber-600 text-white text-[11px] font-black flex items-center justify-center shrink-0">1</span>
-                    <p className="text-gray-600 dark:text-gray-300">
-                      Buka halaman CMS ini menggunakan browser <strong className="text-gray-900 dark:text-white">Safari</strong> bawaan Apple.
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <span className="w-5 h-5 rounded-full bg-amber-600 text-white text-[11px] font-black flex items-center justify-center shrink-0">2</span>
+                    <span className="w-5 h-5 rounded-full bg-[#6B0808] text-white text-[11px] font-black flex items-center justify-center shrink-0">1</span>
                     <p className="text-gray-600 dark:text-gray-300 flex items-center flex-wrap gap-1">
-                      Ketuk ikon <strong className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white font-bold"><Share className="w-3.5 h-3.5" /> Bagikan (Share)</strong> di bilah menu Safari (bawah layar iPhone, atas layar iPad).
+                      Ketuk ikon <strong className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white font-bold"><Share className="w-3.5 h-3.5" /> Bagikan (Share)</strong> di bilah browser Anda.
                     </p>
                   </div>
                   <div className="flex items-start gap-3">
-                    <span className="w-5 h-5 rounded-full bg-amber-600 text-white text-[11px] font-black flex items-center justify-center shrink-0">3</span>
+                    <span className="w-5 h-5 rounded-full bg-[#6B0808] text-white text-[11px] font-black flex items-center justify-center shrink-0">2</span>
                     <p className="text-gray-600 dark:text-gray-300">
-                      Pilih menu <strong className="text-gray-900 dark:text-white font-bold">&quot;Tambah ke Layar Utama&quot; (Add to Home Screen)</strong>.
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <span className="w-5 h-5 rounded-full bg-amber-600 text-white text-[11px] font-black flex items-center justify-center shrink-0">4</span>
-                    <p className="text-gray-600 dark:text-gray-300">
-                      Ketuk <strong className="text-gray-900 dark:text-white font-bold">&quot;Tambah&quot; (Add)</strong> di pojok kanan atas. Ikon 4SU CMS kini siap digunakan layaknya aplikasi asli!
+                      Pilih <strong className="text-gray-900 dark:text-white font-bold">&quot;Tambah ke Layar Utama&quot; (Add to Home Screen)</strong> lalu ketuk <strong className="text-gray-900 dark:text-white font-bold">&quot;Tambah&quot;</strong>.
                     </p>
                   </div>
                 </div>
@@ -1018,32 +1043,32 @@ export default function AdminLayoutClient({
             ) : (
               <div className="space-y-3.5 text-xs">
                 <p className="font-semibold text-gray-700 dark:text-gray-300">
-                  Untuk menginstal <strong className="text-amber-500 font-bold">4SU CMS</strong> di Android atau Komputer:
+                  Di macOS, instalasi 1-klik langsung tersedia jika Anda membuka halaman ini di <strong className="text-gray-900 dark:text-white">Google Chrome / Edge</strong>. Jika menggunakan <strong className="text-gray-900 dark:text-white">Safari macOS</strong>:
                 </p>
-                <div className="space-y-2.5 bg-gray-50 dark:bg-gray-900/60 p-4 rounded-2xl border border-gray-200 dark:border-gray-800">
+                <div className="space-y-2.5 bg-gray-50 dark:bg-[#181B26] p-4 rounded-xl border border-gray-200 dark:border-[#222736]">
                   <div className="flex items-start gap-3">
-                    <span className="w-5 h-5 rounded-full bg-amber-600 text-white text-[11px] font-black flex items-center justify-center shrink-0">1</span>
+                    <span className="w-5 h-5 rounded-full bg-[#6B0808] text-white text-[11px] font-black flex items-center justify-center shrink-0">1</span>
                     <p className="text-gray-600 dark:text-gray-300">
-                      Buka menu browser Anda (ikon titik tiga ⋮ atau ikon instal di bilah alamat).
+                      Klik menu <strong className="text-gray-900 dark:text-white font-bold">File</strong> di pojok kiri atas layar Mac atau tombol <strong className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white font-bold"><Share className="w-3.5 h-3.5" /> Share</strong> di kanan atas Safari.
                     </p>
                   </div>
                   <div className="flex items-start gap-3">
-                    <span className="w-5 h-5 rounded-full bg-amber-600 text-white text-[11px] font-black flex items-center justify-center shrink-0">2</span>
+                    <span className="w-5 h-5 rounded-full bg-[#6B0808] text-white text-[11px] font-black flex items-center justify-center shrink-0">2</span>
                     <p className="text-gray-600 dark:text-gray-300">
-                      Pilih opsi <strong className="text-gray-900 dark:text-white font-bold">&quot;Pasang Aplikasi&quot; (Install App)</strong> atau &quot;Tambahkan ke Layar Utama&quot;.
+                      Pilih <strong className="text-gray-900 dark:text-white font-bold">&quot;Add to Dock&quot; (Tambahkan ke Dock)</strong>.
                     </p>
                   </div>
                 </div>
               </div>
             )}
 
-            <div className="pt-2">
+            <div className="pt-1">
               <button
                 type="button"
                 onClick={() => setShowIosInstallModal(false)}
-                className="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider transition-colors shadow-md cursor-pointer"
+                className="w-full py-2.5 rounded-xl bg-[#6B0808] hover:bg-[#8B1E1E] text-white text-xs font-black uppercase tracking-wider transition-colors shadow-sm cursor-pointer"
               >
-                Saya Mengerti
+                Tutup
               </button>
             </div>
           </div>

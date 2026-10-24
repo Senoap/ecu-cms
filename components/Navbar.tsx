@@ -47,12 +47,13 @@ export default function Navbar({
   const menuContainerRef = useRef<HTMLDivElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  // Pembersihan PWA Publik: Pastikan hanya halaman CMS yang menggunakan PWA
+  // Pembersihan PWA Publik: Pastikan hanya Service Worker CMS (admin-sw.js) yang terdaftar
   useEffect(() => {
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then((registrations) => {
         for (const reg of registrations) {
-          if (reg.scope && !reg.scope.includes('/cms') && !reg.scope.includes('/admin')) {
+          const scriptUrl = reg.active?.scriptURL || reg.installing?.scriptURL || reg.waiting?.scriptURL || ''
+          if (scriptUrl && !scriptUrl.includes('admin-sw.js')) {
             reg.unregister().catch(() => {})
           }
         }
