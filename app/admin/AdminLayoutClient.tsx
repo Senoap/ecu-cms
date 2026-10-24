@@ -681,11 +681,6 @@ export default function AdminLayoutClient({
                               }`} />
                               <span className="truncate">{item.label}</span>
                             </div>
-                            {item.id === 'applications' && unreadCount > 0 && (
-                              <span className="text-[11px] text-amber-600 dark:text-amber-400 font-bold shrink-0">
-                                ({unreadCount})
-                              </span>
-                            )}
                           </Link>
                         )
                       })}

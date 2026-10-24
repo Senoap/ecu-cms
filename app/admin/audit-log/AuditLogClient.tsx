@@ -355,7 +355,7 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
             { id: 'all', label: 'Semua Kategori', icon: Shield, count: counts.all, badgeSuffix: '' },
             { id: 'system', label: 'Perubahan CMS', icon: FileText, count: counts.system, badgeSuffix: '' },
             { id: 'visitor', label: 'Pengunjung Web', icon: Globe, count: counts.visitor, badgeSuffix: ' hits' },
-            { id: 'career', label: 'Lamaran Masuk', icon: Briefcase, count: counts.career, badgeSuffix: '' },
+            { id: 'career', label: 'Log Karir & Lamaran', icon: Briefcase, count: counts.career, badgeSuffix: '' },
             { id: 'compro', label: 'Permintaan Compro', icon: FileDown, count: counts.compro, badgeSuffix: '' },
           ] as const).map((tab) => {
             const Icon = tab.icon
