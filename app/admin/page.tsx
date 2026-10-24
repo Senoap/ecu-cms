@@ -1,6 +1,7 @@
 import { readDB, writeDB, addNotification, uploadFile, deleteFile } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import { requirePermission, requirePagePermission } from '@/lib/auth'
+import { generateFaviconFromBuffer } from '@/lib/faviconHelper'
 import AdminPageClient from './AdminPageClient'
 
 async function updateConfig(formData: FormData) {
@@ -33,6 +34,7 @@ async function updateConfig(formData: FormData) {
     const buffer = Buffer.from(bytes)
     const filename = `logo-${Date.now()}${logoFile.name.substring(logoFile.name.lastIndexOf('.'))}`
     logoUrl = await uploadFile(buffer, filename, logoFile.type)
+    await generateFaviconFromBuffer(buffer)
   }
 
   // Handle Background Image Upload (hapus background lama jika diganti)

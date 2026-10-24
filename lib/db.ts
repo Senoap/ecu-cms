@@ -1253,6 +1253,11 @@ export async function readPublishedDB(): Promise<DatabaseContent> {
   if (!pub.certificationsPage) {
     pub.certificationsPage = db.certificationsPage || defaultCertificationsPageConfig
   }
+  if (!pub.setting) {
+    pub.setting = { ...db.setting }
+  } else if (!pub.setting.logoUrl && db.setting?.logoUrl) {
+    pub.setting.logoUrl = db.setting.logoUrl
+  }
   if (pub.setting && typeof pub.setting.showCompro !== 'boolean') {
     pub.setting.showCompro = typeof db.setting?.showCompro === 'boolean' ? db.setting.showCompro : true
   }

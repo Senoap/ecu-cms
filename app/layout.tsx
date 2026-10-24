@@ -74,7 +74,10 @@ export async function generateMetadata(): Promise<Metadata> {
       canonical: '/',
     },
     icons: {
-      icon: [{ url: rawLogoUrl, type: iconMimeType }],
+      icon: [
+        { url: rawLogoUrl, type: iconMimeType },
+        { url: '/favicon.ico', sizes: 'any' },
+      ],
       shortcut: [{ url: rawLogoUrl, type: iconMimeType }],
       apple: [{ url: rawLogoUrl }],
     },
@@ -124,6 +127,13 @@ export default async function RootLayout({
     } : undefined,
   }
 
+  const rawLogoUrl = db.setting?.logoUrl || '/icons/icon-192x192.png'
+  const iconMimeType = rawLogoUrl.endsWith('.svg')
+    ? 'image/svg+xml'
+    : rawLogoUrl.endsWith('.webp')
+      ? 'image/webp'
+      : 'image/png'
+
   return (
     <html 
       lang="id" 
@@ -132,6 +142,9 @@ export default async function RootLayout({
       className={`${inter.variable} ${poppins.variable} ${roboto.variable}`}
     >
       <head>
+        <link rel="icon" href={rawLogoUrl} type={iconMimeType} />
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href={rawLogoUrl} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: safeJsonLd(organizationJsonLd) }}

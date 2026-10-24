@@ -3,6 +3,32 @@ const fs = require('fs');
 const path = require('path');
 const sharp = require('sharp');
 
+async function createIco(pngBuffers) {
+  const count = pngBuffers.length;
+  const header = Buffer.alloc(6);
+  header.writeUInt16LE(0, 0); // reserved
+  header.writeUInt16LE(1, 2); // type: 1 = ICO
+  header.writeUInt16LE(count, 4); // count
+
+  let offset = 6 + (16 * count);
+  const entries = [];
+  for (const item of pngBuffers) {
+    const entry = Buffer.alloc(16);
+    entry.writeUInt8(item.width >= 256 ? 0 : item.width, 0);
+    entry.writeUInt8(item.height >= 256 ? 0 : item.height, 1);
+    entry.writeUInt8(0, 2); // palette
+    entry.writeUInt8(0, 3); // reserved
+    entry.writeUInt16LE(1, 4); // planes
+    entry.writeUInt16LE(32, 6); // bpp
+    entry.writeUInt32LE(item.buffer.length, 8); // size
+    entry.writeUInt32LE(offset, 12); // offset
+    entries.push(entry);
+    offset += item.buffer.length;
+  }
+
+  return Buffer.concat([header, ...entries, ...pngBuffers.map(p => p.buffer)]);
+}
+
 async function generateIcons() {
   const inputLogo = path.join(__dirname, '..', 'public', 'uploads', 'logo-1788085817981.png');
   const outputDir = path.join(__dirname, '..', 'public', 'icons');
@@ -93,6 +119,28 @@ async function generateIcons() {
   .toFile(path.join(outputDir, 'icon-maskable-512x512.png'));
 
   console.log('Generated icon-maskable-512x512.png (512x512)');
+
+  // 5. Multi-resolution favicon.ico (16x16, 32x32, 48x48)
+  const icoSizes = [16, 32, 48];
+  const pngBuffers = [];
+  for (const s of icoSizes) {
+    const buf = await sharp(inputLogo)
+      .resize(s, s, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+      .png()
+      .toBuffer();
+    pngBuffers.push({ width: s, height: s, buffer: buf });
+  }
+  const icoBuf = await createIco(pngBuffers);
+  fs.writeFileSync(path.join(__dirname, '..', 'public', 'favicon.ico'), icoBuf);
+  console.log('Generated public/favicon.ico (16, 32, 48px)');
+
+  // 6. Next.js app/icon.png (32x32)
+  const icon32 = await sharp(inputLogo)
+    .resize(32, 32, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .png()
+    .toBuffer();
+  fs.writeFileSync(path.join(__dirname, '..', 'app', 'icon.png'), icon32);
+  console.log('Generated app/icon.png (32x32)');
 }
 
 generateIcons().catch(err => {

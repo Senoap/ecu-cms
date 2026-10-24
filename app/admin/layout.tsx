@@ -34,7 +34,10 @@ export async function generateMetadata(): Promise<Metadata> {
       title: '4SU CMS',
     },
     icons: {
-      icon: [{ url: rawLogoUrl, type: iconMimeType }],
+      icon: [
+        { url: rawLogoUrl, type: iconMimeType },
+        { url: '/favicon.ico', sizes: 'any' },
+      ],
       shortcut: [{ url: rawLogoUrl, type: iconMimeType }],
       apple: [{ url: rawLogoUrl }],
     },
