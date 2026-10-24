@@ -257,10 +257,7 @@ export default function ServicesClient({ initialServices }: { initialServices: S
 
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
-            Manajemen Konten &bull; Unit Layanan
-          </p>
-          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white mt-0.5">
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white">
             Kelola Layanan (Services)
           </h1>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -331,9 +328,9 @@ export default function ServicesClient({ initialServices }: { initialServices: S
                 <div>
                   <h3 className="font-bold text-sm text-gray-900 dark:text-white">{srv.title}</h3>
                   <p className="text-gray-600 dark:text-gray-400 text-xs font-medium">{srv.desc}</p>
-                  <span className="text-[10px] bg-amber-500/10 text-amber-700 dark:text-amber-400 font-bold px-2 py-0.5 rounded-md mt-1.5 inline-block border border-amber-500/20">
-                    {(srv.images || []).length} Foto Galeri Terlampir
-                  </span>
+                  <p className="text-xs text-amber-600 dark:text-amber-400 font-semibold mt-1">
+                    Foto galeri terlampir: {(srv.images || []).length} foto
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-2.5">

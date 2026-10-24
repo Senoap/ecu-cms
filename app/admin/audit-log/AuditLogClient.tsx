@@ -22,8 +22,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
-  ChevronsRight,
-  User
+  ChevronsRight
 } from 'lucide-react'
 
 type CategoryFilter = 'all' | 'system' | 'visitor' | 'career' | 'compro'
@@ -317,10 +316,7 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
       {/* Header Banner */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
-            Keamanan &amp; Analitik &bull; Superadmin
-          </p>
-          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white mt-0.5">
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white">
             Audit Log Terpadu
           </h1>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -379,10 +375,10 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
                   <Icon className="w-3.5 h-3.5" />
                   <span className="text-xs font-bold">{tab.label}</span>
                 </div>
-                <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
-                  active ? 'bg-white/20 text-white' : 'bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-300'
+                <span className={`text-[11px] font-bold ${
+                  active ? 'text-white/90' : 'text-gray-500 dark:text-gray-400'
                 }`}>
-                  {tab.count}{tab.badgeSuffix}
+                  ({tab.count}{tab.badgeSuffix})
                 </span>
               </button>
             )
@@ -410,7 +406,7 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
                 </p>
               </div>
             </div>
-            <div className="shrink-0 bg-white/70 dark:bg-[#090A0F]/70 border border-cyan-500/30 px-3.5 py-1.5 rounded-2xl text-[11px] font-black text-cyan-700 dark:text-cyan-300">
+            <div className="shrink-0 text-xs font-bold text-cyan-700 dark:text-cyan-300">
               Siklus: 30 Hari Bergulir
             </div>
           </div>
@@ -537,10 +533,11 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
                     <span className="font-extrabold text-sm text-gray-900 dark:text-white">
                       {activeDay.fullDateLabel}
                     </span>
-                    <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${
+                    <span className="text-gray-300 dark:text-gray-700">|</span>
+                    <span className={`text-xs font-bold ${
                       activeDay.isToday
-                        ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
-                        : 'bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-transparent'
+                        ? 'text-emerald-600 dark:text-emerald-400'
+                        : 'text-gray-500 dark:text-gray-400'
                     }`}>
                       {activeDay.relativeLabel}
                     </span>
@@ -552,13 +549,14 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
               </div>
 
               {/* Rincian Jalur / Halaman Populer di Hari Terpilih */}
-              <div className="flex items-center gap-1.5 flex-wrap">
+              <div className="flex items-center gap-2 flex-wrap text-xs">
                 {activeDay.paths && Object.keys(activeDay.paths).length > 0 ? (
-                  Object.entries(activeDay.paths).slice(0, 3).map(([path, pCount]) => (
+                  Object.entries(activeDay.paths).slice(0, 3).map(([path, pCount], idx) => (
                     <span 
                       key={path}
-                      className="text-[10px] font-mono font-bold bg-white dark:bg-[#10131C] border border-gray-200 dark:border-gray-800 px-2 py-1 rounded-lg text-gray-700 dark:text-gray-300 shadow-xs"
+                      className="font-mono font-semibold text-gray-700 dark:text-gray-300"
                     >
+                      {idx > 0 && <span className="text-gray-300 dark:text-gray-700 mr-2">|</span>}
                       {path === '/' ? 'Home (/)' : path}: <b className="text-cyan-600 dark:text-cyan-400">{pCount}</b>
                     </span>
                   ))
@@ -759,7 +757,7 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
                     Sistem Buffer Retensi 30 Hari
                   </h3>
                 </div>
-                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
                   Status Optimal
                 </span>
               </div>
@@ -875,10 +873,10 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
                   })
                   
                   const cat = log.category || 'system'
-                  const catBadge = 
-                    cat === 'career' ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20' :
-                    cat === 'compro' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' :
-                    'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'
+                  const catColor = 
+                    cat === 'career' ? 'text-purple-600 dark:text-purple-400' :
+                    cat === 'compro' ? 'text-emerald-600 dark:text-emerald-400' :
+                    'text-amber-600 dark:text-amber-400'
 
                   const catLabel = 
                     cat === 'career' ? 'Karir' :
@@ -890,35 +888,35 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
                       key={log.id} 
                       className="bg-gray-50 dark:bg-[#090A0F] p-4 rounded-2xl border border-gray-200 dark:border-gray-800/90 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-sm hover:border-amber-500/30 transition-all"
                     >
-                      <div className="space-y-2 flex-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${catBadge}`}>
+                      <div className="space-y-1.5 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap text-xs">
+                          <span className={`font-bold ${catColor}`}>
                             {catLabel}
                           </span>
-                          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                          <span className="text-gray-300 dark:text-gray-700">|</span>
+                          <span className="font-mono font-bold text-gray-700 dark:text-gray-300">
                             {log.type}
                           </span>
-                          <span className="text-[11px] text-gray-500 dark:text-gray-400 font-bold">{dateStr}</span>
+                          <span className="text-gray-300 dark:text-gray-700">|</span>
+                          <span className="text-gray-500 dark:text-gray-400 font-medium">{dateStr}</span>
                           
                           {log.userName && (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20">
-                              <User className="w-3 h-3 text-amber-600 dark:text-amber-400" />
-                              <span>{log.userName}</span>
-                              {log.userRole && (
-                                <>
-                                  <span className="text-gray-400">•</span>
-                                  <span className="uppercase text-[9px] tracking-wider text-amber-600 dark:text-amber-400 font-black">
-                                    {log.userRole}
-                                  </span>
-                                </>
-                              )}
-                            </span>
+                            <>
+                              <span className="text-gray-300 dark:text-gray-700">|</span>
+                              <span className="font-semibold text-gray-700 dark:text-gray-300">
+                                Oleh: <strong className="text-amber-600 dark:text-amber-400">{log.userName}</strong>
+                                {log.userRole ? ` (${log.userRole})` : ''}
+                              </span>
+                            </>
                           )}
 
                           {log.ip && (
-                            <span className="text-[10px] font-mono text-gray-500 bg-gray-200/60 dark:bg-gray-800/60 px-2 py-0.5 rounded-md">
-                              IP: {log.ip}
-                            </span>
+                            <>
+                              <span className="text-gray-300 dark:text-gray-700">|</span>
+                              <span className="font-mono text-gray-500 dark:text-gray-400">
+                                IP: {log.ip}
+                              </span>
+                            </>
                           )}
                         </div>
                         <p className="text-xs md:text-sm text-gray-900 dark:text-gray-200 font-medium leading-relaxed">

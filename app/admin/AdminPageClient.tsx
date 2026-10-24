@@ -273,10 +273,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
         {/* Top Header Banner */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
-              Konfigurasi Sistem &bull; Identitas Korporat
-            </p>
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white mt-0.5">
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white">
               Pengaturan Global &amp; Logo
             </h1>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -291,7 +288,6 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
             <h2 className="text-base font-black text-amber-600 dark:text-amber-500 tracking-wide uppercase flex items-center gap-2">
               <Building2 className="w-4 h-4 text-amber-600 dark:text-amber-500" /> Identitas Korporat & Tampilan
             </h2>
-            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Global Setting</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -523,9 +519,8 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
                   <div className="text-[10px] font-black uppercase tracking-wider text-gray-500">Pratinjau Mode Terang</div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-black" style={{ color: primaryColor }}>PT 4SU</span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold text-white" style={{ backgroundColor: secondaryColor }}>
-                      PRO
-                    </span>
+                    <span className="text-gray-300">|</span>
+                    <span className="text-xs font-bold" style={{ color: secondaryColor }}>Korporat</span>
                   </div>
                   <p className="text-xs text-gray-700 font-medium">Teks terbaca jelas dengan aksen harmonis.</p>
                   <button
@@ -542,9 +537,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
                   <div className="text-[10px] font-black uppercase tracking-wider text-gray-400">Pratinjau Mode Gelap</div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-black text-white">PT 4SU</span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold text-white shadow-sm" style={{ backgroundColor: primaryColor }}>
-                      LIVE
-                    </span>
+                    <span className="text-gray-700">|</span>
                     <span className="text-xs font-bold" style={{ color: secondaryColor }}>99.8%</span>
                   </div>
                   <p className="text-xs text-gray-300 font-medium">Kontras tinggi & nyaman dibaca di layar gelap.</p>
@@ -738,8 +731,8 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
               </h2>
               <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Seret dan letakkan (*drag*) kotak seksi untuk mengubah susunan tampilan website.</p>
             </div>
-            <span className="text-xs bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full text-gray-700 dark:text-gray-300 font-bold border border-gray-200 dark:border-gray-700/50">
-              {sections.length} Seksi Aktif
+            <span className="text-xs text-gray-500 dark:text-gray-400 font-semibold">
+              Total: {sections.length} seksi
             </span>
 
           </div>

@@ -146,8 +146,8 @@ export default function ApplicationsListClient({
                 {a.career_title} · <span className="font-mono text-amber-700 dark:text-amber-400 font-bold">{a.ref_code}</span> · {new Date(a.created_at).toLocaleString('id-ID')}
               </div>
             </div>
-            <span className={`px-3 py-1 rounded-full text-[11px] font-black uppercase border ${statusColors[a.status] || ''}`}>
-              {statusLabels[a.status] || a.status}
+            <span className={`text-xs font-bold ${statusColors[a.status] || ''}`}>
+              Status: {statusLabels[a.status] || a.status}
             </span>
           </div>
 
@@ -170,7 +170,7 @@ export default function ApplicationsListClient({
           <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-gray-100 dark:border-gray-800/80">
             {/* UNDUH CV ATAU STATUS RETENSI 60 HARI (POINT 11) */}
             {a.cv_purged ? (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-gray-100 dark:bg-gray-800 text-gray-500 border border-gray-200 dark:border-gray-700" title="File CV fisik telah dihapus otomatis setelah 60 hari untuk efisiensi penyimpanan, data profil pelamar tetap aman.">
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400" title="File CV fisik telah dihapus otomatis setelah 60 hari untuk efisiensi penyimpanan, data profil pelamar tetap aman.">
                 <FileX className="w-3.5 h-3.5 text-amber-500" />
                 <span>CV Dihapus Otomatis (Retensi 60 Hari)</span>
               </span>

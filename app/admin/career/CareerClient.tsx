@@ -109,10 +109,7 @@ export default function CareerClient({
       {/* Banner Header Halaman */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
-            Rekrutmen &amp; SDM &bull; Manajemen Lowongan
-          </p>
-          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white mt-0.5">
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white">
             Kelola Lowongan Kerja (Career)
           </h1>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -227,14 +224,16 @@ export default function CareerClient({
             careers.map((job) => (
               <div key={job.id} className="flex flex-col md:flex-row justify-between items-start md:items-center bg-gray-50 dark:bg-[#090A0F] p-5 rounded-2xl border border-gray-200 dark:border-gray-800/90 shadow-sm gap-4">
                 <div className="space-y-1.5">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${job.isActive ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20'}`}>
-                      {job.isActive ? 'Aktif' : 'Non-Aktif'}
+                  <div className="flex flex-wrap items-center gap-2 text-xs">
+                    <span className={`font-bold ${job.isActive ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                      {job.isActive ? 'Aktif' : 'Nonaktif'}
                     </span>
-                    <span className="text-[10px] font-bold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 px-2.5 py-0.5 rounded-full">
+                    <span className="text-gray-300 dark:text-gray-700">|</span>
+                    <span className="font-bold text-amber-600 dark:text-amber-400">
                       {job.type}
                     </span>
-                    <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                    <span className="text-gray-300 dark:text-gray-700">|</span>
+                    <span className="font-semibold text-gray-500 dark:text-gray-400 flex items-center gap-1">
                       <MapPin className="w-3 h-3 text-amber-600 dark:text-amber-500" />
                       <span>{job.location}</span>
                     </span>

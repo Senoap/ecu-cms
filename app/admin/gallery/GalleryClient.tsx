@@ -87,10 +87,7 @@ export default function GalleryClient({
       {/* Header Banner */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
-            Manajemen Konten &bull; Dokumentasi Kegiatan
-          </p>
-          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white mt-0.5">
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white">
             Kelola Galeri Foto &amp; Kategori
           </h1>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -188,8 +185,7 @@ export default function GalleryClient({
             return (
               <div key={category} className="space-y-4 bg-gray-50 dark:bg-[#090A0F] p-6 rounded-2xl border border-gray-200 dark:border-gray-800 transition-colors">
                 <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-3">
-                    <span className="w-3 h-3 rounded-full bg-amber-500"></span>
+                  <div className="flex items-center gap-2">
                     <h3 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider">{category} ({itemsInCat.length})</h3>
                   </div>
                   <button

@@ -682,8 +682,8 @@ export default function AdminLayoutClient({
                               <span className="truncate">{item.label}</span>
                             </div>
                             {item.id === 'applications' && unreadCount > 0 && (
-                              <span className="text-[10px] bg-amber-500 text-gray-950 font-black px-1.5 py-0.2 rounded-full shrink-0">
-                                {unreadCount}
+                              <span className="text-[11px] text-amber-600 dark:text-amber-400 font-bold shrink-0">
+                                ({unreadCount})
                               </span>
                             )}
                           </Link>
@@ -925,8 +925,8 @@ export default function AdminLayoutClient({
                       <Bell className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                       <h3 className="text-xs font-black uppercase tracking-wider">Log Perubahan</h3>
                     </div>
-                    <span className="text-[10px] bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full font-bold">
-                      5 Menit
+                    <span className="text-[11px] text-gray-500 dark:text-gray-400 font-semibold">
+                      Retensi 5 Menit
                     </span>
                   </div>
 

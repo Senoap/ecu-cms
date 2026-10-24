@@ -255,10 +255,7 @@ export function CertificationsAdminClient({
       {/* Header Banner */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
-            Manajemen Konten &bull; Kepatuhan &amp; Legalitas
-          </p>
-          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white mt-0.5">
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white">
             Kelola Sertifikasi &amp; Lisensi Perusahaan
           </h1>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -700,19 +697,25 @@ export function CertificationsAdminClient({
 
                   {/* Informasi Dokumen */}
                   <div className="space-y-1.5 flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                    <div className="flex flex-wrap items-center gap-2 text-xs">
+                      <span className="font-bold text-amber-600 dark:text-amber-400">
                         {cert.issuer}
                       </span>
                       {cert.certNumber && (
-                        <span className="text-[11px] font-mono text-gray-600 dark:text-gray-400 font-semibold">
-                          No: {cert.certNumber}
-                        </span>
+                        <>
+                          <span className="text-gray-300 dark:text-gray-700">|</span>
+                          <span className="font-mono text-gray-600 dark:text-gray-400 font-semibold">
+                            No: {cert.certNumber}
+                          </span>
+                        </>
                       )}
                       {cert.isVisible === false && (
-                        <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-950/50 text-red-600 dark:text-red-400">
-                          Disembunyikan
-                        </span>
+                        <>
+                          <span className="text-gray-300 dark:text-gray-700">|</span>
+                          <span className="font-bold text-rose-600 dark:text-rose-400">
+                            Disembunyikan
+                          </span>
+                        </>
                       )}
                     </div>
 
@@ -896,11 +899,12 @@ export function CertificationsAdminClient({
                       />
                     </div>
                     <div className="flex-1 min-w-0 space-y-1.5 text-center sm:text-left">
-                      <div className="flex items-center justify-center sm:justify-start gap-2">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                      <div className="flex items-center justify-center sm:justify-start gap-2 text-xs">
+                        <span className="font-bold text-emerald-600 dark:text-emerald-400">
                           Dokumen Siap
                         </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400 font-mono truncate max-w-[200px]" title={editingCert.imageUrl}>
+                        <span className="text-gray-300 dark:text-gray-700">|</span>
+                        <span className="text-gray-500 dark:text-gray-400 font-mono truncate max-w-[200px]" title={editingCert.imageUrl}>
                           {editingCert.imageUrl.split('/').pop()}
                         </span>
                       </div>

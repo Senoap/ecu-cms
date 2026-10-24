@@ -17,9 +17,7 @@ import {
   UploadCloud,
   FileText,
   Eye,
-  Check,
-  Server,
-  AlertCircle
+  Server
 } from 'lucide-react'
 import type { ComproRequestItem, ComproEmailTemplate } from '@/lib/db'
 
@@ -223,10 +221,7 @@ export default function ComproRequestsClient({
       <div className="space-y-4 border-b border-gray-200 dark:border-gray-800 pb-5">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
-              Manajemen Prospek &bull; Distribusi Dokumen
-            </p>
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white mt-0.5">
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white">
               Permintaan Company Profile (PDF)
             </h1>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -514,12 +509,13 @@ export default function ComproRequestsClient({
                   <FileText className="w-6 h-6" />
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-sm font-black text-gray-900 dark:text-white">
                       Company-Profile-PT-Empat-Sinergi-Utama.pdf
                     </span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
-                      <Check className="w-3 h-3" /> Terpasang
+                    <span className="text-gray-300 dark:text-gray-700">|</span>
+                    <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                      Terpasang
                     </span>
                   </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
@@ -572,12 +568,12 @@ export default function ComproRequestsClient({
                   </h2>
                 </div>
                 {smtpStatus?.configured ? (
-                  <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 w-fit">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> SMTP Aktif & Terhubung
+                  <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                    Status: SMTP Aktif & Terhubung
                   </span>
                 ) : (
-                  <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 flex items-center gap-1.5 w-fit">
-                    <AlertCircle className="w-3.5 h-3.5" /> Mode Simulasi Dev (Belum Diatur di .env)
+                  <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
+                    Status: Mode Simulasi Dev (Belum Diatur di .env)
                   </span>
                 )}
               </div>

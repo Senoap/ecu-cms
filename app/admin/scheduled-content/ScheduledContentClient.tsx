@@ -7,11 +7,10 @@ import {
   Pencil, 
   Trash2, 
   Clock, 
-  CheckCircle2, 
   X, 
   Image as ImageIcon,
+  Calendar,
   CalendarCheck,
-  CalendarDays,
   SunMedium
 } from 'lucide-react'
 import type { ScheduledContentItem } from '@/lib/db'
@@ -162,10 +161,10 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
   // Perhitungan status realtime
   const getScheduleStatus = (item: ScheduledContentItem) => {
     if (!item.isActive) {
-      return { label: 'Non-aktif', color: 'bg-gray-500/10 text-gray-500 border-gray-500/20' }
+      return { label: 'Nonaktif', color: 'text-gray-500 dark:text-gray-400 font-semibold' }
     }
     if (todayStr < item.startDate) {
-      return { label: 'Terjadwal', color: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30' }
+      return { label: 'Terjadwal', color: 'text-amber-600 dark:text-amber-400 font-semibold' }
     }
     if (todayStr > item.endDate) {
       const endDateTime = new Date(`${item.endDate}T23:59:59.999Z`).getTime()
@@ -175,10 +174,10 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
       const daysLeft = Math.max(0, Math.ceil(msLeft / (24 * 60 * 60 * 1000)))
       return { 
         label: `Kedaluwarsa (Hapus H+7: ${daysLeft} hr lagi)`, 
-        color: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20 font-bold' 
+        color: 'text-rose-600 dark:text-rose-400 font-bold' 
       }
     }
-    return { label: 'Sedang Tayang', color: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 font-black' }
+    return { label: 'Sedang Tayang', color: 'text-emerald-600 dark:text-emerald-400 font-bold' }
   }
 
   const totalLive = contents.filter((c) => c.isActive && todayStr >= c.startDate && todayStr <= c.endDate).length
@@ -190,10 +189,7 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
-            Manajemen Konten &bull; Penjadwalan Otomatis
-          </p>
-          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white mt-0.5">
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white">
             Konten Harian &amp; Bulanan
           </h1>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -327,24 +323,28 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
                         </div>
                       )}
                       <div>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider ${
+                        <div className="flex flex-wrap items-center gap-2 text-xs">
+                          <span className={`font-bold ${
                             item.type === 'daily' 
-                              ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/25' 
-                              : 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-400 border border-indigo-500/25'
+                              ? 'text-amber-600 dark:text-amber-400' 
+                              : 'text-indigo-600 dark:text-indigo-400'
                           }`}>
                             {item.type === 'daily' ? 'Harian' : 'Bulanan'}
                           </span>
                           {item.badge && (
-                            <span className="text-[10px] font-extrabold uppercase text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-md">
-                              {item.badge}
-                            </span>
+                            <>
+                              <span className="text-gray-300 dark:text-gray-700">|</span>
+                              <span className="text-gray-600 dark:text-gray-400 font-semibold">
+                                {item.badge}
+                              </span>
+                            </>
                           )}
-                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] uppercase border ${status.color}`}>
+                          <span className="text-gray-300 dark:text-gray-700">|</span>
+                          <span className={status.color}>
                             {status.label}
                           </span>
                         </div>
-                        <h3 className="font-black text-base text-gray-900 dark:text-white mt-1.5">{item.title}</h3>
+                        <h3 className="font-black text-base text-gray-900 dark:text-white mt-1">{item.title}</h3>
                         <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                           <Calendar className="w-3.5 h-3.5 text-gray-400" />
                           <span>Berlaku: <b className="text-gray-700 dark:text-gray-300">{item.startDate}</b> s/d <b className="text-gray-700 dark:text-gray-300">{item.endDate}</b></span>

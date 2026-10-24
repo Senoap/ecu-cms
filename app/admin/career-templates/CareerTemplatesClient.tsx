@@ -6,13 +6,10 @@ import {
   Plus, 
   Pencil, 
   Trash2, 
-  Mail, 
   Check, 
   X, 
   Copy, 
-  Code2, 
-  Layers,
-  Phone
+  Code2
 } from 'lucide-react'
 import { createCareerTemplateAction, updateCareerTemplateAction, deleteCareerTemplateAction } from './actions'
 import type { CareerReplyTemplate } from '@/lib/db'
@@ -142,10 +139,7 @@ export default function CareerTemplatesClient({ templates }: CareerTemplatesClie
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
-            Rekrutmen &amp; SDM &bull; Otomasi Komunikasi
-          </p>
-          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white mt-0.5">
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white">
             Template Balasan Karir
           </h1>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -227,21 +221,22 @@ export default function CareerTemplatesClient({ templates }: CareerTemplatesClie
             >
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2.5">
+                  <div className="flex flex-wrap items-center gap-2">
                     <h3 className="font-black text-base text-gray-900 dark:text-white">{tpl.name}</h3>
+                    <span className="text-gray-300 dark:text-gray-700">|</span>
                     {tpl.channel === 'wa' && (
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
-                        <Phone className="w-3 h-3" /> WhatsApp
+                      <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                        Saluran: WhatsApp
                       </span>
                     )}
                     {tpl.channel === 'email' && (
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-sky-500/10 text-sky-700 dark:text-sky-400 border border-sky-500/20 flex items-center gap-1">
-                        <Mail className="w-3 h-3" /> Email
+                      <span className="text-xs font-bold text-sky-600 dark:text-sky-400">
+                        Saluran: Email
                       </span>
                     )}
                     {tpl.channel === 'both' && (
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-purple-500/10 text-purple-700 dark:text-purple-400 border border-purple-500/20 flex items-center gap-1">
-                        <Layers className="w-3 h-3" /> WA & Email
+                      <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
+                        Saluran: WhatsApp & Email
                       </span>
                     )}
                   </div>

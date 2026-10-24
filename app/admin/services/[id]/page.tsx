@@ -58,10 +58,7 @@ export default async function AdminEditServicePage({ params }: { params: Promise
         <div className="space-y-6 pb-16">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
                 <div>
-                    <p className="text-[11px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
-                        Manajemen Konten &bull; Detail Layanan
-                    </p>
-                    <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white mt-0.5">
+                    <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white">
                         Edit Layanan: {srv.title}
                     </h1>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">

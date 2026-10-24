@@ -381,10 +381,7 @@ export default function AboutClient({
       <div className="space-y-4 border-b border-gray-200 dark:border-gray-800 pb-5">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
-              Manajemen Konten &bull; Profil Korporat
-            </p>
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white mt-0.5">
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white">
               Kelola Seksi About Us &amp; Dewan Direksi
             </h1>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -420,12 +417,12 @@ export default function AboutClient({
           <button
             type="button"
             onClick={() => setActiveTab('leadershipPage')}
-            className={`px-4 py-2.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${activeTab === 'leadershipPage'
-              ? 'bg-amber-500 text-gray-950 shadow-md'
-              : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-amber-500'
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${activeTab === 'leadershipPage'
+              ? 'bg-amber-600 text-white'
+              : 'bg-white dark:bg-[#13161F] border border-gray-200 dark:border-[#222736] text-gray-600 dark:text-gray-400 hover:border-amber-500'
               }`}
           >
-            <Globe className="w-4 h-4" />
+            <Globe className="w-3.5 h-3.5" />
             <span>Kustomisasi Halaman /leadership</span>
           </button>
         </div>
@@ -679,9 +676,12 @@ export default function AboutClient({
                       <div className="flex items-center gap-2">
                         <h3 className="text-sm font-black text-gray-900 dark:text-white">{director.name}</h3>
                         {!director.isVisible && (
-                          <span className="text-[9px] bg-red-500/10 text-red-500 border border-red-500/20 px-2 py-0.5 rounded-full font-bold">
-                            Disembunyikan
-                          </span>
+                          <>
+                            <span className="text-gray-300 dark:text-gray-700">|</span>
+                            <span className="text-xs text-rose-600 dark:text-rose-400 font-semibold">
+                              Disembunyikan
+                            </span>
+                          </>
                         )}
                       </div>
                       <p className="text-xs font-extrabold text-amber-600 dark:text-amber-400 uppercase tracking-wider">{director.position}</p>

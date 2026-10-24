@@ -16,11 +16,11 @@ const STATUS_LABEL: Record<string, string> = {
 }
 
 const STATUS_COLOR: Record<string, string> = {
-  new: 'bg-blue-500/10 text-blue-600 border-blue-500/30',
-  reviewed: 'bg-amber-500/10 text-amber-600 border-amber-500/30',
-  interview: 'bg-purple-500/10 text-purple-600 border-purple-500/30',
-  accepted: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30',
-  rejected: 'bg-red-500/10 text-red-600 border-red-500/30',
+  new: 'text-blue-600 dark:text-blue-400',
+  reviewed: 'text-amber-600 dark:text-amber-400',
+  interview: 'text-purple-600 dark:text-purple-400',
+  accepted: 'text-emerald-600 dark:text-emerald-400',
+  rejected: 'text-rose-600 dark:text-rose-400',
 }
 
 export default async function ApplicationsPage({ 
@@ -58,10 +58,7 @@ export default async function ApplicationsPage({
     <div className="space-y-6 animate-in fade-in duration-300">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
-            Rekrutmen &amp; SDM &bull; Seleksi Kandidat
-          </p>
-          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white mt-0.5">
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white">
             Lamaran Pekerjaan Masuk
           </h1>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
