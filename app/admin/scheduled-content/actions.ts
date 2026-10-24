@@ -30,13 +30,19 @@ export async function createScheduledContentAction(formData: FormData) {
   const content = String(formData.get('content') ?? '').trim()
   const startDate = String(formData.get('startDate') ?? '').trim()
   const endDate = String(formData.get('endDate') ?? '').trim()
-  const imageUrlRaw = String(formData.get('imageUrl') ?? '').trim()
-  const isActive = formData.get('isActive') !== 'false'
+  const startTime = (String(formData.get('startTime') ?? '').trim()) || '00:00'
+  const endTime = (String(formData.get('endTime') ?? '').trim()) || '23:59'
 
   if (!title) throw new Error('Judul konten wajib diisi.')
   if (!content) throw new Error('Isi konten wajib diisi.')
   if (!startDate || !endDate) throw new Error('Tanggal mulai dan tanggal selesai wajib diisi.')
   if (startDate > endDate) throw new Error('Tanggal mulai tidak boleh lebih besar dari tanggal selesai.')
+  if (startDate === endDate && startTime > endTime) {
+    throw new Error('Jam mulai tidak boleh lebih besar dari jam selesai pada tanggal yang sama.')
+  }
+
+  const imageUrlRaw = String(formData.get('imageUrl') ?? '').trim()
+  const isActive = formData.get('isActive') !== 'false'
 
   let finalImageUrl = imageUrlRaw
 
@@ -61,6 +67,8 @@ export async function createScheduledContentAction(formData: FormData) {
     imageUrl: finalImageUrl || undefined,
     startDate,
     endDate,
+    startTime,
+    endTime,
     isActive,
     createdAt: Date.now(),
   }
@@ -83,6 +91,8 @@ export async function updateScheduledContentAction(formData: FormData) {
   const content = String(formData.get('content') ?? '').trim()
   const startDate = String(formData.get('startDate') ?? '').trim()
   const endDate = String(formData.get('endDate') ?? '').trim()
+  const startTime = (String(formData.get('startTime') ?? '').trim()) || '00:00'
+  const endTime = (String(formData.get('endTime') ?? '').trim()) || '23:59'
   const imageUrlRaw = String(formData.get('imageUrl') ?? '').trim()
   const isActive = formData.get('isActive') !== 'false'
 
@@ -91,6 +101,9 @@ export async function updateScheduledContentAction(formData: FormData) {
   if (!content) throw new Error('Isi konten wajib diisi.')
   if (!startDate || !endDate) throw new Error('Tanggal mulai dan tanggal selesai wajib diisi.')
   if (startDate > endDate) throw new Error('Tanggal mulai tidak boleh lebih besar dari tanggal selesai.')
+  if (startDate === endDate && startTime > endTime) {
+    throw new Error('Jam mulai tidak boleh lebih besar dari jam selesai pada tanggal yang sama.')
+  }
 
   let finalImageUrl = imageUrlRaw
 
@@ -122,6 +135,8 @@ export async function updateScheduledContentAction(formData: FormData) {
     imageUrl: finalImageUrl || undefined,
     startDate,
     endDate,
+    startTime,
+    endTime,
     isActive,
   }
 

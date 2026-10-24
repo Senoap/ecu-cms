@@ -138,6 +138,8 @@ export interface ScheduledContentItem {
   badge?: string
   startDate: string // YYYY-MM-DD
   endDate: string // YYYY-MM-DD
+  startTime?: string // HH:mm
+  endTime?: string // HH:mm
   isActive: boolean
   createdAt: number
 }
@@ -398,6 +400,7 @@ export interface DatabaseContent {
   comproEmailTemplate?: ComproEmailTemplate
   leadershipPage?: LeadershipPageConfig
   certificationsPage?: CertificationsPageConfig
+  lastPublishedAt?: number
 }
 
 export const defaultCareerTemplates: CareerReplyTemplate[] = [
@@ -977,7 +980,8 @@ export function filterExpiredScheduledContentsH7(
       continue
     }
     // Akhir hari tanggal berakhir tayang (23:59:59.999)
-    const endDateTime = new Date(`${item.endDate}T23:59:59.999Z`).getTime()
+    const endTime = item.endTime || '23:59'
+    const endDateTime = new Date(`${item.endDate}T${endTime}:59.999Z`).getTime()
     if (isNaN(endDateTime)) {
       kept.push(item)
       continue
@@ -1137,6 +1141,7 @@ function processParsedData(parsed: Partial<Database>): Database {
     activeSessions: parsed.activeSessions || {},
     loginAttempts: parsed.loginAttempts || {},
     draftLock: parsed.draftLock,
+    lastPublishedAt: parsed.lastPublishedAt || parsed.published?.lastPublishedAt,
   }
 
   const enriched = enrichContent(rawBase)
@@ -1409,6 +1414,9 @@ export async function deployDB(customUser?: { userName?: string; userEmail?: str
     certificationsPage: JSON.parse(JSON.stringify(db.certificationsPage || defaultCertificationsPageConfig)),
   }
   db.published = enrichContent(db.published)
+  const publishTime = Date.now()
+  db.lastPublishedAt = publishTime
+  db.published.lastPublishedAt = publishTime
   db.hasDraft = false
   db.draftLock = undefined // Release draft lock on deploy!
 

@@ -96,6 +96,7 @@ export default async function AdminLayout({
       draftLock={db.draftLock}
       isLockedByOther={isDraftLocked}
       logoUrl={db.setting?.logoUrl}
+      lastPublishedAt={db.lastPublishedAt || db.published?.lastPublishedAt}
       deployAction={handleDeployAction}
       clearNotificationsAction={handleClearNotifications}
       markAsViewedAction={handleMarkAsViewed}

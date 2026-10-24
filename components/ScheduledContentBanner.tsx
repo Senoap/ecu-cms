@@ -16,14 +16,6 @@ interface ScheduledContentBannerProps {
   contents?: ScheduledContentItem[]
 }
 
-function getTodayStr(): string {
-  const d = new Date()
-  const year = d.getFullYear()
-  const month = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
-
 function formatDateIndo(dateStr: string): string {
   try {
     const parts = dateStr.split('-')
@@ -40,10 +32,16 @@ function formatDateIndo(dateStr: string): string {
 export default function ScheduledContentBanner({ contents = [] }: ScheduledContentBannerProps) {
   const [showAll, setShowAll] = useState(false)
 
-  const todayStr = getTodayStr()
-  const activeItems = contents.filter(
-    (item) => item.isActive && todayStr >= item.startDate && todayStr <= item.endDate
-  )
+  const now = new Date()
+  const pad = (n: number) => String(n).padStart(2, '0')
+  const currentDT = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`
+
+  const activeItems = contents.filter((item) => {
+    if (!item.isActive) return false
+    const startDT = `${item.startDate}T${item.startTime || '00:00'}`
+    const endDT = `${item.endDate}T${item.endTime || '23:59'}`
+    return currentDT >= startDT && currentDT <= endDT
+  })
 
   if (activeItems.length === 0) {
     return null
@@ -112,7 +110,7 @@ export default function ScheduledContentBanner({ contents = [] }: ScheduledConte
                 </span>
                 <span className="text-xs font-bold text-gray-600 dark:text-gray-300 flex items-center gap-1.5 bg-white/70 dark:bg-gray-800/70 px-3 py-1 rounded-full border border-gray-200 dark:border-gray-700">
                   <Calendar className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                  <span>Periode: {formatDateIndo(activeItems[0].startDate)} s/d {formatDateIndo(activeItems[0].endDate)}</span>
+                  <span>Periode: {formatDateIndo(activeItems[0].startDate)} {activeItems[0].startTime ? `(${activeItems[0].startTime})` : ''} s/d {formatDateIndo(activeItems[0].endDate)} {activeItems[0].endTime ? `(${activeItems[0].endTime})` : ''} WIB</span>
                 </span>
               </div>
 
@@ -177,7 +175,7 @@ export default function ScheduledContentBanner({ contents = [] }: ScheduledConte
 
                     <div className="text-[11px] font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
                       <Calendar className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                      <span>{formatDateIndo(item.startDate)} - {formatDateIndo(item.endDate)}</span>
+                      <span>{formatDateIndo(item.startDate)}{item.startTime ? ` ${item.startTime}` : ''} - {formatDateIndo(item.endDate)}{item.endTime ? ` ${item.endTime}` : ''} WIB</span>
                     </div>
 
                     <h4 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight leading-snug">

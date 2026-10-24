@@ -68,6 +68,7 @@ interface AdminLayoutClientProps {
   draftLock?: CmsDraftLock
   isLockedByOther?: boolean
   logoUrl?: string
+  lastPublishedAt?: number
   deployAction: () => Promise<void>
   clearNotificationsAction?: () => Promise<void>
   markAsViewedAction?: () => Promise<void>
@@ -81,7 +82,8 @@ export default function AdminLayoutClient({
   hasDraft, 
   draftLock,
   isLockedByOther = false,
-  logoUrl, 
+  logoUrl,
+  lastPublishedAt,
   deployAction,
   clearNotificationsAction,
   markAsViewedAction
@@ -873,7 +875,9 @@ export default function AdminLayoutClient({
                     ? `Terkunci: Sedang dikelola oleh ${draftLock?.userName}` 
                     : hasDraft 
                       ? 'Terbitkan draft perubahan ke website' 
-                      : 'Belum ada perubahan baru (Draft kosong)'
+                      : lastPublishedAt 
+                        ? `Website versi terkini. Terakhir dipublish: ${new Date(lastPublishedAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}, ${new Date(lastPublishedAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} WIB`
+                        : 'Belum ada perubahan baru (Draft kosong)'
                 }
               >
                 {isPending ? (
