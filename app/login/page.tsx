@@ -3,7 +3,6 @@
 
 import { useState, useTransition, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { 
   AlertCircle, 
   Lock, 
@@ -35,19 +34,8 @@ export default function AdminLoginPage() {
   const [isDarkMode, setIsDarkMode] = useState(true)
   const [logoUrl, setLogoUrl] = useState('')
   const [siteName, setSiteName] = useState('PT. EMPAT SINERGI UTAMA')
+  const [bgImageUrl, setBgImageUrl] = useState('')
   const router = useRouter()
-
-  // Handler navigasi ke website publik saat login diakses melalui subdomain CMS
-  const handleOpenMainSite = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (typeof window !== 'undefined') {
-      const { hostname, host, protocol } = window.location
-      if (/^(cms-4su|cms|admin)[.-]/i.test(hostname)) {
-        e.preventDefault()
-        const mainHost = host.replace(/^(cms-4su|cms|admin)[.-]/i, '')
-        window.location.href = `${protocol}//${mainHost}/`
-      }
-    }
-  }
 
   // State mode reset password saat login (Point 4)
   const [resetData, setResetData] = useState<ResetRequiredData | null>(null)
@@ -75,6 +63,7 @@ export default function AdminLoginPage() {
       .then((res) => {
         if (res?.logoUrl) setLogoUrl(res.logoUrl)
         if (res?.siteName) setSiteName(res.siteName)
+        if (res?.bgImageUrl) setBgImageUrl(res.bgImageUrl)
       })
       .catch(() => {})
   }, [])
@@ -184,13 +173,26 @@ export default function AdminLoginPage() {
         paddingTop: 'max(1rem, calc(env(safe-area-inset-top, 0px) + 0.75rem))',
         paddingBottom: 'max(1rem, calc(env(safe-area-inset-bottom, 0px) + 0.75rem))',
       }}
-      className={`min-h-screen min-h-[100dvh] w-full flex items-center justify-center px-4 sm:px-6 font-sans transition-colors duration-300 ${
-        isDarkMode ? 'bg-[#0C0D12] text-zinc-100' : 'bg-[#F4F6F9] text-gray-900'
+      className={`min-h-screen min-h-[100dvh] w-full flex items-center justify-center px-4 sm:px-6 font-sans relative transition-colors duration-300 ${
+        isDarkMode ? 'bg-[#090A0F] text-gray-100' : 'bg-[#F8F7F4] text-gray-800'
       }`}
     >
+      {/* Background Image Container yang sama dengan Web Compro */}
+      {bgImageUrl && (
+        <div 
+          className="fixed inset-0 pointer-events-none z-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${bgImageUrl})` }}
+        />
+      )}
+
+      {/* Overlay Tipis agar kartu login tetap kontras terbaca */}
+      <div className={`fixed inset-0 pointer-events-none z-0 ${
+        isDarkMode ? 'bg-black/90' : 'bg-[#F9F8F5]/92'
+      }`}></div>
+
       <div className="relative z-10 w-full max-w-lg">
-        <div className={`p-6 sm:p-8 rounded-xl shadow-xl border space-y-6 ${
-          isDarkMode ? 'bg-[#13161F] border-[#222736]' : 'bg-white border-gray-200'
+        <div className={`p-6 sm:p-8 rounded-2xl shadow-2xl border space-y-6 backdrop-blur-md ${
+          isDarkMode ? 'bg-[#13161F]/95 border-[#222736]' : 'bg-white/95 border-gray-200'
         }`}>
           
           {/* HEADER LOGO */}
@@ -451,17 +453,6 @@ export default function AdminLoginPage() {
               </button>
             </form>
           )}
-
-          {/* FOOTER CARD */}
-          <div className="text-center pt-2 border-t border-gray-800/40">
-            <Link 
-              href="/" 
-              onClick={handleOpenMainSite}
-              className="text-xs font-bold text-gray-400 hover:text-amber-500 transition-colors uppercase tracking-widest inline-block"
-            >
-              &larr; Kembali ke Website Utama
-            </Link>
-          </div>
 
         </div>
       </div>

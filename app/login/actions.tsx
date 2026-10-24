@@ -629,12 +629,13 @@ export async function heartbeatAdminSession(): Promise<{ valid: boolean; message
   }
 }
 
-export async function getLoginBrandingAction(): Promise<{ logoUrl?: string; siteName?: string }> {
+export async function getLoginBrandingAction(): Promise<{ logoUrl?: string; siteName?: string; bgImageUrl?: string }> {
   try {
     const db = await readDB()
     return {
       logoUrl: db.setting?.logoUrl || '',
       siteName: db.setting?.siteName || 'PT. EMPAT SINERGI UTAMA',
+      bgImageUrl: db.setting?.bgImageUrl || '',
     }
   } catch {
     return {}
