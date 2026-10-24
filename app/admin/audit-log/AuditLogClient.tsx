@@ -391,26 +391,6 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
       {/* ========================================================================= */}
       {categoryFilter === 'visitor' ? (
         <div className="space-y-6">
-          {/* Banner Penjelasan Desain Hemat Database */}
-          <div className="p-4 sm:p-5 rounded-3xl bg-cyan-500/10 border border-cyan-500/20 text-xs text-cyan-950 dark:text-cyan-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-start gap-3">
-              <div className="p-2 rounded-2xl bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 shrink-0 mt-0.5">
-                <Activity className="w-4 h-4" />
-              </div>
-              <div className="space-y-1">
-                <p className="font-extrabold text-sm text-cyan-900 dark:text-cyan-300">
-                  Desain Anti Penuh: Counter Harian & Grafik Tren 30 Hari
-                </p>
-                <p className="text-gray-600 dark:text-gray-300 text-xs leading-relaxed max-w-2xl">
-                  Pelacakan pengunjung hanya mencatat 1 counter angka per hari untuk rentang 30 hari. Ketika melewati 30 hari, data hari pertama otomatis tertimpa hari berikutnya (FIFO circular buffer). Disajikan dalam format grafik agar ringkas dan tidak memanjang.
-                </p>
-              </div>
-            </div>
-            <div className="shrink-0 text-xs font-bold text-cyan-700 dark:text-cyan-300">
-              Siklus: 30 Hari Bergulir
-            </div>
-          </div>
-
           {/* Kartu Statistik Cepat */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Total Hits 30 Hari */}
