@@ -3,7 +3,6 @@
 
 import { useState, useTransition } from 'react'
 import { 
-  Calendar, 
   Plus, 
   Pencil, 
   Trash2, 
@@ -189,15 +188,15 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
     <div className="space-y-8 animate-in fade-in duration-300">
       
       {/* HEADER */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
         <div>
-          <div className="flex items-center gap-2.5">
-            <Calendar className="w-6 h-6 text-amber-600 dark:text-amber-400" />
-            <h1 className="text-2xl font-black tracking-tight uppercase text-gray-900 dark:text-white">
-              Konten Harian & Bulanan
-            </h1>
-          </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+            Manajemen Konten &bull; Penjadwalan Otomatis
+          </p>
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white mt-0.5">
+            Konten Harian &amp; Bulanan
+          </h1>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             Jadwalkan konten harian (daily update) dan buletin/promo bulanan dengan rentang tanggal tayang otomatis.
           </p>
         </div>
@@ -205,7 +204,7 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
         <button
           type="button"
           onClick={() => openAddModal('daily')}
-          className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs font-black uppercase tracking-wider text-white bg-amber-600 hover:bg-amber-700 shadow-sm transition-all transform hover:-translate-y-0.5 cursor-pointer shrink-0"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 transition-colors cursor-pointer shrink-0"
         >
           <Plus className="w-4 h-4" />
           <span>Tambah Konten</span>
@@ -213,7 +212,7 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
       </div>
 
       {/* INFO KEBIJAKAN AUTO-PURGE H+7 */}
-      <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+      <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
         <div className="flex items-center gap-2.5 text-amber-800 dark:text-amber-300 font-bold">
           <Clock className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
           <span>Kebijakan Auto-Purge H+7: Konten yang melewati batas tanggal selesai lebih dari 7 hari otomatis terhapus permanen dari sistem &amp; media penyimpanan.</span>
@@ -222,48 +221,31 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
 
       {/* FEEDBACK STATUS */}
       {successMsg && (
-        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs font-bold flex items-center justify-between">
+        <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 text-emerald-800 dark:text-emerald-300 text-xs font-medium flex items-center justify-between">
           <span>{successMsg}</span>
           <button onClick={() => setSuccessMsg('')} className="p-1 hover:opacity-70"><X className="w-4 h-4" /></button>
         </div>
       )}
       {errorMsg && (
-        <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-800 dark:text-rose-300 text-xs font-bold flex items-center justify-between">
+        <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/50 text-rose-800 dark:text-rose-300 text-xs font-medium flex items-center justify-between">
           <span>{errorMsg}</span>
           <button onClick={() => setErrorMsg('')} className="p-1 hover:opacity-70"><X className="w-4 h-4" /></button>
         </div>
       )}
 
-      {/* STATS OVERVIEW */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
-            <CalendarDays className="w-6 h-6" />
-          </div>
-          <div>
-            <div className="text-2xl font-black text-gray-900 dark:text-white">{contents.length}</div>
-            <div className="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">Total Konten</div>
-          </div>
+      {/* RINGKASAN METRIK (Minimalis seperti /cms/users) */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 border border-gray-200 dark:border-[#222736] rounded-xl bg-white dark:bg-[#13161F] divide-y sm:divide-y-0 sm:divide-x divide-gray-200 dark:divide-[#222736]">
+        <div className="p-4">
+          <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400">Total Konten</p>
+          <p className="text-xl font-black text-gray-900 dark:text-white mt-0.5 tabular-nums">{contents.length}</p>
         </div>
-
-        <div className="p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
-            <CheckCircle2 className="w-6 h-6" />
-          </div>
-          <div>
-            <div className="text-2xl font-black text-gray-900 dark:text-white">{totalLive}</div>
-            <div className="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">Sedang Tayang Hari Ini</div>
-          </div>
+        <div className="p-4">
+          <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400">Sedang Tayang Hari Ini</p>
+          <p className="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-0.5 tabular-nums">{totalLive}</p>
         </div>
-
-        <div className="p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-sky-500/10 flex items-center justify-center text-sky-600 dark:text-sky-400 shrink-0">
-            <Clock className="w-6 h-6" />
-          </div>
-          <div>
-            <div className="text-2xl font-black text-gray-900 dark:text-white">{totalUpcoming}</div>
-            <div className="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">Terjadwal Mendatang</div>
-          </div>
+        <div className="p-4">
+          <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400">Terjadwal Mendatang</p>
+          <p className="text-xl font-black text-amber-600 dark:text-amber-400 mt-0.5 tabular-nums">{totalUpcoming}</p>
         </div>
       </div>
 

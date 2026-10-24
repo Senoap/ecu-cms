@@ -107,15 +107,22 @@ export default function CareerClient({
       </div>
 
       {/* Banner Header Halaman */}
-      <div className="flex justify-between items-center bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-sm relative overflow-hidden">
-        <div className="space-y-1 relative z-10">
-          <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight">Kelola Lowongan Kerja (Career)</h1>
-          <p className="text-gray-600 dark:text-gray-400 text-xs md:text-sm font-medium">Atur informasi header seksi karir dan daftar posisi lowongan pekerjaan.</p>
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+            Rekrutmen &amp; SDM &bull; Manajemen Lowongan
+          </p>
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white mt-0.5">
+            Kelola Lowongan Kerja (Career)
+          </h1>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Atur informasi header seksi karir dan daftar posisi lowongan pekerjaan.
+          </p>
         </div>
         <button
           type="button"
           onClick={() => setIsAddModalOpen(true)}
-          className="relative z-10 bg-amber-600 hover:bg-amber-700 text-white font-black text-xs uppercase tracking-widest px-6 py-3.5 rounded-2xl transition-all shadow-sm cursor-pointer flex items-center gap-2"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 transition-colors cursor-pointer shrink-0"
         >
           <Plus className="w-4 h-4" />
           <span>Tambah Lowongan</span>

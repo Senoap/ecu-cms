@@ -628,3 +628,15 @@ export async function heartbeatAdminSession(): Promise<{ valid: boolean; message
     return { valid: true }
   }
 }
+
+export async function getLoginBrandingAction(): Promise<{ logoUrl?: string; siteName?: string }> {
+  try {
+    const db = await readDB()
+    return {
+      logoUrl: db.setting?.logoUrl || '',
+      siteName: db.setting?.siteName || 'PT. EMPAT SINERGI UTAMA',
+    }
+  } catch {
+    return {}
+  }
+}

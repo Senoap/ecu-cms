@@ -378,36 +378,43 @@ export default function AboutClient({
       </div>
 
       {/* Header Halaman Admin */}
-      <div className="bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-sm relative overflow-hidden transition-colors">
-        <div className="space-y-1 relative z-10">
-          <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight">Kelola Seksi About Us & Dewan Direksi</h1>
-          <p className="text-gray-600 dark:text-gray-400 text-xs md:text-sm font-medium">
-            Ubah narasi profil perusahaan dan kelola profil dewan direksi untuk halaman detail /leadership.
-          </p>
+      <div className="space-y-4 border-b border-gray-200 dark:border-gray-800 pb-5">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+              Manajemen Konten &bull; Profil Korporat
+            </p>
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white mt-0.5">
+              Kelola Seksi About Us &amp; Dewan Direksi
+            </h1>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Ubah narasi profil perusahaan dan kelola profil dewan direksi untuk halaman detail /leadership.
+            </p>
+          </div>
         </div>
 
         {/* Tab Navigasi Seksi */}
-        <div className="flex gap-2 mt-6 pt-6 border-t border-gray-100 dark:border-gray-800">
+        <div className="flex flex-wrap gap-2 pt-1">
           <button
             type="button"
             onClick={() => setActiveTab('narrative')}
-            className={`px-4 py-2.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${activeTab === 'narrative'
-              ? 'bg-amber-500 text-gray-950 shadow-md'
-              : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-amber-500'
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${activeTab === 'narrative'
+              ? 'bg-amber-600 text-white'
+              : 'bg-white dark:bg-[#13161F] border border-gray-200 dark:border-[#222736] text-gray-600 dark:text-gray-400 hover:border-amber-500'
               }`}
           >
-            <Building2 className="w-4 h-4" />
+            <Building2 className="w-3.5 h-3.5" />
             <span>Narasi Utama About Us</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('directors')}
-            className={`px-4 py-2.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${activeTab === 'directors'
-              ? 'bg-amber-500 text-gray-950 shadow-md'
-              : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-amber-500'
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${activeTab === 'directors'
+              ? 'bg-amber-600 text-white'
+              : 'bg-white dark:bg-[#13161F] border border-gray-200 dark:border-[#222736] text-gray-600 dark:text-gray-400 hover:border-amber-500'
               }`}
           >
-            <Users className="w-4 h-4" />
+            <Users className="w-3.5 h-3.5" />
             <span>{leadershipLabel || 'Profil Pimpinan'} & Manajemen ({directorsList.length})</span>
           </button>
           <button

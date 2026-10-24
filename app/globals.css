@@ -155,6 +155,41 @@ a, button, input, select, textarea {
   --color-amber-950: #100101;
 }
 
+/* ========================================================================= */
+/* STANDARISASI ENTERPRISE UI CMS (Menyamakan seluruh menu dengan /cms/users)*/
+/* ========================================================================= */
+[data-admin-scope] .rounded-3xl {
+  border-radius: 0.75rem !important;
+}
+[data-admin-scope] .rounded-2xl {
+  border-radius: 0.625rem !important;
+}
+[data-admin-scope] .shadow-xl,
+[data-admin-scope] .shadow-md {
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.04) !important;
+}
+[data-admin-scope] .shadow-inner {
+  box-shadow: none !important;
+}
+.dark [data-admin-scope] .dark\:bg-\[\#10131C\],
+.dark [data-admin-scope] .dark\:bg-gray-900 {
+  background-color: #13161F !important;
+}
+.dark [data-admin-scope] .dark\:bg-\[\#090A0F\],
+.dark [data-admin-scope] .dark\:bg-gray-950 {
+  background-color: #181C28 !important;
+}
+.dark [data-admin-scope] .dark\:border-gray-800,
+.dark [data-admin-scope] .dark\:border-gray-800\/80 {
+  border-color: #222736 !important;
+}
+[data-admin-scope] main > div.max-w-4xl,
+[data-admin-scope] main > div.max-w-3xl,
+[data-admin-scope] main > div.max-w-5xl,
+[data-admin-scope] main > div > div.max-w-4xl {
+  max-width: 100% !important;
+}
+
 /* Accessibility & Utility: Cetak Dokumen Resmi & Lowongan Kerja (@media print) */
 @media print {
   nav,

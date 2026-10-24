@@ -50,13 +50,44 @@ export default async function ApplicationsPage({
     : defaultCareerTemplates
   const siteName = db.setting?.siteName || 'PT. EMPAT SINERGI UTAMA'
 
+  const totalNew = apps.filter((a) => a.status === 'new').length
+  const totalInterview = apps.filter((a) => a.status === 'interview').length
+  const totalAccepted = apps.filter((a) => a.status === 'accepted').length
+
   return (
-    <div className="space-y-8 animate-in fade-in duration-300">
-      <div>
-        <h1 className="text-2xl font-black tracking-tight text-gray-900 dark:text-white uppercase">Lamaran Pekerjaan</h1>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-          {apps.length} lamaran masuk · {apps.filter((a) => a.status === 'new').length} baru
-        </p>
+    <div className="space-y-6 animate-in fade-in duration-300">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+            Rekrutmen &amp; SDM &bull; Seleksi Kandidat
+          </p>
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white mt-0.5">
+            Lamaran Pekerjaan Masuk
+          </h1>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Tinjau berkas CV pelamar, perbarui status tahapan seleksi, dan kirim pesan tindak lanjut via Email atau WhatsApp.
+          </p>
+        </div>
+      </div>
+
+      {/* Ringkasan Metrik Lamaran */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 border border-gray-200 dark:border-[#222736] rounded-xl bg-white dark:bg-[#13161F] divide-y sm:divide-y-0 sm:divide-x divide-gray-200 dark:divide-[#222736]">
+        <div className="p-4">
+          <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400">Total Lamaran</p>
+          <p className="text-xl font-black text-gray-900 dark:text-white mt-0.5 tabular-nums">{apps.length}</p>
+        </div>
+        <div className="p-4">
+          <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400">Lamaran Baru</p>
+          <p className="text-xl font-black text-blue-600 dark:text-blue-400 mt-0.5 tabular-nums">{totalNew}</p>
+        </div>
+        <div className="p-4">
+          <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400">Tahap Wawancara</p>
+          <p className="text-xl font-black text-amber-600 dark:text-amber-400 mt-0.5 tabular-nums">{totalInterview}</p>
+        </div>
+        <div className="p-4">
+          <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400">Diterima</p>
+          <p className="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-0.5 tabular-nums">{totalAccepted}</p>
+        </div>
       </div>
 
       {/* Pengaturan email HR */}

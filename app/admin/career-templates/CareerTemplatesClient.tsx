@@ -3,7 +3,6 @@
 
 import { useState, useTransition, useRef } from 'react'
 import { 
-  MessageSquare, 
   Plus, 
   Pencil, 
   Trash2, 
@@ -141,15 +140,15 @@ export default function CareerTemplatesClient({ templates }: CareerTemplatesClie
     <div className="space-y-8 animate-in fade-in duration-300">
       
       {/* HEADER */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
         <div>
-          <div className="flex items-center gap-2.5">
-            <MessageSquare className="w-6 h-6 text-amber-600 dark:text-amber-400" />
-            <h1 className="text-2xl font-black tracking-tight uppercase text-gray-900 dark:text-white">
-              Template Balasan Karir
-            </h1>
-          </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+            Rekrutmen &amp; SDM &bull; Otomasi Komunikasi
+          </p>
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white mt-0.5">
+            Template Balasan Karir
+          </h1>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             Kelola draf pesan otomatis untuk membalas pelamar lowongan kerja secara instan via WhatsApp maupun Email.
           </p>
         </div>
@@ -157,7 +156,7 @@ export default function CareerTemplatesClient({ templates }: CareerTemplatesClie
         <button
           type="button"
           onClick={openAddModal}
-          className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs font-black uppercase tracking-wider text-white bg-amber-600 hover:bg-amber-700 shadow-sm transition-all transform hover:-translate-y-0.5 cursor-pointer shrink-0"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 transition-colors cursor-pointer shrink-0"
         >
           <Plus className="w-4 h-4" />
           <span>Buat Template Baru</span>

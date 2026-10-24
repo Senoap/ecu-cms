@@ -1,7 +1,7 @@
 // app/admin/audit-log/AuditLogClient.tsx
 'use client'
 
-import { useState, useMemo, useEffect, useRef } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import type { AuditLogItem, DailyVisitorCount } from '@/lib/db'
 import { 
   FileText, 
@@ -315,20 +315,25 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
     <div className="max-w-5xl mx-auto space-y-8 pb-32">
       
       {/* Header Banner */}
-      <div className="bg-white dark:bg-[#10131C] p-6 sm:p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-sm relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div className="space-y-1 relative z-10">
-          <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight">Audit Log Terpadu</h1>
-          <p className="text-gray-600 dark:text-gray-400 text-xs md:text-sm font-medium">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+            Keamanan &amp; Analitik &bull; Superadmin
+          </p>
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white mt-0.5">
+            Audit Log Terpadu
+          </h1>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             Rekaman terpisah untuk riwayat perubahan CMS, grafik tren pengunjung 30 hari, lamaran karir, dan permintaan company profile.
           </p>
         </div>
 
         {/* Tombol Ekspor TXT */}
-        <div className="relative z-10 shrink-0">
+        <div className="shrink-0">
           <a
             href="/api/admin/audit-log/download"
             download
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-lg shadow-amber-950/30 transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-colors cursor-pointer"
           >
             <Download className="w-4 h-4" />
             <span>Unduh Log (.txt)</span>

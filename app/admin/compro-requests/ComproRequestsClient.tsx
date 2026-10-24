@@ -220,40 +220,47 @@ export default function ComproRequestsClient({
       </div>
 
       {/* Header Halaman Admin */}
-      <div className="bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-sm relative overflow-hidden transition-colors">
-        <div className="space-y-1 relative z-10">
-          <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight">Permintaan Company Profile (PDF)</h1>
-          <p className="text-gray-600 dark:text-gray-400 text-xs md:text-sm font-medium">
-            Pantau prospek klien yang meminta profil perusahaan dan atur pengiriman email dengan berkas PDF terlampir langsung.
-          </p>
+      <div className="space-y-4 border-b border-gray-200 dark:border-gray-800 pb-5">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+              Manajemen Prospek &bull; Distribusi Dokumen
+            </p>
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white mt-0.5">
+              Permintaan Company Profile (PDF)
+            </h1>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Pantau prospek klien yang meminta profil perusahaan dan atur pengiriman email dengan berkas PDF terlampir langsung.
+            </p>
+          </div>
         </div>
 
         {/* Tab Navigasi */}
-        <div className="flex gap-2 mt-6 pt-6 border-t border-gray-100 dark:border-gray-800">
+        <div className="flex flex-wrap gap-2 pt-1">
           <button
             type="button"
             onClick={() => setActiveTab('list')}
-            className={`px-4 py-2.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
               activeTab === 'list'
-                ? 'bg-amber-600 text-white shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                ? 'bg-amber-600 text-white'
+                : 'bg-white dark:bg-[#13161F] border border-gray-200 dark:border-[#222736] text-gray-600 dark:text-gray-400 hover:border-amber-500'
             }`}
           >
-            <Clock className="w-4 h-4" />
+            <Clock className="w-3.5 h-3.5" />
             <span>Daftar Permintaan ({totalReq})</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('template')}
-            className={`px-4 py-2.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
               activeTab === 'template'
-                ? 'bg-amber-600 text-white shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                ? 'bg-amber-600 text-white'
+                : 'bg-white dark:bg-[#13161F] border border-gray-200 dark:border-[#222736] text-gray-600 dark:text-gray-400 hover:border-amber-500'
             }`}
           >
-            <Paperclip className="w-4 h-4" />
-            <span>Lampiran & Template Email Otomatis</span>
+            <Paperclip className="w-3.5 h-3.5" />
+            <span>Lampiran &amp; Template Email Otomatis</span>
           </button>
         </div>
       </div>
@@ -310,23 +317,23 @@ export default function ComproRequestsClient({
       {/* TAB 1: DAFTAR PERMINTAAN */}
       {activeTab === 'list' && (
         <div className="space-y-6">
-          {/* STATS OVERVIEW CARDS */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#10131C] shadow-sm space-y-1">
-              <span className="text-[10px] font-black uppercase tracking-wider text-gray-400">Total Masuk</span>
-              <p className="text-2xl font-black text-gray-900 dark:text-white">{totalReq}</p>
+          {/* STATS OVERVIEW CARDS (Minimalis seperti /cms/users) */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 border border-gray-200 dark:border-[#222736] rounded-xl bg-white dark:bg-[#13161F] divide-y sm:divide-y-0 sm:divide-x divide-gray-200 dark:divide-[#222736]">
+            <div className="p-4">
+              <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400">Total Masuk</p>
+              <p className="text-xl font-black text-gray-900 dark:text-white mt-0.5 tabular-nums">{totalReq}</p>
             </div>
-            <div className="p-5 rounded-2xl border border-emerald-500/20 bg-emerald-50/50 dark:bg-emerald-950/20 shadow-sm space-y-1">
-              <span className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">PDF Terkirim</span>
-              <p className="text-2xl font-black text-emerald-700 dark:text-emerald-300">{totalSent}</p>
+            <div className="p-4">
+              <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400">PDF Terkirim</p>
+              <p className="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-0.5 tabular-nums">{totalSent}</p>
             </div>
-            <div className="p-5 rounded-2xl border border-amber-500/20 bg-amber-50/50 dark:bg-amber-950/20 shadow-sm space-y-1">
-              <span className="text-[10px] font-black uppercase tracking-wider text-amber-600 dark:text-amber-400">Menunggu</span>
-              <p className="text-2xl font-black text-amber-700 dark:text-amber-300">{totalPending}</p>
+            <div className="p-4">
+              <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400">Menunggu</p>
+              <p className="text-xl font-black text-amber-600 dark:text-amber-400 mt-0.5 tabular-nums">{totalPending}</p>
             </div>
-            <div className="p-5 rounded-2xl border border-blue-500/20 bg-blue-50/50 dark:bg-blue-950/20 shadow-sm space-y-1">
-              <span className="text-[10px] font-black uppercase tracking-wider text-blue-600 dark:text-blue-400">Ditindaklanjuti</span>
-              <p className="text-2xl font-black text-blue-700 dark:text-blue-300">{totalFollowedUp}</p>
+            <div className="p-4">
+              <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400">Ditindaklanjuti</p>
+              <p className="text-xl font-black text-blue-600 dark:text-blue-400 mt-0.5 tabular-nums">{totalFollowedUp}</p>
             </div>
           </div>
 

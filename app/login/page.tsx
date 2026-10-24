@@ -17,7 +17,7 @@ import {
   ArrowLeft 
 } from 'lucide-react'
 import { validatePasswordStrength } from '@/lib/password'
-import { loginAdmin, changePasswordOnLoginAction, type LoginResult } from './actions'
+import { loginAdmin, changePasswordOnLoginAction, getLoginBrandingAction, type LoginResult } from './actions'
 
 interface ResetRequiredData {
   resetToken: string
@@ -33,6 +33,8 @@ export default function AdminLoginPage() {
   const [errorMsg, setErrorMsg] = useState('')
   const [isPending, startTransition] = useTransition()
   const [isDarkMode, setIsDarkMode] = useState(true)
+  const [logoUrl, setLogoUrl] = useState('')
+  const [siteName, setSiteName] = useState('PT. EMPAT SINERGI UTAMA')
   const router = useRouter()
 
   // Handler navigasi ke website publik saat login diakses melalui subdomain CMS
@@ -56,7 +58,7 @@ export default function AdminLoginPage() {
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showVerifyPassword, setShowVerifyPassword] = useState(false)
 
-  // Sinkronisasi tema gelap/terang CMS
+  // Sinkronisasi tema gelap/terang CMS & ambil logo dari CMS
   useEffect(() => {
     const savedTheme = localStorage.getItem('esu_cms_theme')
     const dark = savedTheme !== null ? savedTheme === 'dark' : true
@@ -68,6 +70,13 @@ export default function AdminLoginPage() {
     } else {
       document.documentElement.classList.remove('dark')
     }
+
+    getLoginBrandingAction()
+      .then((res) => {
+        if (res?.logoUrl) setLogoUrl(res.logoUrl)
+        if (res?.siteName) setSiteName(res.siteName)
+      })
+      .catch(() => {})
   }, [])
 
   // Validasi kekuatan password baru secara real-time (Point 5)
@@ -185,16 +194,22 @@ export default function AdminLoginPage() {
         }`}>
           
           {/* HEADER LOGO */}
-          <div className="text-center space-y-2">
-            <div className="w-14 h-14 mx-auto rounded-xl bg-[#6B0808] flex items-center justify-center text-white font-bold text-xl shadow-sm">
-              {resetData ? <KeyRound className="w-7 h-7 text-white" /> : '4SU'}
+          <div className="text-center space-y-2.5">
+            <div className="w-16 h-16 mx-auto rounded-xl bg-[#6B0808] flex items-center justify-center text-white font-bold text-xl shadow-sm overflow-hidden p-1.5">
+              {resetData ? (
+                <KeyRound className="w-7 h-7 text-white" />
+              ) : logoUrl ? (
+                <img src={logoUrl} alt={siteName} className="w-full h-full object-contain bg-white rounded-lg p-1" />
+              ) : (
+                '4SU'
+              )}
             </div>
             <div>
               <h1 className="text-xl sm:text-2xl font-black tracking-tight uppercase">
                 {resetData ? 'Pembaruan Password Halaman CMS' : 'Autentikasi Halaman CMS'}
               </h1>
               <p className="text-xs text-amber-600 dark:text-amber-400 font-bold tracking-widest uppercase mt-0.5">
-                {resetData ? 'Keamanan Akun Enterprise' : 'Panel CMS Enterprise'}
+                {resetData ? 'Keamanan Akun Enterprise' : siteName}
               </p>
             </div>
           </div>

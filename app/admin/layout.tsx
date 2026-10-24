@@ -15,21 +15,30 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 }
 
-export const metadata: Metadata = {
-  title: '4SU Company CMS',
-  description: 'Panel Manajemen Konten & Administrasi Resmi PT Empat Sinergi Utama (4SU)',
-  manifest: '/admin-manifest.json',
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'default',
-    title: '4SU CMS',
-  },
-  icons: {
-    icon: '/icons/icon-192x192.png',
-    apple: [
-      { url: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
-    ],
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const db = await readDB()
+  const rawLogoUrl = db.setting?.logoUrl || '/icons/icon-192x192.png'
+  const iconMimeType = rawLogoUrl.endsWith('.svg')
+    ? 'image/svg+xml'
+    : rawLogoUrl.endsWith('.webp')
+      ? 'image/webp'
+      : 'image/png'
+
+  return {
+    title: '4SU Company CMS',
+    description: 'Panel Manajemen Konten & Administrasi Resmi PT Empat Sinergi Utama (4SU)',
+    manifest: '/admin-manifest.json',
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: 'default',
+      title: '4SU CMS',
+    },
+    icons: {
+      icon: [{ url: rawLogoUrl, type: iconMimeType }],
+      shortcut: [{ url: rawLogoUrl, type: iconMimeType }],
+      apple: [{ url: rawLogoUrl }],
+    },
+  }
 }
 
 async function handleDeployAction() {

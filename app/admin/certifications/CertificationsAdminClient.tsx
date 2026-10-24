@@ -252,20 +252,23 @@ export function CertificationsAdminClient({
         </div>
       </div>
 
-      {/* Header Banner - Persis seperti di Portofolio, Layanan, dan Galeri */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-sm relative overflow-hidden transition-colors">
-        <div className="space-y-1 relative z-10">
-          <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
-            Kelola Sertifikasi & Lisensi Perusahaan
+      {/* Header Banner */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+            Manajemen Konten &bull; Kepatuhan &amp; Legalitas
+          </p>
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white mt-0.5">
+            Kelola Sertifikasi &amp; Lisensi Perusahaan
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 text-xs md:text-sm font-medium">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             Tambah dokumen mutu resmi, izin operasional, watermark perlindungan, dan kustomisasi halaman <span className="font-mono text-amber-600 dark:text-amber-400 font-bold">/certifications</span>.
           </p>
         </div>
         <button
           type="button"
           onClick={handleOpenAdd}
-          className="relative z-10 bg-amber-600 hover:bg-amber-700 text-white font-black text-xs uppercase tracking-widest px-6 py-3.5 rounded-2xl transition-all shadow-sm cursor-pointer shrink-0 flex items-center gap-2 self-start sm:self-auto"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 transition-colors cursor-pointer shrink-0 self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
           <span>+ Tambah Dokumen Baru</span>

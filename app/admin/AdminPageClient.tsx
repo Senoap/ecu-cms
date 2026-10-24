@@ -271,10 +271,17 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
       <form onSubmit={handleSubmit} className="space-y-8 font-sans pb-32">
 
         {/* Top Header Banner */}
-        <div className="bg-white dark:bg-[#10131C] p-8 rounded-3xl shadow-sm border border-gray-200 dark:border-gray-800/80 relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div className="space-y-1 relative z-10">
-            <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight">Pengaturan Global & Logo</h1>
-            <p className="text-gray-600 dark:text-gray-400 text-xs md:text-sm font-medium">Atur identitas korporat, logo, urutan seksi, dan simpan perubahan ke draft.</p>
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+              Konfigurasi Sistem &bull; Identitas Korporat
+            </p>
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white mt-0.5">
+              Pengaturan Global &amp; Logo
+            </h1>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Atur identitas korporat, logo resmi, palet warna, urutan seksi, dan simpan perubahan ke draft.
+            </p>
           </div>
         </div>
 

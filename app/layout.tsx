@@ -46,6 +46,13 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteName = db.setting.siteName || 'PT. EMPAT SINERGI UTAMA'
   const tagline = db.setting.tagline || 'MANPOWER SERVICES'
 
+  const rawLogoUrl = db.setting.logoUrl || '/icons/icon-192x192.png'
+  const iconMimeType = rawLogoUrl.endsWith('.svg')
+    ? 'image/svg+xml'
+    : rawLogoUrl.endsWith('.webp')
+      ? 'image/webp'
+      : 'image/png'
+
   return {
     title: {
       default: `${siteName} — ${tagline}`,
@@ -67,8 +74,9 @@ export async function generateMetadata(): Promise<Metadata> {
       canonical: '/',
     },
     icons: {
-      icon: db.setting.logoUrl || '/icons/icon-192x192.png',
-      apple: '/icons/apple-touch-icon.png',
+      icon: [{ url: rawLogoUrl, type: iconMimeType }],
+      shortcut: [{ url: rawLogoUrl, type: iconMimeType }],
+      apple: [{ url: rawLogoUrl }],
     },
     openGraph: {
       title: siteName,

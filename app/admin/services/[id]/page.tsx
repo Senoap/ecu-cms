@@ -55,13 +55,20 @@ export default async function AdminEditServicePage({ params }: { params: Promise
     }
 
     return (
-        <div className="max-w-3xl mx-auto space-y-8 pb-16">
-            <div className="flex justify-between items-center bg-white dark:bg-[#10131C] p-6 rounded-3xl border border-gray-200 dark:border-gray-800 shadow-xl transition-colors">
+        <div className="space-y-6 pb-16">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
                 <div>
-                    <h1 className="text-xl font-black text-gray-900 dark:text-white">Edit Layanan: {srv.title}</h1>
-                    <p className="text-gray-600 dark:text-gray-400 text-xs font-medium">Sesuaikan konten deskripsi mendalam dan tambah foto dokumentasi.</p>
+                    <p className="text-[11px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+                        Manajemen Konten &bull; Detail Layanan
+                    </p>
+                    <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white mt-0.5">
+                        Edit Layanan: {srv.title}
+                    </h1>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Sesuaikan konten deskripsi mendalam dan tambah foto dokumentasi.
+                    </p>
                 </div>
-                <Link href="/cms/services" className="px-4 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 transition-colors">
+                <Link href="/cms/services" className="px-4 py-2 bg-white dark:bg-[#13161F] border border-gray-200 dark:border-[#222736] hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg text-xs font-bold text-gray-700 dark:text-gray-300 transition-colors shrink-0">
                     &larr; Kembali
                 </Link>
             </div>
