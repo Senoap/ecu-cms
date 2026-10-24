@@ -66,7 +66,7 @@ export default function Navbar({
     let lastScrollY = window.scrollY
     const handleScroll = () => {
       const currentScrollY = window.scrollY
-      setIsScrolled(currentScrollY > 40)
+      setIsScrolled(currentScrollY > 50)
 
       // Hanya otomatis tutup menu jika pengguna benar-benar scroll halaman (> 10px perbedaan)
       if (Math.abs(currentScrollY - lastScrollY) > 10) {
@@ -202,14 +202,14 @@ export default function Navbar({
           paddingLeft: 'max(0.75rem, env(safe-area-inset-left, 0px))',
           paddingRight: 'max(0.75rem, env(safe-area-inset-right, 0px))',
         }}
-        className={`fixed left-0 right-0 z-50 w-full sm:px-6 md:px-10 lg:px-16 flex justify-between items-center pointer-events-none transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] font-sans`}
+        className={`fixed left-0 right-0 z-50 w-full sm:px-6 md:px-10 lg:px-16 flex justify-between items-center pointer-events-none transition-all duration-300 ease-in-out font-sans`}
       >
         
         {/* 1. LOGO FLOATING CARD (Kiri: Menyusut menampilkan hanya logo saat di-scroll atau saat layar dibagi 2/4 jendela) */}
         <Link 
           href="/#home" 
           onClick={(e) => handleNavClick(e, '#home')}
-          className={`pointer-events-auto flex items-center rounded-2xl border transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-105 active:scale-95 ${
+          className={`pointer-events-auto flex items-center rounded-2xl border transition-all duration-300 ease-in-out hover:opacity-95 ${
             isScrolled || isQuadSplit
               ? 'h-11 w-11 sm:h-12 sm:w-12 justify-center p-0 bg-white/95 dark:bg-[#0B0E17]/95 backdrop-blur-xl border-white/60 dark:border-gray-800 text-gray-900 dark:text-white shadow-lg gap-0' 
               : 'h-13 sm:h-15 md:h-16 px-3.5 sm:px-4 md:px-5 bg-white/95 dark:bg-[#0B0E17]/95 backdrop-blur-xl border-gray-200/60 dark:border-gray-800 text-gray-950 dark:text-white shadow-xl gap-2.5 md:gap-3.5'
@@ -217,20 +217,20 @@ export default function Navbar({
           title={siteName}
         >
           {logoUrl ? (
-            <div className={`transition-all duration-500 flex items-center justify-center shrink-0 ${
+            <div className={`transition-all duration-300 ease-in-out flex items-center justify-center shrink-0 ${
               isScrolled || isQuadSplit ? 'w-7 h-7 sm:w-8 sm:h-8' : 'h-8 sm:h-10 md:h-11 w-auto max-w-[130px] md:max-w-[170px]'
             }`}>
               <img 
                 src={logoUrl} 
                 alt={siteName} 
-                className={`w-auto object-contain shrink-0 transition-all duration-500 ${
+                className={`w-auto object-contain shrink-0 transition-all duration-300 ease-in-out ${
                   isScrolled || isQuadSplit ? 'max-h-7 max-w-7 sm:max-h-8 sm:max-w-8' : 'h-8 sm:h-10 md:h-11 max-h-8 sm:max-h-10 md:max-h-11 max-w-[130px] md:max-w-[170px]'
                 }`}
               />
             </div>
           ) : (
             <div
-              className={`rounded-xl flex items-center justify-center border border-amber-300/40 shadow-inner shrink-0 transition-all duration-500 ${
+              className={`rounded-xl flex items-center justify-center border border-amber-300/40 shadow-inner shrink-0 transition-all duration-300 ease-in-out ${
                 isScrolled || isQuadSplit ? 'w-7 h-7 sm:w-8 sm:h-8' : 'w-8 h-8 sm:w-10 sm:h-10 md:w-11 md:h-11'
               }`}
               style={{ backgroundColor: `${secondaryColor}25` }}
@@ -239,10 +239,10 @@ export default function Navbar({
             </div>
           )}
           <div 
-            className={`transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden whitespace-nowrap flex flex-col justify-center ${
+            className={`transition-all duration-300 ease-in-out overflow-hidden whitespace-nowrap flex flex-col justify-center ${
               isScrolled || isQuadSplit
-                ? 'max-w-0 opacity-0 pointer-events-none scale-95 pr-0' 
-                : 'max-w-[280px] opacity-100 pointer-events-auto scale-100 hidden sm:flex pr-1.5'
+                ? 'max-w-0 opacity-0 pointer-events-none pr-0' 
+                : 'max-w-[280px] opacity-100 pointer-events-auto hidden sm:flex pr-1.5'
             }`}
           >
             <h1 className="font-black text-xs md:text-base tracking-wide leading-tight">{siteName}</h1>
@@ -253,7 +253,7 @@ export default function Navbar({
         {/* 2. NAVIGATION FLOATING CARD (Kanan) */}
         <div ref={menuContainerRef} className="relative pointer-events-auto">
           <nav 
-            className={`flex items-center rounded-2xl shadow-xl border border-white/20 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] backdrop-blur-2xl text-xs md:text-sm font-black tracking-wide text-white ${
+            className={`flex items-center rounded-2xl shadow-xl border border-white/20 transition-all duration-300 ease-in-out backdrop-blur-2xl text-xs md:text-sm font-black tracking-wide text-white ${
               isCompactNav 
                 ? 'h-11 w-11 sm:h-12 sm:w-12 justify-center p-0' 
                 : 'h-13 sm:h-15 md:h-16 w-13 sm:w-15 lg:w-auto justify-center lg:justify-start px-0 lg:px-5 xl:px-7'
@@ -262,10 +262,10 @@ export default function Navbar({
           >
             {/* TAMPILAN DESKTOP & LAPTOP (Menutup secara soft & smooth saat di-scroll atau saat layar dipisah menjadi 2/4 jendela) */}
             <div 
-              className={`hidden lg:flex items-center gap-3 xl:gap-5 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden whitespace-nowrap h-full ${
+              className={`hidden lg:flex items-center gap-3 xl:gap-5 transition-all duration-300 ease-in-out overflow-hidden whitespace-nowrap h-full ${
                 isCompactNav 
-                  ? 'max-w-0 opacity-0 pointer-events-none scale-95' 
-                  : 'max-w-[1400px] opacity-100 pointer-events-auto scale-100'
+                  ? 'max-w-0 opacity-0 pointer-events-none' 
+                  : 'max-w-[1400px] opacity-100 pointer-events-auto'
               }`}
             >
               {navLinks.map((link) => {
@@ -374,10 +374,10 @@ export default function Navbar({
 
             {/* TOMBOL HAMBURGER (Selalu ada di mobile & split-screen 2/4 jendela, muncul secara soft di desktop saat di-scroll) */}
             <div 
-              className={`items-center justify-center transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] h-full ${
+              className={`items-center justify-center transition-all duration-300 ease-in-out h-full ${
                 isCompactNav 
-                  ? 'flex opacity-100 scale-100 pointer-events-auto w-full' 
-                  : 'flex lg:hidden lg:opacity-0 lg:scale-90 lg:pointer-events-none w-full'
+                  ? 'flex opacity-100 pointer-events-auto w-full' 
+                  : 'flex lg:hidden lg:opacity-0 lg:pointer-events-none w-full'
               }`}
             >
               <button
@@ -386,7 +386,7 @@ export default function Navbar({
                   e.stopPropagation()
                   setMobileMenuOpen((prev) => !prev)
                 }}
-                className={`rounded-2xl flex items-center justify-center transition-all duration-300 cursor-pointer touch-manipulation select-none ${
+                className={`rounded-2xl flex items-center justify-center transition-all duration-200 cursor-pointer touch-manipulation select-none ${
                   isCompactNav 
                     ? 'w-full h-full hover:bg-white/15 active:bg-white/25 text-white' 
                     : 'w-10 h-10 sm:w-11 sm:h-11 bg-white/20 hover:bg-white/30 active:bg-white/40 text-white shadow-inner'
@@ -401,10 +401,10 @@ export default function Navbar({
 
           {/* DROPDOWN MENU DENGAN ANIMASI SMOOTH */}
           <div 
-            className={`absolute right-0 mt-3 w-64 sm:w-72 max-h-[calc(100dvh-100px)] overflow-y-auto overscroll-contain rounded-2xl shadow-2xl p-5 space-y-2 border border-white/25 backdrop-blur-2xl z-[10000] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] origin-top-right ${
+            className={`absolute right-0 mt-3 w-64 sm:w-72 max-h-[calc(100dvh-100px)] overflow-y-auto overscroll-contain rounded-2xl shadow-2xl p-5 space-y-2 border border-white/25 backdrop-blur-2xl z-[10000] transition-all duration-200 ease-in-out origin-top-right ${
               mobileMenuOpen 
                 ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto' 
-                : 'opacity-0 -translate-y-3 scale-95 pointer-events-none'
+                : 'opacity-0 -translate-y-2 scale-95 pointer-events-none'
             }`}
             style={{ backgroundColor: primaryColor || '#4A0E17' }}
             onClick={(e) => e.stopPropagation()}
