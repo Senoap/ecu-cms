@@ -105,7 +105,6 @@ export default function HomeClient({ db }: { db: DatabaseContent }) {
   const activeSections = (sections || []).filter((sec: SectionConfig) => sec.isVisible)
 
   // Konten Hero
-  const heroBadge = hero.badge || t.hero.badge
   const heroTitleLine1 = hero.titleLine1 || t.hero.titleLine1
   const heroTitleHighlight = hero.titleHighlight || t.hero.titleHighlight
   const heroDesc = hero.description || t.hero.description
@@ -181,13 +180,6 @@ export default function HomeClient({ db }: { db: DatabaseContent }) {
                       : 'flex flex-col max-w-4xl text-center mx-auto'
                   }`}>
                     <div className={`space-y-5 sm:space-y-7 ${!isShowcaseActive ? 'flex flex-col items-center' : ''}`}>
-                      {/* Badge / Slogan Korporat */}
-                      {heroBadge && (
-                        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase border border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-400 w-fit">
-                          <span>{heroBadge}</span>
-                        </div>
-                      )}
-
                       {/* Judul Utama Responsif & Dinamis Multi-Window */}
                       <h1 className={`font-black tracking-tight leading-[1.1] sm:leading-[1.08] ${
                         isQuadSplit

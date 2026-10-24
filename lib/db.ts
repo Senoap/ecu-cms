@@ -699,7 +699,7 @@ const defaultDataContent: DatabaseContent = {
       isVisible: true,
       order: 1,
       type: 'hero',
-      badge: 'PT. EMPAT SINERGI UTAMA',
+      badge: '',
       titleLine1: 'WE ARE YOUR',
       titleHighlight: 'SOLUTION',
       content: 'Penyedia Solusi Terintegrasi Kebutuhan Operasional Bisnis, Manajemen Fasilitas Gedung, dan Pemenuhan Ketenagakerjaan Ahli.',

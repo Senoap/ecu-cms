@@ -16,7 +16,7 @@ export const translations = {
       backToHome: 'Kembali ke Beranda',
     },
     hero: {
-      badge: 'PT. EMPAT SINERGI UTAMA',
+      badge: '',
       titleLine1: 'KAMI ADALAH',
       titleHighlight: 'SOLUSI ANDA',
       description: 'Penyedia Solusi Terintegrasi Kebutuhan Operasional Bisnis, Manajemen Fasilitas Gedung, dan Pemenuhan Ketenagakerjaan Ahli.',
