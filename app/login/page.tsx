@@ -39,9 +39,9 @@ export default function AdminLoginPage() {
   const handleOpenMainSite = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (typeof window !== 'undefined') {
       const { hostname, host, protocol } = window.location
-      if (/^(admin|cms)\./i.test(hostname)) {
+      if (/^(admin|cms)[.-]/i.test(hostname)) {
         e.preventDefault()
-        const mainHost = host.replace(/^(admin|cms)\./i, '')
+        const mainHost = host.replace(/^(admin|cms)[.-]/i, '')
         window.location.href = `${protocol}//${mainHost}/`
       }
     }

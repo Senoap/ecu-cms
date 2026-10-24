@@ -25,6 +25,22 @@ Browser modern (Google Chrome, Mozilla Firefox, Microsoft Edge) sudah secara oto
 
 ---
 
+## 1B. Pengujian di Lingkungan Staging Vercel (`*.vercel.app`)
+
+Secara standar, sertifikat SSL Wildcard gratis milik Vercel (`*.vercel.app`) hanya mendukung **1 tingkat subdomain** (contoh: `ecu-cms.vercel.app`). Oleh karena itu, sub-subdomain bertitik seperti `https://admin.ecu-cms.vercel.app` akan ditolak oleh browser karena tidak tercakup dalam sertifikat `*.vercel.app` (`ERR_SSL_VERSION_OR_CIPHER_MISMATCH`).
+
+Untuk melakukan pengujian CMS di Vercel tanpa membeli custom domain terlebih dahulu, tersedia **2 cara**:
+
+1. **Akses Langsung melalui Path `/admin` atau `/login` (Tanpa Setting Tambahan):**
+   - Buka: `https://ecu-cms.vercel.app/admin` atau `https://ecu-cms.vercel.app/login`
+   - Sistem `proxy.ts` secara otomatis mengizinkan rute `/admin` dan `/login` khusus pada domain `*.vercel.app` (sementara pada domain produksi utama `4su.co.id`, rute tersebut tetap dikunci 404 dan wajib melalui `admin.4su.co.id`).
+2. **Menggunakan Domain Khusus Admin dengan Tanda Strip (`-`) di Vercel:**
+   - Buka **Vercel Dashboard** -> Pilih Project `ecu-cms` -> **Settings** -> **Domains**.
+   - Klik **Add Domain** dan masukkan: `admin-ecu-cms.vercel.app` (gunakan tanda strip `-`, bukan titik `.`).
+   - Buka `https://admin-ecu-cms.vercel.app` — sistem akan langsung memperlakukannya sebagai domain khusus CMS (root `/` otomatis menampilkan Dashboard CMS / Halaman Login).
+
+---
+
 ## 2. Deployment ke VPS Cloud (Nginx & SSL)
 
 ### Langkah 1: Pengaturan DNS

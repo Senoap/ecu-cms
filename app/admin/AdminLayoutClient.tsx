@@ -263,9 +263,9 @@ export default function AdminLayoutClient({
   const handleOpenMainSite = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (typeof window !== 'undefined') {
       const { hostname, host, protocol } = window.location
-      if (/^(admin|cms)\./i.test(hostname)) {
+      if (/^(admin|cms)[.-]/i.test(hostname)) {
         e.preventDefault()
-        const mainHost = host.replace(/^(admin|cms)\./i, '')
+        const mainHost = host.replace(/^(admin|cms)[.-]/i, '')
         window.open(`${protocol}//${mainHost}/`, '_blank', 'noopener,noreferrer')
       }
     }

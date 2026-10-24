@@ -27,12 +27,22 @@ export async function proxy(request: NextRequest) {
   const hostname = host.split(':')[0].toLowerCase()
 
   // 1. Deteksi apakah request berasal dari subdomain admin / CMS
-  // Mendukung: admin.localhost, cms.localhost, admin.esu.co.id, cms.esu.co.id, dsb.
+  // Mendukung:
+  // - Custom domain & localhost dengan titik: admin.localhost, cms.localhost, admin.4su.co.id, cms.4su.co.id
+  // - Subdomain Vercel dengan tanda strip (-): admin-ecu-cms.vercel.app, cms-ecu-cms.vercel.app
+  //   (Catatan: SSL wildcard *.vercel.app hanya mencakup 1 level subdomain, sehingga di Vercel gunakan
+  //    admin-ecu-cms.vercel.app atau akses langsung ecu-cms.vercel.app/admin)
   const isAdminSubdomain =
     hostname.startsWith('admin.') ||
     hostname.startsWith('cms.') ||
+    hostname.startsWith('admin-') ||
+    hostname.startsWith('cms-') ||
     hostname === 'admin.localhost' ||
     hostname === 'cms.localhost'
+
+  // Deteksi apakah sedang berjalan di domain preview/staging bawaan Vercel (*.vercel.app)
+  // Agar pengetesan di https://ecu-cms.vercel.app/admin atau /login tetap bisa dibuka langsung
+  const isVercelStagingDomain = hostname.endsWith('.vercel.app')
 
   const token = request.cookies.get(SESSION_COOKIE)?.value
   const isValidSession = await verifySessionToken(token)
@@ -42,7 +52,7 @@ export async function proxy(request: NextRequest) {
   const isAccessingLogin = pathname === '/login'
 
   // =========================================================================
-  // KASUS A: AKSES MELALUI SUBDOMAIN ADMIN (admin.domain.com / admin.localhost)
+  // KASUS A: AKSES MELALUI SUBDOMAIN ADMIN (admin.domain.com / admin-xxx.vercel.app / admin.localhost)
   // =========================================================================
   if (isAdminSubdomain) {
     // A.1. Mengakses root (/) di subdomain admin
@@ -98,10 +108,45 @@ export async function proxy(request: NextRequest) {
   }
 
   // =========================================================================
-  // KASUS B: AKSES MELALUI DOMAIN UTAMA (esu.co.id / localhost)
+  // KASUS B: AKSES MELALUI DOMAIN STAGING VERCEL (misal: https://ecu-cms.vercel.app/admin)
+  // =========================================================================
+  // Karena *.vercel.app tidak mengizinkan sub-subdomain bertitik (admin.ecu-cms.vercel.app akan gagal SSL),
+  // izinkan akses path /admin, /login, dan /api/admin secara langsung di domain *.vercel.app dengan proteksi sesi penuh.
+  if (isVercelStagingDomain && (isAccessingAdmin || isAccessingLogin || isAccessingAdminApi)) {
+    if (isAccessingLogin && isValidSession) {
+      return NextResponse.redirect(new URL('/admin', request.url))
+    }
+
+    if (isAccessingAdmin && !isValidSession) {
+      if (request.method !== 'GET' && request.method !== 'HEAD') {
+        return new NextResponse('Unauthorized: Sesi tidak ditemukan atau telah berakhir.', { status: 401 })
+      }
+      const loginUrl = new URL('/login', request.url)
+      if (pathname !== '/admin') {
+        loginUrl.searchParams.set('redirect', pathname)
+      }
+      const res = NextResponse.redirect(loginUrl)
+      if (token) {
+        res.cookies.delete(SESSION_COOKIE)
+      }
+      return res
+    }
+
+    if (isAccessingAdminApi && !isValidSession) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Akses ditolak. Sesi tidak ditemukan atau telah berakhir.' },
+        { status: 401 }
+      )
+    }
+
+    return NextResponse.next()
+  }
+
+  // =========================================================================
+  // KASUS C: AKSES MELALUI DOMAIN UTAMA PRODUKSI / LOCALHOST (4su.co.id / localhost)
   // =========================================================================
   // Rute admin, login CMS, dan API admin HANYA dikenali di subdomain admin.
-  // Di domain utama (baik localhost maupun domain publik), URL ini tidak dikenali (404 Not Found).
+  // Di domain utama produksi (maupun localhost tanpa admin.), URL ini tidak dikenali (404 Not Found).
   if (isAccessingAdmin || isAccessingLogin || isAccessingAdminApi) {
     const notFoundUrl = request.nextUrl.clone()
     notFoundUrl.pathname = '/404'
