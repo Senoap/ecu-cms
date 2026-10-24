@@ -16,13 +16,13 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: 'ESU Company CMS',
-  description: 'Panel Manajemen Konten & Administrasi Resmi PT Energi Sejahtera Utama',
+  title: '4SU Company CMS',
+  description: 'Panel Manajemen Konten & Administrasi Resmi PT Empat Sinergi Utama (4SU)',
   manifest: '/admin-manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'ESU CMS',
+    title: '4SU CMS',
   },
   icons: {
     icon: '/icons/icon-192x192.png',
@@ -34,7 +34,10 @@ export const metadata: Metadata = {
 
 async function handleDeployAction() {
   'use server'
-  await requireAdmin()
+  const user = await requireAdmin()
+  if (user.isSuperadmin || user.id === 'superadmin') {
+    throw new Error('Akses ditolak: Superadmin hanya memiliki akses kontrol pengguna.')
+  }
   await deployWithAudit()
   revalidatePath('/', 'layout')
   revalidatePath('/admin', 'layout')

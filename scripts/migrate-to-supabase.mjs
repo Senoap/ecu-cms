@@ -84,6 +84,12 @@ function getMimeType(fileName) {
     case '.webp': return 'image/webp'
     case '.svg': return 'image/svg+xml'
     case '.gif': return 'image/gif'
+    case '.bmp': return 'image/bmp'
+    case '.tiff':
+    case '.tif': return 'image/tiff'
+    case '.avif': return 'image/avif'
+    case '.ico': return 'image/x-icon'
+    case '.heic': return 'image/heic'
     case '.pdf': return 'application/pdf'
     default: return 'application/octet-stream'
   }
@@ -143,7 +149,12 @@ async function runMigration() {
       privacyPolicy: existing.privacyPolicy || finalData.privacyPolicy,
       termsOfService: existing.termsOfService || finalData.termsOfService,
       directors: (existing.directors && existing.directors.length > 0) ? existing.directors : finalData.directors,
-      certifications: (existing.certifications && existing.certifications.length > 0) ? existing.certifications : finalData.certifications,
+      certifications: (existing.certifications && existing.certifications.length > 0)
+        ? existing.certifications.map((c) => ({
+            ...c,
+            certNumber: c.certNumber ? c.certNumber.replaceAll('ESU-', '4SU-') : c.certNumber
+          }))
+        : finalData.certifications,
       comproEmailTemplate: existing.comproEmailTemplate || finalData.comproEmailTemplate,
       careerTemplates: (existing.careerTemplates && existing.careerTemplates.length > 0) ? existing.careerTemplates : finalData.careerTemplates,
       auditLogs: existing.auditLogs || [],

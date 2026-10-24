@@ -13,13 +13,13 @@ const SKEY = env.SUPABASE_SERVICE_ROLE_KEY
 const results = []
 const check = (name, ok, info = '') => { results.push(ok); console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}${info ? '  -> ' + info : ''}`) }
 
-function token() {
+function token(userId = 'admin') {
   const exp = Date.now() + 3600_000
-  const payload = `${exp}.${crypto.randomUUID()}`
+  const payload = `${exp}.${crypto.randomUUID()}.${userId}`
   const sig = crypto.createHmac('sha256', env.SESSION_SECRET).update(payload).digest('hex')
   return `${payload}.${sig}`
 }
-const cookie = `esu_admin_session=${token()}`
+const cookie = `esu_admin_session=${token('admin')}`
 
 async function sb(path, init = {}) {
   return fetch(`${SURL}${path}`, { ...init, headers: { apikey: SKEY, Authorization: `Bearer ${SKEY}`, ...(init.headers || {}) } })
@@ -106,13 +106,13 @@ check('Rate limiter memblokir submission ke-4 dari IP yang sama', /Terlalu banya
 
 // 3. Pengiriman valid (small PDF)
 html = await submit(base, validPdf, 'cv.pdf', 'application/pdf')
-const ref = html.match(/ESU-[A-Z0-9]{6}/)?.[0]
+const ref = html.match(/4SU-[A-Z0-9]{6}/)?.[0]
 check('Lamaran valid berhasil + nomor referensi', !!ref && html.includes('apply-success'), ref || extractErr(html))
 
 // 3b. Pengiriman file besar (> 1MB, e.g. 2MB CV) untuk memastikan batas serverActions bodySizeLimit 10MB bekerja
 const bigPdf = fs.readFileSync('scratch-test/cv-2mb.pdf')
 const bigHtml = await submit({ ...base, name: 'Calon Berkas Besar' }, bigPdf, 'cv-2mb.pdf', 'application/pdf')
-const bigRef = bigHtml.match(/ESU-[A-Z0-9]{6}/)?.[0]
+const bigRef = bigHtml.match(/4SU-[A-Z0-9]{6}/)?.[0]
 check('Upload CV berukuran >1MB (2MB) berhasil tanpa error "Failed to fetch"', !!bigRef && bigHtml.includes('apply-success'), bigRef || extractErr(bigHtml))
 
 // 4. Verifikasi DB & Storage

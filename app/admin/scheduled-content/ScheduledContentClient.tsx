@@ -169,7 +169,15 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
       return { label: 'Terjadwal', color: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30' }
     }
     if (todayStr > item.endDate) {
-      return { label: 'Kedaluwarsa', color: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20' }
+      const endDateTime = new Date(`${item.endDate}T23:59:59.999Z`).getTime()
+      const purgeThreshold = endDateTime + (7 * 24 * 60 * 60 * 1000)
+      const todayTime = new Date(`${todayStr}T00:00:00.000Z`).getTime()
+      const msLeft = purgeThreshold - todayTime
+      const daysLeft = Math.max(0, Math.ceil(msLeft / (24 * 60 * 60 * 1000)))
+      return { 
+        label: `Kedaluwarsa (Hapus H+7: ${daysLeft} hr lagi)`, 
+        color: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20 font-bold' 
+      }
     }
     return { label: 'Sedang Tayang', color: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 font-black' }
   }
@@ -202,6 +210,14 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
           <Plus className="w-4 h-4" />
           <span>Tambah Konten</span>
         </button>
+      </div>
+
+      {/* INFO KEBIJAKAN AUTO-PURGE H+7 */}
+      <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+        <div className="flex items-center gap-2.5 text-amber-800 dark:text-amber-300 font-bold">
+          <Clock className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
+          <span>Kebijakan Auto-Purge H+7: Konten yang melewati batas tanggal selesai lebih dari 7 hari otomatis terhapus permanen dari sistem &amp; media penyimpanan.</span>
+        </div>
       </div>
 
       {/* FEEDBACK STATUS */}
@@ -545,6 +561,9 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
                     </label>
                   </div>
                 </div>
+                <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                  Dukungan semua format gambar (PNG, JPG, WebP, GIF, SVG, BMP, TIFF, AVIF). File otomatis dikonversi ke WebP tajam &amp; terkompresi efisien.
+                </p>
               </div>
 
               {/* ISI KONTEN */}

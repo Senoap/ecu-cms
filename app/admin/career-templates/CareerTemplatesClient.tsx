@@ -25,7 +25,7 @@ interface CareerTemplatesClientProps {
 const PLACEHOLDERS = [
   { tag: '{name}', desc: 'Nama lengkap kandidat pelamar' },
   { tag: '{job_title}', desc: 'Posisi lowongan yang dilamar' },
-  { tag: '{ref_code}', desc: 'Kode referensi lamaran (cth: ESU-2610...)' },
+  { tag: '{ref_code}', desc: 'Kode referensi lamaran (cth: 4SU-2610...)' },
   { tag: '{company}', desc: 'Nama resmi perusahaan' },
   { tag: '{phone}', desc: 'Nomor WhatsApp / HP kandidat' },
   { tag: '{email}', desc: 'Alamat email kandidat' },

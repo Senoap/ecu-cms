@@ -4,9 +4,18 @@ export const SESSION_COOKIE = 'esu_admin_session'
 export const SESSION_MAX_AGE = 60 * 60 * 24 // 24 jam (detik)
 
 function getSecret(): string {
-  const secret = process.env.SESSION_SECRET || process.env.ADMIN_PASSWORD
-  if (!secret) throw new Error('SESSION_SECRET (atau ADMIN_PASSWORD) belum di-set.')
-  return secret
+  const secret = process.env.SESSION_SECRET
+  if (secret && secret.length >= 16) {
+    return secret
+  }
+  if (process.env.NODE_ENV === 'production') {
+    if (!secret || secret.length < 16) {
+      throw new Error('[SECURITY] SESSION_SECRET wajib diatur di production (minimal 16 karakter, disarankan 32+).')
+    }
+  }
+  const fallback = secret || process.env.ADMIN_PASSWORD
+  if (!fallback) throw new Error('SESSION_SECRET (atau ADMIN_PASSWORD) belum di-set.')
+  return fallback
 }
 
 async function hmac(message: string): Promise<string> {
@@ -41,16 +50,7 @@ export async function createSessionToken(userId: string = 'admin'): Promise<stri
 export async function verifySessionToken(token: string | undefined): Promise<boolean> {
   if (!token) return false
   const parts = token.split('.')
-  if (parts.length === 3) {
-    const [expStr, nonce, sig] = parts
-    const exp = Number(expStr)
-    if (!Number.isFinite(exp) || exp < Date.now()) return false
-    try {
-      return safeEqual(sig, await hmac(`${expStr}.${nonce}`))
-    } catch {
-      return false
-    }
-  }
+  // Wajib format 4 bagian: exp.nonce.userId.sig
   if (parts.length === 4) {
     const [expStr, nonce, userId, sig] = parts
     const exp = Number(expStr)
@@ -67,17 +67,7 @@ export async function verifySessionToken(token: string | undefined): Promise<boo
 export async function getSessionPayload(token: string | undefined): Promise<{ userId: string } | null> {
   if (!token) return null
   const parts = token.split('.')
-  if (parts.length === 3) {
-    const [expStr, nonce, sig] = parts
-    const exp = Number(expStr)
-    if (!Number.isFinite(exp) || exp < Date.now()) return null
-    try {
-      if (!safeEqual(sig, await hmac(`${expStr}.${nonce}`))) return null
-      return { userId: 'admin' }
-    } catch {
-      return null
-    }
-  }
+  // Wajib format 4 bagian: exp.nonce.userId.sig
   if (parts.length === 4) {
     const [expStr, nonce, userId, sig] = parts
     const exp = Number(expStr)

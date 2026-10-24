@@ -1,9 +1,33 @@
 // app/layout.tsx
 import type { Metadata, Viewport } from 'next'
+import { Inter, Poppins, Roboto } from 'next/font/google'
 import './globals.css'
-import { readDB } from '@/lib/db'
+import { readPublishedDB } from '@/lib/db'
 import { LanguageProvider } from '@/components/LanguageContext'
+import SmartViewportProvider from '@/components/SmartViewportProvider'
 import VisitorTracker from '@/components/VisitorTracker'
+import PrivacyConsentBanner from '@/components/PrivacyConsentBanner'
+import { getSiteUrl, toAbsoluteUrl, safeJsonLd } from '@/lib/site'
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+})
+
+const poppins = Poppins({
+  weight: ['400', '500', '600', '700', '800', '900'],
+  subsets: ['latin'],
+  variable: '--font-poppins',
+  display: 'swap',
+})
+
+const roboto = Roboto({
+  weight: ['400', '500', '700'],
+  subsets: ['latin'],
+  variable: '--font-roboto',
+  display: 'swap',
+})
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -18,7 +42,7 @@ export const viewport: Viewport = {
 
 // Fungsi untuk membuat metadata web dinamis dari CMS untuk desktop, laptop, mobile, & SEO
 export async function generateMetadata(): Promise<Metadata> {
-  const db = await readDB()
+  const db = await readPublishedDB()
   const siteName = db.setting.siteName || 'PT. EMPAT SINERGI UTAMA'
   const tagline = db.setting.tagline || 'MANPOWER SERVICES'
 
@@ -38,7 +62,14 @@ export async function generateMetadata(): Promise<Metadata> {
       address: true,
       email: true,
     },
-    icons: db.setting.logoUrl ? [{ rel: 'icon', url: db.setting.logoUrl }] : undefined,
+    metadataBase: new URL(getSiteUrl()),
+    alternates: {
+      canonical: '/',
+    },
+    icons: {
+      icon: db.setting.logoUrl || '/icons/icon-192x192.png',
+      apple: '/icons/apple-touch-icon.png',
+    },
     openGraph: {
       title: siteName,
       description: tagline,
@@ -54,21 +85,61 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const db = await readDB()
+  const db = await readPublishedDB()
   const { primaryColor, fontFamily } = db.setting
 
+  const activeFontFamily = fontFamily === 'Poppins'
+    ? 'var(--font-poppins), sans-serif'
+    : fontFamily === 'Roboto'
+      ? 'var(--font-roboto), sans-serif'
+      : 'var(--font-inter), sans-serif'
+
+  const siteUrl = getSiteUrl()
+  const organizationJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: db.setting.siteName || 'PT. EMPAT SINERGI UTAMA',
+    description: db.setting.tagline || 'MANPOWER SERVICES',
+    url: siteUrl,
+    logo: toAbsoluteUrl(db.setting.logoUrl),
+    contactPoint: db.footer.phone ? {
+      '@type': 'ContactPoint',
+      telephone: db.footer.phone,
+      contactType: 'customer service',
+      areaServed: 'ID',
+      availableLanguage: ['Indonesian'],
+    } : undefined,
+    address: db.footer.address ? {
+      '@type': 'PostalAddress',
+      streetAddress: db.footer.address,
+      addressCountry: 'ID',
+    } : undefined,
+  }
+
   return (
-    <html lang="id" data-scroll-behavior="smooth" suppressHydrationWarning>
+    <html 
+      lang="id" 
+      data-scroll-behavior="smooth" 
+      suppressHydrationWarning
+      className={`${inter.variable} ${poppins.variable} ${roboto.variable}`}
+    >
       <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: safeJsonLd(organizationJsonLd) }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){
               try {
                 var t = localStorage.getItem('esu_site_theme');
-                if (t === 'dark') {
+                var isDark = t === 'dark' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                if (isDark) {
                   document.documentElement.classList.add('dark');
+                  document.documentElement.style.colorScheme = 'dark';
                 } else {
                   document.documentElement.classList.remove('dark');
+                  document.documentElement.style.colorScheme = 'light';
                 }
               } catch(e) {}
             })();`,
@@ -78,14 +149,17 @@ export default async function RootLayout({
       <body 
         style={{ 
           ['--primary' as string]: primaryColor,
-          fontFamily: fontFamily === 'Poppins' ? 'Poppins, sans-serif' : fontFamily === 'Roboto' ? 'Roboto, sans-serif' : 'Inter, sans-serif'
+          fontFamily: activeFontFamily
         } as React.CSSProperties}
-        className="bg-[#F8F7F4] dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased selection:bg-amber-500/20 selection:text-amber-400 min-h-screen transition-colors duration-200"
+        className="bg-[#F8F7F4] dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased selection:bg-amber-500/20 selection:text-amber-400 min-h-screen min-h-[100dvh] transition-colors duration-200"
       >
-        <LanguageProvider>
-          <VisitorTracker />
-          {children}
-        </LanguageProvider>
+        <SmartViewportProvider>
+          <LanguageProvider>
+            <VisitorTracker />
+            <PrivacyConsentBanner />
+            {children}
+          </LanguageProvider>
+        </SmartViewportProvider>
       </body>
     </html>
   )

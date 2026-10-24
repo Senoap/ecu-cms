@@ -38,6 +38,7 @@ import {
 } from 'lucide-react'
 import type { CurrentAdminUser } from '@/lib/auth'
 import type { CmsDraftLock } from '@/lib/db'
+import { useSmartViewport } from '@/components/SmartViewportProvider'
 
 const WEBSITE_PATHS = ['/admin/hero', '/admin/scheduled-content', '/admin/about', '/admin/services', '/admin/portfolio', '/admin/gallery', '/admin/certifications', '/admin/compro-requests', '/admin/footer', '/admin/legal']
 
@@ -86,17 +87,23 @@ export default function AdminLayoutClient({
   markAsViewedAction
 }: AdminLayoutClientProps) {
   const [isDarkMode, setIsDarkMode] = useState(true)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return window.innerWidth >= 1024
-    }
-    return true
-  })
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [showNotifPanel, setShowNotifPanel] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [showSuccessToast, setShowSuccessToast] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
+  const { isCompactViewport, isShortViewport, isSplitScreen, modeLabel, viewportWidth, viewportHeight, osPlatform } = useSmartViewport()
+
+  // Otomatis lipat sidebar saat layar sempit atau dibagi multi-window (2 atau 4 jendela)
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (window.innerWidth < 1024 || isCompactViewport || isSplitScreen) {
+      queueMicrotask(() => {
+        setIsSidebarOpen(false)
+      })
+    }
+  }, [isCompactViewport, isSplitScreen])
 
   // Sesi tunggal & heartbeat berkala (Point 7)
   useEffect(() => {
@@ -110,7 +117,7 @@ export default function AdminLayoutClient({
       } catch (err) {
         console.warn('Heartbeat check error:', err)
       }
-    }, 2 * 60 * 1000)
+    }, 15 * 1000)
     return () => clearInterval(interval)
   }, [router])
 
@@ -120,41 +127,44 @@ export default function AdminLayoutClient({
     userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
   }
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
-  const [isStandalone, setIsStandalone] = useState(() => {
-    if (typeof window !== 'undefined') {
+  const [isStandalone, setIsStandalone] = useState(false)
+  const [isIos, setIsIos] = useState(false)
+  const [isAppleDevice, setIsAppleDevice] = useState(false)
+  const [showIosInstallModal, setShowIosInstallModal] = useState(false)
+  const [showInstalledToast, setShowInstalledToast] = useState(false)
+
+  // Inisialisasi Service Worker, Deteksi PWA & Device khusus CMS Admin
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const ua = window.navigator.userAgent.toLowerCase()
+    const isAppleMobile = /iphone|ipad|ipod/.test(ua)
+    const isIPadOS = ua.includes('macintosh') && Boolean(navigator.maxTouchPoints && navigator.maxTouchPoints > 1)
+    const apple = /iphone|ipad|ipod|macintosh|mac os x/.test(ua)
+    const checkStandalone = () => {
       return (
         window.matchMedia('(display-mode: standalone)').matches ||
         (window.navigator as unknown as { standalone?: boolean }).standalone === true ||
         document.referrer.includes('android-app://')
       )
     }
-    return false
-  })
-  const [isIos, setIsIos] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase())
-    }
-    return false
-  })
-  const [showIosInstallModal, setShowIosInstallModal] = useState(false)
-  const [showInstalledToast, setShowInstalledToast] = useState(false)
 
-  // Inisialisasi Service Worker & Deteksi PWA khusus CMS Admin
-  useEffect(() => {
-    if (typeof window === 'undefined') return
+    queueMicrotask(() => {
+      setIsIos(isAppleMobile || isIPadOS)
+      setIsAppleDevice(apple)
+      setIsStandalone(checkStandalone())
+    })
 
     // 1. Daftarkan Service Worker untuk scope admin
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker
-          .register('/admin-sw.js', { scope: '/admin' })
-          .then((reg) => {
-            console.log('[PWA] Service Worker terdaftar pada scope:', reg.scope)
-          })
-          .catch((err) => {
-            console.warn('[PWA] Service Worker gagal mendaftar:', err)
-          })
-      })
+      navigator.serviceWorker
+        .register('/admin-sw.js', { scope: '/admin' })
+        .then((reg) => {
+          console.log('[PWA] Service Worker terdaftar pada scope:', reg.scope)
+        })
+        .catch((err) => {
+          console.warn('[PWA] Service Worker gagal mendaftar:', err)
+        })
     }
 
     // 2. Pantau perubahan display-mode jika pengguna menginstal PWA saat sesi aktif
@@ -249,6 +259,18 @@ export default function AdminLayoutClient({
   // Hitung hanya notifikasi yang belum dilihat untuk badge angka
   const unreadCount = visibleNotifications.filter(n => !n.viewedAt).length
 
+  // Handler navigasi ke website publik saat panel CMS dibuka dari subdomain admin
+  const handleOpenMainSite = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (typeof window !== 'undefined') {
+      const { hostname, host, protocol } = window.location
+      if (/^(admin|cms)\./i.test(hostname)) {
+        e.preventDefault()
+        const mainHost = host.replace(/^(admin|cms)\./i, '')
+        window.open(`${protocol}//${mainHost}/`, '_blank', 'noopener,noreferrer')
+      }
+    }
+  }
+
   useEffect(() => {
     const savedTheme = localStorage.getItem('esu_cms_theme')
     const dark = savedTheme !== null ? savedTheme === 'dark' : true
@@ -337,14 +359,28 @@ export default function AdminLayoutClient({
   }
 
   const handleLogout = async () => {
+    try {
+      if (typeof window !== 'undefined') {
+        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.postMessage({ action: 'LOGOUT' })
+        }
+        if ('caches' in window) {
+          await caches.delete('4su-admin-pwa-v1')
+        }
+        localStorage.removeItem('esu_admin_logged')
+      }
+    } catch {}
     await logoutAdmin()
-    localStorage.removeItem('esu_admin_logged')
     router.push('/login')
     router.refresh()
   }
 
   const canAccess = (menuId: string): boolean => {
-    if (!currentUser || currentUser.isSuperadmin) return true
+    if (!currentUser) return false
+    if (currentUser.isSuperadmin || currentUser.id === 'superadmin') {
+      return menuId === 'users'
+    }
+    if (currentUser.isRootAdmin) return true
     return currentUser.permissions.includes(menuId)
   }
 
@@ -387,15 +423,15 @@ export default function AdminLayoutClient({
     <div 
       translate="no" 
       data-admin-scope="true"
-      className={`notranslate h-screen w-screen overflow-hidden flex font-sans transition-colors duration-300 relative ${
-      isDarkMode ? 'dark bg-[#090A0F] text-gray-100' : 'bg-[#F4F6F9] text-gray-900'
+      className={`notranslate h-screen h-[100dvh] w-full max-w-full overflow-hidden flex font-sans transition-colors duration-300 relative ${
+      isDarkMode ? 'dark bg-[#0C0D12] text-zinc-100' : 'bg-[#F4F6F9] text-gray-900'
     }`}>
       
       {/* TOAST NOTIFIKASI SUKSES */}
       <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] transform ${
         showSuccessToast ? 'translate-y-0 opacity-100 scale-100' : '-translate-y-4 opacity-0 scale-95 pointer-events-none'
       }`}>
-        <div className="bg-emerald-950/95 text-emerald-300 border border-emerald-500/40 px-6 py-4 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3">
+        <div className="bg-[#12151D] text-emerald-400 border border-emerald-500/30 px-5 py-3 rounded-lg shadow-xl flex items-center gap-3">
           <UploadCloud className="w-5 h-5 text-emerald-400" />
           <div>
             <h4 className="text-xs font-black uppercase tracking-wider">Deployment Berhasil!</h4>
@@ -404,80 +440,24 @@ export default function AdminLayoutClient({
         </div>
       </div>
 
-      {/* KONTTAINER NOTIFIKASI DI KANAN ATAS */}
-      <div id="notif-container" className="fixed top-6 right-6 z-50">
-        <button
-          type="button"
-          onClick={handleToggleNotif}
-          className={`relative w-12 h-12 rounded-2xl shadow-2xl flex items-center justify-center text-lg transition-all duration-300 hover:scale-110 border backdrop-blur-md cursor-pointer ${
-            isDarkMode 
-              ? 'bg-gray-900/90 text-amber-400 border-gray-700 shadow-amber-900/40 hover:bg-gray-800' 
-              : 'bg-white/90 text-amber-700 border-gray-200 shadow-xl hover:bg-gray-50'
-          }`}
-          title="Log Notifikasi Perubahan"
-        >
-          <Bell className="w-5 h-5" />
-          {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-amber-500 text-gray-950 font-black text-[10px] rounded-full flex items-center justify-center shadow-lg animate-bounce">
-              {unreadCount}
-            </span>
-          )}
-        </button>
-
-        {/* PANEL DROPDOWN NOTIFIKASI */}
-        {showNotifPanel && (
-          <div className={`absolute right-0 mt-3 w-80 max-h-96 overflow-y-auto rounded-3xl shadow-2xl border backdrop-blur-xl p-5 space-y-4 animate-in fade-in slide-in-from-top-3 duration-200 ${
-            isDarkMode ? 'bg-gray-950/95 border-gray-800 text-gray-200' : 'bg-white/95 border-gray-200 text-gray-800'
-          }`}>
-            <div className={`flex items-center justify-between border-b pb-3 ${
-              isDarkMode ? 'border-gray-800/60' : 'border-gray-200'
-            }`}>
-              <div className="flex items-center gap-2">
-                <Bell className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                <h3 className="text-xs font-black uppercase tracking-wider">Log Perubahan & CRUD</h3>
-              </div>
-              <span className="text-[10px] bg-amber-500/10 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/20 px-2.5 py-0.5 rounded-full font-bold">
-                Aktif (Batas 5 Mnt)
-              </span>
-            </div>
-
-            <div className="space-y-2.5">
-              {visibleNotifications.length === 0 ? (
-                <p className="text-xs text-gray-500 dark:text-gray-400 text-center py-6 font-medium">Tidak ada notifikasi aktif.</p>
-              ) : (
-                visibleNotifications.map((n) => (
-                  <div key={n.id} className={`p-3 rounded-2xl border text-xs space-y-1 ${
-                    isDarkMode ? 'bg-gray-900/60 border-gray-800/80' : 'bg-gray-50 border-gray-200'
-                  }`}>
-                    <div className="flex items-center justify-between text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
-                      <span className="text-amber-500 font-extrabold">{n.type}</span>
-                      <span>{n.time}</span>
-                    </div>
-                    <p className={`font-medium leading-relaxed ${
-                      isDarkMode ? 'text-gray-200' : 'text-gray-800'
-                    }`}>{n.message}</p>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* MOBILE BACKDROP OVERLAY */}
+      {/* MOBILE & MULTI-WINDOW BACKDROP OVERLAY */}
       {isSidebarOpen && (
         <div 
           onClick={() => setIsSidebarOpen(false)} 
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden cursor-pointer"
+          className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-40 cursor-pointer ${
+            isCompactViewport || isSplitScreen ? 'block' : 'lg:hidden'
+          }`}
         />
       )}
 
       {/* SIDEBAR PANEL */}
-      <aside className={`h-screen border-r flex-shrink-0 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden fixed lg:relative z-50 ${
-        isSidebarOpen ? 'w-80 opacity-100 shadow-2xl lg:shadow-none' : 'w-0 opacity-0 border-transparent pointer-events-none'
-      } ${isDarkMode ? 'bg-[#0E1017] border-gray-800/80' : 'bg-white border-gray-200'}`}>
+      <aside className={`h-screen h-[100dvh] border-r flex-shrink-0 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden z-50 ${
+        isCompactViewport || isSplitScreen ? 'fixed' : 'fixed lg:relative'
+      } ${
+        isSidebarOpen ? 'w-72 sm:w-80 opacity-100 shadow-2xl lg:shadow-none' : 'w-0 opacity-0 border-transparent pointer-events-none'
+      } ${isDarkMode ? 'bg-[#12141C] border-[#1E222D]' : 'bg-white border-gray-200'}`}>
         
-        <div className={`w-80 h-screen p-5 flex flex-col justify-between transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        <div className={`w-72 sm:w-80 h-full p-4 sm:p-5 flex flex-col justify-between transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           isSidebarOpen ? 'translate-x-0 opacity-100' : '-translate-x-10 opacity-0'
         }`}>
           
@@ -489,24 +469,24 @@ export default function AdminLayoutClient({
                   {logoUrl ? (
                     <img src={logoUrl} alt="CMS Logo" className="w-full h-full object-contain bg-white rounded-lg p-0.5" />
                   ) : (
-                    'ESU'
+                    '4SU'
                   )}
                 </div>
                 <div>
-                  <h2 className={`text-sm font-black tracking-wider uppercase ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>CMS Panel</h2>
-                  <p className="text-[10px] text-amber-500 font-bold tracking-widest uppercase">Enterprise Control</p>
+                  <h2 className={`text-sm font-bold tracking-wider uppercase ${isDarkMode ? 'text-zinc-100' : 'text-gray-900'}`}>Halaman CMS</h2>
+                  <p className="text-[10px] text-[#A12323] dark:text-[#E05252] font-semibold tracking-wider uppercase">Enterprise Control</p>
                 </div>
               </div>
               
               <button
                 type="button"
                 onClick={() => setIsSidebarOpen(false)}
-                className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all border cursor-pointer hover:scale-105 ${
+                className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all border cursor-pointer ${
                   isDarkMode 
-                    ? 'bg-gray-900 text-amber-400 border-gray-800 hover:bg-gray-800' 
-                    : 'bg-gray-100 text-amber-700 border-gray-200 hover:bg-gray-200'
+                    ? 'bg-[#181B26] text-zinc-300 border-[#222736] hover:bg-[#202534] hover:text-white' 
+                    : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200'
                 }`}
-                title="Tutup Panel"
+                title="Tutup Menu CMS"
               >
                 <Menu className="w-4 h-4" />
               </button>
@@ -514,14 +494,18 @@ export default function AdminLayoutClient({
 
             {/* PROFIL PENGGUNA YANG LOGIN */}
             {currentUser && (
-              <div className="px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-between gap-2">
+              <div className={`px-3 py-2 rounded-lg border space-y-1 ${isDarkMode ? 'border-[#222736] bg-[#181B26]' : 'border-gray-200 bg-gray-50'}`}>
                 <div className="overflow-hidden">
-                  <div className="text-xs font-black text-amber-600 dark:text-amber-400 truncate">
+                  <div className="text-xs font-black text-gray-900 dark:text-white truncate">
                     {currentUser.name}
                   </div>
-                  <div className="text-[9px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">
+                  <div className="text-[10px] text-[#A12323] dark:text-[#E05252] font-semibold">
                     {currentUser.role}
                   </div>
+                </div>
+                <div suppressHydrationWarning className="pt-1 border-t border-gray-200/80 dark:border-gray-800 text-[10px] text-gray-500 dark:text-gray-400 font-mono flex items-center justify-between">
+                  <span className="truncate">{modeLabel}</span>
+                  <span className="shrink-0">{viewportWidth}×{viewportHeight} ({osPlatform})</span>
                 </div>
               </div>
             )}
@@ -748,33 +732,37 @@ export default function AdminLayoutClient({
 
           {/* FOOTER ACTIONS (DITAMBATKAN DI BAGIAN BAWAH) */}
           <div className={`flex-shrink-0 pt-3 border-t space-y-2.5 ${isDarkMode ? 'border-gray-800/80' : 'border-gray-200'}`}>
-            {/* TOMBOL INSTALASI / STATUS PWA (Point 4) */}
-            <button
-              type="button"
-              onClick={handleInstallPwa}
-              className={`flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl text-xs font-black tracking-wider uppercase transition-all duration-200 border shadow-sm cursor-pointer ${
-                isStandalone
-                  ? isDarkMode
-                    ? 'bg-amber-500/10 text-amber-400 border-amber-500/30'
-                    : 'bg-amber-50 text-amber-900 border-amber-300'
-                  : 'bg-amber-600 hover:bg-amber-700 text-white border-amber-600 shadow-md shadow-amber-900/20'
-              }`}
-              title="Pasang Panel Admin CMS sebagai Aplikasi PWA"
-            >
-              <div className="flex items-center gap-2 truncate">
-                <Smartphone className="w-4 h-4 shrink-0" />
-                <span className="truncate">{isStandalone ? 'Aplikasi Terpasang' : 'Pasang Aplikasi CMS'}</span>
-              </div>
-              {isStandalone ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              ) : (
-                <Download className="w-3.5 h-3.5 shrink-0 animate-bounce" />
-              )}
-            </button>
+            {/* TOMBOL INSTALASI / STATUS PWA (Selain iOS & macOS langsung tampil tombol Install PWA) */}
+            {!isAppleDevice && (
+              <button
+                type="button"
+                onClick={handleInstallPwa}
+                className={`flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl text-xs font-black tracking-wider uppercase transition-all duration-200 border shadow-sm cursor-pointer ${
+                  isStandalone
+                    ? isDarkMode
+                      ? 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+                      : 'bg-amber-50 text-amber-900 border-amber-300'
+                    : 'bg-amber-600 hover:bg-amber-700 text-white border-amber-600 shadow-md shadow-amber-900/20'
+                }`}
+                title="Install 4SU CMS sebagai Aplikasi PWA"
+              >
+                <div className="flex items-center gap-2 truncate">
+                  <Smartphone className="w-4 h-4 shrink-0" />
+                  <span className="truncate">{isStandalone ? 'Aplikasi 4SU Terpasang' : 'Install PWA 4SU CMS'}</span>
+                </div>
+                {isStandalone ? (
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                ) : (
+                  <Download className="w-3.5 h-3.5 shrink-0 animate-bounce" />
+                )}
+              </button>
+            )}
 
             <Link 
               href="/" 
               target="_blank"
+              rel="noopener noreferrer"
+              onClick={handleOpenMainSite}
               className={`flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-xs font-black tracking-wider uppercase transition-all duration-200 border shadow-sm ${
                 isDarkMode 
                   ? 'bg-gray-900 hover:bg-gray-800 text-gray-200 hover:text-white border-gray-800' 
@@ -799,7 +787,7 @@ export default function AdminLayoutClient({
             </button>
 
             <div className="text-center pt-1 space-y-0.5">
-              <div className="text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest">ESU Engine v2.6</div>
+              <div className="text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest">4SU Engine v2.6</div>
               <div className="text-[10px] font-bold text-gray-500 dark:text-gray-400">
                 Developed by{' '}
                 <span className="text-amber-600 dark:text-amber-400 font-black tracking-wider uppercase select-none">
@@ -812,87 +800,171 @@ export default function AdminLayoutClient({
         </div>
       </aside>
 
-      {/* TOMBOL GARIS 3 MELAYANG KETIKA PANEL DITUTUP */}
-      {!isSidebarOpen && (
-        <button
-          type="button"
-          onClick={() => setIsSidebarOpen(true)}
-          className={`fixed top-6 left-6 z-50 w-12 h-12 rounded-2xl shadow-2xl flex items-center justify-center text-xl transition-all duration-300 hover:scale-110 border backdrop-blur-md cursor-pointer ${
-            isDarkMode 
-              ? 'bg-gray-900/90 text-amber-400 border-gray-700 shadow-amber-900/40 hover:bg-gray-800' 
-              : 'bg-white/90 text-amber-700 border-gray-200 shadow-xl hover:bg-gray-50'
-          }`}
-          title="Buka Panel"
-        >
-          <Menu className="w-5 h-5" />
-        </button>
-      )}
-
-      {/* KONTEN UTAMA */}
-      <main className={`flex-1 h-screen p-6 md:p-12 overflow-y-auto relative transition-colors duration-300 ${
-        isDarkMode ? 'bg-[#090A0F]' : 'bg-[#F4F6F9]'
-      }`}>
-        <div className="max-w-4xl mx-auto relative z-10 pb-32 pt-10">
-          {/* BANNER DRAFT LOCK (Point 8) */}
-          {isLockedByOther && (
-            <div className="mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 flex items-center gap-3 backdrop-blur-md shadow-lg">
-              <Lock className="w-5 h-5 text-amber-400 shrink-0" />
-              <div className="text-xs">
-                <span className="font-bold uppercase tracking-wider text-amber-400 block mb-0.5">Mode Read-Only Aktif</span>
-                Draf sedang dikelola oleh <strong className="font-semibold text-white">{draftLock?.userName}</strong>. Anda berada dalam mode hanya baca (Read-Only) dan tidak dapat menyimpan perubahan baru atau menerbitkan draft hingga pengguna tersebut selesai dan melakukan deploy.
-              </div>
-            </div>
-          )}
-          {children}
-        </div>
-      </main>
-
-      {/* TOMBOL KONTROL MELAYANG DI POJOK KANAN BAWAH */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+      {/* AREA KANAN: TOPBAR TERPADU + KONTEN UTAMA (BEBAS TABRAKAN TOMBOL FLOATING) */}
+      <div className="flex-1 flex flex-col h-screen h-[100dvh] overflow-hidden min-w-0 relative">
         
-        {/* TOMBOL DEPLOY MELAYANG */}
-        <button
-          type="button"
-          onClick={handleDeploy}
-          disabled={!hasDraft || isPending || isLockedByOther}
-          className={`w-12 h-12 rounded-full shadow-2xl flex items-center justify-center text-lg transition-all duration-300 hover:scale-110 border backdrop-blur-md cursor-pointer ${
-            !hasDraft || isPending || isLockedByOther
-              ? isDarkMode 
-                ? 'bg-gray-900/40 text-gray-600 border-gray-800/40 cursor-not-allowed opacity-50 shadow-none' 
-                : 'bg-gray-200/50 text-gray-400 border-gray-300/40 cursor-not-allowed opacity-50 shadow-none'
-              : 'bg-amber-600 hover:bg-amber-700 text-white border-amber-600 shadow-md shadow-black/20 cursor-pointer'
-          }`}
-          title={
-            isLockedByOther 
-              ? `Terkunci: Draf sedang dikelola oleh ${draftLock?.userName}` 
-              : hasDraft 
-                ? 'Terbitkan draft perubahan ke website' 
-                : 'Belum ada perubahan baru (Draft kosong)'
-          }
-        >
-          {isPending ? (
-            <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-          ) : (
-            <UploadCloud className="w-5 h-5 text-white" />
-          )}
-        </button>
+        {/* STICKY TOPBAR HEADER CMS */}
+        <header className={`flex-shrink-0 z-30 h-13 sm:h-14 border-b px-3 sm:px-5 flex items-center justify-between transition-colors select-none ${
+          isDarkMode ? 'bg-[#12141C]/95 border-[#1E222D] text-zinc-100' : 'bg-white/95 border-gray-200 text-gray-900'
+        }`}>
+          {/* SISI KIRI: Tombol Toggle Menu Sidebar & Judul Modul */}
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <button
+              type="button"
+              onClick={() => setIsSidebarOpen((prev) => !prev)}
+              className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all border cursor-pointer hover:scale-105 shrink-0 ${
+                isDarkMode 
+                  ? 'bg-gray-900 text-amber-400 border-gray-800 hover:bg-gray-800' 
+                  : 'bg-gray-100 text-amber-700 border-gray-200 hover:bg-gray-200'
+              }`}
+              title={isSidebarOpen ? "Tutup Panel Sidebar" : "Buka Panel Sidebar"}
+            >
+              <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
 
-        {/* TOMBOL DARK/LIGHT MODE MELAYANG */}
-        <button
-          type="button"
-          onClick={toggleTheme}
-          className={`w-12 h-12 rounded-full shadow-2xl flex items-center justify-center text-lg transition-all duration-300 hover:scale-110 border backdrop-blur-md cursor-pointer ${
-            isDarkMode 
-              ? 'bg-gray-900/90 text-amber-400 border-gray-700 shadow-amber-900/40 hover:bg-gray-800' 
-              : 'bg-white/90 text-amber-700 border-gray-200 shadow-xl hover:bg-gray-50'
-          }`}
-          title={isDarkMode ? 'Ubah ke Mode Terang' : 'Ubah ke Mode Malam'}
-        >
-          {isDarkMode ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-amber-600" />}
-        </button>
+            <div className="min-w-0 flex items-center gap-2">
+              <span className="font-black text-xs sm:text-sm tracking-wider uppercase text-gray-900 dark:text-white truncate">
+                4SU CMS
+              </span>
+              {isSplitScreen && (
+                <span suppressHydrationWarning className="text-[10px] font-mono text-gray-500 dark:text-gray-400 truncate">
+                  · {modeLabel}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* SISI KANAN: Aksi Terpadu (Deploy, Log Notifikasi, Toggle Tema) */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* TOMBOL DEPLOY */}
+            {currentUser?.id !== 'superadmin' && !currentUser?.isSuperadmin && (
+              <button
+                type="button"
+                onClick={handleDeploy}
+                disabled={!hasDraft || isPending || isLockedByOther}
+                className={`h-8 sm:h-9 px-2.5 sm:px-3 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 cursor-pointer ${
+                  !hasDraft || isPending || isLockedByOther
+                    ? 'opacity-40 cursor-not-allowed border-transparent text-gray-400'
+                    : isDarkMode ? 'bg-[#8B1E1E] hover:bg-[#A32626] text-white border-[#8B1E1E] shadow-sm' : 'bg-[#6B0808] hover:bg-[#8B1E1E] text-white border-[#6B0808] shadow-sm'
+                }`}
+                title={
+                  isLockedByOther 
+                    ? `Terkunci: Sedang dikelola oleh ${draftLock?.userName}` 
+                    : hasDraft 
+                      ? 'Terbitkan draft perubahan ke website' 
+                      : 'Belum ada perubahan baru (Draft kosong)'
+                }
+              >
+                {isPending ? (
+                  <svg className="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                ) : (
+                  <UploadCloud className="w-3.5 h-3.5 text-white" />
+                )}
+                <span className="hidden sm:inline">Deploy</span>
+              </button>
+            )}
+
+            {/* NOTIFIKASI DROPDOWN */}
+            <div id="notif-container" className="relative">
+              <button
+                type="button"
+                onClick={handleToggleNotif}
+                className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center transition-all border cursor-pointer relative ${
+                  isDarkMode 
+                    ? 'bg-[#181B26] text-zinc-300 border-[#222736] hover:bg-[#202534] hover:text-white' 
+                    : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200'
+                }`}
+                title="Log Notifikasi Perubahan"
+              >
+                <Bell className="w-4 h-4" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#8B1E1E] text-white font-bold text-[9px] rounded-full flex items-center justify-center shadow">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {/* PANEL DROPDOWN NOTIFIKASI */}
+              {showNotifPanel && (
+                <div className={`absolute right-0 mt-2 w-72 sm:w-80 max-h-80 overflow-y-auto rounded-xl shadow-xl border p-3.5 space-y-2.5 z-50 ${
+                  isDarkMode ? 'bg-[#151822] border-[#222736] text-zinc-200' : 'bg-white border-gray-200 text-gray-800'
+                }`}>
+                  <div className={`flex items-center justify-between border-b pb-2.5 ${
+                    isDarkMode ? 'border-gray-800/80' : 'border-gray-200'
+                  }`}>
+                    <div className="flex items-center gap-2">
+                      <Bell className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                      <h3 className="text-xs font-black uppercase tracking-wider">Log Perubahan</h3>
+                    </div>
+                    <span className="text-[10px] bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full font-bold">
+                      5 Menit
+                    </span>
+                  </div>
+
+                  <div className="space-y-2">
+                    {visibleNotifications.length === 0 ? (
+                      <p className="text-xs text-gray-500 dark:text-gray-400 text-center py-4 font-medium">Tidak ada notifikasi aktif.</p>
+                    ) : (
+                      visibleNotifications.map((n) => (
+                        <div key={n.id} className={`p-2.5 rounded-xl border text-xs space-y-1 ${
+                          isDarkMode ? 'bg-gray-900/60 border-gray-800/80' : 'bg-gray-50 border-gray-200'
+                        }`}>
+                          <div className="flex items-center justify-between text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+                            <span className="text-amber-500 font-extrabold">{n.type}</span>
+                            <span>{n.time}</span>
+                          </div>
+                          <p className={`font-medium leading-relaxed ${
+                            isDarkMode ? 'text-gray-200' : 'text-gray-800'
+                          }`}>{n.message}</p>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* TOGGLE TEMA (MATAHARI / BULAN) */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center transition-all border cursor-pointer ${
+                isDarkMode 
+                  ? 'bg-[#181B26] text-zinc-300 border-[#222736] hover:bg-[#202534] hover:text-white' 
+                  : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200'
+              }`}
+              title={isDarkMode ? 'Ubah ke Mode Terang' : 'Ubah ke Mode Malam'}
+            >
+              {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-amber-600" />}
+            </button>
+          </div>
+        </header>
+
+        {/* KONTEN UTAMA */}
+        <main className={`flex-1 overflow-y-auto relative transition-colors ${
+          isDarkMode ? 'bg-[#0C0D12]' : 'bg-[#F4F6F9]'
+        }`}>
+          <div className={`mx-auto ${
+            isCompactViewport || isShortViewport 
+              ? 'p-2.5 sm:p-4 max-w-full pb-16 pt-3' 
+              : 'p-6 md:p-8 max-w-5xl pb-24 pt-6'
+          }`}>
+            {/* BANNER DRAFT LOCK */}
+            {isLockedByOther && (
+              <div className="mb-4 p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 flex items-center gap-3 backdrop-blur-md">
+                <Lock className="w-4 h-4 text-amber-400 shrink-0" />
+                <div className="text-xs">
+                  <span className="font-bold uppercase tracking-wider text-amber-400 block mb-0.5">Mode Read-Only Aktif</span>
+                  Draf sedang dikelola oleh <strong className="font-semibold text-white">{draftLock?.userName}</strong>.
+                </div>
+              </div>
+            )}
+            {children}
+          </div>
+        </main>
       </div>
 
       {/* TOAST SUDAH TERPASANG */}
@@ -903,7 +975,7 @@ export default function AdminLayoutClient({
           <CheckCircle2 className="w-5 h-5 text-amber-400" />
           <div>
             <h4 className="text-xs font-black uppercase tracking-wider">Aplikasi PWA Sudah Aktif!</h4>
-            <p className="text-[11px] text-amber-300/80 font-medium">Anda sedang menjalankan ESU CMS langsung dari Layar Utama perangkat Anda.</p>
+            <p className="text-[11px] text-amber-300/80 font-medium">Anda sedang menjalankan 4SU CMS langsung dari Layar Utama perangkat Anda.</p>
           </div>
         </div>
       </div>
@@ -936,13 +1008,13 @@ export default function AdminLayoutClient({
             {isIos ? (
               <div className="space-y-3.5 text-xs">
                 <p className="font-semibold text-gray-700 dark:text-gray-300">
-                  Untuk menginstal <strong className="text-amber-500 font-bold">ESU CMS</strong> di perangkat Apple (iPhone / iPad):
+                  Untuk menginstal <strong className="text-amber-500 font-bold">4SU CMS</strong> di perangkat Apple (iPhone / iPad):
                 </p>
                 <div className="space-y-2.5 bg-gray-50 dark:bg-gray-900/60 p-4 rounded-2xl border border-gray-200 dark:border-gray-800">
                   <div className="flex items-start gap-3">
                     <span className="w-5 h-5 rounded-full bg-amber-600 text-white text-[11px] font-black flex items-center justify-center shrink-0">1</span>
                     <p className="text-gray-600 dark:text-gray-300">
-                      Buka panel admin ini menggunakan browser <strong className="text-gray-900 dark:text-white">Safari</strong> bawaan Apple.
+                      Buka halaman CMS ini menggunakan browser <strong className="text-gray-900 dark:text-white">Safari</strong> bawaan Apple.
                     </p>
                   </div>
                   <div className="flex items-start gap-3">
@@ -960,7 +1032,7 @@ export default function AdminLayoutClient({
                   <div className="flex items-start gap-3">
                     <span className="w-5 h-5 rounded-full bg-amber-600 text-white text-[11px] font-black flex items-center justify-center shrink-0">4</span>
                     <p className="text-gray-600 dark:text-gray-300">
-                      Ketuk <strong className="text-gray-900 dark:text-white font-bold">&quot;Tambah&quot; (Add)</strong> di pojok kanan atas. Ikon ESU CMS kini siap digunakan layaknya aplikasi asli!
+                      Ketuk <strong className="text-gray-900 dark:text-white font-bold">&quot;Tambah&quot; (Add)</strong> di pojok kanan atas. Ikon 4SU CMS kini siap digunakan layaknya aplikasi asli!
                     </p>
                   </div>
                 </div>
@@ -968,7 +1040,7 @@ export default function AdminLayoutClient({
             ) : (
               <div className="space-y-3.5 text-xs">
                 <p className="font-semibold text-gray-700 dark:text-gray-300">
-                  Untuk menginstal <strong className="text-amber-500 font-bold">ESU CMS</strong> di Android atau Komputer:
+                  Untuk menginstal <strong className="text-amber-500 font-bold">4SU CMS</strong> di Android atau Komputer:
                 </p>
                 <div className="space-y-2.5 bg-gray-50 dark:bg-gray-900/60 p-4 rounded-2xl border border-gray-200 dark:border-gray-800">
                   <div className="flex items-start gap-3">

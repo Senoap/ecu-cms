@@ -1,7 +1,6 @@
 // components/HeroShowcaseCard.tsx
 'use client'
 import { useState, useEffect } from 'react'
-import { useLanguage } from '@/components/LanguageContext'
 import type { HeroShowcaseConfig } from '@/lib/showcaseConstants'
 import {
   Award,
@@ -22,15 +21,11 @@ interface HeroShowcaseCardProps {
 }
 
 export default function HeroShowcaseCard({
-  siteName: _siteName,
-  tagline: _tagline,
   primaryColor,
   secondaryColor = '#D4AF37',
-  logoUrl: _logoUrl,
   isDarkMode,
   showcaseData
 }: HeroShowcaseCardProps) {
-  const { locale } = useLanguage()
   const [activeTab, setActiveTab] = useState<'strengths' | 'metrics' | 'coverage'>('strengths')
   const [currentRoleIndex, setCurrentRoleIndex] = useState(0)
 
@@ -38,27 +33,27 @@ export default function HeroShowcaseCard({
   const defaultRoles = [
     {
       icon: 'ShieldCheck',
-      title: locale === 'en' ? 'Security & Asset Protection' : 'Satuan Pengamanan (Gada Pratama / Madya)',
-      tag: locale === 'en' ? 'Certified Officers' : 'Personel Tersertifikasi',
-      desc: locale === 'en' ? 'Trained physical & executive security personnel' : 'Perlindungan aset fisik & korporat berstandar regulasi'
+      title: 'Satuan Pengamanan (Gada Pratama / Madya)',
+      tag: 'Personel Tersertifikasi',
+      desc: 'Perlindungan aset fisik & korporat berstandar regulasi'
     },
     {
       icon: 'Sparkles',
-      title: locale === 'en' ? 'Facility & Cleaning Services' : 'Jasa Kebersihan & Manajemen Fasilitas',
-      tag: locale === 'en' ? 'Hygiene Standard' : 'Standar Higienis',
-      desc: locale === 'en' ? 'Professional building housekeeping & maintenance' : 'Perawatan gedung, kantor, dan fasilitas komersial prima'
+      title: 'Jasa Kebersihan & Manajemen Fasilitas',
+      tag: 'Standar Higienis',
+      desc: 'Perawatan gedung, kantor, dan fasilitas komersial prima'
     },
     {
       icon: 'Car',
-      title: locale === 'en' ? 'Executive Corporate Drivers' : 'Pengemudi Profesional & Eksekutif',
-      tag: locale === 'en' ? 'Defensive Driving' : 'Safety Driving',
-      desc: locale === 'en' ? 'Punctual, vetted and protocol-trained drivers' : 'Disiplin waktu, berlisensi, dan penguasaan rute handal'
+      title: 'Pengemudi Profesional & Eksekutif',
+      tag: 'Safety Driving',
+      desc: 'Disiplin waktu, berlisensi, dan penguasaan rute handal'
     },
     {
       icon: 'Wrench',
-      title: locale === 'en' ? 'Industrial & Technical Crew' : 'Operator Pabrik & Teknisi Pemeliharaan',
-      tag: locale === 'en' ? 'Production Ready' : 'Siap Kerja',
-      desc: locale === 'en' ? 'Skilled non-grade operators for manufacturing & logistics' : 'Tenaga terampil siap dukung target operasional industri'
+      title: 'Operator Pabrik & Teknisi Pemeliharaan',
+      tag: 'Siap Kerja',
+      desc: 'Tenaga terampil siap dukung target operasional industri'
     }
   ]
 
@@ -77,23 +72,23 @@ export default function HeroShowcaseCard({
   const defaultMetrics = [
     {
       num: '15+',
-      label: locale === 'en' ? 'Years Experience' : 'Tahun Pengalaman',
-      sub: locale === 'en' ? 'Executive Leadership' : 'Pimpinan Teruji'
+      label: 'Tahun Pengalaman',
+      sub: 'Pimpinan Teruji'
     },
     {
       num: '500+',
-      label: locale === 'en' ? 'Trained Personnel' : 'Tenaga Siap Kerja',
-      sub: locale === 'en' ? 'Active in Field' : 'Penempatan Cepat'
+      label: 'Tenaga Siap Kerja',
+      sub: 'Penempatan Cepat'
     },
     {
       num: '99.8%',
-      label: locale === 'en' ? 'Client Satisfaction' : 'Kepuasan Klien',
-      sub: locale === 'en' ? 'SLA Fulfillment' : 'Pemenuhan SLA'
+      label: 'Kepuasan Klien',
+      sub: 'Pemenuhan SLA'
     },
     {
       num: '100%',
-      label: locale === 'en' ? 'Legal Compliance' : 'Kepatuhan Legalitas',
-      sub: locale === 'en' ? 'Official Licenses' : 'Izin Kemenaker Resmi'
+      label: 'Kepatuhan Legalitas',
+      sub: 'Izin Kemenaker Resmi'
     }
   ]
 
@@ -103,23 +98,23 @@ export default function HeroShowcaseCard({
   const defaultStrengths = [
     {
       icon: 'Zap',
-      title: locale === 'en' ? 'Rapid 24/7 SLA Response' : 'Respons Tanggap Cepat 24/7',
-      desc: locale === 'en' ? 'Incident mitigation and emergency replacement within < 2 hours.' : 'Penanganan insiden & pergantian personel darurat < 2 jam.'
+      title: 'Respons Tanggap Cepat 24/7',
+      desc: 'Penanganan insiden & pergantian personel darurat < 2 jam.'
     },
     {
       icon: 'Award',
-      title: locale === 'en' ? 'Certified Workforce' : 'Personel Tersertifikasi Legal',
-      desc: locale === 'en' ? 'Officially qualified via BNSP and Ministry of Manpower training.' : 'Tersertifikasi resmi BNSP dan dibekali pelatihan berkala.'
+      title: 'Personel Tersertifikasi Legal',
+      desc: 'Tersertifikasi resmi BNSP dan dibekali pelatihan berkala.'
     },
     {
       icon: 'Users',
-      title: locale === 'en' ? 'Zero Dispute Guarantee' : 'Bebas Sengketa & Akuntabel',
-      desc: locale === 'en' ? 'Complete regulatory compliance, BPJS, and transparent payroll.' : 'Jaminan kepatuhan UU Ketenagakerjaan, BPJS, & payroll transparan.'
+      title: 'Bebas Sengketa & Akuntabel',
+      desc: 'Jaminan kepatuhan UU Ketenagakerjaan, BPJS, & payroll transparan.'
     },
     {
       icon: 'ShieldCheck',
-      title: locale === 'en' ? 'Zero-Accident Safety' : 'Budaya K3 & Zero-Accident',
-      desc: locale === 'en' ? 'Strict workplace safety protocols tailored to your industry.' : 'Disiplin keselamatan kerja tinggi untuk perlindungan aset optimal.'
+      title: 'Budaya K3 & Zero-Accident',
+      desc: 'Disiplin keselamatan kerja tinggi untuk perlindungan aset optimal.'
     }
   ]
 
@@ -127,19 +122,19 @@ export default function HeroShowcaseCard({
 
   // Sektor Industri dari CMS
   const defaultSectors = [
-    { icon: 'Building2', name: locale === 'en' ? 'Commercial Offices' : 'Perkantoran Komersial' },
-    { icon: 'Factory', name: locale === 'en' ? 'Industrial Plants & Factories' : 'Pabrik & Kawasan Industri' },
-    { icon: 'Store', name: locale === 'en' ? 'Shopping Malls & Retail' : 'Mall & Pusat Perbelanjaan' },
-    { icon: 'Activity', name: locale === 'en' ? 'Healthcare & Hospitals' : 'Rumah Sakit & Fasilitas Medis' },
-    { icon: 'Truck', name: locale === 'en' ? 'Logistics & Warehouses' : 'Pergudangan & Logistik' },
-    { icon: 'GraduationCap', name: locale === 'en' ? 'Educational Institutions' : 'Institusi Pendidikan' }
+    { icon: 'Building2', name: 'Perkantoran Komersial' },
+    { icon: 'Factory', name: 'Pabrik & Kawasan Industri' },
+    { icon: 'Store', name: 'Mall & Pusat Perbelanjaan' },
+    { icon: 'Activity', name: 'Rumah Sakit & Fasilitas Medis' },
+    { icon: 'Truck', name: 'Pergudangan & Logistik' },
+    { icon: 'GraduationCap', name: 'Institusi Pendidikan' }
   ]
 
   const sectors = (showcaseData?.sectors && showcaseData.sectors.length > 0) ? showcaseData.sectors : defaultSectors
 
-  const ctaText = showcaseData?.ctaText || (locale === 'en' ? 'Consult Enterprise Workforce →' : 'Konsultasi Kebutuhan Mitra →')
+  const ctaText = showcaseData?.ctaText || 'Konsultasi Kebutuhan Mitra →'
   const ctaLink = showcaseData?.ctaLink || '#contact'
-  const profileText = showcaseData?.profileText || (locale === 'en' ? 'Company Profile' : 'Profil Perusahaan')
+  const profileText = showcaseData?.profileText || 'Profil Perusahaan'
   const profileLink = showcaseData?.profileLink || '#about'
 
   return (
@@ -160,7 +155,7 @@ export default function HeroShowcaseCard({
           }`}
         >
           <Award className="w-3.5 h-3.5 text-amber-500" />
-          <span>{locale === 'en' ? 'Strengths' : 'Keunggulan'}</span>
+          <span>Keunggulan</span>
         </button>
 
         <button
@@ -173,7 +168,7 @@ export default function HeroShowcaseCard({
           }`}
         >
           <BarChart3 className="w-3.5 h-3.5 text-amber-500" />
-          <span>{locale === 'en' ? 'Metrics' : 'Metrik'}</span>
+          <span>Metrik</span>
         </button>
 
         <button
@@ -186,7 +181,7 @@ export default function HeroShowcaseCard({
           }`}
         >
           <Globe className="w-3.5 h-3.5 text-amber-500" />
-          <span>{locale === 'en' ? 'Sectors' : 'Sektor'}</span>
+          <span>Sektor</span>
         </button>
       </div>
 
@@ -268,7 +263,7 @@ export default function HeroShowcaseCard({
           <div className="flex items-center justify-between text-[10px] font-bold text-amber-700 dark:text-amber-400 mb-1">
             <span className="uppercase tracking-widest flex items-center gap-1.5">
               <Award className="w-3 h-3 text-amber-500 shrink-0" />
-              <span>{locale === 'en' ? 'Active Deployment Roster' : 'Penempatan Personel Unggulan'}</span>
+              <span>Penempatan Personel Unggulan</span>
             </span>
             <span className="font-mono text-[10px]">{currentRoleIndex + 1} / {roles.length}</span>
           </div>

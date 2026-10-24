@@ -1,8 +1,8 @@
 {
   "id": "/admin",
-  "name": "ESU Company CMS",
-  "short_name": "ESU CMS",
-  "description": "Panel Manajemen Konten & Administrasi Resmi PT Energi Sejahtera Utama",
+  "name": "4SU Company CMS",
+  "short_name": "4SU CMS",
+  "description": "Panel Manajemen Konten & Administrasi Resmi PT Empat Sinergi Utama (4SU)",
   "start_url": "/admin",
   "scope": "/admin",
   "display": "standalone",

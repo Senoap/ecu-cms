@@ -6,6 +6,8 @@ import { MessageSquare } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import { useLanguage } from '@/components/LanguageContext'
 import type { GalleryItem, DatabaseContent, FooterContent } from '@/lib/db'
+import { formatWhatsAppNumber } from '@/lib/phone'
+import { openCookieSettings } from '@/lib/cookieConsent'
 
 export default function GalleryDetailClient({
   item,
@@ -18,21 +20,18 @@ export default function GalleryDetailClient({
   setting: DatabaseContent['setting']
   footer: FooterContent
 }) {
-  const { locale, t, getFallbackContent } = useLanguage()
+  const { t } = useLanguage()
   const [showZoom, setShowZoom] = useState(false)
 
-  const fb = getFallbackContent('galleries', item.id)
-  const itemTitle = (locale === 'en' && fb?.title) ? fb.title : item.title
-  const itemDesc = (locale === 'en' && fb?.desc) ? fb.desc : item.desc
-  const itemCat = (locale === 'en' && fb?.category) ? fb.category : (item.category || 'Umum')
+  const itemTitle = item.title
+  const itemDesc = item.desc
+  const itemCat = item.category || 'Umum'
 
   const related = allGalleries.filter((g) => g.id !== item.id).slice(0, 4)
 
-  const waNumber = (footer?.whatsapp || footer?.phone || '').replace(/[^0-9]/g, '')
+  const waNumber = formatWhatsAppNumber(footer?.whatsapp || footer?.phone)
   const waMessage = encodeURIComponent(
-    locale === 'en'
-      ? `Hello PT ESU, I saw your documentation photo: ${itemTitle}`
-      : `Halo PT ESU, saya melihat dokumentasi kegiatan: ${itemTitle}`
+    `Halo PT 4SU, saya melihat dokumentasi kegiatan: ${itemTitle}`
   )
 
   return (
@@ -45,6 +44,10 @@ export default function GalleryDetailClient({
         accentColor={setting.accentColor}
         loadingBgColor={setting.loadingBgColor}
         logoUrl={setting.logoUrl}
+        showLeadership={setting.showLeadership !== false}
+        showCertifications={setting.showCertifications !== false}
+        showCompro={setting.showCompro !== false}
+        leadershipLabel={setting.leadershipLabel || 'Profil Pimpinan'}
       />
 
       <main className="max-w-5xl mx-auto pt-24 pb-16 sm:pt-28 sm:pb-24 px-4 sm:px-6 md:px-8 space-y-12">
@@ -83,7 +86,7 @@ export default function GalleryDetailClient({
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
             <div className="absolute bottom-6 right-6 bg-black/60 backdrop-blur-md px-4 py-2 rounded-xl text-xs font-bold text-white border border-white/20 flex items-center gap-2">
               <span>🔍</span>
-              <span>{locale === 'en' ? 'Click to Enlarge Full Photo' : 'Klik untuk Memperbesar Foto'}</span>
+              <span>Klik untuk Memperbesar Foto</span>
             </div>
           </div>
         )}
@@ -93,7 +96,7 @@ export default function GalleryDetailClient({
           <div className="flex items-center gap-3 border-b border-gray-100 dark:border-gray-800 pb-3">
             <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
             <h2 className="text-base sm:text-lg font-black uppercase tracking-wider text-gray-900 dark:text-white">
-              {locale === 'en' ? 'Activity Narrative & Field Context' : 'Narasi Kegiatan & Konteks Lapangan'}
+              Narasi Kegiatan & Konteks Lapangan
             </h2>
           </div>
           <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-sm sm:text-base md:text-lg whitespace-pre-line text-justify font-medium">
@@ -102,7 +105,7 @@ export default function GalleryDetailClient({
 
           <div className="pt-6 border-t border-gray-100 dark:border-gray-800 flex flex-wrap items-center justify-between gap-4">
             <div className="text-xs font-semibold text-gray-600 dark:text-gray-400">
-              {locale === 'en' ? 'Documented by:' : 'Didokumentasikan oleh:'}{' '}
+              Didokumentasikan oleh:{' '}
               <span className="font-bold text-gray-900 dark:text-gray-200">{setting.siteName}</span>
             </div>
             {waNumber && (
@@ -113,7 +116,7 @@ export default function GalleryDetailClient({
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-xs font-black text-white bg-emerald-600 hover:bg-emerald-500 transition-all uppercase tracking-wider shadow-md"
               >
                 <MessageSquare className="w-4 h-4" />
-                <span>{locale === 'en' ? 'Inquire Activity' : 'Tanyakan Kegiatan Ini'}</span>
+                <span>Tanyakan Kegiatan Ini</span>
               </a>
             )}
           </div>
@@ -123,14 +126,13 @@ export default function GalleryDetailClient({
         {related.length > 0 && (
           <div className="space-y-6 pt-8 border-t border-gray-200 dark:border-gray-800">
             <h2 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
-              {locale === 'en' ? 'Other Documentations' : 'Dokumentasi Lainnya'}
+              Dokumentasi Lainnya
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
               {related.map((rel) => {
-                const relFb = getFallbackContent('galleries', rel.id)
-                const relTitle = (locale === 'en' && relFb?.title) ? relFb.title : rel.title
-                const relDesc = (locale === 'en' && relFb?.desc) ? relFb.desc : rel.desc
-                const relCat = (locale === 'en' && relFb?.category) ? relFb.category : (rel.category || 'Umum')
+                const relTitle = rel.title
+                const relDesc = rel.desc
+                const relCat = rel.category || 'Umum'
 
                 return (
                   <Link
@@ -164,6 +166,18 @@ export default function GalleryDetailClient({
 
       <footer className="max-w-5xl mx-auto py-8 px-4 border-t border-gray-200/60 dark:border-gray-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-600 dark:text-gray-400 font-semibold gap-3">
         <span>© 2026 {setting.siteName}. All Rights Reserved.</span>
+        <div className="flex items-center gap-4">
+          <Link href="/privacy-policy" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
+            Kebijakan Privasi
+          </Link>
+          <button
+            type="button"
+            onClick={openCookieSettings}
+            className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors cursor-pointer"
+          >
+            Pengaturan Cookie
+          </button>
+        </div>
         <div className="flex items-center gap-2 select-none">
           <span>Website by</span>
           <span className="px-2.5 py-0.5 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 font-black uppercase tracking-wider">

@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { readPublishedDB, addNotification } from '@/lib/db'
 import { getAppSetting, HR_EMAIL_KEY, saveNewApplication } from '@/lib/applications'
 import { sendMail, escapeHtml } from '@/lib/mailer'
+import { getSiteUrl } from '@/lib/site'
 
 export interface ApplyState {
   ok: boolean
@@ -58,7 +59,7 @@ function makeRef(): string {
   let s = ''
   const bytes = crypto.getRandomValues(new Uint8Array(6))
   for (const b of bytes) s += chars[b % chars.length]
-  return `ESU-${s}`
+  return `4SU-${s}`
 }
 
 export async function submitApplication(_prev: ApplyState, formData: FormData): Promise<ApplyState> {
@@ -66,9 +67,59 @@ export async function submitApplication(_prev: ApplyState, formData: FormData): 
   if (formData.get('website')) return { ok: true, message: 'Terkirim.' }
 
   const h = await headers()
-  const ip = h.get('x-test-ip') || h.get('x-forwarded-for')?.split(',')[0].trim() || h.get('x-real-ip') || 'unknown'
+  const testIp = process.env.NODE_ENV !== 'production' ? h.get('x-test-ip') : null
+  // Anti-spoofing IP: Baca X-Real-IP secara eksklusif yang di-set oleh Nginx dari socket TCP remote_addr
+  const ip = testIp || h.get('x-real-ip') || h.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown'
   if (rateLimited(ip)) {
     return { ok: false, message: 'Terlalu banyak pengiriman. Silakan coba lagi dalam 1 jam.' }
+  }
+
+  // ---- Cloudflare Turnstile Verification ----
+  const turnstileToken = formData.get('cf-turnstile-response') as string | null
+  const turnstileSecret = process.env.TURNSTILE_SECRET_KEY
+
+  if (process.env.NODE_ENV === 'production') {
+    if (!turnstileSecret) {
+      console.error('[SECURITY ERROR] TURNSTILE_SECRET_KEY belum diatur di lingkungan produksi!')
+      return { ok: false, message: 'Layanan verifikasi keamanan sedang dalam pemeliharaan. Silakan hubungi admin.' }
+    }
+    if (!turnstileToken) {
+      return { ok: false, message: 'Verifikasi keamanan (Turnstile) wajib dilengkapi.' }
+    }
+    try {
+      const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          secret: turnstileSecret,
+          response: turnstileToken,
+          remoteip: ip !== 'unknown' ? ip : '',
+        }),
+      })
+      const verifyData = (await verifyRes.json()) as { success: boolean }
+      if (!verifyData.success) {
+        return { ok: false, message: 'Verifikasi keamanan gagal. Silakan muat ulang halaman dan coba lagi.' }
+      }
+    } catch (turnErr) {
+      console.error('[Turnstile] Gagal menghubungi layanan Cloudflare:', turnErr)
+      return { ok: false, message: 'Gagal memverifikasi keamanan. Silakan coba lagi nanti.' }
+    }
+  } else if (turnstileSecret && turnstileToken) {
+    try {
+      const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          secret: turnstileSecret,
+          response: turnstileToken,
+          remoteip: ip !== 'unknown' ? ip : '',
+        }),
+      })
+      const verifyData = (await verifyRes.json()) as { success: boolean }
+      if (!verifyData.success) {
+        return { ok: false, message: 'Verifikasi keamanan Turnstile lokal gagal.' }
+      }
+    } catch {}
   }
 
   const parsed = schema.safeParse({
@@ -128,6 +179,8 @@ export async function submitApplication(_prev: ApplyState, formData: FormData): 
         cover_note: data.coverNote || null,
         cv_path: cvPath,
         status: 'new',
+        consent_at: new Date().toISOString(),
+        consent_version: '1.0',
       },
       buffer,
       mime
@@ -135,7 +188,7 @@ export async function submitApplication(_prev: ApplyState, formData: FormData): 
 
     try {
       await addNotification(
-        `Lamaran baru diterima untuk posisi "${job.title}" dari ${data.name} (${ref}).`,
+        `Lamaran baru diterima untuk posisi "${job.title}" (${ref}).`,
         'CREATE',
         'career'
       )
@@ -147,26 +200,22 @@ export async function submitApplication(_prev: ApplyState, formData: FormData): 
     return { ok: false, message: 'Maaf, terjadi kesalahan pada server. Silakan coba lagi nanti.' }
   }
 
-  // ---- Email (kegagalan email tidak membatalkan lamaran) ----
+  // ---- Email Notifikasi HR (Bebas PII untuk Kepatuhan UU PDP) ----
   const hrEmail = (await getAppSetting(HR_EMAIL_KEY)) || pub.footer?.email || ''
   const site = pub.setting.siteName
   const safe = {
     name: escapeHtml(data.name),
-    phone: escapeHtml(data.phone),
-    email: escapeHtml(data.email),
     job: escapeHtml(job.title),
-    edu: escapeHtml(data.education || '-'),
-    note: escapeHtml(data.coverNote || '-'),
     site: escapeHtml(site),
   }
 
   if (hrEmail) {
+    const adminUrl = process.env.ADMIN_URL || `${getSiteUrl()}/admin`
     await sendMail({
       to: hrEmail,
-      replyTo: data.email,
-      subject: `[Lamaran Baru] ${job.title} - ${data.name} (${ref})`,
-      text: `Lamaran baru untuk ${job.title}\nRef: ${ref}\nNama: ${data.name}\nHP: ${data.phone}\nEmail: ${data.email}\nPendidikan: ${data.education || '-'}\nCatatan: ${data.coverNote || '-'}\n\nCV dapat diunduh dari panel admin > Lamaran.`,
-      html: `<h3>Lamaran baru: ${safe.job}</h3><p><b>Ref:</b> ${ref}<br><b>Nama:</b> ${safe.name}<br><b>HP:</b> ${safe.phone}<br><b>Email:</b> ${safe.email}<br><b>Pendidikan:</b> ${safe.edu}<br><b>Catatan:</b> ${safe.note}</p><p>CV dapat diunduh dari panel admin &gt; Lamaran.</p>`,
+      subject: `[Lamaran Baru] ${job.title} (Ref: ${ref})`,
+      text: `Ada lamaran baru masuk untuk posisi: ${job.title}\nNomor Referensi: ${ref}\n\nDemi kepatuhan privasi (UU PDP), data pribadi dan dokumen CV pelamar tidak dilampirkan via email.\nSilakan login ke halaman CMS untuk melihat dan mengunduh berkas pelamar:\n${adminUrl}/applications\n\nBerkas CV dihapus otomatis dari server setelah 60 hari.`,
+      html: `<h3>Lamaran Baru Diterima</h3><p>Posisi: <b>${safe.job}</b><br>Nomor Referensi: <b>${ref}</b></p><p style="color:#666; font-size:13px;"><i>Catatan Privasi: Data pribadi dan dokumen CV pelamar tidak disertakan di email ini demi kepatuhan UU PDP.</i></p><p><a href="${adminUrl}/applications" style="display:inline-block; padding:10px 18px; background:#6B0808; color:#fff; text-decoration:none; border-radius:8px; font-weight:bold;">Buka Halaman CMS Pelamar</a></p>`,
     })
   }
 

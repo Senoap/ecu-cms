@@ -1,11 +1,15 @@
 // app/admin/applications/cv/[id]/route.ts
 import { NextResponse } from 'next/server'
-import { isAdmin } from '@/lib/auth'
+import { getCurrentUser, canUserAccessMenu } from '@/lib/auth'
 import { getCvDownload } from '@/lib/applications'
 
-// Buka / Unduh CV pelamar (Signed URL jika di Supabase, atau langsung kirim buffer jika di VPS lokal). Hanya admin.
+// Buka / Unduh CV pelamar (Signed URL jika di Supabase, atau langsung kirim buffer jika di VPS lokal). Hanya admin berizin 'applications'.
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
-  if (!(await isAdmin())) return new NextResponse('Unauthorized', { status: 401 })
+  const user = await getCurrentUser()
+  if (!user) return new NextResponse('Unauthorized', { status: 401 })
+  if (!canUserAccessMenu(user, 'applications')) {
+    return new NextResponse('Forbidden: Anda tidak memiliki izin untuk mengakses dokumen CV pelamar.', { status: 403 })
+  }
   const { id } = await params
 
   const result = await getCvDownload(id)

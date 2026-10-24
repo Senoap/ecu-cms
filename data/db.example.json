@@ -1235,53 +1235,37 @@
       "protectionLeadershipLink": "/leadership"
     }
   },
-  "notifications": [],
+  "notifications": [
+    {
+      "id": "notif-1792748762512",
+      "message": "Pengguna \"admin\" telah logout dari sistem CMS.",
+      "time": "16.46",
+      "type": "AUTH",
+      "category": "system"
+    },
+    {
+      "id": "notif-1792741605708",
+      "message": "Pengguna \"admin\" telah logout dari sistem CMS.",
+      "time": "14.46",
+      "type": "AUTH",
+      "category": "system"
+    }
+  ],
   "auditLogs": [],
-  "hasDraft": false,
+  "hasDraft": true,
   "comproRequests": [],
   "visitorLogs": [],
   "dailyVisitorCounts": [],
   "activeSessions": {},
   "cmsUsers": [
     {
-      "id": "usr-1792261451918-p9y6",
-      "name": "HRD",
+      "id": "user_example_hrd",
+      "username": "hrd_demo",
+      "name": "HRD Staff",
       "role": "HRD",
-      "isActive": true,
-      "username": "hrd",
-      "createdAt": 1792261451941,
-      "permissions": [
-        "career",
-        "applications"
-      ],
-      "passwordHash": "0ead391727b15e0a1f943b675b0a64fc:c7caf892fb547f0fefbfc1aaed5bdbb66c9bc64f8d59b7d451498ccddd4293ec97eb4cac8c4635c7062516adf1f83e3f96f76d791d1ceb77b55213e6a92959b0",
-      "canReceiveCareerNotif": true
-    },
-    {
-      "id": "usr-1792262740473-w9nb",
-      "name": "admin2",
-      "role": "admin",
-      "isActive": true,
-      "username": "admin2",
-      "createdAt": 1792262740489,
-      "permissions": [
-        "global",
-        "hero",
-        "about",
-        "services",
-        "portfolio",
-        "career",
-        "gallery",
-        "footer",
-        "legal",
-        "applications",
-        "career-templates",
-        "scheduled-content",
-        "audit-log",
-        "users"
-      ],
-      "passwordHash": "384e7d201444baae8bf4e045c57c70f4:81f38746cc5d3e6c69201d98c2e30e3d3c5f4227b1900c9cadddc709296b1d61255b3e347aa8f6e163641dfb8b1f7bee9129a45d732a1191307daa9e0ab09c23",
-      "canReceiveCareerNotif": false
+      "email": "hrd@example.com",
+      "passwordHash": "example_pbkdf2_hash_do_not_use",
+      "createdAt": "2026-10-24T11:57:47.505Z"
     }
   ],
   "loginAttempts": {},
@@ -1312,5 +1296,8 @@
     }
   ],
   "scheduledContents": [],
-  "draftLock": null
+  "draftLock": null,
+  "_readSource": "local",
+  "version": 8,
+  "updatedAt": 1792842969497
 }

@@ -5,21 +5,52 @@ import fs from 'fs'
 import path from 'path'
 import { readDB, writeDB, addComproRequest, updateComproRequestStatus, deleteComproRequest, defaultComproEmailTemplate, type ComproEmailTemplate } from '@/lib/db'
 import { sendMail, escapeHtml, verifyAndTestSmtp, type MailAttachment } from '@/lib/mailer'
+import { getSiteUrl, toAbsoluteUrl } from '@/lib/site'
 import { requirePermission } from '@/lib/auth'
 import { revalidatePath } from 'next/cache'
 
 /**
  * Mencari dan menyiapkan berkas PDF Company Profile untuk dilampirkan langsung ke email.
  */
+import { headers } from 'next/headers'
+
+// Rate limit untuk form publik Compro: maksimal 3 permintaan per 15 menit per IP & Email
+const COMPRO_WINDOW_MS = 15 * 60 * 1000
+const COMPRO_MAX_REQUESTS = 3
+const comproRateLimitMap = new Map<string, number[]>()
+
+function isComproRateLimited(key: string): boolean {
+  const now = Date.now()
+  const timestamps = (comproRateLimitMap.get(key) || []).filter((t) => now - t < COMPRO_WINDOW_MS)
+  if (timestamps.length >= COMPRO_MAX_REQUESTS) {
+    comproRateLimitMap.set(key, timestamps)
+    return true
+  }
+  timestamps.push(now)
+  comproRateLimitMap.set(key, timestamps)
+  return false
+}
+
+/**
+ * Mencari dan menyiapkan berkas PDF Company Profile untuk dilampirkan langsung ke email.
+ * Dilengkapi proteksi Path Traversal dan pembatasan domain SSRF.
+ */
 async function resolveComproAttachment(pdfUrlOrPath?: string): Promise<MailAttachment | null> {
   const filename = 'Company-Profile-PT-Empat-Sinergi-Utama.pdf'
 
   try {
-    // 1. Cek path custom lokal jika ada
-    if (pdfUrlOrPath && !pdfUrlOrPath.startsWith('http')) {
-      const clean = pdfUrlOrPath.replace(/^\//, '')
-      const customPath = path.join(process.cwd(), 'public', clean)
-      if (fs.existsSync(customPath)) {
+    // 1. Cek path custom lokal jika ada (dengan perlindungan Path Traversal)
+    if (pdfUrlOrPath && !pdfUrlOrPath.startsWith('http://') && !pdfUrlOrPath.startsWith('https://')) {
+      const clean = pdfUrlOrPath.replace(/^\/+/, '')
+      const publicRoot = path.resolve(process.cwd(), 'public')
+      const customPath = path.resolve(publicRoot, path.normalize(clean))
+
+      // Verifikasi bahwa berkas beneran berada di dalam direktori public dan berakhiran .pdf
+      if (
+        customPath.startsWith(publicRoot) &&
+        customPath.toLowerCase().endsWith('.pdf') &&
+        fs.existsSync(customPath)
+      ) {
         return {
           filename,
           path: customPath,
@@ -38,12 +69,23 @@ async function resolveComproAttachment(pdfUrlOrPath?: string): Promise<MailAttac
       }
     }
 
-    // 3. Jika URL remote HTTP/HTTPS (misal Supabase Storage)
+    // 3. Jika URL remote HTTP/HTTPS (hanya izinkan dari Supabase Storage resmi)
     if (pdfUrlOrPath && (pdfUrlOrPath.startsWith('http://') || pdfUrlOrPath.startsWith('https://'))) {
-      return {
-        filename,
-        path: pdfUrlOrPath,
-        contentType: 'application/pdf',
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+      try {
+        const parsed = new URL(pdfUrlOrPath)
+        const isAllowedHost = supabaseUrl ? parsed.origin === new URL(supabaseUrl).origin : false
+        if (isAllowedHost) {
+          return {
+            filename,
+            path: pdfUrlOrPath,
+            contentType: 'application/pdf',
+          }
+        } else {
+          console.warn('[compro] URL remote lampiran ditolak demi keamanan SSRF:', pdfUrlOrPath)
+        }
+      } catch {
+        console.warn('[compro] URL remote lampiran tidak valid:', pdfUrlOrPath)
       }
     }
   } catch (err) {
@@ -55,19 +97,62 @@ async function resolveComproAttachment(pdfUrlOrPath?: string): Promise<MailAttac
 
 export async function submitComproRequest(formData: FormData): Promise<{ success: boolean; message: string }> {
   try {
-    const name = (formData.get('name') as string)?.trim()
-    const company = (formData.get('company') as string)?.trim() || '-'
-    const email = (formData.get('email') as string)?.trim()
-    const phone = (formData.get('phone') as string)?.trim()
-    const notes = (formData.get('notes') as string)?.trim()
+    // Honeypot bot protection
+    if (formData.get('website')) {
+      return { success: true, message: 'Permintaan Anda telah diterima.' }
+    }
+
+    const h = await headers()
+    const ip = h.get('x-real-ip') || h.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown'
+
+    // Pembersihan karakter newline/CRLF untuk mencegah Header Injection
+    const sanitizeHeaderValue = (val: string) => val.replace(/[\r\n]/g, ' ').trim()
+
+    const name = sanitizeHeaderValue(String(formData.get('name') ?? ''))
+    const company = sanitizeHeaderValue(String(formData.get('company') ?? '')) || '-'
+    const email = sanitizeHeaderValue(String(formData.get('email') ?? '')).toLowerCase()
+    const phone = sanitizeHeaderValue(String(formData.get('phone') ?? ''))
+    const notes = String(formData.get('notes') ?? '').trim()
 
     if (!name || !email || !phone) {
       return { success: false, message: 'Nama Lengkap, Alamat Email, dan Nomor HP/WhatsApp wajib diisi.' }
     }
 
+    if (name.length > 100) {
+      return { success: false, message: 'Nama maksimal 100 karakter.' }
+    }
+    if (company.length > 100) {
+      return { success: false, message: 'Nama instansi/perusahaan maksimal 100 karakter.' }
+    }
+    if (email.length > 150) {
+      return { success: false, message: 'Alamat email terlalu panjang.' }
+    }
+    if (notes.length > 1000) {
+      return { success: false, message: 'Pesan/catatan maksimal 1000 karakter.' }
+    }
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
       return { success: false, message: 'Format alamat email tidak valid.' }
+    }
+
+    const phoneRegex = /^[0-9+\-\s()]{8,25}$/
+    if (!phoneRegex.test(phone)) {
+      return { success: false, message: 'Format nomor HP/WhatsApp tidak valid.' }
+    }
+
+    // Rate limiting per IP dan per Email
+    if (isComproRateLimited(`ip_${ip}`)) {
+      return {
+        success: false,
+        message: 'Terlalu banyak permintaan dari jaringan Anda. Mohon tunggu beberapa menit sebelum mencoba kembali.'
+      }
+    }
+    if (isComproRateLimited(`email_${email}`)) {
+      return {
+        success: false,
+        message: 'Permintaan company profile untuk email ini baru saja dikirimkan. Silakan periksa inbox/spam Anda.'
+      }
     }
 
     const item = await addComproRequest({
@@ -83,10 +168,19 @@ export async function submitComproRequest(formData: FormData): Promise<{ success
     const tpl = db.comproEmailTemplate || defaultComproEmailTemplate
     const pdfUrl = tpl.pdfUrl || '/compro.pdf'
     const siteName = db.setting?.siteName || 'PT Empat Sinergi Utama'
+    const siteUrl = getSiteUrl()
+    const comproUrl = toAbsoluteUrl(pdfUrl) || `${siteUrl}/compro.pdf`
 
-    const subject = (tpl.subject || 'Company Profile Resmi').replace('{company}', company).replace('{name}', name)
-    const heading = (tpl.heading || tpl.subject || 'Company Profile Resmi').replace('{company}', company).replace('{name}', name)
-    const bodyIntro = (tpl.bodyIntro || tpl.body || '').replace('{company}', company).replace('{name}', name)
+    const replacePlaceholders = (str: string) =>
+      str
+        .replaceAll('{company}', company)
+        .replaceAll('{name}', name)
+        .replaceAll('{compro_url}', comproUrl)
+        .replaceAll('{site_url}', siteUrl)
+
+    const subject = replacePlaceholders(tpl.subject || 'Company Profile Resmi')
+    const heading = replacePlaceholders(tpl.heading || tpl.subject || 'Company Profile Resmi')
+    const bodyIntro = replacePlaceholders(tpl.bodyIntro || tpl.body || '')
     const footerText = tpl.footerText || `${siteName} • Dokumen Resmi`
 
     const attachment = await resolveComproAttachment(pdfUrl)
@@ -127,7 +221,9 @@ export async function submitComproRequest(formData: FormData): Promise<{ success
 
     return {
       success: true,
-      message: 'Permintaan Anda berhasil diterima! Salinan Company Profile PT Empat Sinergi Utama sedang dikirimkan ke email Anda dengan berkas PDF terlampir langsung.',
+      message: sent
+        ? 'Permintaan Anda berhasil diterima! Salinan Company Profile PT Empat Sinergi Utama telah dikirimkan ke email Anda dengan berkas PDF terlampir.'
+        : 'Permintaan Anda berhasil diterima dan dicatat. Pengiriman dokumen Company Profile ke email Anda sedang dalam antrean sistem.',
     }
   } catch (error: unknown) {
     console.error('Error submitting compro request:', error)
@@ -144,9 +240,19 @@ export async function resendComproEmailAction(requestId: string): Promise<{ succ
 
     const tpl = db.comproEmailTemplate || defaultComproEmailTemplate
     const pdfUrl = tpl.pdfUrl || '/compro.pdf'
-    const subject = (tpl.subject || 'Company Profile Resmi').replace('{company}', req.company).replace('{name}', req.name)
-    const heading = (tpl.heading || tpl.subject || 'Company Profile Resmi').replace('{company}', req.company).replace('{name}', req.name)
-    const bodyIntro = (tpl.bodyIntro || tpl.body || '').replace('{company}', req.company).replace('{name}', req.name)
+    const siteUrl = getSiteUrl()
+    const comproUrl = toAbsoluteUrl(pdfUrl) || `${siteUrl}/compro.pdf`
+
+    const replacePlaceholders = (str: string) =>
+      str
+        .replaceAll('{company}', req.company)
+        .replaceAll('{name}', req.name)
+        .replaceAll('{compro_url}', comproUrl)
+        .replaceAll('{site_url}', siteUrl)
+
+    const subject = replacePlaceholders(tpl.subject || 'Company Profile Resmi')
+    const heading = replacePlaceholders(tpl.heading || tpl.subject || 'Company Profile Resmi')
+    const bodyIntro = replacePlaceholders(tpl.bodyIntro || tpl.body || '')
     const footerText = tpl.footerText || 'PT Empat Sinergi Utama • Dokumen Resmi'
 
     const attachment = await resolveComproAttachment(pdfUrl)
@@ -270,6 +376,7 @@ export async function uploadComproPdfAction(formData: FormData): Promise<{ succe
 }
 
 export async function getComproPdfInfoAction(): Promise<{ exists: boolean; sizeKb: number; filename: string }> {
+  await requirePermission('compro-requests')
   try {
     const filePath = path.join(process.cwd(), 'public', 'compro.pdf')
     if (fs.existsSync(filePath)) {

@@ -68,7 +68,7 @@ export default function SmoothLoader({
             {logoUrl ? (
               <img src={logoUrl} alt="Logo" className="w-full h-full object-contain p-1.5" />
             ) : (
-              'ESU'
+              '4SU'
             )}
           </div>
         </div>

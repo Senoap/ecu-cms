@@ -22,11 +22,15 @@ export default function ComproRequestModal({ isOpen, onClose, siteName = 'PT Emp
     }
     if (isOpen) {
       window.addEventListener('keydown', handleKeyDown)
+      const prevBodyOverflow = document.body.style.overflow
+      const prevHtmlOverflow = document.documentElement.style.overflow
       document.body.style.overflow = 'hidden'
-    }
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown)
-      document.body.style.overflow = 'unset'
+      document.documentElement.style.overflow = 'hidden'
+      return () => {
+        window.removeEventListener('keydown', handleKeyDown)
+        document.body.style.overflow = prevBodyOverflow
+        document.documentElement.style.overflow = prevHtmlOverflow
+      }
     }
   }, [isOpen, onClose])
 
@@ -45,19 +49,25 @@ export default function ComproRequestModal({ isOpen, onClose, siteName = 'PT Emp
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200 overflow-y-auto"
+      onClick={onClose}
+    >
       <div 
-        className="bg-white dark:bg-[#10131C] text-gray-900 dark:text-white w-full max-w-lg rounded-3xl border border-gray-200 dark:border-gray-800 shadow-2xl p-6 sm:p-8 space-y-6 relative overflow-hidden"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="compro-modal-title"
+        className="bg-white dark:bg-[#10131C] text-gray-900 dark:text-white w-full max-w-lg max-h-[min(92dvh,720px)] rounded-3xl border border-gray-200 dark:border-gray-800 shadow-2xl p-5 sm:p-8 relative flex flex-col overflow-hidden my-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Modal */}
-        <div className="flex items-start justify-between relative z-10 border-b border-gray-100 dark:border-gray-800/80 pb-4">
-          <div className="space-y-1">
+        <div className="flex items-start justify-between relative z-10 border-b border-gray-100 dark:border-gray-800/80 pb-4 shrink-0">
+          <div className="space-y-1 pr-2">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-[10px] font-black uppercase tracking-wider">
               <FileDown className="w-3.5 h-3.5" />
               <span>Official Corporate Document</span>
             </div>
-            <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">
+            <h3 id="compro-modal-title" className="text-lg sm:text-xl font-black text-gray-900 dark:text-white tracking-tight">
               Minta Company Profile (PDF)
             </h3>
             <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">
@@ -67,14 +77,15 @@ export default function ComproRequestModal({ isOpen, onClose, siteName = 'PT Emp
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-2xl bg-gray-100 dark:bg-gray-800 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer"
+            aria-label="Tutup modal"
+            className="p-2 rounded-2xl bg-gray-100 dark:bg-gray-800 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer shrink-0"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {isSuccess ? (
-          <div className="text-center py-8 space-y-5">
+          <div className="text-center py-8 space-y-5 overflow-y-auto">
             <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 flex items-center justify-center mx-auto shadow-inner animate-bounce">
               <CheckCircle2 className="w-8 h-8" />
             </div>
@@ -96,7 +107,23 @@ export default function ComproRequestModal({ isOpen, onClose, siteName = 'PT Emp
             </button>
           </div>
         ) : (
-          <form action={handleSubmit} className="space-y-4 relative z-10">
+          <form action={handleSubmit} className="space-y-4 relative z-10 overflow-y-auto overscroll-contain pr-1 -mr-1 flex-1 pt-3">
+            {/* Honeypot Bot Trap: Disembunyikan secara visual dari manusia */}
+            <div 
+              aria-hidden="true" 
+              tabIndex={-1}
+              className="opacity-0 absolute -left-[9999px] h-0 w-0 overflow-hidden pointer-events-none"
+            >
+              <label htmlFor="compro-hp-website">Website</label>
+              <input
+                id="compro-hp-website"
+                type="text"
+                name="website"
+                tabIndex={-1}
+                autoComplete="off"
+              />
+            </div>
+
             {errorMessage && (
               <div className="p-3.5 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-500 text-xs font-semibold">
                 {errorMessage}
@@ -111,9 +138,10 @@ export default function ComproRequestModal({ isOpen, onClose, siteName = 'PT Emp
               <input
                 type="text"
                 name="name"
+                autoComplete="name"
                 required
                 placeholder="Contoh: Bpk. Ahmad Wahyudi"
-                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:border-amber-500 font-medium transition-colors"
+                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-base sm:text-sm text-gray-900 dark:text-white focus:border-amber-500 font-medium transition-colors"
               />
             </div>
 
@@ -125,9 +153,10 @@ export default function ComproRequestModal({ isOpen, onClose, siteName = 'PT Emp
               <input
                 type="text"
                 name="company"
+                autoComplete="organization"
                 required
                 placeholder="Contoh: PT Manufaktur Perkasa Nusantara"
-                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:border-amber-500 font-medium transition-colors"
+                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-base sm:text-sm text-gray-900 dark:text-white focus:border-amber-500 font-medium transition-colors"
               />
             </div>
 
@@ -140,9 +169,11 @@ export default function ComproRequestModal({ isOpen, onClose, siteName = 'PT Emp
                 <input
                   type="email"
                   name="email"
+                  inputMode="email"
+                  autoComplete="email"
                   required
                   placeholder="ahmad@perusahaan.com"
-                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:border-amber-500 font-medium transition-colors"
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-base sm:text-sm text-gray-900 dark:text-white focus:border-amber-500 font-medium transition-colors"
                 />
               </div>
               <div className="space-y-1.5">
@@ -153,9 +184,11 @@ export default function ComproRequestModal({ isOpen, onClose, siteName = 'PT Emp
                 <input
                   type="tel"
                   name="phone"
+                  inputMode="tel"
+                  autoComplete="tel"
                   required
                   placeholder="08123456789"
-                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:border-amber-500 font-medium transition-colors"
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-base sm:text-sm text-gray-900 dark:text-white focus:border-amber-500 font-medium transition-colors"
                 />
               </div>
             </div>
@@ -169,13 +202,23 @@ export default function ComproRequestModal({ isOpen, onClose, siteName = 'PT Emp
                 name="notes"
                 rows={2}
                 placeholder="Contoh: Kebutuhan alih daya 50 personel security dan cleaning service..."
-                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl p-3 text-sm text-gray-900 dark:text-white focus:border-amber-500 font-medium resize-none transition-colors"
+                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl p-3 text-base sm:text-sm text-gray-900 dark:text-white focus:border-amber-500 font-medium resize-none transition-colors"
               ></textarea>
             </div>
 
-            <p className="text-[10px] text-gray-500 dark:text-gray-400">
-              * Data kontak Anda aman dan hanya digunakan untuk keperluan pengiriman dokumen resmi serta penawaran kerjasama ketenagakerjaan.
-            </p>
+            <label className="flex items-start gap-2 cursor-pointer text-gray-600 dark:text-gray-300">
+              <input
+                type="checkbox"
+                required
+                className="mt-0.5 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+              />
+              <span className="text-[11px] sm:text-xs">
+                Saya menyetujui data kontak saya digunakan untuk pengiriman Company Profile dan penawaran resmi sesuai{' '}
+                <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="underline font-bold text-amber-600 dark:text-amber-400">
+                  Kebijakan Privasi
+                </a>.
+              </span>
+            </label>
 
             <button
               type="submit"

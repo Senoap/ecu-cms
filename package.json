@@ -13,6 +13,7 @@
     "start:stg": "node scripts/start-with-env.mjs stg start",
     "start:prod": "node scripts/start-with-env.mjs prod start",
     "lint": "eslint",
+    "test:unit": "node scripts/run-unit-tests.mjs",
     "test:e2e": "node scratch-test/e2e.mjs",
     "db:migrate": "node scripts/migrate-to-supabase.mjs stg",
     "db:migrate:stg": "node scripts/migrate-to-supabase.mjs stg",
@@ -24,12 +25,10 @@
     "storage:clean:prod": "node scripts/cleanup-storage.mjs prod"
   },
   "dependencies": {
-    "@prisma/client": "^7.10.0",
     "@supabase/supabase-js": "^2.112.4",
     "lucide-react": "^1.37.0",
     "next": "16.3.3",
     "nodemailer": "^10.1.2",
-    "prisma": "^8.0.0-rc.12",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "sharp": "^0.35.4",
@@ -45,5 +44,8 @@
     "eslint-config-next": "16.3.3",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=24.0.0"
   }
 }

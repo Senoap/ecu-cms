@@ -34,16 +34,32 @@ export function validatePdfBuffer(buffer: Buffer): { valid: boolean; message?: s
 }
 
 /**
- * Validasi biner gambar (PNG, JPEG, WEBP)
- * Secara tegas menolak berkas SVG/HTML untuk mencegah serangan Stored XSS melalui gambar.
+ * Sanitasi konten SVG untuk membersihkan script berbahaya (mencegah Stored XSS)
+ */
+export function sanitizeSvgContent(svgString: string): string {
+  return svgString
+    // Hapus script tag dan isinya
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    // Hapus event handler inline seperti onload, onclick, onerror, dll.
+    .replace(/\son[a-z]+\s*=\s*(['"]).*?\1/gi, '')
+    .replace(/\son[a-z]+\s*=\s*[^>\s]+/gi, '')
+    // Hapus tautan berbahaya javascript:
+    .replace(/href\s*=\s*(['"])javascript:.*?\1/gi, 'href="#"')
+    .replace(/xlink:href\s*=\s*(['"])javascript:.*?\1/gi, 'xlink:href="#"')
+}
+
+/**
+ * Validasi biner gambar untuk SEMUA jenis format berkas gambar:
+ * Mendukung PNG, JPG/JPEG, WEBP, GIF, BMP, TIFF, AVIF, HEIC, ICO, dan SVG.
  */
 export function validateImageBuffer(buffer: Buffer): { valid: boolean; mime?: string; message?: string } {
-  if (!buffer || buffer.length < 8) {
+  if (!buffer || buffer.length < 4) {
     return { valid: false, message: 'Berkas gambar terlalu kecil atau kosong.' }
   }
 
   // 1. Cek PNG: 89 50 4E 47 0D 0A 1A 0A
   if (
+    buffer.length >= 8 &&
     buffer[0] === 0x89 &&
     buffer[1] === 0x50 &&
     buffer[2] === 0x4E &&
@@ -70,17 +86,67 @@ export function validateImageBuffer(buffer: Buffer): { valid: boolean; mime?: st
     return { valid: true, mime: 'image/webp' }
   }
 
-  // Tolak format yang rentan atau tidak didukung
-  const prefixAscii = buffer.subarray(0, 50).toString('utf-8').toLowerCase()
-  if (prefixAscii.includes('<svg') || prefixAscii.includes('<?xml') || prefixAscii.includes('<html') || prefixAscii.includes('<script')) {
+  // 4. Cek GIF: 47 49 46 38 (GIF87a / GIF89a)
+  if (
+    buffer.length >= 6 &&
+    buffer[0] === 0x47 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x38
+  ) {
+    return { valid: true, mime: 'image/gif' }
+  }
+
+  // 5. Cek BMP: 42 4D (BM)
+  if (buffer[0] === 0x42 && buffer[1] === 0x4D) {
+    return { valid: true, mime: 'image/bmp' }
+  }
+
+  // 6. Cek TIFF: 49 49 2A 00 (Little Endian) atau 4D 4D 00 2A (Big Endian)
+  if (
+    buffer.length >= 4 &&
+    ((buffer[0] === 0x49 && buffer[1] === 0x49 && buffer[2] === 0x2A && buffer[3] === 0x00) ||
+     (buffer[0] === 0x4D && buffer[1] === 0x4D && buffer[2] === 0x00 && buffer[3] === 0x2A))
+  ) {
+    return { valid: true, mime: 'image/tiff' }
+  }
+
+  // 7. Cek AVIF / HEIC / HEIF: berisi 'ftyp' di 4-12 byte pertama
+  if (buffer.length >= 12) {
+    const ftyp = buffer.subarray(4, 12).toString('ascii')
+    if (ftyp.includes('ftyp')) {
+      if (ftyp.includes('avif') || ftyp.includes('avis')) {
+        return { valid: true, mime: 'image/avif' }
+      }
+      return { valid: true, mime: 'image/heic' }
+    }
+  }
+
+  // 8. Cek ICO: 00 00 01 00
+  if (buffer.length >= 4 && buffer[0] === 0x00 && buffer[1] === 0x00 && buffer[2] === 0x01 && buffer[3] === 0x00) {
+    return { valid: true, mime: 'image/x-icon' }
+  }
+
+  // 9. Cek SVG: Berkas teks XML yang diawali <svg atau <?xml dan memuat elemen <svg
+  const sample = buffer.subarray(0, Math.min(buffer.length, 1024)).toString('utf-8').trim().toLowerCase()
+  if (sample.includes('<svg') || (sample.startsWith('<?xml') && sample.includes('<svg'))) {
+    // Pastikan tidak ada tag script jahat langsung
+    if (sample.includes('<script') || sample.includes('javascript:')) {
+      return {
+        valid: false,
+        message: 'Berkas SVG memuat kode skrip berbahaya (JavaScript) yang dilarang demi keamanan.',
+      }
+    }
+    return { valid: true, mime: 'image/svg+xml' }
+  }
+
+  // Tolak berkas yang bukan gambar sama sekali (HTML murni, executable, dll)
+  if (sample.startsWith('<!doctype html') || sample.startsWith('<html') || sample.startsWith('<body')) {
     return {
       valid: false,
-      message: 'Berkas SVG / XML / HTML tidak diizinkan demi alasan keamanan XSS. Harap gunakan format PNG, JPG, atau WEBP.',
+      message: 'Berkas HTML tidak diizinkan. Harap unggah berkas gambar yang sah.',
     }
   }
 
   return {
     valid: false,
-    message: 'Format gambar tidak didukung. Harap unggah berkas PNG, JPG, JPEG, atau WEBP.',
+    message: 'Format gambar tidak dikenali. Harap unggah berkas gambar seperti PNG, JPG, JPEG, WEBP, GIF, SVG, BMP, AVIF, atau TIFF.',
   }
 }

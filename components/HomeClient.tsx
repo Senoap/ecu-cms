@@ -9,9 +9,12 @@ import GallerySectionClient from '@/components/GallerySectionClient'
 import HeroShowcaseCard from '@/components/HeroShowcaseCard'
 import { DynamicIcon } from '@/components/DynamicIcon'
 import { useLanguage } from '@/components/LanguageContext'
+import { useSmartViewport } from '@/components/SmartViewportProvider'
 import { DatabaseContent, SectionConfig, PortfolioItem, CareerItem } from '@/lib/db'
 import { MapPin, Phone, Mail, MessageSquare, Sun, Moon, ChevronDown } from 'lucide-react'
 import ScheduledContentBanner from '@/components/ScheduledContentBanner'
+import { formatWhatsAppNumber } from '@/lib/phone'
+import { openCookieSettings } from '@/lib/cookieConsent'
 
 export default function HomeClient({ db }: { db: DatabaseContent }) {
   const [isDarkMode, setIsDarkMode] = useState(false)
@@ -20,22 +23,32 @@ export default function HomeClient({ db }: { db: DatabaseContent }) {
   const [showAllPortfolios, setShowAllPortfolios] = useState(false)
   const [showAllCareers, setShowAllCareers] = useState(false)
   const contactRef = useRef<HTMLDivElement>(null)
+  const { isCompactViewport, isShortViewport, isQuadSplit } = useSmartViewport()
 
   // Sinkronisasi tema khusus website publik menggunakan key 'esu_site_theme'
   useEffect(() => {
     const syncTheme = () => {
       const savedTheme = localStorage.getItem('esu_site_theme')
-      const dark = savedTheme === 'dark'
+      const dark = savedTheme === 'dark' || (!savedTheme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
       setIsDarkMode(dark)
       if (dark) {
         document.documentElement.classList.add('dark')
+        document.documentElement.style.colorScheme = 'dark'
       } else {
         document.documentElement.classList.remove('dark')
+        document.documentElement.style.colorScheme = 'light'
       }
     }
     syncTheme()
     window.addEventListener('esu-theme-change', syncTheme)
-    return () => window.removeEventListener('esu-theme-change', syncTheme)
+    window.addEventListener('storage', syncTheme)
+    const media = window.matchMedia('(prefers-color-scheme: dark)')
+    media.addEventListener?.('change', syncTheme)
+    return () => {
+      window.removeEventListener('esu-theme-change', syncTheme)
+      window.removeEventListener('storage', syncTheme)
+      media.removeEventListener?.('change', syncTheme)
+    }
   }, [])
 
   // Event listener untuk scroll & menutup popover ketika klik di luar area
@@ -71,8 +84,10 @@ export default function HomeClient({ db }: { db: DatabaseContent }) {
     localStorage.setItem('esu_site_theme', nextMode ? 'dark' : 'light')
     if (nextMode) {
       document.documentElement.classList.add('dark')
+      document.documentElement.style.colorScheme = 'dark'
     } else {
       document.documentElement.classList.remove('dark')
+      document.documentElement.style.colorScheme = 'light'
     }
     window.dispatchEvent(new Event('esu-theme-change'))
   }
@@ -85,15 +100,15 @@ export default function HomeClient({ db }: { db: DatabaseContent }) {
     })
   }
 
-  const { locale, t, getFallbackContent } = useLanguage()
+  const { t } = useLanguage()
   const { setting, hero, about, servicesHeader, portfolioHeader, careerHeader, galleryHeader, footer, sections } = db
   const activeSections = (sections || []).filter((sec: SectionConfig) => sec.isVisible)
 
-  // Konten Hero terjemahan bilingual
-  const heroBadge = (locale === 'en' && !hero.badge) ? t.hero.badge : (hero.badge || t.hero.badge)
-  const heroTitleLine1 = (locale === 'en' && !hero.titleLine1) ? t.hero.titleLine1 : (hero.titleLine1 || t.hero.titleLine1)
-  const heroTitleHighlight = (locale === 'en' && !hero.titleHighlight) ? t.hero.titleHighlight : (hero.titleHighlight || t.hero.titleHighlight)
-  const heroDesc = (locale === 'en' && !hero.description) ? t.hero.description : (hero.description || t.hero.description)
+  // Konten Hero
+  const heroBadge = hero.badge || t.hero.badge
+  const heroTitleLine1 = hero.titleLine1 || t.hero.titleLine1
+  const heroTitleHighlight = hero.titleHighlight || t.hero.titleHighlight
+  const heroDesc = hero.description || t.hero.description
 
   return (
     <div
@@ -110,7 +125,7 @@ export default function HomeClient({ db }: { db: DatabaseContent }) {
       )}
 
       {/* Overlay Tipis agar teks tetap kontras terbaca di atas background foto */}
-      <div className={`absolute inset-0 pointer-events-none fixed z-0 ${
+      <div className={`fixed inset-0 pointer-events-none z-0 ${
         isDarkMode ? 'bg-black/90' : 'bg-[#F9F8F5]/92'
       }`}></div>
 
@@ -126,6 +141,7 @@ export default function HomeClient({ db }: { db: DatabaseContent }) {
           logoUrl={setting.logoUrl}
           showLeadership={setting.showLeadership !== false}
           showCertifications={setting.showCertifications !== false}
+          showCompro={setting.showCompro !== false}
           leadershipLabel={setting.leadershipLabel || 'Profil Pimpinan'}
         />
 
@@ -150,15 +166,36 @@ export default function HomeClient({ db }: { db: DatabaseContent }) {
               const isShowcaseActive = showcaseConfig?.enabled !== false
 
               return (
-                <section key={sec.id} id="home" className="min-h-screen w-full relative py-24 md:py-28 px-4 sm:px-8 md:px-20 bg-transparent border-b border-gray-200/10 overflow-hidden flex flex-col justify-center">
+                <section key={sec.id} id="home" data-smart-container className={`w-full relative bg-transparent border-b border-gray-200/10 overflow-hidden flex flex-col justify-center ${
+                  isShortViewport || isQuadSplit
+                    ? 'min-h-auto py-16 sm:py-20 px-4 sm:px-6'
+                    : 'min-h-screen min-h-[100dvh] py-20 md:py-28 px-4 sm:px-8 md:px-20'
+                }`}>
                   <div className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-5 pointer-events-none blur-3xl" style={{ backgroundColor: setting.primaryColor }}></div>
 
-                  <div className={`max-w-7xl mx-auto items-center relative z-10 w-full gap-10 md:gap-14 ${
-                    isShowcaseActive ? 'grid grid-cols-1 md:grid-cols-2' : 'flex flex-col max-w-4xl text-center mx-auto'
+                  <div className={`max-w-7xl mx-auto items-center relative z-10 w-full gap-8 md:gap-14 ${
+                    isShowcaseActive
+                      ? isQuadSplit || isCompactViewport
+                        ? 'grid grid-cols-1'
+                        : 'grid grid-cols-1 md:grid-cols-2'
+                      : 'flex flex-col max-w-4xl text-center mx-auto'
                   }`}>
-                    <div className={`space-y-6 sm:space-y-7 ${!isShowcaseActive ? 'flex flex-col items-center' : ''}`}>
-                      {/* Judul Utama Responsif */}
-                      <h1 className={`text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[1.1] sm:leading-[1.08] ${
+                    <div className={`space-y-5 sm:space-y-7 ${!isShowcaseActive ? 'flex flex-col items-center' : ''}`}>
+                      {/* Badge / Slogan Korporat */}
+                      {heroBadge && (
+                        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase border border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-400 w-fit">
+                          <span>{heroBadge}</span>
+                        </div>
+                      )}
+
+                      {/* Judul Utama Responsif & Dinamis Multi-Window */}
+                      <h1 className={`font-black tracking-tight leading-[1.1] sm:leading-[1.08] ${
+                        isQuadSplit
+                          ? 'text-3xl sm:text-4xl'
+                          : isCompactViewport
+                            ? 'text-3xl sm:text-5xl md:text-6xl'
+                            : 'text-4xl sm:text-6xl md:text-7xl lg:text-8xl'
+                      } ${
                         isDarkMode ? 'text-white' : 'text-gray-900'
                       }`}>
                         {heroTitleLine1} <br />
@@ -244,15 +281,15 @@ export default function HomeClient({ db }: { db: DatabaseContent }) {
               )
 
             case 'portfolio':
-              const portTag = (locale === 'en' && !portfolioHeader.tag) ? t.portfolio.tag : (portfolioHeader.tag || t.portfolio.tag)
-              const portHeading = (locale === 'en' && !portfolioHeader.heading) ? t.portfolio.heading : (portfolioHeader.heading || t.portfolio.heading)
-              const portNote = (locale === 'en' && !portfolioHeader.note) ? t.portfolio.note : (portfolioHeader.note || '')
+              const portTag = portfolioHeader.tag || t.portfolio.tag
+              const portHeading = portfolioHeader.heading || t.portfolio.heading
+              const portNote = portfolioHeader.note || ''
 
               const allPortfolios = db.portfolios || []
               const displayedPortfolios = showAllPortfolios ? allPortfolios : allPortfolios.slice(0, 3)
 
               return (
-                <section key={sec.id} id="portfolio" className="min-h-screen w-full py-24 md:py-28 px-4 sm:px-8 md:px-20 max-w-7xl mx-auto flex flex-col justify-center space-y-12">
+                <section key={sec.id} id="portfolio" className="w-full py-20 md:py-28 px-4 sm:px-8 md:px-20 max-w-7xl mx-auto flex flex-col justify-center space-y-12 scroll-mt-20">
                   <div className="space-y-3.5 text-center">
                     <span className={`inline-block text-xs md:text-sm font-extrabold tracking-widest uppercase px-3.5 py-1.5 rounded-xl border shadow-sm ${
                       isDarkMode ? 'bg-amber-500/10 border-amber-500/30 text-amber-400' : 'bg-amber-50 border-amber-200/60 text-amber-800'
@@ -265,11 +302,12 @@ export default function HomeClient({ db }: { db: DatabaseContent }) {
                     <div className="w-12 h-1 bg-amber-500 mx-auto rounded-full mt-2.5"></div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                  <div className={`grid gap-6 sm:gap-8 ${
+                    isQuadSplit ? 'grid-cols-1' : isCompactViewport ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+                  }`}>
                     {displayedPortfolios.map((item: PortfolioItem) => {
-                      const fb = getFallbackContent('portfolios', item.id)
-                      const itemName = (locale === 'en' && fb?.name) ? fb.name : item.name
-                      const itemDesc = (locale === 'en' && fb?.desc) ? fb.desc : item.desc
+                      const itemName = item.name
+                      const itemDesc = item.desc
 
                       return (
                         <div
@@ -341,15 +379,15 @@ export default function HomeClient({ db }: { db: DatabaseContent }) {
               )
 
             case 'career':
-              const crTag = (locale === 'en' && !careerHeader?.tag) ? t.career.tag : (careerHeader?.tag || sec.subtitle || t.career.tag)
-              const crHeading = (locale === 'en' && !careerHeader?.heading) ? t.career.heading : (careerHeader?.heading || sec.title || t.career.heading)
-              const crNote = (locale === 'en' && !careerHeader?.note) ? t.career.note : (careerHeader?.note || '')
+              const crTag = careerHeader?.tag || sec.subtitle || t.career.tag
+              const crHeading = careerHeader?.heading || sec.title || t.career.heading
+              const crNote = careerHeader?.note || ''
 
               const activeJobs = (db.career || []).filter((job: CareerItem) => job.isActive)
               const displayedCareers = showAllCareers ? activeJobs : activeJobs.slice(0, 2)
 
               return (
-                <section key={sec.id} id="career" className="min-h-screen w-full py-24 md:py-28 px-4 sm:px-8 md:px-20 max-w-7xl mx-auto flex flex-col justify-center space-y-12">
+                <section key={sec.id} id="career" className="w-full py-20 md:py-28 px-4 sm:px-8 md:px-20 max-w-7xl mx-auto flex flex-col justify-center space-y-12 scroll-mt-20">
                   <div className="space-y-3.5 text-center">
                     <span className={`inline-block text-xs md:text-sm font-extrabold tracking-widest uppercase px-3.5 py-1.5 rounded-xl border shadow-sm ${
                       isDarkMode ? 'bg-amber-500/10 border-amber-500/30 text-amber-400' : 'bg-amber-50 border-amber-200/60 text-amber-800'
@@ -362,7 +400,9 @@ export default function HomeClient({ db }: { db: DatabaseContent }) {
                     <div className="w-12 h-1 bg-amber-500 mx-auto rounded-full mt-2.5"></div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+                  <div className={`grid gap-6 sm:gap-8 ${
+                    isQuadSplit ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'
+                  }`}>
                     {activeJobs.length === 0 ? (
                       <div className={`col-span-full text-center py-16 rounded-2xl border shadow-sm ${
                         isDarkMode ? 'bg-gray-900/80 border-gray-800 text-gray-400' : 'bg-white border-gray-200 text-gray-600'
@@ -371,11 +411,10 @@ export default function HomeClient({ db }: { db: DatabaseContent }) {
                       </div>
                     ) : (
                       displayedCareers.map((job: CareerItem) => {
-                        const fb = getFallbackContent('career', job.id)
-                        const jobTitle = (locale === 'en' && fb?.title) ? fb.title : job.title
-                        const jobDesc = (locale === 'en' && fb?.desc) ? fb.desc : job.desc
-                        const jobReq = (locale === 'en' && fb?.requirements) ? fb.requirements : job.requirements
-                        const jobLoc = (locale === 'en' && fb?.location) ? fb.location : job.location
+                        const jobTitle = job.title
+                        const jobDesc = job.desc
+                        const jobReq = job.requirements
+                        const jobLoc = job.location
 
                         return (
                           <div key={job.id} className={`p-6 sm:p-8 rounded-2xl border shadow-sm transition-all duration-300 flex flex-col justify-between space-y-6 group hover:-translate-y-1 hover:shadow-xl ${
@@ -617,7 +656,7 @@ export default function HomeClient({ db }: { db: DatabaseContent }) {
                                   <Phone className="w-4 h-4" /> {t.footer.call}
                                 </a>
                                 <a
-                                  href={`https://wa.me/${(footer.whatsapp || footer.phone || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(footer.inquiryTemplates?.waMessage || 'Halo, saya ingin bertanya tentang layanan Anda.')}`}
+                                  href={`https://wa.me/${formatWhatsAppNumber(footer.whatsapp || footer.phone)}?text=${encodeURIComponent(footer.inquiryTemplates?.waMessage || 'Halo, saya ingin bertanya tentang layanan Anda.')}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   onClick={() => setShowContactActions(false)}
@@ -670,6 +709,13 @@ export default function HomeClient({ db }: { db: DatabaseContent }) {
                         )}
                         <Link href="/privacy-policy" className="hover:text-amber-300 transition-colors">{t.footer.privacyPolicy}</Link>
                         <Link href="/terms" className="hover:text-amber-300 transition-colors">{t.footer.termsOfService}</Link>
+                        <button
+                          type="button"
+                          onClick={openCookieSettings}
+                          className="hover:text-amber-300 transition-colors cursor-pointer text-left"
+                        >
+                          {t.footer.cookieSettings || 'Pengaturan Cookie'}
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -678,7 +724,7 @@ export default function HomeClient({ db }: { db: DatabaseContent }) {
 
             default:
               return (
-                <section key={sec.id} id={sec.id} className="min-h-screen w-full py-28 px-6 md:px-20 max-w-7xl mx-auto flex flex-col justify-center space-y-12">
+                <section key={sec.id} id={sec.id} className="w-full py-20 md:py-28 px-6 md:px-20 max-w-7xl mx-auto flex flex-col justify-center space-y-12 scroll-mt-20">
                   <div className="space-y-4">
                     <span className={`inline-block text-xs md:text-sm font-black tracking-widest uppercase px-4 py-2 rounded-full border shadow-sm ${isDarkMode ? 'bg-amber-500/10 border-amber-500/30 text-amber-400' : 'bg-amber-50 border-amber-200/60 text-amber-800'
                       }`}>

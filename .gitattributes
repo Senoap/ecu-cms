@@ -1,0 +1,14 @@
+# Set default behavior to use LF line endings
+* text=auto eol=lf
+
+# Force bash and sql scripts to LF so Linux execution does not fail with \r
+*.sh text eol=lf
+*.sql text eol=lf
+*.mjs text eol=lf
+*.js text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.conf text eol=lf

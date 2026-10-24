@@ -24,25 +24,36 @@ export {
 
 let lastSupabaseFailure = 0
 const SUPABASE_COOLDOWN_MS = 15000 // Cooldown 15 detik jika backend Supabase tidak aktif/mati
+let cachedSupabaseClient: SupabaseClient | null = null
+let cachedSupabaseKey = ''
 
 function getSupabase(): SupabaseClient | null {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+  const supabaseUrl = process.env.SUPABASE_REST_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+  const hasServiceRole = Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY)
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
   if (!supabaseUrl || !supabaseKey) return null
+
+  if (!hasServiceRole && process.env.NODE_ENV === 'production') {
+    console.warn('[SECURITY] SUPABASE_SERVICE_ROLE_KEY belum diatur di production! Operasi mutasi database CMS berisiko gagal jika Row Level Security (RLS) diaktifkan.')
+  }
 
   // Jika Supabase baru saja gagal dihubungi (misal Docker lokal belum menyala), langsung fallback ke lokal tanpa delay
   if (Date.now() - lastSupabaseFailure < SUPABASE_COOLDOWN_MS) {
     return null
   }
 
+  if (cachedSupabaseClient && cachedSupabaseKey === supabaseKey) {
+    return cachedSupabaseClient
+  }
+
   try {
-    return createClient(supabaseUrl, supabaseKey, {
+    const client = createClient(supabaseUrl, supabaseKey, {
       auth: { persistSession: false },
       global: {
         fetch: (url, options) => {
           return fetch(url, {
             ...options,
-            signal: AbortSignal.timeout(1500), // Timeout cepat 1.5 detik agar tidak menggantung berdetik-detik
+            signal: AbortSignal.timeout(4000), // Timeout 4 detik untuk latensi cloud yang lebih stabil
           }).catch((err) => {
             lastSupabaseFailure = Date.now()
             throw err
@@ -50,6 +61,9 @@ function getSupabase(): SupabaseClient | null {
         },
       },
     })
+    cachedSupabaseClient = client
+    cachedSupabaseKey = supabaseKey
+    return client
   } catch {
     lastSupabaseFailure = Date.now()
     return null
@@ -535,7 +549,7 @@ export const defaultCertifications: CertificationItem[] = [
     id: 'cert-1',
     title: 'ISO 9001:2015 - Sistem Manajemen Mutu',
     issuer: 'Badan Sertifikasi Mutu Internasional',
-    certNumber: 'QMS/2024/ESU-88912',
+    certNumber: 'QMS/2024/4SU-88912',
     issueDate: '15 Januari 2024',
     expiryDate: '14 Januari 2027',
     desc: 'Standar pengakuan internasional untuk mutu pelayanan jasa penyedia tenaga kerja, manajemen fasilitas, dan sistem operasional alih daya yang konsisten dan prima.',
@@ -548,7 +562,7 @@ export const defaultCertifications: CertificationItem[] = [
     id: 'cert-2',
     title: 'ISO 45001:2018 - Keselamatan & Kesehatan Kerja (K3)',
     issuer: 'Badan Akreditasi K3 Internasional',
-    certNumber: 'OHSAS/2023/ESU-45019',
+    certNumber: 'OHSAS/2023/4SU-45019',
     issueDate: '20 Mei 2023',
     expiryDate: '19 Mei 2026',
     desc: 'Sertifikasi kepatuhan sistem manajemen keselamatan dan kesehatan kerja guna menjamin perlindungan maksimal bagi seluruh personel lapangan dan aset mitra.',
@@ -945,6 +959,83 @@ export async function initializeSupabaseDB() {
   }
 }
 
+/**
+ * Memfilter konten terjadwal yang telah kedaluwarsa lebih dari 7 hari (H+7).
+ * Konten dengan endDate + 7 hari < waktu sekarang otomatis terhapus permanen.
+ */
+export function filterExpiredScheduledContentsH7(
+  items?: ScheduledContentItem[]
+): { kept: ScheduledContentItem[]; purged: ScheduledContentItem[] } {
+  if (!items || items.length === 0) return { kept: [], purged: [] }
+  const now = Date.now()
+  const kept: ScheduledContentItem[] = []
+  const purged: ScheduledContentItem[] = []
+
+  for (const item of items) {
+    if (!item.endDate) {
+      kept.push(item)
+      continue
+    }
+    // Akhir hari tanggal berakhir tayang (23:59:59.999)
+    const endDateTime = new Date(`${item.endDate}T23:59:59.999Z`).getTime()
+    if (isNaN(endDateTime)) {
+      kept.push(item)
+      continue
+    }
+    // H+7: 7 hari pasca tanggal kedaluwarsa (7 * 86,400,000 ms = 604,800,000 ms)
+    const purgeThreshold = endDateTime + (7 * 24 * 60 * 60 * 1000)
+    if (now > purgeThreshold) {
+      purged.push(item)
+    } else {
+      kept.push(item)
+    }
+  }
+
+  return { kept, purged }
+}
+
+/**
+ * Pembersihan otomatis konten terjadwal kedaluwarsa H+7.
+ * Menghapus data dari db dan berkas fisik gambar di media penyimpanan.
+ */
+export async function autoPurgeExpiredScheduledContents(): Promise<{ purgedCount: number; purgedTitles: string[] }> {
+  try {
+    const db = await readDB()
+    const { kept, purged } = filterExpiredScheduledContentsH7(db.scheduledContents)
+    if (purged.length === 0) {
+      return { purgedCount: 0, purgedTitles: [] }
+    }
+
+    // Hapus berkas gambar yang tersimpan jika ada
+    for (const item of purged) {
+      if (item.imageUrl) {
+        const fileName = item.imageUrl.split('/').pop()
+        if (fileName) {
+          try {
+            await deleteFile(fileName)
+          } catch {
+            // Abaikan error penghapusan berkas fisik
+          }
+        }
+      }
+    }
+
+    db.scheduledContents = kept
+    if (db.published?.scheduledContents) {
+      db.published.scheduledContents = filterExpiredScheduledContentsH7(db.published.scheduledContents).kept
+    }
+
+    await writeDB(db)
+    const titles = purged.map((p) => p.title)
+    console.log(`[Auto-Purge H+7] Otomatis menghapus ${purged.length} konten terjadwal kedaluwarsa H+7: ${titles.join(', ')}`)
+
+    return { purgedCount: purged.length, purgedTitles: titles }
+  } catch (err) {
+    console.error('Gagal menjalankan autoPurgeExpiredScheduledContents:', err)
+    return { purgedCount: 0, purgedTitles: [] }
+  }
+}
+
 function processParsedData(parsed: Partial<Database>): Database {
   const sections: SectionConfig[] = (parsed.sections as SectionConfig[]) || (parsed.published?.sections as SectionConfig[]) || defaultData.sections
   if (!sections.some((s: SectionConfig) => s.id === 'scheduled-content')) {
@@ -1010,14 +1101,32 @@ function processParsedData(parsed: Partial<Database>): Database {
     portfolios: (parsed.portfolios as PortfolioItem[]) || (parsed.published?.portfolios as PortfolioItem[]) || defaultData.portfolios,
     career: (parsed.career as CareerItem[]) || (parsed.published?.career as CareerItem[]) || defaultData.career,
     galleries: parsed.galleries || parsed.published?.galleries || defaultData.galleries,
-    scheduledContents: (parsed.scheduledContents as ScheduledContentItem[]) || (parsed.published?.scheduledContents as ScheduledContentItem[]) || [],
-    cmsUsers: (parsed.cmsUsers as CmsUser[]) || [],
+    scheduledContents: filterExpiredScheduledContentsH7(
+      (parsed.scheduledContents as ScheduledContentItem[]) || (parsed.published?.scheduledContents as ScheduledContentItem[]) || []
+    ).kept,
+    cmsUsers: ((parsed.cmsUsers as Array<CmsUser & { mustChangePassword?: boolean }>) || []).map((u) => {
+      const { mustChangePassword, ...rest } = u
+      return {
+        ...rest,
+        mustResetPassword: Boolean(u.mustResetPassword ?? mustChangePassword),
+      }
+    }),
     careerTemplates: (parsed.careerTemplates && parsed.careerTemplates.length > 0) ? parsed.careerTemplates : defaultCareerTemplates,
     privacyPolicy: (parsed.privacyPolicy as LegalContent) || (parsed.published?.privacyPolicy as LegalContent) || defaultPrivacyPolicy,
     termsOfService: (parsed.termsOfService as LegalContent) || (parsed.published?.termsOfService as LegalContent) || defaultTermsOfService,
     directors: (parsed.directors && parsed.directors.length > 0) ? parsed.directors : ((parsed.published?.directors && parsed.published.directors.length > 0) ? parsed.published.directors : defaultDirectors),
     certifications: (parsed.certifications && parsed.certifications.length > 0) ? parsed.certifications : ((parsed.published?.certifications && parsed.published.certifications.length > 0) ? parsed.published.certifications : defaultCertifications),
     comproEmailTemplate: parsed.comproEmailTemplate || parsed.published?.comproEmailTemplate || defaultComproEmailTemplate,
+    leadershipPage: {
+      ...defaultLeadershipPageConfig,
+      ...(parsed.published?.leadershipPage || {}),
+      ...(parsed.leadershipPage || {}),
+    },
+    certificationsPage: {
+      ...defaultCertificationsPageConfig,
+      ...(parsed.published?.certificationsPage || {}),
+      ...(parsed.certificationsPage || {}),
+    },
     published,
     notifications: parsed.notifications || [],
     auditLogs: parsed.auditLogs || [],
@@ -1038,20 +1147,21 @@ function processParsedData(parsed: Partial<Database>): Database {
   }
 }
 
-// Helper aman untuk fs dan path agar bundler Turbopack / client tidak berusaha membundel node built-in
-function getFs() {
+// Helper aman untuk fs dan path agar bundler Turbopack / client tidak membundel node built-in
+async function getFs() {
   if (typeof window !== 'undefined') return null
   try {
-    return eval("require('fs')").promises
+    return (await import('node:fs')).promises
   } catch {
     return null
   }
 }
 
-function getPath() {
+async function getPath() {
   if (typeof window !== 'undefined') return null
   try {
-    return eval("require('path')")
+    const p = await import('node:path')
+    return p.default || p
   } catch {
     return null
   }
@@ -1068,7 +1178,9 @@ export async function readDB(): Promise<Database> {
         .single()
 
       if (!error && data && data.data) {
-        return processParsedData(data.data as Partial<Database>)
+        const parsed = processParsedData(data.data as Partial<Database>)
+        ;(parsed as unknown as Record<string, unknown>)._readSource = 'supabase'
+        return parsed
       }
       if (error) {
         lastSupabaseFailure = Date.now()
@@ -1081,12 +1193,13 @@ export async function readDB(): Promise<Database> {
 
   // Fallback: baca dari data/db.json jika ada
   try {
-    const fs = getFs()
-    const path = getPath()
+    const fs = await getFs()
+    const path = await getPath()
     if (!fs || !path) return defaultData
-    const localContent = await fs.readFile(path.join(process.cwd(), 'data/db.json'), 'utf-8')
-    const parsed = JSON.parse(localContent)
-    return processParsedData(parsed)
+    const localContent = await fs.readFile(path.join(process.cwd(), 'data', 'db.json'), 'utf-8')
+    const parsed = processParsedData(JSON.parse(localContent))
+    ;(parsed as unknown as Record<string, unknown>)._readSource = 'local'
+    return parsed
   } catch {
     return defaultData
   }
@@ -1134,6 +1247,15 @@ export async function readPublishedDB(): Promise<DatabaseContent> {
   if (!pub.comproEmailTemplate) {
     pub.comproEmailTemplate = db.comproEmailTemplate || defaultComproEmailTemplate
   }
+  if (!pub.leadershipPage) {
+    pub.leadershipPage = db.leadershipPage || defaultLeadershipPageConfig
+  }
+  if (!pub.certificationsPage) {
+    pub.certificationsPage = db.certificationsPage || defaultCertificationsPageConfig
+  }
+  if (pub.setting && typeof pub.setting.showCompro !== 'boolean') {
+    pub.setting.showCompro = typeof db.setting?.showCompro === 'boolean' ? db.setting.showCompro : true
+  }
   if (!pub.footer) {
     pub.footer = { ...defaultDataContent.footer }
   }
@@ -1148,16 +1270,48 @@ export async function readPublishedDB(): Promise<DatabaseContent> {
 }
 
 async function writeSupabaseRaw(data: Database) {
+  // Pastikan konten kedaluwarsa H+7 otomatis terhapus saat penulisan database
+  if (data.scheduledContents) {
+    data.scheduledContents = filterExpiredScheduledContentsH7(data.scheduledContents).kept
+  }
+  if (data.published?.scheduledContents) {
+    data.published.scheduledContents = filterExpiredScheduledContentsH7(data.published.scheduledContents).kept
+  }
   let supabaseSuccess = false
+
+  // Optimistic versioning & timestamp (T2)
+  const currentRecord = data as unknown as Record<string, unknown>
+  currentRecord.version = (Number(currentRecord.version) || 0) + 1
+  currentRecord.updatedAt = Date.now()
+
   try {
     const client = getSupabase()
     if (client) {
+      // Jika data dibaca dari fallback lokal di production, cegah menimpa data Supabase yang lebih baru (T3)
+      if (currentRecord._readSource === 'local' && process.env.NODE_ENV === 'production') {
+        const { data: currentCloud } = await client
+          .from('site_content')
+          .select('data')
+          .eq('id', 1)
+          .single()
+
+        if (currentCloud && currentCloud.data) {
+          const cloudVersion = Number((currentCloud.data as Record<string, unknown>).version) || 0
+          const localVersion = Number(currentRecord.version) || 0
+          if (cloudVersion >= localVersion) {
+            console.warn('[DB INTEGRITY] Penulisan dibatalkan: data lokal terdeteksi usang dibandingkan data Supabase cloud.')
+            return
+          }
+        }
+      }
+
       const { error } = await client
         .from('site_content')
         .upsert({ id: 1, data })
 
       if (!error) {
         supabaseSuccess = true
+        currentRecord._readSource = 'supabase'
       } else {
         lastSupabaseFailure = Date.now()
         console.warn('Gagal menulis ke Supabase:', error.message)
@@ -1170,8 +1324,8 @@ async function writeSupabaseRaw(data: Database) {
 
   // Selalu cadangkan / fallback ke data/db.json secara lokal
   try {
-    const fs = getFs()
-    const path = getPath()
+    const fs = await getFs()
+    const path = await getPath()
     if (fs && path) {
       const dataDir = path.join(process.cwd(), 'data')
       await fs.mkdir(dataDir, { recursive: true })
@@ -1183,6 +1337,10 @@ async function writeSupabaseRaw(data: Database) {
       throw new Error('Gagal menyimpan data ke database cloud maupun lokal.')
     }
   }
+}
+
+export async function writeSystemDB(data: Database) {
+  await writeSupabaseRaw(data)
 }
 
 export async function writeDB(data: Database, customUser?: { id?: string; name?: string; username?: string }) {
@@ -1242,6 +1400,8 @@ export async function deployDB(customUser?: { userName?: string; userEmail?: str
     directors: JSON.parse(JSON.stringify(db.directors || defaultDirectors)),
     certifications: JSON.parse(JSON.stringify(db.certifications || defaultCertifications)),
     comproEmailTemplate: JSON.parse(JSON.stringify(db.comproEmailTemplate || defaultComproEmailTemplate)),
+    leadershipPage: JSON.parse(JSON.stringify(db.leadershipPage || defaultLeadershipPageConfig)),
+    certificationsPage: JSON.parse(JSON.stringify(db.certificationsPage || defaultCertificationsPageConfig)),
   }
   db.published = enrichContent(db.published)
   db.hasDraft = false
@@ -1277,7 +1437,7 @@ export async function addNotification(
   message: string, 
   type: 'CREATE' | 'UPDATE' | 'DELETE' | 'DEPLOY' | 'CAREER' | 'COMPRO' | 'VISITOR' | 'AUTH',
   category: 'system' | 'visitor' | 'career' | 'compro' = 'system',
-  customUser?: { userName?: string; userEmail?: string; userRole?: string; ip?: string }
+  customUser?: { userName?: string; userEmail?: string; userRole?: string; ip?: string; isSystemOnly?: boolean }
 ) {
   const db = await readDB()
   if (!db.notifications) db.notifications = []
@@ -1311,7 +1471,7 @@ export async function addNotification(
     console.warn('Gagal memproses arsip audit log 90 hari:', purgeErr)
   }
 
-  if (category === 'system' && type !== 'DEPLOY') {
+  if (category === 'system' && type !== 'DEPLOY' && type !== 'AUTH' && !customUser?.isSystemOnly) {
     db.hasDraft = true
   }
   await writeSupabaseRaw(db)
@@ -1339,7 +1499,8 @@ export async function clearNotifications() {
 export async function uploadFile(
   buffer: Buffer,
   fileName: string,
-  contentType: string = 'image/jpeg'
+  contentType: string = 'image/jpeg',
+  options?: { isLogo?: boolean }
 ): Promise<string> {
   const { sanitizeFilename, validateImageBuffer } = await import('@/lib/fileSecurity')
   const { MAX_IMAGE_FILE_SIZE } = await import('@/lib/imageOptimizer')
@@ -1359,47 +1520,73 @@ export async function uploadFile(
 
   const effectiveContentType = imgCheck.mime || contentType
 
-  // 3. Sistem Pintar Kompresi Gambar: Kecilkan ukuran hingga KB menggunakan Sharp (WebP)
+  // 3. Sistem Pintar Konversi Berkas Gambar:
+  // - Logo: Semua format (PNG, JPG, WebP, GIF, SVG, BMP, TIFF) otomatis di-convert ke vektor SVG (.svg)
+  // - Foto/Gambar umum: Semua format otomatis di-convert ke WebP (.webp) dengan ketajaman tinggi & kompresi efisien
   let uploadBuffer = buffer
   let targetFileName = safeName
   let finalContentType = effectiveContentType
 
-  try {
-    const { optimizeImage } = await import('@/lib/imageOptimizer')
-    const optResult = await optimizeImage(buffer, safeName)
-    uploadBuffer = optResult.buffer
-    targetFileName = optResult.fileName
-    finalContentType = optResult.contentType
-    console.log(
-      `[ImageOptimizer] Berhasil optimasi: ${safeName} (${optResult.originalSizeKB}KB) -> ${targetFileName} (${optResult.optimizedSizeKB}KB, hemat ${optResult.compressionRatio})`
-    )
-  } catch (optErr) {
-    console.warn('[ImageOptimizer] Optimasi otomatis dilewati, menggunakan buffer asli:', optErr)
-  }
+  const isLogo = Boolean(
+    options?.isLogo ||
+    safeName.toLowerCase().startsWith('logo') ||
+    safeName.toLowerCase().includes('logo-') ||
+    effectiveContentType === 'image/svg+xml'
+  )
 
   try {
-    const client = getSupabase()
-    if (client) {
-      const { error } = await client.storage
-        .from('uploads')
-        .upload(targetFileName, uploadBuffer, {
-          contentType: finalContentType,
-          upsert: true,
-        })
-
-      if (!error) {
-        const { data: publicUrlData } = client.storage
-          .from('uploads')
-          .getPublicUrl(targetFileName)
-        return publicUrlData.publicUrl
+    if (isLogo) {
+      const { convertLogoToSvg } = await import('@/lib/imageOptimizer')
+      const logoResult = await convertLogoToSvg(buffer, safeName)
+      uploadBuffer = logoResult.buffer
+      targetFileName = logoResult.fileName
+      finalContentType = logoResult.contentType
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`[LogoEngine] Berhasil konversi logo ke SVG: ${safeName} -> ${targetFileName}`)
       }
-      console.warn('Gagal upload ke Supabase Storage, beralih ke penyimpanan lokal:', error.message)
+    } else {
+      const { optimizeImage } = await import('@/lib/imageOptimizer')
+      const optResult = await optimizeImage(buffer, safeName)
+      uploadBuffer = optResult.buffer
+      targetFileName = optResult.fileName
+      finalContentType = optResult.contentType
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(
+          `[ImageOptimizer] Berhasil konversi ke WebP tajam: ${safeName} (${optResult.originalSizeKB}KB) -> ${targetFileName} (${optResult.optimizedSizeKB}KB, hemat ${optResult.compressionRatio})`
+        )
+      }
     }
-  } catch (err) {
-    console.warn('Supabase Storage tidak dapat dihubungi (fetch failed), beralih ke penyimpanan lokal:', err)
+  } catch (optErr) {
+    console.warn('[ImageEngine] Konversi gambar gagal atau dilewati, menggunakan buffer asli:', optErr)
   }
 
-  // Fallback: Simpan file ke public/uploads/
+  const isLocalStorage = process.env.STORAGE_DRIVER === 'local'
+
+  if (!isLocalStorage) {
+    try {
+      const client = getSupabase()
+      if (client) {
+        const { error } = await client.storage
+          .from('uploads')
+          .upload(targetFileName, uploadBuffer, {
+            contentType: finalContentType,
+            upsert: true,
+          })
+
+        if (!error) {
+          const { data: publicUrlData } = client.storage
+            .from('uploads')
+            .getPublicUrl(targetFileName)
+          return publicUrlData.publicUrl
+        }
+        console.warn('Gagal upload ke Supabase Storage, beralih ke penyimpanan lokal:', error.message)
+      }
+    } catch (err) {
+      console.warn('Supabase Storage tidak dapat dihubungi (fetch failed), beralih ke penyimpanan lokal:', err)
+    }
+  }
+
+  // Fallback / Penyimpanan Lokal: Simpan file ke public/uploads/
   try {
     const fs = (await import('fs')).promises
     const path = await import('path')
@@ -1417,13 +1604,15 @@ export async function deleteFile(fileName: string): Promise<void> {
   const { sanitizeFilename } = await import('@/lib/fileSecurity')
   const safeName = sanitizeFilename(fileName)
 
-  try {
-    const client = getSupabase()
-    if (client) {
-      await client.storage.from('uploads').remove([safeName])
+  if (process.env.STORAGE_DRIVER !== 'local') {
+    try {
+      const client = getSupabase()
+      if (client) {
+        await client.storage.from('uploads').remove([safeName])
+      }
+    } catch {
+      // Abaikan jika Supabase offline
     }
-  } catch {
-    // Abaikan jika Supabase offline
   }
 
   try {
@@ -1445,8 +1634,8 @@ export async function archiveAndPurgeAuditLogs(db: Database): Promise<{ purgedCo
   const oldLogs = db.auditLogs.filter((l) => l.timestamp < cutoff)
   if (oldLogs.length === 0) return { purgedCount: 0 }
 
-  const fs = getFs()
-  const path = getPath()
+  const fs = await getFs()
+  const path = await getPath()
   if (!fs || !path) return { purgedCount: 0 }
   let backupPath: string | undefined
   try {
@@ -1525,7 +1714,7 @@ export async function addVisitorLog(pathName: string, _ip?: string, _userAgent?:
   void _userAgent
   void _referer
   try {
-    if (pathName.startsWith('/admin') || pathName.startsWith('/api') || pathName.includes('.')) {
+    if (pathName.startsWith('/admin') || pathName.startsWith('/api') || pathName.startsWith('/login') || pathName.includes('.')) {
       return
     }
 

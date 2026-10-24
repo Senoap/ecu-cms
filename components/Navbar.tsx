@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { DynamicIcon } from '@/components/DynamicIcon'
 import { useLanguage } from '@/components/LanguageContext'
+import { useSmartViewport } from '@/components/SmartViewportProvider'
 import SmoothLoader from '@/components/SmoothLoader'
 import { FileDown, ChevronDown, Building2, Users, Award } from 'lucide-react'
 import ComproRequestModal from '@/components/ComproRequestModal'
@@ -41,8 +42,23 @@ export default function Navbar({
   const [aboutDropdownOpen, setAboutDropdownOpen] = useState(false)
   const [mobileAboutOpen, setMobileAboutOpen] = useState(false)
   const { t } = useLanguage()
+  const { isCompactViewport, isShortViewport, isQuadSplit } = useSmartViewport()
+  const isCompactNav = isScrolled || isCompactViewport || isShortViewport
   const menuContainerRef = useRef<HTMLDivElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Pembersihan PWA Publik: Pastikan hanya halaman CMS yang menggunakan PWA
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        for (const reg of registrations) {
+          if (reg.scope && !reg.scope.includes('/admin')) {
+            reg.unregister().catch(() => {})
+          }
+        }
+      }).catch(() => {})
+    }
+  }, [])
 
   // Deteksi scroll halaman & tutup menu hanya jika ada pergerakan scroll nyata
   useEffect(() => {
@@ -176,51 +192,51 @@ export default function Navbar({
         text={t.nav.loadingContent}
       />
 
-      {/* NAVBAR UTAMA (FIXED MELAYANG DI ATAS LAYAR DENGAN SPASING ATAS YANG ELEGAN) */}
+      {/* NAVBAR UTAMA (FIXED MELAYANG DI ATAS LAYAR DENGAN SPASING ATAS YANG ELEGAN & SMART MULTI-WINDOW) */}
       <header 
-        className={`fixed left-0 right-0 z-50 w-full px-4 sm:px-6 md:px-12 lg:px-16 flex justify-between items-center pointer-events-none transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] font-sans ${
-          isScrolled ? 'top-3 sm:top-4' : 'top-6 sm:top-7 lg:top-8'
+        className={`fixed left-0 right-0 z-50 w-full px-3 sm:px-6 md:px-10 lg:px-16 flex justify-between items-center pointer-events-none transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] font-sans ${
+          isCompactNav ? 'top-2.5 sm:top-3.5' : 'top-5 sm:top-7 lg:top-8'
         }`}
       >
         
-        {/* 1. LOGO FLOATING CARD (Kiri: Menyusut menampilkan hanya logo saat di-scroll) */}
+        {/* 1. LOGO FLOATING CARD (Kiri: Menyusut menampilkan hanya logo saat di-scroll atau saat layar dibagi 2/4 jendela) */}
         <Link 
           href="/#home" 
           onClick={(e) => handleNavClick(e, '#home')}
           className={`pointer-events-auto flex items-center rounded-2xl border transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-105 active:scale-95 ${
-            isScrolled 
-              ? 'h-12 w-12 justify-center p-0 bg-white/95 dark:bg-[#0B0E17]/95 backdrop-blur-xl border-white/60 dark:border-gray-800 text-gray-900 dark:text-white shadow-lg gap-0' 
-              : 'h-14 sm:h-16 px-3.5 sm:px-4 md:px-5 bg-white/95 dark:bg-[#0B0E17]/95 backdrop-blur-xl border-gray-200/60 dark:border-gray-800 text-gray-950 dark:text-white shadow-xl gap-3 md:gap-3.5'
+            isScrolled || isQuadSplit
+              ? 'h-11 w-11 sm:h-12 sm:w-12 justify-center p-0 bg-white/95 dark:bg-[#0B0E17]/95 backdrop-blur-xl border-white/60 dark:border-gray-800 text-gray-900 dark:text-white shadow-lg gap-0' 
+              : 'h-13 sm:h-15 md:h-16 px-3.5 sm:px-4 md:px-5 bg-white/95 dark:bg-[#0B0E17]/95 backdrop-blur-xl border-gray-200/60 dark:border-gray-800 text-gray-950 dark:text-white shadow-xl gap-2.5 md:gap-3.5'
           }`}
           title={siteName}
         >
           {logoUrl ? (
             <div className={`transition-all duration-500 flex items-center justify-center shrink-0 ${
-              isScrolled ? 'w-8 h-8' : 'h-9 sm:h-10 md:h-11 w-auto max-w-[140px] md:max-w-[170px]'
+              isScrolled || isQuadSplit ? 'w-7 h-7 sm:w-8 sm:h-8' : 'h-8 sm:h-10 md:h-11 w-auto max-w-[130px] md:max-w-[170px]'
             }`}>
               <img 
                 src={logoUrl} 
                 alt={siteName} 
                 className={`w-auto object-contain shrink-0 transition-all duration-500 ${
-                  isScrolled ? 'max-h-7 max-w-7 sm:max-h-8 sm:max-w-8' : 'h-9 sm:h-10 md:h-11 max-h-9 sm:max-h-10 md:max-h-11 max-w-[140px] md:max-w-[170px]'
+                  isScrolled || isQuadSplit ? 'max-h-7 max-w-7 sm:max-h-8 sm:max-w-8' : 'h-8 sm:h-10 md:h-11 max-h-8 sm:max-h-10 md:max-h-11 max-w-[130px] md:max-w-[170px]'
                 }`}
               />
             </div>
           ) : (
             <div
               className={`rounded-xl flex items-center justify-center border border-amber-300/40 shadow-inner shrink-0 transition-all duration-500 ${
-                isScrolled ? 'w-8 h-8' : 'w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11'
+                isScrolled || isQuadSplit ? 'w-7 h-7 sm:w-8 sm:h-8' : 'w-8 h-8 sm:w-10 sm:h-10 md:w-11 md:h-11'
               }`}
               style={{ backgroundColor: `${secondaryColor}25` }}
             >
-              <span className="font-black text-xs md:text-sm" style={{ color: secondaryColor }}>ESU</span>
+              <span className="font-black text-xs md:text-sm" style={{ color: secondaryColor }}>4SU</span>
             </div>
           )}
           <div 
             className={`transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden whitespace-nowrap flex flex-col justify-center ${
-              isScrolled 
+              isScrolled || isQuadSplit
                 ? 'max-w-0 opacity-0 pointer-events-none scale-95 pr-0' 
-                : 'max-w-[320px] opacity-100 pointer-events-auto scale-100 hidden sm:flex pr-2'
+                : 'max-w-[280px] opacity-100 pointer-events-auto scale-100 hidden sm:flex pr-1.5'
             }`}
           >
             <h1 className="font-black text-xs md:text-base tracking-wide leading-tight">{siteName}</h1>
@@ -232,16 +248,16 @@ export default function Navbar({
         <div ref={menuContainerRef} className="relative pointer-events-auto">
           <nav 
             className={`flex items-center rounded-2xl shadow-xl border border-white/20 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] backdrop-blur-2xl text-xs md:text-sm font-black tracking-wide text-white ${
-              isScrolled 
-                ? 'h-12 w-12 justify-center p-0' 
-                : 'h-14 sm:h-16 w-14 sm:w-16 lg:w-auto justify-center lg:justify-start px-0 lg:px-6 xl:px-7'
+              isCompactNav 
+                ? 'h-11 w-11 sm:h-12 sm:w-12 justify-center p-0' 
+                : 'h-13 sm:h-15 md:h-16 w-13 sm:w-15 lg:w-auto justify-center lg:justify-start px-0 lg:px-5 xl:px-7'
             }`}
             style={{ backgroundColor: primaryColor || '#4A0E17' }}
           >
-            {/* TAMPILAN DESKTOP & LAPTOP (Menutup secara soft & smooth saat di-scroll) */}
+            {/* TAMPILAN DESKTOP & LAPTOP (Menutup secara soft & smooth saat di-scroll atau saat layar dipisah menjadi 2/4 jendela) */}
             <div 
-              className={`hidden lg:flex items-center gap-3.5 xl:gap-5 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden whitespace-nowrap h-full ${
-                isScrolled 
+              className={`hidden lg:flex items-center gap-3 xl:gap-5 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden whitespace-nowrap h-full ${
+                isCompactNav 
                   ? 'max-w-0 opacity-0 pointer-events-none scale-95' 
                   : 'max-w-[1400px] opacity-100 pointer-events-auto scale-100'
               }`}
@@ -326,6 +342,8 @@ export default function Navbar({
                 )
               })}
               
+
+
               {/* Tombol Minta Compro PDF */}
               {showCompro !== false && (
                 <button
@@ -348,10 +366,10 @@ export default function Navbar({
               </Link>
             </div>
 
-            {/* TOMBOL HAMBURGER (Selalu ada di mobile, muncul secara soft di desktop saat di-scroll) */}
+            {/* TOMBOL HAMBURGER (Selalu ada di mobile & split-screen 2/4 jendela, muncul secara soft di desktop saat di-scroll) */}
             <div 
               className={`items-center justify-center transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] h-full ${
-                isScrolled 
+                isCompactNav 
                   ? 'flex opacity-100 scale-100 pointer-events-auto w-full' 
                   : 'flex lg:hidden lg:opacity-0 lg:scale-90 lg:pointer-events-none w-full'
               }`}
@@ -363,7 +381,7 @@ export default function Navbar({
                   setMobileMenuOpen((prev) => !prev)
                 }}
                 className={`rounded-2xl flex items-center justify-center transition-all duration-300 cursor-pointer touch-manipulation select-none ${
-                  isScrolled 
+                  isCompactNav 
                     ? 'w-full h-full hover:bg-white/15 active:bg-white/25 text-white' 
                     : 'w-10 h-10 sm:w-11 sm:h-11 bg-white/20 hover:bg-white/30 active:bg-white/40 text-white shadow-inner'
                 }`}
@@ -377,7 +395,7 @@ export default function Navbar({
 
           {/* DROPDOWN MENU DENGAN ANIMASI SMOOTH */}
           <div 
-            className={`absolute right-0 mt-3 w-64 sm:w-72 max-h-[calc(100vh-100px)] overflow-y-auto rounded-2xl shadow-2xl p-5 space-y-2 border border-white/25 backdrop-blur-2xl z-[10000] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] origin-top-right ${
+            className={`absolute right-0 mt-3 w-64 sm:w-72 max-h-[calc(100dvh-100px)] overflow-y-auto overscroll-contain rounded-2xl shadow-2xl p-5 space-y-2 border border-white/25 backdrop-blur-2xl z-[10000] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] origin-top-right ${
               mobileMenuOpen 
                 ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto' 
                 : 'opacity-0 -translate-y-3 scale-95 pointer-events-none'
@@ -442,6 +460,8 @@ export default function Navbar({
               )
             })}
 
+
+
             {/* Tombol Minta Compro PDF di Mobile Menu */}
             {showCompro !== false && (
               <button
@@ -469,6 +489,8 @@ export default function Navbar({
         </div>
 
       </header>
+
+
 
       {/* MODAL MINTA COMPRO PDF (POINT 3 & 4) */}
       <ComproRequestModal

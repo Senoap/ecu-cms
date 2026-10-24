@@ -1,0 +1,70 @@
+# deploy/docker-compose.prod.yml
+# Docker Compose Produksi Ringan (PostgreSQL 16.8 + PostgREST v12.2.3) untuk ESU Company
+# Total estimasi pemakaian RAM: ~140 MB
+
+services:
+  db:
+    image: postgres:16.15-alpine
+    container_name: esu_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-esu_prod}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      AUTHENTICATOR_PASSWORD: ${AUTHENTICATOR_PASSWORD}
+    volumes:
+      - esu_pgdata:/var/lib/postgresql/data
+      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - esu_internal
+    # PENTING: Container database TIDAK membuka ports ke host agar tidak terjangkau internet
+
+  postgrest:
+    image: postgrest/postgrest:v16.5
+    container_name: esu_postgrest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGRST_DB_URI: postgresql://authenticator:${AUTHENTICATOR_PASSWORD}@db:5432/${POSTGRES_DB:-esu_prod}
+      PGRST_DB_SCHEMA: public
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: ${PGRST_JWT_SECRET}
+      PGRST_LOG_LEVEL: info
+    ports:
+      # PENTING: Hanya bind ke loopback 127.0.0.1 agar Docker tidak membuka port ke WAN
+      - "127.0.0.1:3001:3000"
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - esu_internal
+
+volumes:
+  esu_pgdata:
+    name: esu_pgdata
+
+networks:
+  esu_internal:
+    driver: bridge

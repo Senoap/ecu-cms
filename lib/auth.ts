@@ -29,40 +29,54 @@ export async function getCurrentUser(): Promise<CurrentAdminUser | null> {
   try {
     const db = await readDB()
 
-    // Validasi sesi aktif di database (Single-Device Session Enforcement)
+    // Validasi sesi aktif di database (Single-Device Session Enforcement & Immediate Revocation)
     const activeSession = db.activeSessions?.[payload.userId]
-    if (activeSession && activeSession.token !== token) {
-      // Token tidak cocok dengan sesi aktif terakhir (sudah login di perangkat lain atau di-logout)
+    if (!activeSession || activeSession.token !== token) {
+      // Sesi tidak ditemukan di activeSessions (telah di-logout / dinonaktifkan) atau ditimpa di perangkat lain
       return null
     }
 
-    // Jika master admin ('admin') -> Ini adalah Admin Root
+    // 1. Jika user 'superadmin' (Tier tertinggi di atas admin, khusus kontrol user)
+    if (payload.userId === 'superadmin') {
+      return {
+        id: 'superadmin',
+        username: 'superadmin',
+        name: 'Super Administrator',
+        role: 'Superadmin',
+        isSuperadmin: true,
+        isRootAdmin: true,
+        permissions: ['users'],
+        canReceiveCareerNotif: false,
+      }
+    }
+
+    // 2. Jika master admin ('admin') -> Di bawah superadmin, akses semua menu CMS
     if (payload.userId === 'admin') {
       return {
         id: 'admin',
         username: 'admin',
         name: 'Administrator Master',
-        role: 'Superadmin',
-        isSuperadmin: true,
+        role: 'Administrator Master',
+        isSuperadmin: false,
         isRootAdmin: true,
         permissions: [...ALL_MENU_IDS],
         canReceiveCareerNotif: true,
       }
     }
 
-    // Jika user dari database -> User tambahan (bukan Admin Root walaupun role-nya admin/superadmin)
+    // 3. Jika user dari database -> User tambahan
     const user = db.cmsUsers?.find((u) => u.id === payload.userId && u.isActive !== false)
     if (!user) return null
 
-    const isSuper = user.role.toLowerCase() === 'superadmin' || user.permissions.includes('users')
+    const hasAllAccess = user.role.toLowerCase() === 'superadmin' || user.permissions.includes('users')
     return {
       id: user.id,
       username: user.username,
       name: user.name,
       role: user.role,
-      isSuperadmin: isSuper,
+      isSuperadmin: false,
       isRootAdmin: false, // User tambahan tidak pernah menjadi Root Admin
-      permissions: isSuper ? [...ALL_MENU_IDS] : user.permissions,
+      permissions: hasAllAccess ? [...ALL_MENU_IDS] : user.permissions,
       canReceiveCareerNotif: Boolean(user.canReceiveCareerNotif),
     }
   } catch (err) {
@@ -72,7 +86,11 @@ export async function getCurrentUser(): Promise<CurrentAdminUser | null> {
 }
 
 export function canUserAccessMenu(user: CurrentAdminUser, menuId: string): boolean {
-  if (user.isSuperadmin) return true
+  // Superadmin hanya punya akses kontrol user ('users'), selain itu tidak bisa akses!
+  if (user.isSuperadmin || user.id === 'superadmin') {
+    return menuId === 'users'
+  }
+  if (user.isRootAdmin) return true
   if (menuId === 'career-templates') {
     return user.permissions.includes('career-templates') || user.permissions.includes('career')
   }
@@ -80,7 +98,10 @@ export function canUserAccessMenu(user: CurrentAdminUser, menuId: string): boole
 }
 
 export function getDefaultMenuHref(user: CurrentAdminUser): string {
-  if (user.isSuperadmin || user.permissions.includes('global')) {
+  if (user.isSuperadmin || user.id === 'superadmin') {
+    return '/admin/users'
+  }
+  if (user.isRootAdmin || user.permissions.includes('global')) {
     return '/admin'
   }
   const firstAllowed = AVAILABLE_MENUS.find((m) => canUserAccessMenu(user, m.id))

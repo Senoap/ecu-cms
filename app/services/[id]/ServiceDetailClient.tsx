@@ -7,6 +7,8 @@ import Navbar from '@/components/Navbar'
 import { DynamicIcon } from '@/components/DynamicIcon'
 import { useLanguage } from '@/components/LanguageContext'
 import type { ServiceItem, DatabaseContent, FooterContent } from '@/lib/db'
+import { formatWhatsAppNumber } from '@/lib/phone'
+import { openCookieSettings } from '@/lib/cookieConsent'
 
 export default function ServiceDetailClient({
   srv,
@@ -17,7 +19,7 @@ export default function ServiceDetailClient({
   setting: DatabaseContent['setting']
   footer: FooterContent
 }) {
-  const { locale, t, getFallbackContent } = useLanguage()
+  const { t } = useLanguage()
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null)
   const [isDarkMode, setIsDarkMode] = useState(false)
 
@@ -44,16 +46,13 @@ export default function ServiceDetailClient({
     window.dispatchEvent(new Event('esu-theme-change'))
   }
 
-  const fb = getFallbackContent('services', srv.id)
-  const title = (locale === 'en' && fb?.title) ? fb.title : srv.title
-  const desc = (locale === 'en' && fb?.desc) ? fb.desc : srv.desc
-  const content = (locale === 'en' && fb?.content) ? fb.content : (srv.content || srv.desc)
+  const title = srv.title
+  const desc = srv.desc
+  const content = srv.content || srv.desc
 
-  const waNumber = (footer?.whatsapp || footer?.phone || '').replace(/[^0-9]/g, '')
+  const waNumber = formatWhatsAppNumber(footer?.whatsapp || footer?.phone)
   const waMessage = encodeURIComponent(
-    locale === 'en'
-      ? `Hello PT ESU, I would like to inquire about the service: ${title}`
-      : `Halo PT ESU, saya ingin berkonsultasi mengenai layanan: ${title}`
+    `Halo PT 4SU, saya ingin berkonsultasi mengenai layanan: ${title}`
   )
 
   return (
@@ -66,6 +65,10 @@ export default function ServiceDetailClient({
         accentColor={setting.accentColor}
         loadingBgColor={setting.loadingBgColor}
         logoUrl={setting.logoUrl}
+        showLeadership={setting.showLeadership !== false}
+        showCertifications={setting.showCertifications !== false}
+        showCompro={setting.showCompro !== false}
+        leadershipLabel={setting.leadershipLabel || 'Profil Pimpinan'}
       />
 
       <main className="max-w-5xl mx-auto pt-24 pb-16 sm:pt-28 sm:pb-24 px-4 sm:px-6 md:px-8 space-y-12">
@@ -149,12 +152,10 @@ export default function ServiceDetailClient({
           </div>
           <div className="space-y-2 max-w-xl mx-auto">
             <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-              {locale === 'en' ? 'Interested in This Service?' : 'Tertarik Menggunakan Layanan Ini?'}
+              Tertarik Menggunakan Layanan Ini?
             </h3>
             <p className="text-gray-300 text-xs sm:text-sm font-medium leading-relaxed">
-              {locale === 'en'
-                ? 'Discuss your operational requirements and workforce deployment directly with our specialized consulting team.'
-                : 'Diskusikan kebutuhan operasional dan penempatan tenaga kerja profesional bersama tim konsultan kami.'}
+              Diskusikan kebutuhan operasional dan penempatan tenaga kerja profesional bersama tim konsultan kami.
             </p>
           </div>
 
@@ -167,7 +168,7 @@ export default function ServiceDetailClient({
                 className="w-full sm:w-auto px-8 py-4 rounded-xl text-xs sm:text-sm font-black text-white bg-emerald-600 hover:bg-emerald-500 shadow-xl transition-all duration-300 active:scale-95 uppercase tracking-wider flex items-center justify-center gap-2"
               >
                 <MessageSquare className="w-4 h-4" />
-                <span>{locale === 'en' ? 'Consult via WhatsApp' : 'Konsultasi via WhatsApp'}</span>
+                <span>Konsultasi via WhatsApp</span>
               </a>
             )}
             <Link
@@ -183,6 +184,18 @@ export default function ServiceDetailClient({
 
       <footer className="max-w-5xl mx-auto py-8 px-4 border-t border-gray-200/60 dark:border-gray-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 font-semibold gap-3">
         <span>© 2026 {setting.siteName}. All Rights Reserved.</span>
+        <div className="flex items-center gap-4">
+          <Link href="/privacy-policy" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
+            Kebijakan Privasi
+          </Link>
+          <button
+            type="button"
+            onClick={openCookieSettings}
+            className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors cursor-pointer"
+          >
+            Pengaturan Cookie
+          </button>
+        </div>
         <div className="flex items-center gap-2 select-none">
           <span>Website by</span>
           <span className="px-2.5 py-0.5 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 font-black uppercase tracking-wider">
@@ -219,7 +232,7 @@ export default function ServiceDetailClient({
               ? 'bg-gray-900/95 text-amber-400 border-gray-700/80 shadow-amber-900/40 hover:bg-gray-800 hover:border-amber-500/50'
               : 'bg-white text-amber-800 border-gray-300 shadow-xl hover:bg-gray-50 hover:border-amber-600/60'
           }`}
-          title={isDarkMode ? (locale === 'en' ? 'Switch to Light Mode' : 'Ubah ke Mode Terang') : (locale === 'en' ? 'Switch to Dark Mode' : 'Ubah ke Mode Malam')}
+          title={isDarkMode ? 'Ubah ke Mode Terang' : 'Ubah ke Mode Malam'}
           aria-label="Toggle Theme"
         >
           {isDarkMode ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-amber-800" />}

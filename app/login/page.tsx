@@ -35,6 +35,18 @@ export default function AdminLoginPage() {
   const [isDarkMode, setIsDarkMode] = useState(true)
   const router = useRouter()
 
+  // Handler navigasi ke website publik saat login diakses melalui subdomain admin
+  const handleOpenMainSite = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (typeof window !== 'undefined') {
+      const { hostname, host, protocol } = window.location
+      if (/^(admin|cms)\./i.test(hostname)) {
+        e.preventDefault()
+        const mainHost = host.replace(/^(admin|cms)\./i, '')
+        window.location.href = `${protocol}//${mainHost}/`
+      }
+    }
+  }
+
   // State mode reset password saat login (Point 4)
   const [resetData, setResetData] = useState<ResetRequiredData | null>(null)
   const [oldPassword, setOldPassword] = useState('')
@@ -160,25 +172,25 @@ export default function AdminLoginPage() {
     <div 
       data-admin-scope="true" 
       className={`min-h-screen w-full flex items-center justify-center p-4 sm:p-6 font-sans transition-colors duration-300 ${
-        isDarkMode ? 'bg-[#090A0F] text-gray-100' : 'bg-[#F4F6F9] text-gray-900'
+        isDarkMode ? 'bg-[#0C0D12] text-zinc-100' : 'bg-[#F4F6F9] text-gray-900'
       }`}
     >
       <div className="relative z-10 w-full max-w-lg">
-        <div className={`p-6 sm:p-10 rounded-3xl shadow-2xl border backdrop-blur-xl space-y-6 ${
-          isDarkMode ? 'bg-gray-900/95 border-gray-800' : 'bg-white/95 border-gray-200'
+        <div className={`p-6 sm:p-8 rounded-xl shadow-xl border space-y-6 ${
+          isDarkMode ? 'bg-[#13161F] border-[#222736]' : 'bg-white border-gray-200'
         }`}>
           
           {/* HEADER LOGO */}
           <div className="text-center space-y-2">
-            <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-600 flex items-center justify-center text-white font-black text-xl shadow-md">
-              {resetData ? <KeyRound className="w-7 h-7 text-white" /> : 'ESU'}
+            <div className="w-14 h-14 mx-auto rounded-xl bg-[#6B0808] flex items-center justify-center text-white font-bold text-xl shadow-sm">
+              {resetData ? <KeyRound className="w-7 h-7 text-white" /> : '4SU'}
             </div>
             <div>
               <h1 className="text-xl sm:text-2xl font-black tracking-tight uppercase">
-                {resetData ? 'Pembaruan Password Berkala' : 'CMS Authentication'}
+                {resetData ? 'Pembaruan Password Halaman CMS' : 'Autentikasi Halaman CMS'}
               </h1>
               <p className="text-xs text-amber-600 dark:text-amber-400 font-bold tracking-widest uppercase mt-0.5">
-                {resetData ? 'Keamanan Akun Enterprise' : 'Enterprise Control Panel'}
+                {resetData ? 'Keamanan Akun Enterprise' : 'Panel CMS Enterprise'}
               </p>
             </div>
           </div>
@@ -236,7 +248,8 @@ export default function AdminLoginPage() {
                       value={oldPassword}
                       onChange={(e) => setOldPassword(e.target.value)}
                       placeholder="Masukkan password lama..."
-                      className={`w-full pl-10 pr-10 py-3 rounded-xl border text-sm font-medium outline-none transition-all ${
+                      autoComplete="current-password"
+                      className={`w-full pl-10 pr-10 py-3 rounded-xl border text-base sm:text-sm font-medium outline-none transition-all ${
                         isDarkMode 
                           ? 'bg-gray-950/80 border-gray-800 text-white focus:border-amber-500' 
                           : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-amber-600'
@@ -265,7 +278,8 @@ export default function AdminLoginPage() {
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="Masukkan password baru..."
-                      className={`w-full pl-10 pr-10 py-3 rounded-xl border text-sm font-medium outline-none transition-all ${
+                      autoComplete="new-password"
+                      className={`w-full pl-10 pr-10 py-3 rounded-xl border text-base sm:text-sm font-medium outline-none transition-all ${
                         isDarkMode 
                           ? 'bg-gray-950/80 border-gray-800 text-white focus:border-amber-500' 
                           : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-amber-600'
@@ -294,7 +308,8 @@ export default function AdminLoginPage() {
                       value={verifyPassword}
                       onChange={(e) => setVerifyPassword(e.target.value)}
                       placeholder="Ulangi password baru..."
-                      className={`w-full pl-10 pr-10 py-3 rounded-xl border text-sm font-medium outline-none transition-all ${
+                      autoComplete="new-password"
+                      className={`w-full pl-10 pr-10 py-3 rounded-xl border text-base sm:text-sm font-medium outline-none transition-all ${
                         isDarkMode 
                           ? 'bg-gray-950/80 border-gray-800 text-white focus:border-amber-500' 
                           : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-amber-600'
@@ -316,12 +331,12 @@ export default function AdminLoginPage() {
                   isDarkMode ? 'bg-gray-950/60 border-gray-800' : 'bg-gray-50 border-gray-200'
                 }`}>
                   <div className="text-[11px] font-black uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                    Kriteria Wajib Password (Panjang min 6, Uppercase, Lowercase, Number, Simbol):
+                    Kriteria Wajib Password (Panjang min 8, Uppercase, Lowercase, Number, Simbol):
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[11px]">
                     <div className={`flex items-center gap-1.5 font-medium ${newPasswordVal.details.minLength ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'}`}>
                       {newPasswordVal.details.minLength ? <CheckCircle2 className="w-3.5 h-3.5 shrink-0" /> : <XCircle className="w-3.5 h-3.5 shrink-0" />}
-                      <span>Minimal 6 Karakter</span>
+                      <span>Minimal 8 Karakter</span>
                     </div>
                     <div className={`flex items-center gap-1.5 font-medium ${newPasswordVal.details.hasUpper ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'}`}>
                       {newPasswordVal.details.hasUpper ? <CheckCircle2 className="w-3.5 h-3.5 shrink-0" /> : <XCircle className="w-3.5 h-3.5 shrink-0" />}
@@ -373,11 +388,13 @@ export default function AdminLoginPage() {
                 <input
                   type="text"
                   name="username"
+                  autoComplete="username"
+                  autoCapitalize="none"
                   placeholder="admin atau nama user..."
-                  className={`w-full px-4 py-3.5 rounded-2xl border text-sm font-medium outline-none transition-all duration-300 ${
+                  className={`w-full px-3.5 py-2.5 rounded-lg border text-sm font-medium outline-none transition-all ${
                     isDarkMode 
-                      ? 'bg-gray-950/80 border-gray-800 text-white focus:border-amber-500' 
-                      : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-amber-600'
+                      ? 'bg-[#181C28] border-[#262C3D] text-zinc-100 focus:border-[#8B1E1E]' 
+                      : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-[#6B0808]'
                   }`}
                 />
               </div>
@@ -389,8 +406,9 @@ export default function AdminLoginPage() {
                 <input
                   type="password"
                   name="password"
+                  autoComplete="current-password"
                   placeholder="Masukkan password..."
-                  className={`w-full px-4 py-3.5 rounded-2xl border text-sm font-medium outline-none transition-all duration-300 ${
+                  className={`w-full px-4 py-3.5 rounded-2xl border text-base sm:text-sm font-medium outline-none transition-all duration-300 ${
                     isDarkMode 
                       ? 'bg-gray-950/80 border-gray-800 text-white focus:border-amber-500' 
                       : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-amber-600'
@@ -408,9 +426,9 @@ export default function AdminLoginPage() {
               <button
                 type="submit"
                 disabled={isPending}
-                className="w-full py-4 rounded-2xl text-sm font-black text-white bg-amber-600 hover:bg-amber-700 shadow-md transition-all duration-200 uppercase tracking-wider cursor-pointer disabled:opacity-50"
+                className="w-full py-3 rounded-lg text-sm font-bold text-white bg-[#6B0808] hover:bg-[#8B1E1E] shadow-sm transition-all uppercase tracking-wider cursor-pointer disabled:opacity-50"
               >
-                {isPending ? 'Memverifikasi...' : 'Masuk ke CMS ➔'}
+                {isPending ? 'Memverifikasi...' : 'Masuk ke Halaman CMS ➔'}
               </button>
             </form>
           )}
@@ -419,7 +437,8 @@ export default function AdminLoginPage() {
           <div className="text-center pt-2 border-t border-gray-800/40">
             <Link 
               href="/" 
-              className="text-xs font-bold text-gray-400 hover:text-amber-500 transition-colors uppercase tracking-widest"
+              onClick={handleOpenMainSite}
+              className="text-xs font-bold text-gray-400 hover:text-amber-500 transition-colors uppercase tracking-widest inline-block"
             >
               &larr; Kembali ke Website Utama
             </Link>

@@ -3,7 +3,23 @@
 
 import { revalidatePath } from 'next/cache'
 import { requirePermission } from '@/lib/auth'
-import { readDB, writeDB, addNotification, uploadFile, deleteFile, type ScheduledContentItem } from '@/lib/db'
+import { 
+  readDB, 
+  writeDB, 
+  addNotification, 
+  uploadFile, 
+  deleteFile, 
+  autoPurgeExpiredScheduledContents,
+  type ScheduledContentItem 
+} from '@/lib/db'
+
+export async function purgeExpiredScheduledContentAction() {
+  await requirePermission('scheduled-content')
+  const result = await autoPurgeExpiredScheduledContents()
+  revalidatePath('/admin/scheduled-content')
+  revalidatePath('/')
+  return result
+}
 
 export async function createScheduledContentAction(formData: FormData) {
   await requirePermission('scheduled-content')

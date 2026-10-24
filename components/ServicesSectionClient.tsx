@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ServiceItem } from '@/lib/db'
 import { DynamicIcon } from '@/components/DynamicIcon'
 import { useLanguage } from '@/components/LanguageContext'
+import { useSmartViewport } from '@/components/SmartViewportProvider'
 import SmoothLoader from '@/components/SmoothLoader'
 import { X } from 'lucide-react'
 
@@ -34,7 +35,8 @@ export default function ServicesSectionClient({
 }: ServicesProps) {
   const [selectedService, setSelectedService] = useState<ServiceItem | null>(null)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const { locale, t, getFallbackContent } = useLanguage()
+  const { t } = useLanguage()
+  const { isCompactViewport, isQuadSplit } = useSmartViewport()
 
   // State untuk efek transisi acak saat membuka & menutup konten modal
   const [transitioning, setTransitioning] = useState(false)
@@ -79,13 +81,12 @@ export default function ServicesSectionClient({
     }, 450)
   }
 
-  const srvTag = (locale === 'en' && !headerTag) ? t.services.tag : (headerTag || t.services.tag)
-  const srvHeading = (locale === 'en' && !headerHeading) ? t.services.heading : (headerHeading || t.services.heading)
-  const srvNote = (locale === 'en' && !headerNote) ? t.services.note : (headerNote || '')
+  const srvTag = headerTag || t.services.tag
+  const srvHeading = headerHeading || t.services.heading
+  const srvNote = headerNote || ''
 
-  const selectedFb = selectedService ? getFallbackContent('services', selectedService.id) : null
-  const selectedTitle = (locale === 'en' && selectedFb?.title) ? selectedFb.title : selectedService?.title
-  const selectedContent = (locale === 'en' && selectedFb?.content) ? selectedFb.content : (selectedService?.content || selectedService?.desc)
+  const selectedTitle = selectedService?.title
+  const selectedContent = selectedService?.content || selectedService?.desc
 
   return (
     <>
@@ -109,12 +110,13 @@ export default function ServicesSectionClient({
           <div className="w-12 h-1 mx-auto rounded-full mt-2.5" style={{ backgroundColor: secondaryColor }}></div>
         </div>
 
-        {/* Kontainer Layanan: Executive B2B Card Grid */}
-        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-2 sm:px-4">
+        {/* Kontainer Layanan: Executive B2B Card Grid (Adaptif Multi-Window 2/4 Jendela) */}
+        <div className={`max-w-7xl mx-auto grid gap-6 px-2 sm:px-4 ${
+          isQuadSplit ? 'grid-cols-1' : isCompactViewport ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
+        }`}>
           {(services || []).map((srv) => {
-            const fb = getFallbackContent('services', srv.id)
-            const srvTitle = (locale === 'en' && fb?.title) ? fb.title : srv.title
-            const srvDesc = (locale === 'en' && fb?.desc) ? fb.desc : srv.desc
+            const srvTitle = srv.title
+            const srvDesc = srv.desc
 
             return (
               <div

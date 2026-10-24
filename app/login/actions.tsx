@@ -23,16 +23,32 @@ export type LoginResult = {
   reason?: 'must_reset' | 'expired' | 'warning_h7'
 }
 
-// Rate limit persisten & in-memory: 5 percobaan gagal / 15 menit / IP
+// Rate limit persisten & in-memory: 5 percobaan gagal / 15 menit per IP & per Username
 const WINDOW_MS = 15 * 60 * 1000
 const MAX_ATTEMPTS = 5
 const memoryAttempts = new Map<string, { count: number; resetAt: number }>()
 
-async function checkIsLocked(ip: string): Promise<{ locked: boolean; remainingMinutes?: number }> {
+// Dummy hash untuk timing-attack mitigation ketika user tidak ditemukan
+const DUMMY_HASH = '00000000000000000000000000000000:00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
+
+function maskIp(ip: string): string {
+  if (!ip || ip === 'unknown') return 'Perangkat Lain'
+  if (ip.includes('.')) {
+    const parts = ip.split('.')
+    return parts.length === 4 ? `${parts[0]}.${parts[1]}.*.*` : ip
+  }
+  if (ip.includes(':')) {
+    const parts = ip.split(':')
+    return `${parts.slice(0, 2).join(':')}:****`
+  }
+  return ip
+}
+
+async function checkIsLocked(key: string): Promise<{ locked: boolean; remainingMinutes?: number }> {
   const now = Date.now()
 
   // 1. Cek cache in-memory cepat
-  const memRec = memoryAttempts.get(ip)
+  const memRec = memoryAttempts.get(key)
   if (memRec && memRec.resetAt > now && memRec.count >= MAX_ATTEMPTS) {
     const remaining = Math.max(1, Math.ceil((memRec.resetAt - now) / 60000))
     return { locked: true, remainingMinutes: remaining }
@@ -41,7 +57,7 @@ async function checkIsLocked(ip: string): Promise<{ locked: boolean; remainingMi
   // 2. Cek database persisten
   try {
     const db = await readDB()
-    const rec = db.loginAttempts?.[`ip_${ip}`]
+    const rec = db.loginAttempts?.[key]
     if (rec && rec.resetAt > now && rec.count >= MAX_ATTEMPTS) {
       const remaining = Math.max(1, Math.ceil((rec.resetAt - now) / 60000))
       return { locked: true, remainingMinutes: remaining }
@@ -56,29 +72,40 @@ async function checkIsLocked(ip: string): Promise<{ locked: boolean; remainingMi
 async function recordLoginFailure(ip: string, targetUsername: string) {
   const now = Date.now()
   const resetAt = now + WINDOW_MS
+  const ipKey = `ip_${ip}`
+  const userKey = targetUsername ? `user_${targetUsername.toLowerCase()}` : undefined
+  const keys = [ipKey, userKey].filter(Boolean) as string[]
 
   // 1. Catat ke memory
-  const memRec = memoryAttempts.get(ip)
-  const newCount = (!memRec || memRec.resetAt < now) ? 1 : memRec.count + 1
-  memoryAttempts.set(ip, { count: newCount, resetAt })
+  for (const k of keys) {
+    const memRec = memoryAttempts.get(k)
+    const newCount = (!memRec || memRec.resetAt < now) ? 1 : memRec.count + 1
+    memoryAttempts.set(k, { count: newCount, resetAt })
+  }
 
   // 2. Catat ke database persisten & audit log
   try {
-    const { writeDB } = await import('@/lib/db')
+    const { writeSystemDB } = await import('@/lib/db')
     const db = await readDB()
     if (!db.loginAttempts) db.loginAttempts = {}
-    db.loginAttempts[`ip_${ip}`] = {
-      count: newCount,
-      resetAt,
-      lastAttemptAt: now,
-      lockedUntil: newCount >= MAX_ATTEMPTS ? resetAt : undefined,
+
+    const memRec = memoryAttempts.get(ipKey)
+    const newCount = memRec ? memRec.count : 1
+
+    for (const k of keys) {
+      db.loginAttempts[k] = {
+        count: (db.loginAttempts[k]?.resetAt && db.loginAttempts[k].resetAt > now) ? (db.loginAttempts[k].count + 1) : 1,
+        resetAt,
+        lastAttemptAt: now,
+        lockedUntil: newCount >= MAX_ATTEMPTS ? resetAt : undefined,
+      }
     }
 
     if (!db.auditLogs) db.auditLogs = []
     if (newCount >= MAX_ATTEMPTS) {
       db.auditLogs.unshift({
         id: 'log-brute-' + now,
-        message: `PERINGATAN KEAMANAN: Percobaan login gagal berulang (${newCount}x) terdeteksi dari IP: ${ip} untuk akun: "${targetUsername || 'admin'}". Akses IP ini diblokir sementara selama 15 menit.`,
+        message: `PERINGATAN KEAMANAN: Percobaan login gagal berulang (${newCount}x) terdeteksi dari IP: ${ip} untuk akun: "${targetUsername || 'admin'}". Akses diblokir sementara selama 15 menit.`,
         timestamp: now,
         type: 'AUTH',
         category: 'system',
@@ -101,20 +128,32 @@ async function recordLoginFailure(ip: string, targetUsername: string) {
       })
     }
 
-    await writeDB(db)
+    await writeSystemDB(db)
   } catch (e) {
     console.warn('Gagal mencatat login failure:', e)
   }
 }
 
-async function clearLoginAttempts(ip: string) {
-  memoryAttempts.delete(ip)
+async function clearLoginAttempts(ip: string, targetUsername?: string) {
+  const ipKey = `ip_${ip}`
+  const userKey = targetUsername ? `user_${targetUsername.toLowerCase()}` : undefined
+  memoryAttempts.delete(ipKey)
+  if (userKey) memoryAttempts.delete(userKey)
+
   try {
-    const { writeDB } = await import('@/lib/db')
+    const { writeSystemDB } = await import('@/lib/db')
     const db = await readDB()
-    if (db.loginAttempts && db.loginAttempts[`ip_${ip}`]) {
-      delete db.loginAttempts[`ip_${ip}`]
-      await writeDB(db)
+    let changed = false
+    if (db.loginAttempts && db.loginAttempts[ipKey]) {
+      delete db.loginAttempts[ipKey]
+      changed = true
+    }
+    if (userKey && db.loginAttempts && db.loginAttempts[userKey]) {
+      delete db.loginAttempts[userKey]
+      changed = true
+    }
+    if (changed) {
+      await writeSystemDB(db)
     }
   } catch (e) {
     console.warn('Gagal membersihkan login attempts:', e)
@@ -136,26 +175,99 @@ export async function loginAdmin(formData: FormData): Promise<LoginResult> {
   const password = String(formData.get('password') ?? '')
   const secretPassword = process.env.ADMIN_PASSWORD
 
-  const h = await headers()
-  const ip = h.get('x-forwarded-for')?.split(',')[0].trim() || h.get('x-real-ip') || 'unknown'
-  const userAgent = h.get('user-agent') || 'Perangkat Tidak Dikenal'
-
-  const lockStatus = await checkIsLocked(ip)
-  if (lockStatus.locked) {
+  if (!username || !password) {
     return {
       success: false,
-      message: `Terlalu banyak percobaan gagal. Akses diblokir sementara. Coba lagi dalam ${lockStatus.remainingMinutes || 15} menit.`
+      message: 'Username dan password wajib diisi.'
+    }
+  }
+
+  const h = await headers()
+  const ip = h.get('x-real-ip') || h.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown'
+  const userAgent = h.get('user-agent') || 'Perangkat Tidak Dikenal'
+
+  // Periksa lock pada level IP dan Username
+  const lockStatusIp = await checkIsLocked(`ip_${ip}`)
+  if (lockStatusIp.locked) {
+    return {
+      success: false,
+      message: `Terlalu banyak percobaan gagal. Akses diblokir sementara. Coba lagi dalam ${lockStatusIp.remainingMinutes || 15} menit.`
+    }
+  }
+
+  const lockStatusUser = await checkIsLocked(`user_${username.toLowerCase()}`)
+  if (lockStatusUser.locked) {
+    return {
+      success: false,
+      message: `Akun "${username}" terkunci sementara akibat terlalu banyak percobaan gagal. Coba lagi dalam ${lockStatusUser.remainingMinutes || 15} menit.`
     }
   }
 
   const SESSION_INACTIVITY_LIMIT = 30 * 60 * 1000 // 30 menit
+  const superAdminPassword = process.env.SUPERADMIN_PASSWORD || 'rahasiasu4su2026'
 
-  // 1. Cek Admin Master (jika username kosong atau 'admin', dan password cocok dengan ADMIN_PASSWORD)
-  if (!username || username.toLowerCase() === 'admin') {
+  // 0. Cek Superadmin (username === 'superadmin') - Tier tertinggi di atas admin, khusus kontrol user
+  if (username.toLowerCase() === 'superadmin') {
+    if (passwordMatches(password, superAdminPassword)) {
+      await clearLoginAttempts(ip, 'superadmin')
+
+      const db = await readDB()
+      const existingSession = db.activeSessions?.['superadmin']
+      const now = Date.now()
+      if (existingSession && (now - existingSession.lastSeen < SESSION_INACTIVITY_LIMIT)) {
+        const isSameDevice = existingSession.ip === ip && existingSession.userAgent === userAgent
+        if (!isSameDevice) {
+          return {
+            success: false,
+            message: `Akun Superadmin sedang aktif di perangkat lain (${maskIp(existingSession.ip)}). Untuk alasan keamanan, login bersamaan tidak diizinkan. Silakan logout dari perangkat tersebut terlebih dahulu.`
+          }
+        }
+      }
+
+      const token = await createSessionToken('superadmin')
+      if (!db.activeSessions) db.activeSessions = {}
+      db.activeSessions['superadmin'] = {
+        token,
+        ip,
+        userAgent,
+        lastSeen: now,
+        loggedInAt: now,
+      }
+
+      if (!db.auditLogs) db.auditLogs = []
+      db.auditLogs.unshift({
+        id: 'log-auth-' + now,
+        message: `Login berhasil oleh Superadmin dari IP: ${ip}.`,
+        timestamp: now,
+        type: 'AUTH',
+        category: 'system',
+        userName: 'Super Administrator',
+        userEmail: 'superadmin',
+        userRole: 'Superadmin',
+        ip,
+      })
+
+      const { writeSystemDB } = await import('@/lib/db')
+      await writeSystemDB(db)
+
+      const cookieStore = await cookies()
+      cookieStore.set(SESSION_COOKIE, token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: SESSION_MAX_AGE,
+        path: '/',
+      })
+      return { success: true, redirectUrl: '/admin/users' }
+    }
+  }
+
+  // 1. Cek Admin Master (username === 'admin')
+  if (username.toLowerCase() === 'admin') {
     if (secretPassword && passwordMatches(password, secretPassword)) {
-      await clearLoginAttempts(ip)
+      await clearLoginAttempts(ip, 'admin')
 
-      // Cek single session enforcement (Point 7)
+      // Cek single session enforcement
       const db = await readDB()
       const existingSession = db.activeSessions?.['admin']
       const now = Date.now()
@@ -164,7 +276,7 @@ export async function loginAdmin(formData: FormData): Promise<LoginResult> {
         if (!isSameDevice) {
           return {
             success: false,
-            message: `Akun Administrator sedang aktif di perangkat lain (IP: ${existingSession.ip}). Untuk alasan keamanan, login bersamaan tidak diizinkan. Silakan logout dari perangkat tersebut terlebih dahulu.`
+            message: `Akun Administrator sedang aktif di perangkat lain (${maskIp(existingSession.ip)}). Untuk alasan keamanan, login bersamaan tidak diizinkan. Silakan logout dari perangkat tersebut terlebih dahulu.`
           }
         }
       }
@@ -188,12 +300,12 @@ export async function loginAdmin(formData: FormData): Promise<LoginResult> {
         category: 'system',
         userName: 'Administrator Master',
         userEmail: 'admin',
-        userRole: 'Superadmin',
+        userRole: 'Administrator Master',
         ip,
       })
 
-      const { writeDB } = await import('@/lib/db')
-      await writeDB(db)
+      const { writeSystemDB } = await import('@/lib/db')
+      await writeSystemDB(db)
 
       const cookieStore = await cookies()
       cookieStore.set(SESSION_COOKIE, token, {
@@ -212,18 +324,17 @@ export async function loginAdmin(formData: FormData): Promise<LoginResult> {
     const db = await readDB()
     const users = db.cmsUsers || []
 
-    let matchedUser = null
-    if (username) {
-      matchedUser = users.find(
-        (u) => u.username.toLowerCase() === username.toLowerCase() && u.isActive !== false
-      )
-    } else {
-      // Jika username dikosongkan tetapi password cocok dengan salah satu user
-      matchedUser = users.find((u) => u.isActive !== false && verifyPassword(password, u.passwordHash))
+    const matchedUser = users.find(
+      (u) => u.username.toLowerCase() === username.toLowerCase() && u.isActive !== false
+    )
+
+    // Jika user tidak ditemukan, jalankan dummy hash calculation untuk meratakan timing response
+    if (!matchedUser) {
+      verifyPassword(password, DUMMY_HASH)
     }
 
     if (matchedUser && verifyPassword(password, matchedUser.passwordHash)) {
-      await clearLoginAttempts(ip)
+      await clearLoginAttempts(ip, matchedUser.username)
 
       // Cek Kedaluwarsa Password 3 Bulan & Peringatan H-7 (Point 3 & Point 4)
       const expiryStatus = checkPasswordExpiry(matchedUser.passwordUpdatedAt, matchedUser.createdAt)
@@ -257,7 +368,7 @@ export async function loginAdmin(formData: FormData): Promise<LoginResult> {
         if (!isSameDevice) {
           return {
             success: false,
-            message: `Akun "${matchedUser.name}" sedang aktif di perangkat lain (IP: ${existingSession.ip}). Login bersamaan tidak diizinkan. Silakan logout dari perangkat sebelumnya terlebih dahulu.`
+            message: `Akun "${matchedUser.name}" sedang aktif di perangkat lain (${maskIp(existingSession.ip)}). Login bersamaan tidak diizinkan. Silakan logout dari perangkat sebelumnya terlebih dahulu.`
           }
         }
       }
@@ -285,8 +396,13 @@ export async function loginAdmin(formData: FormData): Promise<LoginResult> {
         ip,
       })
 
-      const { writeDB } = await import('@/lib/db')
-      await writeDB(db)
+      const { needsRehash, hashPassword } = await import('@/lib/password')
+      if (needsRehash(matchedUser.passwordHash)) {
+        matchedUser.passwordHash = hashPassword(password)
+      }
+
+      const { writeSystemDB } = await import('@/lib/db')
+      await writeSystemDB(db)
 
       const cookieStore = await cookies()
       cookieStore.set(SESSION_COOKIE, token, {
@@ -297,15 +413,15 @@ export async function loginAdmin(formData: FormData): Promise<LoginResult> {
         path: '/',
       })
 
-      const isSuper = matchedUser.role.toLowerCase() === 'superadmin' || matchedUser.permissions.includes('users')
+      const hasAllAccess = matchedUser.role.toLowerCase() === 'superadmin' || matchedUser.permissions.includes('users')
       let redirectUrl = '/admin'
-      if (!isSuper && !matchedUser.permissions.includes('global')) {
+      if (!hasAllAccess && !matchedUser.permissions.includes('global')) {
         const dummyUser = {
           id: matchedUser.id,
           username: matchedUser.username,
           name: matchedUser.name,
           role: matchedUser.role,
-          isSuperadmin: isSuper,
+          isSuperadmin: false,
           isRootAdmin: false,
           permissions: matchedUser.permissions || [],
           canReceiveCareerNotif: Boolean(matchedUser.canReceiveCareerNotif),
@@ -342,7 +458,7 @@ export async function changePasswordOnLoginAction(formData: FormData): Promise<{
     const verifyPassword = String(formData.get('verifyPassword') ?? '')
 
     const h = await headers()
-    const ip = h.get('x-forwarded-for')?.split(',')[0].trim() || h.get('x-real-ip') || 'unknown'
+    const ip = h.get('x-real-ip') || h.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown'
     const userAgent = h.get('user-agent') || 'Perangkat Tidak Dikenal'
 
     const { verifyPasswordResetToken, createSessionToken } = await import('@/lib/session')
@@ -417,8 +533,8 @@ export async function changePasswordOnLoginAction(formData: FormData): Promise<{
       ip,
     })
 
-    const { writeDB } = await import('@/lib/db')
-    await writeDB(db)
+    const { writeSystemDB } = await import('@/lib/db')
+    await writeSystemDB(db)
 
     const cookieStore = await cookies()
     cookieStore.set(SESSION_COOKIE, token, {
@@ -429,15 +545,15 @@ export async function changePasswordOnLoginAction(formData: FormData): Promise<{
       path: '/',
     })
 
-    const isSuper = user.role.toLowerCase() === 'superadmin' || user.permissions.includes('users')
+    const hasAllAccess = user.role.toLowerCase() === 'superadmin' || user.permissions.includes('users')
     let redirectUrl = '/admin'
-    if (!isSuper && !user.permissions.includes('global')) {
+    if (!hasAllAccess && !user.permissions.includes('global')) {
       const dummyUser = {
         id: user.id,
         username: user.username,
         name: user.name,
         role: user.role,
-        isSuperadmin: isSuper,
+        isSuperadmin: false,
         isRootAdmin: false,
         permissions: user.permissions || [],
         canReceiveCareerNotif: Boolean(user.canReceiveCareerNotif),
@@ -461,11 +577,11 @@ export async function logoutAdmin() {
       const { getSessionPayload } = await import('@/lib/session')
       const payload = await getSessionPayload(token)
       if (payload?.userId) {
-        const { readDB, writeDB, addNotification } = await import('@/lib/db')
+        const { readDB, writeSystemDB, addNotification } = await import('@/lib/db')
         const db = await readDB()
         if (db.activeSessions && db.activeSessions[payload.userId]) {
           delete db.activeSessions[payload.userId]
-          await writeDB(db)
+          await writeSystemDB(db)
         }
         await addNotification(
           `Pengguna "${payload.userId}" telah logout dari sistem CMS.`,
@@ -492,19 +608,21 @@ export async function heartbeatAdminSession(): Promise<{ valid: boolean; message
     const payload = await getSessionPayload(token)
     if (!payload?.userId) return { valid: false, message: 'Token sesi tidak valid.' }
 
-    const { readDB, writeDB } = await import('@/lib/db')
+    const { readDB, writeSystemDB } = await import('@/lib/db')
     const db = await readDB()
     const session = db.activeSessions?.[payload.userId]
     if (!session) {
-      return { valid: true }
+      cookieStore.delete(SESSION_COOKIE)
+      return { valid: false, message: 'Sesi Anda telah dihentikan oleh Superadmin atau berakhir. Silakan login kembali.' }
     }
 
     if (session.token !== token) {
+      cookieStore.delete(SESSION_COOKIE)
       return { valid: false, message: 'Akun Anda telah masuk di perangkat lain. Sesi di perangkat ini dinonaktifkan.' }
     }
 
     session.lastSeen = Date.now()
-    await writeDB(db)
+    await writeSystemDB(db)
     return { valid: true }
   } catch {
     return { valid: true }

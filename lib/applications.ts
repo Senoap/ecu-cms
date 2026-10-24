@@ -20,6 +20,8 @@ export interface Application {
   status: ApplicationStatus
   created_at: string
   cv_purged?: boolean
+  consent_at?: string
+  consent_version?: string
 }
 
 const DATA_DIR = path.join(process.cwd(), 'data')
@@ -91,20 +93,28 @@ export async function autoPurgeExpiredCvs(days: number = 60): Promise<number> {
     for (const app of apps) {
       const appTime = new Date(app.created_at).getTime()
       if (now - appTime > RETENTION_MS && !app.cv_purged && app.cv_path) {
-        // Hapus fisik berkas CV dari folder lokal di VPS
+        // 1. Hapus fisik berkas CV dari folder lokal di VPS
         try {
           await fs.unlink(path.join(CV_DIR, app.cv_path))
         } catch {}
 
-        // Hapus juga dari Supabase Storage jika terhubung
-        const client = getAdminClient()
-        if (client) {
-          try {
-            await client.storage.from('cv').remove([app.cv_path])
-          } catch {}
+        // 2. Hapus juga dari Supabase Storage jika terhubung dan bukan local-only
+        if (process.env.STORAGE_DRIVER !== 'local') {
+          const client = getAdminClient()
+          if (client) {
+            try {
+              await client.storage.from('cv').remove([app.cv_path])
+            } catch {}
+          }
         }
 
+        // 3. Anonimkan data teks pelamar (UU PDP Pasal 44)
         app.cv_purged = true
+        app.name = 'Anonim (Kedaluwarsa)'
+        app.phone = '-'
+        app.email = '-'
+        app.education = null
+        app.cover_note = null
         hasChange = true
         purgedCount++
       }
@@ -114,16 +124,46 @@ export async function autoPurgeExpiredCvs(days: number = 60): Promise<number> {
       await writeLocalApplications(apps)
     }
 
-    // Update status di Supabase jika ada
+    // Supabase adalah sumber utama: sapu SEMUA baris kedaluwarsa langsung dari database
+    // (bukan hanya yang tercatat di berkas lokal), hapus berkas di bucket, lalu anonimkan.
     const client = getAdminClient()
-    if (client && hasChange) {
+    if (client) {
       try {
-        for (const app of apps) {
-          if (app.cv_purged) {
-            await client.from('applications').update({ cv_purged: true }).eq('id', app.id)
+        const cutoffIso = new Date(now - RETENTION_MS).toISOString()
+        const { data: expiredRows, error } = await client
+          .from('applications')
+          .select('id, cv_path')
+          .lt('created_at', cutoffIso)
+          .eq('cv_purged', false)
+          .limit(500)
+
+        if (!error && expiredRows) {
+          for (const row of expiredRows as { id: string; cv_path: string | null }[]) {
+            if (row.cv_path) {
+              try {
+                await fs.unlink(path.join(CV_DIR, row.cv_path))
+              } catch {}
+              if (process.env.STORAGE_DRIVER !== 'local') {
+                await client.storage.from('cv').remove([row.cv_path]).catch(() => {})
+              }
+            }
+            const { error: updErr } = await client
+              .from('applications')
+              .update({
+                cv_purged: true,
+                name: 'Anonim (Kedaluwarsa)',
+                phone: '-',
+                email: '-',
+                education: null,
+                cover_note: null,
+              })
+              .eq('id', row.id)
+            if (!updErr) purgedCount++
           }
         }
-      } catch {}
+      } catch (err) {
+        console.warn('[applications] Gagal purge baris kedaluwarsa di Supabase:', err)
+      }
     }
   } catch (err) {
     console.warn('[applications] Gagal menjalankan auto-purge CV 60 hari:', err)
@@ -133,9 +173,7 @@ export async function autoPurgeExpiredCvs(days: number = 60): Promise<number> {
 }
 
 export async function listApplications(): Promise<Application[]> {
-  // Jalankan retensi 60 hari otomatis (Point 11)
-  await autoPurgeExpiredCvs(60)
-
+  // Catatan: auto-purge dijalankan terpisah via cron (scripts/purge-expired-cv.mjs), bukan saat ada web request.
   const client = getAdminClient()
   if (client) {
     try {
@@ -220,39 +258,69 @@ export async function saveNewApplication(
     ...item,
   }
 
+  const isLocalStorage = process.env.STORAGE_DRIVER === 'local'
+  const localCvPath = path.join(CV_DIR, item.cv_path)
+
+  // 1. Simpan berkas fisik CV terlebih dahulu (Atomic Step 1)
+  try {
+    await fs.writeFile(localCvPath, cvBuffer)
+  } catch (fileErr) {
+    console.error('[applications] Gagal menyimpan berkas CV ke disk lokal:', fileErr)
+    throw new Error('Gagal menyimpan dokumen CV ke server.')
+  }
+
+  // Jika menggunakan Supabase Cloud Storage (bukan local driver)
+  let cloudUploaded = false
   const client = getAdminClient()
-  if (client) {
+  if (!isLocalStorage && client) {
     try {
       const { error: upErr } = await client.storage.from('cv').upload(item.cv_path, cvBuffer, {
         contentType: mime,
         upsert: false,
       })
-      if (!upErr) {
-        const { error: insErr } = await client.from('applications').insert(appRecord)
-        if (insErr) {
-          await client.storage.from('cv').remove([item.cv_path])
-        }
+      if (upErr) {
+        // Hapus file lokal jika cloud upload gagal
+        await fs.unlink(localCvPath).catch(() => {})
+        console.error('[applications] Gagal upload CV ke Supabase Storage:', upErr)
+        throw new Error('Gagal mengunggah dokumen CV ke penyimpanan cloud.')
       }
-    } catch (err) {
-      console.warn('[applications] Supabase simpan lamaran gagal, beralih ke penyimpanan lokal:', err)
+      cloudUploaded = true
+    } catch (cloudErr) {
+      await fs.unlink(localCvPath).catch(() => {})
+      throw cloudErr instanceof Error ? cloudErr : new Error('Gagal mengunggah dokumen CV.')
     }
   }
 
-  // Simpan CV ke penyimpanan lokal di VPS (data/cv/) jika filesystem writable
-  try {
-    const localCvPath = path.join(CV_DIR, item.cv_path)
-    await fs.writeFile(localCvPath, cvBuffer)
-  } catch {
-    // Pada serverless (Vercel), filesystem read-only; abaikan jika Supabase sudah menangani
+  // 2. Insert record pelamar ke Database (Atomic Step 2)
+  if (client) {
+    try {
+      const { error: insErr } = await client.from('applications').insert(appRecord)
+      if (insErr) {
+        // ROLLBACK: Hapus berkas fisik yang baru disimpan agar tidak meninggalkan file yatim
+        await fs.unlink(localCvPath).catch(() => {})
+        if (cloudUploaded) {
+          await client.storage.from('cv').remove([item.cv_path]).catch(() => {})
+        }
+        console.error('[applications] Gagal insert record pelamar ke DB, berkas di-rollback:', insErr)
+        throw new Error(`Gagal menyimpan data lamaran ke database: ${insErr.message}`)
+      }
+    } catch (dbErr) {
+      // Pastikan rollback berkas yatim jika terjadi exception tak terduga
+      await fs.unlink(localCvPath).catch(() => {})
+      if (cloudUploaded && client) {
+        await client.storage.from('cv').remove([item.cv_path]).catch(() => {})
+      }
+      throw dbErr instanceof Error ? dbErr : new Error('Gagal menyimpan data lamaran.')
+    }
   }
 
-  // Simpan record lamaran ke data/applications.json lokal
+  // Simpan juga record lamaran ke data/applications.json lokal untuk sinkronisasi cadangan
   try {
     const apps = await readLocalApplications()
     apps.unshift(appRecord)
     await writeLocalApplications(apps)
   } catch {
-    // Abaikan kegagalan tulis lokal di serverless
+    // Abaikan jika penulisan json lokal gagal pada environment khusus
   }
 
   return appRecord
@@ -327,9 +395,10 @@ export async function getCvDownload(id: string): Promise<
     candidateName = foundLocal.name.replace(/[^a-zA-Z0-9_-]/g, '_')
   }
 
-  // 2. Cek dari Supabase jika ada
+  // 2. Cek dari Supabase jika ada dan bukan local storage
+  const isLocalStorage = process.env.STORAGE_DRIVER === 'local'
   const client = getAdminClient()
-  if (client) {
+  if (!isLocalStorage && client) {
     try {
       if (!cvPath) {
         const { data } = await client.from('applications').select('name, cv_path').eq('id', id).maybeSingle()

@@ -839,7 +839,7 @@ export function CertificationsAdminClient({
                     type="text"
                     value={editingCert.certNumber || ''}
                     onChange={(e) => setEditingCert({ ...editingCert, certNumber: e.target.value })}
-                    placeholder="Contoh: QMS/2024/ESU-88912"
+                    placeholder="Contoh: QMS/2024/4SU-88912"
                     className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:border-amber-500 font-medium"
                   />
                 </div>

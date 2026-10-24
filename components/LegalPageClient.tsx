@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, ShieldCheck, FileText, Calendar, Moon, Sun } from 'lucide-react'
 import type { DatabaseContent, LegalContent } from '@/lib/db'
+import { openCookieSettings } from '@/lib/cookieConsent'
 
 interface LegalPageClientProps {
   db: DatabaseContent
@@ -65,7 +66,7 @@ export default function LegalPageClient({ db, legal, type }: LegalPageClientProp
                 className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs text-white shadow-sm"
                 style={{ backgroundColor: setting.primaryColor || '#7E1D0C' }}
               >
-                ESU
+                4SU
               </div>
             )}
             <span className="hidden sm:inline font-black text-xs md:text-sm tracking-wide text-gray-900 dark:text-white">
@@ -160,6 +161,13 @@ export default function LegalPageClient({ db, legal, type }: LegalPageClientProp
           <div className="flex items-center gap-4">
             <Link href="/privacy-policy" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">Kebijakan Privasi</Link>
             <Link href="/terms" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">Syarat & Ketentuan</Link>
+            <button
+              type="button"
+              onClick={openCookieSettings}
+              className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors cursor-pointer"
+            >
+              Pengaturan Cookie
+            </button>
           </div>
         </div>
       </footer>

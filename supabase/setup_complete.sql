@@ -86,15 +86,16 @@ grant all on public.app_settings to service_role;
 
 
 -- 4. STORAGE BUCKETS (uploads untuk gambar & cv untuk dokumen pelamar)
--- Bucket: uploads (Public: true, max 10MB)
+-- Bucket: uploads (Public: true, max 15MB, mendukung semua format gambar)
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values (
-  'uploads', 'uploads', true, 10485760,
-  array['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml']
+  'uploads', 'uploads', true, 15728640,
+  array['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml', 'image/bmp', 'image/tiff', 'image/avif', 'image/x-icon', 'image/heic']
 )
 on conflict (id) do update set
   public = true,
-  file_size_limit = 10485760;
+  file_size_limit = 15728640,
+  allowed_mime_types = array['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml', 'image/bmp', 'image/tiff', 'image/avif', 'image/x-icon', 'image/heic'];
 
 -- Bucket: cv (Public: false, max 5MB)
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)

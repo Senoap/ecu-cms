@@ -3,7 +3,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { requirePermission } from '@/lib/auth'
-import { readDB, writeDB, addNotification, type CmsUser } from '@/lib/db'
+import { readDB, writeSystemDB, addNotification, type CmsUser } from '@/lib/db'
 import { hashPassword, validatePasswordStrength } from '@/lib/password'
 
 export type UserActionResult = {
@@ -60,8 +60,8 @@ export async function createUserAction(formData: FormData): Promise<UserActionRe
     if (!db.cmsUsers) db.cmsUsers = []
 
     // Cegah duplikasi username
-    if (db.cmsUsers.some((u) => u.username.toLowerCase() === username) || username === 'admin') {
-      return { success: false, message: `Username "${username}" sudah digunakan. Silakan gunakan username lain.` }
+    if (db.cmsUsers.some((u) => u.username.toLowerCase() === username) || username === 'admin' || username === 'superadmin') {
+      return { success: false, message: `Username "${username}" sudah digunakan atau dicadangkan untuk sistem. Silakan gunakan username lain.` }
     }
 
     const now = Date.now()
@@ -80,8 +80,13 @@ export async function createUserAction(formData: FormData): Promise<UserActionRe
     }
 
     db.cmsUsers.push(newUser)
-    await writeDB(db)
-    await addNotification(`Menambahkan pengguna CMS baru: "${name}" (@${username}) dengan role "${role}".`, 'CREATE')
+    await writeSystemDB(db)
+    await addNotification(
+      `Menambahkan pengguna CMS baru: "${name}" (@${username}) dengan role "${role}".`,
+      'CREATE',
+      'system',
+      { userName: currentUser.name, userRole: currentUser.role, isSystemOnly: true }
+    )
 
     revalidatePath('/admin/users')
     revalidatePath('/admin', 'layout')
@@ -147,8 +152,13 @@ export async function updateUserAction(formData: FormData): Promise<UserActionRe
     }
 
     db.cmsUsers[index] = updatedUser
-    await writeDB(db)
-    await addNotification(`Memperbarui data pengguna CMS: "${updatedUser.name}".`, 'UPDATE')
+    await writeSystemDB(db)
+    await addNotification(
+      `Memperbarui data pengguna CMS: "${updatedUser.name}".`,
+      'UPDATE',
+      'system',
+      { userName: currentUser.name, userRole: currentUser.role, isSystemOnly: true }
+    )
 
     revalidatePath('/admin/users')
     revalidatePath('/admin', 'layout')
@@ -176,11 +186,11 @@ export async function resetUserPasswordAction(formData: FormData): Promise<UserA
       return { success: false, message: 'ID pengguna tidak valid.' }
     }
 
-    // Aturan 2: Reset password khusus untuk user lain selain user admin (root master)
-    if (targetUserId === 'admin') {
+    // Aturan 2: Reset password khusus untuk user lain selain user admin (root master) & superadmin
+    if (targetUserId === 'admin' || targetUserId === 'superadmin') {
       return { 
         success: false, 
-        message: 'Password Administrator Master tidak dapat di-reset melalui menu ini (dikelola langsung melalui sistem/environment).' 
+        message: 'Password akun sistem utama tidak dapat di-reset melalui menu ini (dikelola langsung melalui sistem/environment).' 
       }
     }
 
@@ -215,13 +225,13 @@ export async function resetUserPasswordAction(formData: FormData): Promise<UserA
     }
 
     db.cmsUsers[targetIndex] = targetUser
-    await writeDB(db)
+    await writeSystemDB(db)
 
     await addNotification(
       `Password pengguna "${targetUser.name}" (@${targetUser.username}) telah di-reset oleh ${currentUser.name}.`,
       'UPDATE',
       'system',
-      { userName: currentUser.name, userRole: currentUser.role }
+      { userName: currentUser.name, userRole: currentUser.role, isSystemOnly: true }
     )
 
     revalidatePath('/admin/users')
@@ -240,7 +250,7 @@ export async function deleteUserAction(formData: FormData): Promise<UserActionRe
     await requirePermission('users')
 
     const id = String(formData.get('id') ?? '')
-    if (!id || id === 'admin') return { success: false, message: 'Pengguna ini tidak dapat dihapus.' }
+    if (!id || id === 'admin' || id === 'superadmin') return { success: false, message: 'Pengguna ini tidak dapat dihapus.' }
 
     const db = await readDB()
     if (!db.cmsUsers) return { success: false, message: 'Tidak ada data pengguna.' }
@@ -253,8 +263,13 @@ export async function deleteUserAction(formData: FormData): Promise<UserActionRe
       delete db.activeSessions[id]
     }
 
-    await writeDB(db)
-    await addNotification(`Menghapus pengguna CMS: "${target?.name || id}".`, 'DELETE')
+    await writeSystemDB(db)
+    await addNotification(
+      `Menghapus pengguna CMS: "${target?.name || id}".`,
+      'DELETE',
+      'system',
+      { isSystemOnly: true }
+    )
 
     revalidatePath('/admin/users')
     revalidatePath('/admin', 'layout')
@@ -270,7 +285,7 @@ export async function toggleUserStatusAction(formData: FormData): Promise<UserAc
     await requirePermission('users')
 
     const id = String(formData.get('id') ?? '')
-    if (id === 'admin') return { success: false, message: 'Status Administrator Master tidak dapat diubah.' }
+    if (id === 'admin' || id === 'superadmin') return { success: false, message: 'Status akun sistem utama tidak dapat diubah.' }
 
     const db = await readDB()
     if (!db.cmsUsers) return { success: false, message: 'Tidak ada data pengguna.' }
@@ -282,14 +297,78 @@ export async function toggleUserStatusAction(formData: FormData): Promise<UserAc
       if (!user.isActive && db.activeSessions && db.activeSessions[id]) {
         delete db.activeSessions[id]
       }
-      await writeDB(db)
-      await addNotification(`Mengubah status pengguna "${user.name}" menjadi ${user.isActive ? 'Aktif' : 'Non-aktif'}.`, 'UPDATE')
+      await writeSystemDB(db)
+      await addNotification(
+        `Mengubah status pengguna "${user.name}" menjadi ${user.isActive ? 'Aktif' : 'Non-aktif'}.`,
+        'UPDATE',
+        'system',
+        { isSystemOnly: true }
+      )
       revalidatePath('/admin/users')
       revalidatePath('/admin', 'layout')
     }
     return { success: true }
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Gagal mengubah status pengguna.'
+    return { success: false, message: msg }
+  }
+}
+
+/**
+ * Menghentikan paksa (Kick) sesi pengguna yang sedang login/online di bawah Superadmin.
+ * Khusus dapat dijalankan oleh Superadmin (tier di atas admin).
+ */
+export async function kickUserSessionAction(formData: FormData): Promise<UserActionResult> {
+  try {
+    const currentUser = await requirePermission('users')
+
+    if (!currentUser.isSuperadmin || currentUser.id !== 'superadmin') {
+      return {
+        success: false,
+        message: 'Akses ditolak: Hanya Superadmin yang memiliki wewenang untuk meng-kick pengguna yang sedang online.'
+      }
+    }
+
+    const targetUserId = String(formData.get('targetUserId') ?? '').trim()
+    if (!targetUserId) {
+      return { success: false, message: 'ID pengguna tidak valid.' }
+    }
+
+    if (targetUserId === 'superadmin') {
+      return { success: false, message: 'Sesi Superadmin tidak dapat di-kick.' }
+    }
+
+    const db = await readDB()
+    if (!db.activeSessions || !db.activeSessions[targetUserId]) {
+      return { success: false, message: 'Pengguna tersebut saat ini sudah tidak dalam status login/online.' }
+    }
+
+    const targetName =
+      targetUserId === 'admin'
+        ? 'Administrator Master (@admin)'
+        : (() => {
+            const u = db.cmsUsers?.find((item) => item.id === targetUserId)
+            return u ? `${u.name} (@${u.username})` : targetUserId
+          })()
+
+    delete db.activeSessions[targetUserId]
+    await writeSystemDB(db)
+
+    await addNotification(
+      `Sesi login pengguna "${targetName}" telah dihentikan paksa (Kick) oleh Superadmin.`,
+      'AUTH',
+      'system',
+      { userName: currentUser.name, userRole: currentUser.role, isSystemOnly: true }
+    )
+
+    revalidatePath('/admin/users')
+    revalidatePath('/admin', 'layout')
+    return {
+      success: true,
+      message: `Berhasil meng-kick "${targetName}". Sesi login pengguna telah diputus secara paksa.`
+    }
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Gagal meng-kick sesi pengguna.'
     return { success: false, message: msg }
   }
 }

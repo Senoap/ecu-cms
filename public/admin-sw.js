@@ -1,5 +1,5 @@
 // public/admin-sw.js
-const CACHE_NAME = 'esu-admin-pwa-v1';
+const CACHE_NAME = '4su-admin-pwa-v1';
 const PRECACHE_ASSETS = [
   '/admin-manifest.json',
   '/icons/icon-192x192.png',
@@ -29,41 +29,53 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Network-first strategy for admin navigation and dynamic assets
+// Listen for messages from client (e.g. Logout to clear private cache)
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.action === 'LOGOUT') {
+    event.waitUntil(caches.delete(CACHE_NAME));
+  }
+});
+
+// Cache strategy: ONLY static public assets (icons & manifest) are cached.
+// Authenticated /admin routes and data are NEVER stored in Cache Storage to prevent data leakage on shared devices.
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Skip non-GET requests or server actions / API mutations
+  // Skip non-GET requests, API requests, and server actions
   if (event.request.method !== 'GET') {
     return;
   }
 
-  // Handle static assets or scoped admin routes
-  if (url.pathname.startsWith('/admin') || url.pathname.startsWith('/icons/') || url.pathname === '/admin-manifest.json') {
+  // Static shell assets (icons, manifest) - Stale-While-Revalidate
+  if (url.pathname.startsWith('/icons/') || url.pathname === '/admin-manifest.json') {
     event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          // If valid response, clone and update cache
-          if (response && response.status === 200 && response.type === 'basic') {
-            const responseToCache = response.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, responseToCache);
-            });
+      caches.match(event.request).then((cachedResponse) => {
+        const fetchPromise = fetch(event.request).then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
           }
-          return response;
-        })
-        .catch(() => {
-          // If network fails, try cache
-          return caches.match(event.request).then((cachedResponse) => {
-            if (cachedResponse) {
-              return cachedResponse;
-            }
-            return new Response('Offline: Mohon periksa koneksi internet Anda.', {
-              status: 503,
-              headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-            });
-          });
-        })
+          return networkResponse;
+        }).catch(() => cachedResponse);
+
+        return cachedResponse || fetchPromise;
+      })
+    );
+    return;
+  }
+
+  // Dynamic /admin pages: Network-only, NEVER cached in client-side storage
+  if (url.pathname.startsWith('/admin')) {
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        return new Response(
+          '<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><title>Offline</title></head><body style="font-family:sans-serif;padding:2rem;text-align:center;"><h2>Koneksi Terputus</h2><p>Sesi CMS tidak dapat diakses saat offline demi keamanan data perusahaan.</p><button onclick="window.location.reload()" style="padding:0.5rem 1rem;cursor:pointer;">Muat Ulang</button></body></html>',
+          {
+            status: 503,
+            headers: { 'Content-Type': 'text/html; charset=utf-8' },
+          }
+        );
+      })
     );
   }
 });

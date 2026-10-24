@@ -1,36 +1,35 @@
 // app/admin/users/UsersClient.tsx
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useEffect, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { 
-  Users, 
-  ShieldCheck, 
   Plus, 
   Pencil, 
   Trash2, 
-  Check, 
   X, 
-  Bell, 
   Lock, 
   User, 
   KeyRound,
-  ShieldAlert,
-  Clock,
-  AlertTriangle,
   RotateCcw,
   CheckCircle2,
   XCircle,
   Eye,
-  EyeOff
+  EyeOff,
+  UserX,
+  RefreshCw
 } from 'lucide-react'
 import { AVAILABLE_MENUS } from '@/lib/menus'
 import { checkPasswordExpiry, validatePasswordStrength } from '@/lib/password'
+import { useSmartViewport } from '@/components/SmartViewportProvider'
+import type { ActiveSessionRecord } from '@/lib/db'
 import { 
   createUserAction, 
   updateUserAction, 
   deleteUserAction, 
   toggleUserStatusAction,
-  resetUserPasswordAction
+  resetUserPasswordAction,
+  kickUserSessionAction
 } from './actions'
 
 export interface CmsUserDisplay {
@@ -50,15 +49,24 @@ interface UsersClientProps {
   users: CmsUserDisplay[]
   masterAdminUsername: string
   isRootAdmin: boolean
+  isSuperadmin?: boolean
   currentUserId: string
+  activeSessions?: Record<string, ActiveSessionRecord>
+  serverTimestamp?: number
 }
+
+const SESSION_ONLINE_WINDOW_MS = 30 * 60 * 1000 // 30 menit
 
 export default function UsersClient({ 
   users, 
   masterAdminUsername, 
   isRootAdmin, 
-  currentUserId: _currentUserId 
+  isSuperadmin = false,
+  currentUserId,
+  activeSessions = {},
+  serverTimestamp = 0
 }: UsersClientProps) {
+  const router = useRouter()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<CmsUserDisplay | null>(null)
   const [isResetModalOpen, setIsResetModalOpen] = useState(false)
@@ -280,232 +288,441 @@ export default function UsersClient({
     })
   }
 
-  const totalUsers = users.length + 1 // +1 for Master Admin
-  const activeUsers = users.filter((u) => u.isActive).length + 1
+  const [currentTimestamp, setCurrentTimestamp] = useState(() => serverTimestamp || 0)
+
+  useEffect(() => {
+    const interval = setInterval(() => setCurrentTimestamp(Date.now()), 15000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const handleKickUser = (targetUserId: string, targetName: string) => {
+    if (!confirm(`Putuskan paksa (Kick) sesi login untuk "${targetName}"? Pengguna tersebut akan langsung dikeluarkan dari halaman CMS.`)) return
+    setErrorMsg('')
+    setSuccessMsg('')
+    const formData = new FormData()
+    formData.set('targetUserId', targetUserId)
+    startTransition(async () => {
+      try {
+        const res = await kickUserSessionAction(formData)
+        if (!res.success) {
+          setErrorMsg(res.message || 'Gagal meng-kick sesi pengguna.')
+          return
+        }
+        setSuccessMsg(res.message || `Sesi pengguna "${targetName}" berhasil dihentikan paksa.`)
+        setCurrentTimestamp(Date.now())
+        router.refresh()
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Gagal meng-kick sesi pengguna.'
+        setErrorMsg(msg)
+      }
+    })
+  }
+
+  const getSessionStatus = (userId: string) => {
+    const sess = activeSessions[userId]
+    if (!sess) return { isLoggedIn: false, isOnline: false, session: null }
+    const isOnline = currentTimestamp - sess.lastSeen < SESSION_ONLINE_WINDOW_MS
+    return { isLoggedIn: true, isOnline, session: sess }
+  }
+
+  const totalUsers = users.length + 2 // +2 for Superadmin & Master Admin
+  const activeUsers = users.filter((u) => u.isActive).length + 2
   const careerNotifUsers = users.filter((u) => u.canReceiveCareerNotif).length + 1
+  const adminSessionStatus = getSessionStatus('admin')
+  const onlineBelowSuperadminCount =
+    (adminSessionStatus.isLoggedIn ? 1 : 0) +
+    users.filter((u) => getSessionStatus(u.id).isLoggedIn).length
 
   // Evaluasi kekuatan password untuk visual feedback di modal
   const formPasswordVal = validatePasswordStrength(formPassword)
   const resetPasswordVal = validatePasswordStrength(resetNewPassword)
+  const { isQuadSplit } = useSmartViewport()
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-300">
+    <div className="space-y-6 animate-in fade-in duration-300">
       
-      {/* HEADER SECTION */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-6">
+      {/* HEADER SECTION — BERSIH TANPA BADGE TEMPLATE */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
         <div>
-          <div className="flex items-center gap-2.5">
-            <ShieldCheck className="w-6 h-6 text-amber-600 dark:text-amber-400" />
-            <h1 className="text-2xl font-black tracking-tight uppercase text-gray-900 dark:text-white">
-              Manajemen Pengguna & Role
-            </h1>
-          </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">
-            Atur hak akses menu untuk tiap pengguna, kelola masa berlaku password (3 bulan / 90 hari), dan atur penerima notifikasi karir.
+          <p className="text-[11px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+            {isSuperadmin ? 'Otoritas Kontrol Tertinggi · Superadmin' : 'Sistem Otorisasi & Akses Halaman CMS'}
+          </p>
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white mt-0.5">
+            Kontrol Pengguna & Sesi Aktif
+          </h1>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Kelola akun pengguna, pantau sesi login langsung, putuskan koneksi (kick), dan atur hak akses menu halaman CMS.
           </p>
         </div>
 
-        {/* TOMBOL TAMBAH PENGGUNA (KHUSUS ADMIN ROOT) */}
-        {isRootAdmin ? (
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            onClick={openAddModal}
-            className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs font-black uppercase tracking-wider text-white bg-amber-600 hover:bg-amber-700 shadow-sm transition-all transform hover:-translate-y-0.5 cursor-pointer shrink-0"
+            onClick={() => {
+              setCurrentTimestamp(Date.now())
+              router.refresh()
+            }}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-lg text-xs font-bold text-gray-700 dark:text-gray-200 bg-white dark:bg-[#181B26] border border-gray-300 dark:border-[#222736] text-gray-700 dark:text-zinc-200 hover:bg-gray-50 dark:hover:bg-[#202534] transition-colors cursor-pointer"
           >
-            <Plus className="w-4 h-4" />
-            <span>Tambah Pengguna</span>
+            <RefreshCw className="w-3.5 h-3.5" />
+            <span>Segarkan Data</span>
           </button>
-        ) : (
-          <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[11px] font-bold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 select-none">
-            <Lock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-            <span>Penambahan Role Dibatasi Khusus Admin Root</span>
-          </div>
-        )}
+
+          {isRootAdmin ? (
+            <button
+              type="button"
+              onClick={openAddModal}
+              className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 transition-colors cursor-pointer shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Tambah Pengguna</span>
+            </button>
+          ) : (
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              Penambahan akun khusus Admin Root
+            </span>
+          )}
+        </div>
       </div>
 
       {/* ALERT FEEDBACK */}
       {successMsg && (
-        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs font-bold flex items-center justify-between">
+        <div className="px-4 py-3 rounded-lg bg-emerald-500/10 border-l-4 border-emerald-500 text-emerald-800 dark:text-emerald-300 text-xs font-semibold flex items-center justify-between">
           <span>{successMsg}</span>
           <button onClick={() => setSuccessMsg('')} className="p-1 hover:opacity-70 cursor-pointer"><X className="w-4 h-4" /></button>
         </div>
       )}
       {errorMsg && (
-        <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-800 dark:text-rose-300 text-xs font-bold flex items-center justify-between">
+        <div className="px-4 py-3 rounded-lg bg-rose-500/10 border-l-4 border-rose-500 text-rose-800 dark:text-rose-300 text-xs font-semibold flex items-center justify-between">
           <span>{errorMsg}</span>
           <button onClick={() => setErrorMsg('')} className="p-1 hover:opacity-70 cursor-pointer"><X className="w-4 h-4" /></button>
         </div>
       )}
 
-      {/* STATS OVERVIEW CARDS */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/80 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
-            <Users className="w-6 h-6" />
-          </div>
-          <div>
-            <div className="text-2xl font-black text-gray-900 dark:text-white">{totalUsers}</div>
-            <div className="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">Total Pengguna</div>
-          </div>
+      {/* RINGKASAN METRIK — STRIP BERSIH TANPA KARTU AI TEMPLATE */}
+      <div className={`grid border border-gray-200 dark:border-[#222736] rounded-xl bg-white dark:bg-[#13161F] divide-y sm:divide-y-0 sm:divide-x divide-gray-200 dark:divide-[#222736] ${
+        isQuadSplit ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-4'
+      }`}>
+        <div className="p-4">
+          <div className="text-[11px] text-gray-500 dark:text-gray-400 font-medium">Total Akun Terdaftar</div>
+          <div className="text-xl font-black text-gray-900 dark:text-white mt-0.5 tabular-nums">{totalUsers}</div>
         </div>
-
-        <div className="p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/80 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
-            <Check className="w-6 h-6" />
-          </div>
-          <div>
-            <div className="text-2xl font-black text-gray-900 dark:text-white">{activeUsers}</div>
-            <div className="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">Pengguna Aktif</div>
-          </div>
+        <div className="p-4">
+          <div className="text-[11px] text-gray-500 dark:text-gray-400 font-medium">Status Akun Aktif</div>
+          <div className="text-xl font-black text-gray-900 dark:text-white mt-0.5 tabular-nums">{activeUsers}</div>
         </div>
-
-        <div className="p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/80 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0">
-            <Bell className="w-6 h-6" />
-          </div>
-          <div>
-            <div className="text-2xl font-black text-gray-900 dark:text-white">{careerNotifUsers}</div>
-            <div className="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">Penerima Notif Karir</div>
-          </div>
+        <div className="p-4">
+          <div className="text-[11px] text-gray-500 dark:text-gray-400 font-medium">Sesi Login Di Bawah Superadmin</div>
+          <div className="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-0.5 tabular-nums">{onlineBelowSuperadminCount}</div>
+        </div>
+        <div className="p-4">
+          <div className="text-[11px] text-gray-500 dark:text-gray-400 font-medium">Penerima Notifikasi Karir</div>
+          <div className="text-xl font-black text-gray-900 dark:text-white mt-0.5 tabular-nums">{careerNotifUsers}</div>
         </div>
       </div>
 
-      {/* MASTER ADMIN CARD */}
-      <div className="p-5 rounded-2xl border border-amber-500/30 bg-amber-50/50 dark:bg-amber-950/20 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-amber-700 text-white font-black flex items-center justify-center text-lg shadow-sm shrink-0">
-            ROOT
-          </div>
+      {/* PANEL MONITORING SESI LOGIN & ONLINE (TABEL DIREKTORI LANGSUNG TANPA BADGE) */}
+      <div className="border border-gray-200 dark:border-[#222736] rounded-xl bg-white dark:bg-[#13161F] overflow-hidden">
+        <div className="px-4 sm:px-5 py-3.5 border-b border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-gray-50/70 dark:bg-[#171B26]">
           <div>
-            <div className="flex items-center gap-2">
-              <h3 className="font-black text-base text-gray-900 dark:text-white">Administrator Master (Root)</h3>
-              <span className="text-[11px] font-bold text-amber-700 dark:text-amber-400 bg-amber-500/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                Root Superadmin
-              </span>
-            </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-              Username: <span className="font-mono font-bold text-amber-700 dark:text-amber-400">@{masterAdminUsername}</span> · Pemegang hak eksklusif penambahan role dan user baru
+            <h2 className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white">
+              Daftar Sesi Login & Koneksi Aktif
+            </h2>
+            <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
+              Daftar real-time akun di bawah Superadmin beserta status koneksi, alamat IP, perangkat, dan kontrol pemutusan sesi (Kick).
             </p>
           </div>
+          <div className="text-[11px] text-gray-500 dark:text-gray-400 font-mono">
+            Aktif: {onlineBelowSuperadminCount} dari {users.length + 1} akun
+          </div>
         </div>
-        <div className="flex items-center gap-2 text-xs font-bold text-amber-700 dark:text-amber-400 bg-amber-500/10 px-3 py-1.5 rounded-xl border border-amber-500/20 self-start md:self-center">
-          <ShieldAlert className="w-4 h-4 shrink-0" />
-          <span>Akses Penuh Semua Menu & Pengaturan Keamanan</span>
+
+        <div className="divide-y divide-gray-200 dark:divide-gray-800">
+          {/* 1. Baris Administrator Master (@admin) */}
+          <div className="px-3 sm:px-5 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-gray-50/50 dark:hover:bg-[#181C28] transition-colors">
+            <div className="space-y-1 min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm">
+                <span className={`w-2 h-2 rounded-full shrink-0 ${
+                  adminSessionStatus.isLoggedIn
+                    ? adminSessionStatus.isOnline ? 'bg-emerald-500' : 'bg-amber-500'
+                    : 'bg-gray-300 dark:bg-gray-700'
+                }`} />
+                <span className="font-bold text-gray-900 dark:text-white">Administrator Master</span>
+                <span className="text-xs font-mono text-gray-500 dark:text-gray-400">@{masterAdminUsername}</span>
+                <span className="text-gray-300 dark:text-gray-700">|</span>
+                <span className="text-xs text-gray-600 dark:text-gray-300 font-medium">Admin Master</span>
+                <span className="text-gray-300 dark:text-gray-700">|</span>
+                <span className={`text-xs font-semibold ${
+                  adminSessionStatus.isLoggedIn
+                    ? 'text-emerald-600 dark:text-emerald-400'
+                    : 'text-gray-400 dark:text-gray-500'
+                }`}>
+                  {adminSessionStatus.isLoggedIn
+                    ? adminSessionStatus.isOnline ? 'Online' : 'Login (Idle)'
+                    : 'Offline'}
+                </span>
+              </div>
+
+              {adminSessionStatus.session ? (
+                <div className="text-[11px] text-gray-500 dark:text-gray-400 flex flex-wrap items-center gap-x-2.5 gap-y-0.5 pl-3.5">
+                  <span>IP: <strong className="font-mono text-gray-800 dark:text-gray-200">{adminSessionStatus.session.ip}</strong></span>
+                  <span>·</span>
+                  <span suppressHydrationWarning>Masuk: {new Date(adminSessionStatus.session.loggedInAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>
+                  <span>·</span>
+                  <span suppressHydrationWarning>Aktivitas: {new Date(adminSessionStatus.session.lastSeen).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>
+                  <span className="block w-full text-[10px] text-gray-400 truncate max-w-full" title={adminSessionStatus.session.userAgent}>
+                    Perangkat: {adminSessionStatus.session.userAgent}
+                  </span>
+                </div>
+              ) : (
+                <p className="text-[11px] text-gray-400 pl-3.5">Tidak ada sesi login yang sedang berlangsung.</p>
+              )}
+            </div>
+
+            {isSuperadmin && adminSessionStatus.isLoggedIn && (
+              <button
+                type="button"
+                disabled={isPending}
+                onClick={() => handleKickUser('admin', 'Administrator Master (@admin)')}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white transition-colors cursor-pointer shrink-0 self-start sm:self-center disabled:opacity-50"
+              >
+                <UserX className="w-3.5 h-3.5" />
+                <span>Kick Sesi</span>
+              </button>
+            )}
+          </div>
+
+          {/* 2. Baris Setiap Pengguna CMS */}
+          {users.map((u) => {
+            const st = getSessionStatus(u.id)
+            return (
+              <div
+                key={`sess-${u.id}`}
+                className="px-3 sm:px-5 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-colors"
+              >
+                <div className="space-y-1 min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm">
+                    <span className={`w-2 h-2 rounded-full shrink-0 ${
+                      st.isLoggedIn
+                        ? st.isOnline ? 'bg-emerald-500' : 'bg-amber-500'
+                        : 'bg-gray-300 dark:bg-gray-700'
+                    }`} />
+                    <span className="font-bold text-gray-900 dark:text-white">{u.name}</span>
+                    <span className="text-xs font-mono text-gray-500 dark:text-gray-400">@{u.username}</span>
+                    <span className="text-gray-300 dark:text-gray-700">|</span>
+                    <span className="text-xs text-gray-600 dark:text-gray-300 font-medium">{u.role}</span>
+                    <span className="text-gray-300 dark:text-gray-700">|</span>
+                    <span className={`text-xs font-semibold ${
+                      st.isLoggedIn
+                        ? 'text-emerald-600 dark:text-emerald-400'
+                        : 'text-gray-400 dark:text-gray-500'
+                    }`}>
+                      {st.isLoggedIn
+                        ? st.isOnline ? 'Online' : 'Login (Idle)'
+                        : 'Offline'}
+                    </span>
+                  </div>
+
+                  {st.session ? (
+                    <div className="text-[11px] text-gray-500 dark:text-gray-400 flex flex-wrap items-center gap-x-2.5 gap-y-0.5 pl-3.5">
+                      <span>IP: <strong className="font-mono text-gray-800 dark:text-gray-200">{st.session.ip}</strong></span>
+                      <span>·</span>
+                      <span suppressHydrationWarning>Masuk: {new Date(st.session.loggedInAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>
+                      <span>·</span>
+                      <span suppressHydrationWarning>Aktivitas: {new Date(st.session.lastSeen).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>
+                      <span className="block w-full text-[10px] text-gray-400 truncate max-w-full" title={st.session.userAgent}>
+                        Perangkat: {st.session.userAgent}
+                      </span>
+                    </div>
+                  ) : (
+                    <p className="text-[11px] text-gray-400 pl-3.5">Tidak ada sesi login yang sedang berlangsung.</p>
+                  )}
+                </div>
+
+                {isSuperadmin && st.isLoggedIn && currentUserId !== u.id && (
+                  <button
+                    type="button"
+                    disabled={isPending}
+                    onClick={() => handleKickUser(u.id, `${u.name} (@${u.username})`)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white transition-colors cursor-pointer shrink-0 self-start sm:self-center disabled:opacity-50"
+                  >
+                    <UserX className="w-3.5 h-3.5" />
+                    <span>Kick Sesi</span>
+                  </button>
+                )}
+              </div>
+            )
+          })}
         </div>
       </div>
 
-      {/* DAFTAR PENGGUNA CMS TAMBAHAN */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-black uppercase tracking-wider text-gray-700 dark:text-gray-300">
-            Daftar Pengguna Tambahan ({users.length})
+      {/* STRUKTUR OTORITAS UTAMA (SUPERADMIN & ADMIN MASTER) — TANPA BADGE */}
+      <div className="border border-gray-200 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-900/90 divide-y divide-gray-200 dark:divide-gray-800">
+        <div className="px-4 sm:px-5 py-3 bg-gray-50/70 dark:bg-gray-950/50">
+          <h2 className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white">
+            Struktur Akun Sistem Utama
+          </h2>
+        </div>
+
+        <div className="px-4 sm:px-5 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+          <div>
+            <div className="font-bold text-sm text-gray-900 dark:text-white">
+              Super Administrator <span className="font-mono font-normal text-gray-500 dark:text-gray-400 ml-1">@superadmin</span>
+            </div>
+            <p className="text-gray-500 dark:text-gray-400 mt-0.5">
+              Otoritas tertinggi di atas Admin Master. Hanya memiliki akses ke halaman Kontrol Pengguna, pemantauan sesi online, dan pemutusan sesi (kick).
+            </p>
+          </div>
+          <div className="text-gray-500 dark:text-gray-400 font-medium shrink-0">
+            Lingkup: Khusus Kontrol User
+          </div>
+        </div>
+
+        <div className="px-4 sm:px-5 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+          <div>
+            <div className="font-bold text-sm text-gray-900 dark:text-white">
+              Administrator Master <span className="font-mono font-normal text-gray-500 dark:text-gray-400 ml-1">@{masterAdminUsername}</span>
+            </div>
+            <p className="text-gray-500 dark:text-gray-400 mt-0.5">
+              Pemegang akses penuh seluruh modul konten CMS dan publikasi draft website utama.
+            </p>
+          </div>
+          <div className="flex items-center gap-3 shrink-0">
+            <span className="text-gray-500 dark:text-gray-400 font-medium">Lingkup: Seluruh Modul CMS</span>
+            {isSuperadmin && adminSessionStatus.isLoggedIn && (
+              <button
+                type="button"
+                disabled={isPending}
+                onClick={() => handleKickUser('admin', 'Administrator Master (@admin)')}
+                className="px-2.5 py-1 rounded text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 border border-rose-500/30 transition-colors cursor-pointer"
+              >
+                Kick Sesi
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* DAFTAR PENGGUNA CMS TAMBAHAN — BERSIH TANPA BADGE PILL */}
+      <div className="border border-gray-200 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-900/90 overflow-hidden">
+        <div className="px-4 sm:px-5 py-3.5 border-b border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-gray-50/70 dark:bg-gray-950/50">
+          <h2 className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white">
+            Daftar Akun Staf & Editor ({users.length})
           </h2>
           <span className="text-[11px] text-gray-500 dark:text-gray-400">
-            Masa aktif password: <strong className="text-amber-600">3 Bulan (90 Hari)</strong> · Peringatan wajib ganti mulai <strong className="text-amber-600">H-7</strong>
+            Siklus password: 90 Hari (peringatan mulai H-7)
           </span>
         </div>
 
         {users.length === 0 ? (
-          <div className="text-center py-12 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl p-8 space-y-3">
-            <Users className="w-10 h-10 text-gray-400 mx-auto" />
-            <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300">Belum ada pengguna tambahan</h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400 max-w-sm mx-auto">
-              Administrator Root dapat membuat akun untuk staf rekrutmen HR, editor konten, atau staf operasional dengan hak akses spesifik.
+          <div className="text-center py-10 px-4 space-y-2">
+            <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300">Belum ada akun staf tambahan</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 max-w-md mx-auto">
+              Tambahkan akun staf HR, rekrutmen, atau editor konten dengan hak akses menu yang terukur.
             </p>
             {isRootAdmin && (
               <button
                 onClick={openAddModal}
-                className="mt-2 px-4 py-2 text-xs font-bold bg-amber-600 text-white rounded-xl hover:bg-amber-700 transition-colors cursor-pointer"
+                className="mt-2 px-4 py-2 text-xs font-bold bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors cursor-pointer"
               >
-                + Tambah Pengguna Pertama
+                + Tambah Akun Baru
               </button>
             )}
           </div>
         ) : (
-          <div className="grid gap-4">
+          <div className="divide-y divide-gray-200 dark:divide-gray-800">
             {users.map((u) => {
               const expiry = checkPasswordExpiry(u.passwordUpdatedAt, u.createdAt)
+              const userSess = getSessionStatus(u.id)
+              const accessibleMenuLabels = (u.permissions || [])
+                .map((menuId) => AVAILABLE_MENUS.find((m) => m.id === menuId)?.label || menuId)
+                .join(', ')
+
               return (
                 <div
                   key={u.id}
-                  className="p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm space-y-4 transition-all hover:border-amber-500/40"
+                  className="p-4 sm:p-5 space-y-3 hover:bg-gray-50/40 dark:hover:bg-gray-800/20 transition-colors"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                    <div className="flex items-start gap-3.5">
-                      <div className="w-11 h-11 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center text-sm font-black text-amber-600 dark:text-amber-400 shrink-0 uppercase">
-                        {u.name.slice(0, 2)}
+                    <div className="space-y-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+                        <span className="font-bold text-sm sm:text-base text-gray-900 dark:text-white">{u.name}</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">@{u.username}</span>
+                        <span className="text-gray-300 dark:text-gray-700">|</span>
+                        <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">{u.role}</span>
+                        <span className="text-gray-300 dark:text-gray-700">|</span>
+                        <span className={`text-xs font-semibold ${
+                          userSess.isLoggedIn ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'
+                        }`}>
+                          {userSess.isLoggedIn ? (userSess.isOnline ? 'Online' : 'Sedang Login') : 'Offline'}
+                        </span>
                       </div>
-                      <div>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-black text-base text-gray-900 dark:text-white">{u.name}</span>
-                          <span className="text-xs text-gray-400 font-mono">@{u.username}</span>
-                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
-                            {u.role}
-                          </span>
-                        </div>
 
-                        {/* STATUS PASSWORD & TANGGAL */}
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-gray-500 dark:text-gray-400 mt-2">
-                          <span>Dibuat: {new Date(u.createdAt).toLocaleDateString('id-ID')}</span>
-                          <span>·</span>
-                          
-                          {/* BADGE MASA BERLAKU PASSWORD (POINT 3 & 4) */}
-                          {u.mustResetPassword ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
-                              <AlertTriangle className="w-3 h-3" />
-                              Wajib Ganti Password (Di-reset)
-                            </span>
-                          ) : expiry.isExpired ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
-                              <Clock className="w-3 h-3" />
-                              Password Kedaluwarsa (&gt; 3 Bulan)
-                            </span>
-                          ) : expiry.isWarning ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-500/15 text-amber-800 dark:text-amber-400 border border-amber-500/30 animate-pulse">
-                              <AlertTriangle className="w-3 h-3" />
-                              H-{expiry.daysRemaining} Kedaluwarsa
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
-                              <CheckCircle2 className="w-3 h-3" />
-                              Password Aktif (Sisa {expiry.daysRemaining} hari)
-                            </span>
-                          )}
-
-                          <span>·</span>
-                          <span className={u.canReceiveCareerNotif ? 'text-purple-600 dark:text-purple-400 font-bold flex items-center gap-1' : 'text-gray-400 flex items-center gap-1'}>
-                            <Bell className="w-3.5 h-3.5" />
-                            {u.canReceiveCareerNotif ? 'Notif Karir: Aktif' : 'Notif Karir: Non-aktif'}
+                      {/* STATUS PASSWORD & NOTIFIKASI TANPA BADGE */}
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+                        <span suppressHydrationWarning>Terdaftar: {new Date(u.createdAt).toLocaleDateString('id-ID')}</span>
+                        <span>·</span>
+                        {u.mustResetPassword ? (
+                          <span className="text-rose-600 dark:text-rose-400 font-semibold">
+                            Status Password: Wajib Ganti Saat Login
                           </span>
-                        </div>
+                        ) : expiry.isExpired ? (
+                          <span className="text-rose-600 dark:text-rose-400 font-semibold">
+                            Status Password: Kedaluwarsa (&gt; 90 Hari)
+                          </span>
+                        ) : expiry.isWarning ? (
+                          <span className="text-amber-600 dark:text-amber-400 font-semibold">
+                            Status Password: Kedaluwarsa dalam {expiry.daysRemaining} hari
+                          </span>
+                        ) : (
+                          <span className="text-gray-600 dark:text-gray-300">
+                            Masa Aktif Password: Sisa {expiry.daysRemaining} hari
+                          </span>
+                        )}
+                        <span>·</span>
+                        <span>
+                          Notifikasi Lamaran Karir: <strong className={u.canReceiveCareerNotif ? 'text-gray-900 dark:text-white' : 'text-gray-400'}>{u.canReceiveCareerNotif ? 'Aktif' : 'Nonaktif'}</strong>
+                        </span>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 self-end sm:self-start">
-                      {/* Apple Switch Toggle Akun */}
+                    <div className="flex items-center gap-2 self-start shrink-0">
+                      {/* Switch Status Akun */}
                       <button
                         type="button"
                         role="switch"
                         aria-checked={u.isActive}
                         onClick={() => handleToggleStatus(u.id)}
-                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500/30 ${
+                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${
                           u.isActive ? 'bg-amber-600' : 'bg-gray-300 dark:bg-gray-700'
                         }`}
                         title={u.isActive ? 'Nonaktifkan akun' : 'Aktifkan akun'}
                       >
                         <span
-                          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-300 ease-in-out ${
+                          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow transition duration-200 ${
                             u.isActive ? 'translate-x-5' : 'translate-x-0'
                           }`}
                         />
                       </button>
 
-                      {/* TOMBOL RESET PASSWORD USER LAIN (POINT 2) */}
+                      {isSuperadmin && userSess.isLoggedIn && (
+                        <button
+                          type="button"
+                          disabled={isPending}
+                          onClick={() => handleKickUser(u.id, `${u.name} (@${u.username})`)}
+                          className="px-2.5 py-1.5 rounded-lg text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 transition-colors cursor-pointer inline-flex items-center gap-1"
+                          title="Putuskan Sesi Login Pengguna Ini"
+                        >
+                          <UserX className="w-3.5 h-3.5" />
+                          <span>Kick</span>
+                        </button>
+                      )}
+
                       <button
                         type="button"
                         onClick={() => openResetModal(u)}
-                        className="p-2 rounded-xl text-amber-700 dark:text-amber-400 hover:bg-amber-500/10 border border-amber-500/30 transition-colors cursor-pointer"
-                        title="Reset Password Pengguna Ini"
+                        className="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-800 transition-colors cursor-pointer"
+                        title="Reset Password"
                       >
                         <KeyRound className="w-4 h-4" />
                       </button>
@@ -513,8 +730,8 @@ export default function UsersClient({
                       <button
                         type="button"
                         onClick={() => openEditModal(u)}
-                        className="p-2 rounded-xl text-gray-600 dark:text-gray-400 hover:text-amber-600 hover:bg-amber-500/10 border border-gray-200 dark:border-gray-800 transition-colors cursor-pointer"
-                        title="Edit Profil & Hak Akses"
+                        className="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-800 transition-colors cursor-pointer"
+                        title="Edit Akun & Hak Akses"
                       >
                         <Pencil className="w-4 h-4" />
                       </button>
@@ -522,36 +739,24 @@ export default function UsersClient({
                       <button
                         type="button"
                         onClick={() => handleDelete(u.id, u.name)}
-                        className="p-2 rounded-xl text-gray-600 dark:text-gray-400 hover:text-rose-600 hover:bg-rose-500/10 border border-gray-200 dark:border-gray-800 transition-colors cursor-pointer"
-                        title="Hapus Pengguna"
+                        className="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:text-rose-600 hover:bg-rose-500/10 border border-gray-200 dark:border-gray-800 transition-colors cursor-pointer"
+                        title="Hapus Akun"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
 
-                  {/* MENU PERMISSION TAGS */}
-                  <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
-                    <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">
-                      Akses Menu ({u.permissions?.length || 0} menu):
-                    </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {u.permissions?.length === 0 ? (
-                        <span className="text-xs text-rose-500 font-semibold italic">Tidak memiliki akses ke menu manapun</span>
-                      ) : (
-                        u.permissions?.map((menuId) => {
-                          const meta = AVAILABLE_MENUS.find((m) => m.id === menuId)
-                          return (
-                            <span
-                              key={menuId}
-                              className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700"
-                            >
-                              {meta?.label || menuId}
-                            </span>
-                          )
-                        })
-                      )}
-                    </div>
+                  {/* DAFTAR AKSES MENU DALAM TEKS BERSIH TANPA BADGE */}
+                  <div className="text-xs text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-100 dark:border-gray-800/80">
+                    <span className="font-semibold text-gray-700 dark:text-gray-300">
+                      Hak Akses Modul ({u.permissions?.length || 0}):{' '}
+                    </span>
+                    {u.permissions?.length === 0 ? (
+                      <span className="text-rose-500 italic">Tidak ada modul yang diizinkan</span>
+                    ) : (
+                      <span>{accessibleMenuLabels}</span>
+                    )}
                   </div>
                 </div>
               )

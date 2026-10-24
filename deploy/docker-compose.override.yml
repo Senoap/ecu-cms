@@ -1,0 +1,29 @@
+# deploy/docker-compose.override.yml
+# Override tipis khusus untuk dry-run / pengujian lokal tanpa mengubah docker-compose.prod.yml
+
+services:
+  db:
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test_postgres_pass_123}
+      AUTHENTICATOR_PASSWORD: ${AUTHENTICATOR_PASSWORD:-test_auth_pass_123}
+
+  postgrest:
+    environment:
+      PGRST_DB_URI: postgresql://authenticator:${AUTHENTICATOR_PASSWORD:-test_auth_pass_123}@db:5432/${POSTGRES_DB:-esu_prod}
+      PGRST_JWT_SECRET: ${PGRST_JWT_SECRET:-super_secret_jwt_key_at_least_32_chars_long}
+
+  # Container Nginx uji coba untuk memvalidasi rewrite /rest/v1/, listener 8081, dan headers secara lokal
+  nginx_test:
+    image: nginx:alpine
+    container_name: esu_nginx_test
+    restart: unless-stopped
+    ports:
+      - "8082:80"
+      - "8081:8081"
+    volumes:
+      - ./nginx.test.conf:/etc/nginx/conf.d/default.conf:ro
+      - ../public/uploads:/var/data/esu/uploads:ro
+    depends_on:
+      - postgrest
+    networks:
+      - esu_internal

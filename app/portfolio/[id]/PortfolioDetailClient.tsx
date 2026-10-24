@@ -6,6 +6,8 @@ import { MessageSquare } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import { useLanguage } from '@/components/LanguageContext'
 import type { PortfolioItem, DatabaseContent, FooterContent } from '@/lib/db'
+import { formatWhatsAppNumber } from '@/lib/phone'
+import { openCookieSettings } from '@/lib/cookieConsent'
 
 export default function PortfolioDetailClient({
   item,
@@ -18,20 +20,17 @@ export default function PortfolioDetailClient({
   setting: DatabaseContent['setting']
   footer: FooterContent
 }) {
-  const { locale, t, getFallbackContent } = useLanguage()
+  const { t } = useLanguage()
   const [showImageModal, setShowImageModal] = useState(false)
 
-  const fb = getFallbackContent('portfolios', item.id)
-  const itemName = (locale === 'en' && fb?.name) ? fb.name : item.name
-  const itemDesc = (locale === 'en' && fb?.desc) ? fb.desc : item.desc
+  const itemName = item.name
+  const itemDesc = item.desc
 
   const otherPortfolios = allPortfolios.filter((p) => p.id !== item.id).slice(0, 3)
 
-  const waNumber = (footer?.whatsapp || footer?.phone || '').replace(/[^0-9]/g, '')
+  const waNumber = formatWhatsAppNumber(footer?.whatsapp || footer?.phone)
   const waMessage = encodeURIComponent(
-    locale === 'en'
-      ? `Hello PT ESU, I would like to inquire regarding project portfolio: ${itemName}`
-      : `Halo PT ESU, saya ingin berkonsultasi mengenai proyek portofolio: ${itemName}`
+    `Halo PT 4SU, saya ingin berkonsultasi mengenai proyek portofolio: ${itemName}`
   )
 
   return (
@@ -44,6 +43,10 @@ export default function PortfolioDetailClient({
         accentColor={setting.accentColor}
         loadingBgColor={setting.loadingBgColor}
         logoUrl={setting.logoUrl}
+        showLeadership={setting.showLeadership !== false}
+        showCertifications={setting.showCertifications !== false}
+        showCompro={setting.showCompro !== false}
+        leadershipLabel={setting.leadershipLabel || 'Profil Pimpinan'}
       />
 
       <main className="max-w-6xl mx-auto pt-24 pb-16 sm:pt-28 sm:pb-24 px-4 sm:px-6 md:px-8 space-y-12">
@@ -83,7 +86,7 @@ export default function PortfolioDetailClient({
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
             <div className="absolute bottom-6 right-6 bg-black/60 backdrop-blur-md px-4 py-2 rounded-xl text-xs font-bold text-white border border-white/20 flex items-center gap-2">
               <span>🔍</span>
-              <span>{locale === 'en' ? 'Click to Enlarge' : 'Klik untuk Memperbesar'}</span>
+              <span>Klik untuk Memperbesar</span>
             </div>
           </div>
         )}
@@ -95,7 +98,7 @@ export default function PortfolioDetailClient({
             <div className="flex items-center gap-3 border-b border-gray-100 dark:border-gray-800 pb-4">
               <span className="w-2.5 h-6 rounded-full bg-amber-500"></span>
               <h2 className="text-base sm:text-xl font-black uppercase tracking-wider text-gray-900 dark:text-white">
-                {locale === 'en' ? 'Project Overview & Scope' : 'Ringkasan & Ruang Lingkup Proyek'}
+                Ringkasan & Ruang Lingkup Proyek
               </h2>
             </div>
             <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-sm sm:text-base md:text-lg whitespace-pre-line text-left font-normal sm:font-medium">
@@ -108,7 +111,7 @@ export default function PortfolioDetailClient({
             <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-4">
               <h3 className="text-xs sm:text-sm font-black uppercase tracking-widest text-amber-700 dark:text-amber-400 flex items-center gap-2">
                 <span>📋</span>
-                <span>{locale === 'en' ? 'Project Details' : 'Spesifikasi Proyek'}</span>
+                <span>Spesifikasi Proyek</span>
               </h3>
             </div>
 
@@ -116,18 +119,18 @@ export default function PortfolioDetailClient({
               {/* Row Status */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-gray-100 dark:border-gray-800 pb-3.5">
                 <span className="text-gray-600 dark:text-gray-400 font-bold uppercase tracking-wider text-[11px] shrink-0">
-                  {locale === 'en' ? 'Status' : 'Status'}
+                  Status
                 </span>
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-black text-xs uppercase tracking-wider border border-emerald-500/20 w-fit self-start sm:self-auto">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                  {locale === 'en' ? 'Completed & Verified' : 'Selesai & Terverifikasi'}
+                  Selesai & Terverifikasi
                 </span>
               </div>
 
               {/* Row Kategori */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-4 border-b border-gray-100 dark:border-gray-800 pb-3.5">
                 <span className="text-gray-600 dark:text-gray-400 font-bold uppercase tracking-wider text-[11px] shrink-0">
-                  {locale === 'en' ? 'Category' : 'Kategori'}
+                  Kategori
                 </span>
                 <span className="font-extrabold text-gray-900 dark:text-white text-xs sm:text-sm sm:text-right">
                   Manpower Services
@@ -137,7 +140,7 @@ export default function PortfolioDetailClient({
               {/* Row Penyedia */}
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1.5 sm:gap-4 border-b border-gray-100 dark:border-gray-800 pb-3.5">
                 <span className="text-gray-600 dark:text-gray-400 font-bold uppercase tracking-wider text-[11px] shrink-0">
-                  {locale === 'en' ? 'Provider' : 'Penyedia'}
+                  Penyedia
                 </span>
                 <span className="font-extrabold text-gray-900 dark:text-white text-xs sm:text-sm sm:text-right break-words">
                   {setting.siteName}
@@ -154,7 +157,7 @@ export default function PortfolioDetailClient({
                   className="flex items-center justify-center gap-2 w-full py-4 px-4 rounded-xl text-xs sm:text-sm font-black text-white text-center bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-900/20 transition-all duration-300 uppercase tracking-wider active:scale-95 cursor-pointer"
                 >
                   <MessageSquare className="w-4 h-4" />
-                  <span>{locale === 'en' ? 'Inquire Similar Project' : 'Konsultasi Proyek Serupa'}</span>
+                  <span>Konsultasi Proyek Serupa</span>
                 </a>
               </div>
             )}
@@ -165,13 +168,12 @@ export default function PortfolioDetailClient({
         {otherPortfolios.length > 0 && (
           <div className="space-y-6 pt-8 border-t border-gray-200 dark:border-gray-800">
             <h2 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
-              {locale === 'en' ? 'Explore Other Projects' : 'Eksplorasi Proyek Lainnya'}
+              Eksplorasi Proyek Lainnya
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
               {otherPortfolios.map((other) => {
-                const otherFb = getFallbackContent('portfolios', other.id)
-                const otherName = (locale === 'en' && otherFb?.name) ? otherFb.name : other.name
-                const otherDesc = (locale === 'en' && otherFb?.desc) ? otherFb.desc : other.desc
+                const otherName = other.name
+                const otherDesc = other.desc
 
                 return (
                   <Link
@@ -204,6 +206,18 @@ export default function PortfolioDetailClient({
 
       <footer className="max-w-5xl mx-auto py-8 px-4 border-t border-gray-200/60 dark:border-gray-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 font-semibold gap-3">
         <span>© 2026 {setting.siteName}. All Rights Reserved.</span>
+        <div className="flex items-center gap-4">
+          <Link href="/privacy-policy" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
+            Kebijakan Privasi
+          </Link>
+          <button
+            type="button"
+            onClick={openCookieSettings}
+            className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors cursor-pointer"
+          >
+            Pengaturan Cookie
+          </button>
+        </div>
         <div className="flex items-center gap-2 select-none">
           <span>Website by</span>
           <span className="px-2.5 py-0.5 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 font-black uppercase tracking-wider">

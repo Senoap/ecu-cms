@@ -2,6 +2,7 @@
 'use client'
 import Link from 'next/link'
 import { useLanguage } from '@/components/LanguageContext'
+import { useSmartViewport } from '@/components/SmartViewportProvider'
 import { Award, ArrowRight, Users, ShieldCheck } from 'lucide-react'
 
 interface AboutContent {
@@ -31,17 +32,20 @@ export default function AboutSectionClient({
   showCertifications = true,
   leadershipLabel = 'Profil Pimpinan'
 }: AboutSectionClientProps) {
-  const { locale, t } = useLanguage()
+  const { t } = useLanguage()
+  const { isCompactViewport, isQuadSplit } = useSmartViewport()
 
-  const subtitle = (locale === 'en' && !about.subtitle) ? t.about.subtitle : (about.subtitle || t.about.subtitle)
-  const title = (locale === 'en' && !about.title) ? t.about.title : (about.title || t.about.title)
-  const leadershipTitle = (locale === 'en' && !about.leadershipTitle) ? t.about.leadershipTitle : (about.leadershipTitle || t.about.leadershipTitle)
-  const leadershipDesc = (locale === 'en' && !about.leadershipDesc) ? t.about.leadershipDesc : (about.leadershipDesc || t.about.leadershipDesc)
-  const quote = (locale === 'en' && !about.quote) ? t.about.quote : (about.quote || t.about.quote)
+  const subtitle = about.subtitle || t.about.subtitle
+  const title = about.title || t.about.title
+  const leadershipTitle = about.leadershipTitle || t.about.leadershipTitle
+  const leadershipDesc = about.leadershipDesc || t.about.leadershipDesc
+  const quote = about.quote || t.about.quote
 
   return (
-    <section id="about" className="min-h-screen w-full py-24 md:py-28 px-4 sm:px-8 md:px-20 max-w-7xl mx-auto flex flex-col justify-center">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 md:gap-16 items-center">
+    <section id="about" data-smart-container className="w-full py-20 md:py-28 px-4 sm:px-8 md:px-20 max-w-7xl mx-auto flex flex-col justify-center scroll-mt-20">
+      <div className={`grid gap-10 md:gap-16 items-center ${
+        isQuadSplit || isCompactViewport ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-12'
+      }`}>
         
         {/* Kolom Kiri: Narasi Utama & Paragraf Perusahaan */}
         <div className="lg:col-span-7 space-y-6 md:space-y-8">

@@ -34,7 +34,7 @@ interface AdminPageClientProps {
 
 const PRESET_PALETTES = [
   {
-    name: 'ESU Royal Prestige',
+    name: '4SU Royal Prestige',
     desc: 'Maroon & Emas Mewah',
     primary: '#7E1D0C',
     secondary: '#D4AF37',
@@ -515,7 +515,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
                 <div className="p-4 rounded-xl bg-[#F8F7F4] border border-gray-300 text-gray-900 space-y-2 shadow-sm">
                   <div className="text-[10px] font-black uppercase tracking-wider text-gray-500">Pratinjau Mode Terang</div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-black" style={{ color: primaryColor }}>PT ESU</span>
+                    <span className="text-xs font-black" style={{ color: primaryColor }}>PT 4SU</span>
                     <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold text-white" style={{ backgroundColor: secondaryColor }}>
                       PRO
                     </span>
@@ -534,7 +534,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
                 <div className="p-4 rounded-xl bg-[#090A0F] border border-gray-800 text-white space-y-2 shadow-md">
                   <div className="text-[10px] font-black uppercase tracking-wider text-gray-400">Pratinjau Mode Gelap</div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-black text-white">PT ESU</span>
+                    <span className="text-xs font-black text-white">PT 4SU</span>
                     <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold text-white shadow-sm" style={{ backgroundColor: primaryColor }}>
                       LIVE
                     </span>
@@ -568,7 +568,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
 
           {/* Upload Logo Section */}
           <div className="pt-4 border-t border-gray-200 dark:border-gray-800/80 space-y-3">
-            <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Upload Logo Perusahaan (PNG / JPG)</label>
+            <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Upload Logo Perusahaan (Semua Format — Otomatis Dikonversi ke Vektor SVG)</label>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-gray-50 dark:bg-[#090A0F] p-4 rounded-2xl border border-gray-200 dark:border-gray-800">
               <input
                 type="file"
@@ -603,7 +603,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
                 onChange={(e) => setHasBgImageFile(!!(e.target.files && e.target.files.length > 0))}
                 className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2 text-gray-900 dark:text-white text-xs cursor-pointer"
               />
-              <p className="text-[11px] text-gray-500">Format: JPG, PNG, WebP. Disarankan resolusi tinggi (HD/4K).</p>
+              <p className="text-[11px] text-gray-500">Dukungan semua format gambar (JPG, PNG, WebP, GIF, SVG, BMP, TIFF, AVIF). Otomatis dikonversi ke WebP tajam &amp; terkompresi efisien.</p>
             </div>
 
             {initialSetting.bgImageUrl && (

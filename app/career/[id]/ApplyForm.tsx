@@ -1,17 +1,30 @@
 // app/career/[id]/ApplyForm.tsx
 'use client'
-import { useActionState } from 'react'
+import { useActionState, useEffect } from 'react'
 import { submitApplication, type ApplyState } from './actions'
 import { CheckCircle2, UploadCloud, Send, AlertCircle, Loader2 } from 'lucide-react'
 
 const initial: ApplyState = { ok: false, message: '' }
 
 const inputCls =
-  'w-full px-3.5 py-2.5 rounded-xl text-xs sm:text-sm bg-white dark:bg-gray-800/90 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all font-medium'
+  'w-full px-3.5 py-2.5 rounded-xl text-base sm:text-sm bg-white dark:bg-gray-800/90 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all font-medium'
 
-export default function ApplyForm({ careerId, locale }: { careerId: string; locale: string }) {
+export default function ApplyForm({ careerId }: { careerId: string; locale?: string }) {
   const [state, action, pending] = useActionState(submitApplication, initial)
-  const en = locale === 'en'
+  const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
+
+  useEffect(() => {
+    if (!turnstileSiteKey) return
+    const scriptId = 'cf-turnstile-script'
+    if (!document.getElementById(scriptId)) {
+      const script = document.createElement('script')
+      script.id = scriptId
+      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js'
+      script.async = true
+      script.defer = true
+      document.head.appendChild(script)
+    }
+  }, [turnstileSiteKey])
 
   if (state.ok && state.ref) {
     return (
@@ -23,11 +36,11 @@ export default function ApplyForm({ careerId, locale }: { careerId: string; loca
           <CheckCircle2 className="w-7 h-7" />
         </div>
         <h4 className="font-black text-emerald-800 dark:text-emerald-400 uppercase tracking-wide text-sm">
-          {en ? 'Application Received' : 'Lamaran Diterima'}
+          Lamaran Diterima
         </h4>
         <div className="inline-block px-3.5 py-1.5 rounded-lg bg-emerald-500/15 border border-emerald-500/30">
           <p className="text-xs text-gray-900 dark:text-gray-100 font-medium">
-            {en ? 'Reference number' : 'Nomor referensi'}:{' '}
+            Nomor referensi:{' '}
             <b data-testid="ref-code" className="font-mono text-emerald-800 dark:text-emerald-300">
               {state.ref}
             </b>
@@ -35,12 +48,8 @@ export default function ApplyForm({ careerId, locale }: { careerId: string; loca
         </div>
         <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed font-medium">
           {state.emailSent
-            ? en
-              ? 'A confirmation email has been sent to your email address.'
-              : 'Email konfirmasi telah dikirim kepada Anda.'
-            : en
-              ? 'Our HR talent acquisition team will review your application.'
-              : 'Tim HR kami akan segera meninjau lamaran Anda.'}
+            ? 'Email konfirmasi telah dikirim kepada Anda.'
+            : 'Tim HR kami akan segera meninjau lamaran Anda.'}
         </p>
       </div>
     )
@@ -62,22 +71,27 @@ export default function ApplyForm({ careerId, locale }: { careerId: string; loca
       <input
         id="apply-name"
         name="name"
+        autoComplete="name"
         required
-        placeholder={en ? 'Full name' : 'Nama lengkap'}
+        placeholder="Nama lengkap"
         className={inputCls}
       />
       <input
         id="apply-phone"
         name="phone"
         type="tel"
+        inputMode="tel"
+        autoComplete="tel"
         required
-        placeholder={en ? 'Phone / WhatsApp' : 'No. HP / WhatsApp'}
+        placeholder="No. HP / WhatsApp"
         className={inputCls}
       />
       <input
         id="apply-email"
         name="email"
         type="email"
+        inputMode="email"
+        autoComplete="email"
         required
         placeholder="Email"
         className={inputCls}
@@ -85,14 +99,14 @@ export default function ApplyForm({ careerId, locale }: { careerId: string; loca
       <input
         id="apply-education"
         name="education"
-        placeholder={en ? 'Latest education (optional)' : 'Pendidikan terakhir (opsional)'}
+        placeholder="Pendidikan terakhir (opsional)"
         className={inputCls}
       />
       <textarea
         id="apply-note"
         name="coverNote"
         rows={3}
-        placeholder={en ? 'Short note (optional)' : 'Catatan singkat (opsional)'}
+        placeholder="Catatan singkat (opsional)"
         className={inputCls}
       />
 
@@ -119,10 +133,11 @@ export default function ApplyForm({ careerId, locale }: { careerId: string; loca
           required
           className="mt-0.5 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
         />
-        <span>
-          {en
-            ? 'I agree that my personal data may be processed for recruitment purposes.'
-            : 'Saya menyetujui data pribadi saya diproses untuk keperluan rekrutmen.'}
+        <span className="text-[11px] sm:text-xs">
+          Saya menyetujui data pribadi saya diproses untuk seleksi rekrutmen sesuai{' '}
+          <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="underline font-bold text-amber-600 dark:text-amber-400">
+            Kebijakan Privasi
+          </a>.
         </span>
       </label>
 
@@ -136,6 +151,13 @@ export default function ApplyForm({ careerId, locale }: { careerId: string; loca
         </div>
       )}
 
+      {/* Cloudflare Turnstile Widget (Jika site key dikonfigurasi) */}
+      {turnstileSiteKey && (
+        <div className="flex justify-center my-2">
+          <div className="cf-turnstile" data-sitekey={turnstileSiteKey} data-theme="auto" />
+        </div>
+      )}
+
       <button
         id="apply-submit"
         type="submit"
@@ -145,12 +167,12 @@ export default function ApplyForm({ careerId, locale }: { careerId: string; loca
         {pending ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin" />
-            <span>{en ? 'Sending Application…' : 'Mengirim Lamaran…'}</span>
+            <span>Mengirim Lamaran…</span>
           </>
         ) : (
           <>
             <Send className="w-4 h-4" />
-            <span>{en ? 'Submit Application' : 'Kirim Lamaran'}</span>
+            <span>Kirim Lamaran</span>
           </>
         )}
       </button>

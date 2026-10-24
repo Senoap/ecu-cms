@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { ArrowLeft, Users, GraduationCap, Briefcase, Award, ShieldCheck, Sun, Moon, PhoneCall } from 'lucide-react'
 import type { DatabaseContent, DirectorItem } from '@/lib/db'
 import { defaultLeadershipPageConfig, type LeadershipPageConfig } from '@/lib/leadershipConstants'
+import { openCookieSettings } from '@/lib/cookieConsent'
 
 interface LeadershipClientProps {
   db: DatabaseContent
@@ -242,8 +243,20 @@ export default function LeadershipClient({ db, directors }: LeadershipClientProp
 
       {/* FOOTER */}
       <footer className="border-t border-gray-200/80 dark:border-gray-800/80 bg-white/50 dark:bg-[#0B0E17]/50 backdrop-blur-md py-8 transition-colors">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs font-medium text-gray-500 dark:text-gray-400">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs font-medium text-gray-500 dark:text-gray-400 gap-3">
           <p>© {new Date().getFullYear()} {setting.siteName}. Seluruh Hak Cipta Dilindungi Undang-Undang.</p>
+          <div className="flex items-center gap-4">
+            <Link href="/privacy-policy" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
+              Kebijakan Privasi
+            </Link>
+            <button
+              type="button"
+              onClick={openCookieSettings}
+              className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors cursor-pointer"
+            >
+              Pengaturan Cookie
+            </button>
+          </div>
         </div>
       </footer>
 

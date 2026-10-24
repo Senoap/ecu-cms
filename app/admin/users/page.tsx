@@ -27,7 +27,11 @@ export default async function UsersPage() {
       users={users} 
       masterAdminUsername="admin" 
       isRootAdmin={currentUser.isRootAdmin}
+      isSuperadmin={currentUser.isSuperadmin}
       currentUserId={currentUser.id}
+      activeSessions={db.activeSessions || {}}
+      // eslint-disable-next-line react-hooks/purity
+      serverTimestamp={Date.now()}
     />
   )
 }
