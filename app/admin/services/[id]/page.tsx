@@ -51,7 +51,7 @@ export default async function AdminEditServicePage({ params }: { params: Promise
     const srv = db.services.find(s => s.id === id)
 
     if (!srv) {
-        redirect('/admin/services')
+        redirect('/cms/services')
     }
 
     return (
@@ -61,7 +61,7 @@ export default async function AdminEditServicePage({ params }: { params: Promise
                     <h1 className="text-xl font-black text-gray-900 dark:text-white">Edit Layanan: {srv.title}</h1>
                     <p className="text-gray-600 dark:text-gray-400 text-xs font-medium">Sesuaikan konten deskripsi mendalam dan tambah foto dokumentasi.</p>
                 </div>
-                <Link href="/admin/services" className="px-4 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 transition-colors">
+                <Link href="/cms/services" className="px-4 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 transition-colors">
                     &larr; Kembali
                 </Link>
             </div>

@@ -176,7 +176,7 @@ export default function ApplicationsListClient({
               </span>
             ) : (
               <a 
-                href={`/admin/applications/cv/${a.id}`} 
+                href={`/cms/applications/cv/${a.id}`} 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black bg-amber-500/15 text-amber-700 dark:text-amber-400 hover:bg-amber-500/25 transition-colors cursor-pointer"
@@ -316,7 +316,7 @@ export default function ApplicationsListClient({
                   Gunakan Template Balasan
                 </label>
                 <Link
-                  href="/admin/career-templates"
+                  href="/cms/career-templates"
                   target="_blank"
                   className="text-xs text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1 font-bold"
                 >

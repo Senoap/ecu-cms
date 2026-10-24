@@ -258,7 +258,7 @@ export async function loginAdmin(formData: FormData): Promise<LoginResult> {
         maxAge: SESSION_MAX_AGE,
         path: '/',
       })
-      return { success: true, redirectUrl: '/admin/users' }
+      return { success: true, redirectUrl: '/cms/users' }
     }
   }
 
@@ -315,7 +315,7 @@ export async function loginAdmin(formData: FormData): Promise<LoginResult> {
         maxAge: SESSION_MAX_AGE,
         path: '/',
       })
-      return { success: true, redirectUrl: '/admin' }
+      return { success: true, redirectUrl: '/cms' }
     }
   }
 
@@ -414,7 +414,7 @@ export async function loginAdmin(formData: FormData): Promise<LoginResult> {
       })
 
       const hasAllAccess = matchedUser.role.toLowerCase() === 'superadmin' || matchedUser.permissions.includes('users')
-      let redirectUrl = '/admin'
+      let redirectUrl = '/cms'
       if (!hasAllAccess && !matchedUser.permissions.includes('global')) {
         const dummyUser = {
           id: matchedUser.id,
@@ -546,7 +546,7 @@ export async function changePasswordOnLoginAction(formData: FormData): Promise<{
     })
 
     const hasAllAccess = user.role.toLowerCase() === 'superadmin' || user.permissions.includes('users')
-    let redirectUrl = '/admin'
+    let redirectUrl = '/cms'
     if (!hasAllAccess && !user.permissions.includes('global')) {
       const dummyUser = {
         id: user.id,

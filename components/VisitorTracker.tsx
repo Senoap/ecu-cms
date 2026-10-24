@@ -10,7 +10,7 @@ export default function VisitorTracker() {
   const lastTracked = useRef<string>('')
 
   const sendTrackHit = (path: string) => {
-    if (!path || path.startsWith('/admin') || path.startsWith('/api') || path.startsWith('/login')) return
+    if (!path || path.startsWith('/cms') || path.startsWith('/admin') || path.startsWith('/api') || path.startsWith('/login')) return
     // Script analitik TIDAK BOLEH berjalan tanpa izin eksplisit
     if (!hasAnalyticsConsent()) return
     if (lastTracked.current === path) return

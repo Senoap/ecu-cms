@@ -210,7 +210,7 @@ export async function submitApplication(_prev: ApplyState, formData: FormData): 
   }
 
   if (hrEmail) {
-    const adminUrl = process.env.ADMIN_URL || `${getSiteUrl()}/admin`
+    const adminUrl = process.env.ADMIN_URL || `${getSiteUrl()}/cms`
     await sendMail({
       to: hrEmail,
       subject: `[Lamaran Baru] ${job.title} (Ref: ${ref})`,

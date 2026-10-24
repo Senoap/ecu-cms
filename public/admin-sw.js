@@ -64,8 +64,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Dynamic /admin pages: Network-only, NEVER cached in client-side storage
-  if (url.pathname.startsWith('/admin')) {
+  // Dynamic /cms and /admin pages: Network-only, NEVER cached in client-side storage
+  if (url.pathname.startsWith('/cms') || url.pathname.startsWith('/admin')) {
     event.respondWith(
       fetch(event.request).catch(() => {
         return new Response(

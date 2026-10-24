@@ -26,39 +26,42 @@ export async function proxy(request: NextRequest) {
   const host = request.headers.get('host') || ''
   const hostname = host.split(':')[0].toLowerCase()
 
-  // 1. Deteksi apakah request berasal dari subdomain admin / CMS
+  // 1. Deteksi apakah request berasal dari subdomain CMS
   // Mendukung:
-  // - Custom domain & localhost dengan titik: admin.localhost, cms.localhost, admin.4su.co.id, cms.4su.co.id
-  // - Subdomain Vercel dengan tanda strip (-): admin-ecu-cms.vercel.app, cms-ecu-cms.vercel.app
-  //   (Catatan: SSL wildcard *.vercel.app hanya mencakup 1 level subdomain, sehingga di Vercel gunakan
-  //    admin-ecu-cms.vercel.app atau akses langsung ecu-cms.vercel.app/admin)
-  const isAdminSubdomain =
-    hostname.startsWith('admin.') ||
+  // - Custom domain & localhost dengan titik: cms.4sinergiutama.co.id, cms-4su.4sinergiutama.co.id, cms.localhost, cms-4su.localhost
+  // - Subdomain Vercel dengan tanda strip (-): cms-4su-ecu-cms.vercel.app, cms-4su.vercel.app, cms-ecu-cms.vercel.app
+  const isCmsSubdomain =
+    hostname.startsWith('cms-4su.') ||
     hostname.startsWith('cms.') ||
-    hostname.startsWith('admin-') ||
+    hostname.startsWith('admin.') ||
+    hostname.startsWith('cms-4su-') ||
     hostname.startsWith('cms-') ||
-    hostname === 'admin.localhost' ||
-    hostname === 'cms.localhost'
+    hostname.startsWith('admin-') ||
+    hostname === 'cms-4su.vercel.app' ||
+    hostname === 'cms.localhost' ||
+    hostname === 'cms-4su.localhost' ||
+    hostname === 'admin.localhost'
 
   // Deteksi apakah sedang berjalan di domain preview/staging bawaan Vercel (*.vercel.app)
-  // Agar pengetesan di https://ecu-cms.vercel.app/admin atau /login tetap bisa dibuka langsung
+  // Di Vercel, halaman CMS dibuka menggunakan path */cms (misal: https://ecu-cms.vercel.app/cms)
   const isVercelStagingDomain = hostname.endsWith('.vercel.app')
 
   const token = request.cookies.get(SESSION_COOKIE)?.value
   const isValidSession = await verifySessionToken(token)
 
-  const isAccessingAdmin = pathname.startsWith('/admin')
+  const isAccessingCms = pathname === '/cms' || pathname.startsWith('/cms/')
+  const isAccessingLegacyAdmin = pathname === '/admin' || pathname.startsWith('/admin/')
   const isAccessingAdminApi = pathname.startsWith('/api/admin')
   const isAccessingLogin = pathname === '/login'
 
   // =========================================================================
-  // KASUS A: AKSES MELALUI SUBDOMAIN ADMIN (admin.domain.com / admin-xxx.vercel.app / admin.localhost)
+  // KASUS A: AKSES MELALUI SUBDOMAIN CMS (cms.4sinergiutama.co.id / cms-4su-*.vercel.app / cms.localhost)
   // =========================================================================
-  if (isAdminSubdomain) {
-    // A.1. Mengakses root (/) di subdomain admin
+  if (isCmsSubdomain) {
+    // A.1. Mengakses root (/) di subdomain CMS
     if (pathname === '/') {
       if (isValidSession) {
-        // Sudah login -> render dashboard admin (/admin) tanpa ubah URL browser
+        // Sudah login -> render dashboard CMS tanpa ubah URL browser
         const url = request.nextUrl.clone()
         url.pathname = '/admin'
         return NextResponse.rewrite(url)
@@ -68,34 +71,47 @@ export async function proxy(request: NextRequest) {
       }
     }
 
-    // A.2. Shortcut: jika admin mengetik /users, /hero, /services langsung di subdomain admin
+    // A.2. Jika masih ada yang mengakses /admin atau /admin/* di subdomain CMS -> arahkan ke /cms/*
+    if (isAccessingLegacyAdmin) {
+      const newPath = pathname === '/admin' ? '/cms' : pathname.replace(/^\/admin/, '/cms')
+      return NextResponse.redirect(new URL(newPath, request.url))
+    }
+
+    // A.3. Shortcut: jika user mengetik /users, /hero, /services langsung di subdomain CMS -> arahkan ke /cms/...
     const firstSegment = pathname.split('/')[1]
     if (KNOWN_ADMIN_MENUS.includes(firstSegment)) {
-      return NextResponse.redirect(new URL(`/admin${pathname}`, request.url))
+      return NextResponse.redirect(new URL(`/cms${pathname}`, request.url))
     }
 
-    // A.3. Jika sudah login dan mencoba membuka /login -> alihkan ke /admin
+    // A.4. Jika sudah login dan mencoba membuka /login -> alihkan ke /cms
     if (isAccessingLogin && isValidSession) {
-      return NextResponse.redirect(new URL('/admin', request.url))
+      return NextResponse.redirect(new URL('/cms', request.url))
     }
 
-    // A.4. Proteksi Halaman Admin (/admin/*)
-    if (isAccessingAdmin && !isValidSession) {
-      if (request.method !== 'GET' && request.method !== 'HEAD') {
-        return new NextResponse('Unauthorized: Sesi tidak ditemukan atau telah berakhir.', { status: 401 })
+    // A.5. Proteksi Halaman CMS (/cms/*)
+    if (isAccessingCms) {
+      if (!isValidSession) {
+        if (request.method !== 'GET' && request.method !== 'HEAD') {
+          return new NextResponse('Unauthorized: Sesi tidak ditemukan atau telah berakhir.', { status: 401 })
+        }
+        const loginUrl = new URL('/login', request.url)
+        if (pathname !== '/cms') {
+          loginUrl.searchParams.set('redirect', pathname)
+        }
+        const res = NextResponse.redirect(loginUrl)
+        if (token) {
+          res.cookies.delete(SESSION_COOKIE)
+        }
+        return res
       }
-      const loginUrl = new URL('/login', request.url)
-      if (pathname !== '/admin') {
-        loginUrl.searchParams.set('redirect', pathname)
-      }
-      const res = NextResponse.redirect(loginUrl)
-      if (token) {
-        res.cookies.delete(SESSION_COOKIE)
-      }
-      return res
+
+      // Sesudah terautentikasi, rewrite internal /cms/* -> /admin/* (App Router folder) tanpa mengubah URL /cms di browser
+      const rewriteUrl = request.nextUrl.clone()
+      rewriteUrl.pathname = pathname === '/cms' ? '/admin' : pathname.replace(/^\/cms/, '/admin')
+      return NextResponse.rewrite(rewriteUrl)
     }
 
-    // A.5. Proteksi API Admin (/api/admin/*)
+    // A.6. Proteksi API CMS (/api/admin/*)
     if (isAccessingAdminApi && !isValidSession) {
       return NextResponse.json(
         { error: 'Unauthorized: Akses ditolak. Sesi tidak ditemukan atau telah berakhir.' },
@@ -103,33 +119,39 @@ export async function proxy(request: NextRequest) {
       )
     }
 
-    // Lewatkan request normal di subdomain admin (misal: /login, /admin/*, assets)
+    // Lewatkan request normal di subdomain CMS (misal: /login, assets)
     return NextResponse.next()
   }
 
   // =========================================================================
-  // KASUS B: AKSES MELALUI DOMAIN STAGING VERCEL (misal: https://ecu-cms.vercel.app/admin)
+  // KASUS B: AKSES MELALUI DOMAIN STAGING VERCEL (https://ecu-cms.vercel.app/cms)
   // =========================================================================
-  // Karena *.vercel.app tidak mengizinkan sub-subdomain bertitik (admin.ecu-cms.vercel.app akan gagal SSL),
-  // izinkan akses path /admin, /login, dan /api/admin secara langsung di domain *.vercel.app dengan proteksi sesi penuh.
-  if (isVercelStagingDomain && (isAccessingAdmin || isAccessingLogin || isAccessingAdminApi)) {
+  // Di Vercel, akses CMS menggunakan */cms (sedangkan */admin dikunci 404).
+  if (isVercelStagingDomain && (isAccessingCms || isAccessingLogin || isAccessingAdminApi)) {
     if (isAccessingLogin && isValidSession) {
-      return NextResponse.redirect(new URL('/admin', request.url))
+      return NextResponse.redirect(new URL('/cms', request.url))
     }
 
-    if (isAccessingAdmin && !isValidSession) {
-      if (request.method !== 'GET' && request.method !== 'HEAD') {
-        return new NextResponse('Unauthorized: Sesi tidak ditemukan atau telah berakhir.', { status: 401 })
+    if (isAccessingCms) {
+      if (!isValidSession) {
+        if (request.method !== 'GET' && request.method !== 'HEAD') {
+          return new NextResponse('Unauthorized: Sesi tidak ditemukan atau telah berakhir.', { status: 401 })
+        }
+        const loginUrl = new URL('/login', request.url)
+        if (pathname !== '/cms') {
+          loginUrl.searchParams.set('redirect', pathname)
+        }
+        const res = NextResponse.redirect(loginUrl)
+        if (token) {
+          res.cookies.delete(SESSION_COOKIE)
+        }
+        return res
       }
-      const loginUrl = new URL('/login', request.url)
-      if (pathname !== '/admin') {
-        loginUrl.searchParams.set('redirect', pathname)
-      }
-      const res = NextResponse.redirect(loginUrl)
-      if (token) {
-        res.cookies.delete(SESSION_COOKIE)
-      }
-      return res
+
+      // Rewrite internal /cms/* -> /admin/* agar URL browser tetap */cms
+      const rewriteUrl = request.nextUrl.clone()
+      rewriteUrl.pathname = pathname === '/cms' ? '/admin' : pathname.replace(/^\/cms/, '/admin')
+      return NextResponse.rewrite(rewriteUrl)
     }
 
     if (isAccessingAdminApi && !isValidSession) {
@@ -143,11 +165,11 @@ export async function proxy(request: NextRequest) {
   }
 
   // =========================================================================
-  // KASUS C: AKSES MELALUI DOMAIN UTAMA PRODUKSI / LOCALHOST (4su.co.id / localhost)
+  // KASUS C: AKSES MELALUI DOMAIN UTAMA PRODUKSI / LOCALHOST (4sinergiutama.co.id / localhost)
   // =========================================================================
-  // Rute admin, login CMS, dan API admin HANYA dikenali di subdomain admin.
-  // Di domain utama produksi (maupun localhost tanpa admin.), URL ini tidak dikenali (404 Not Found).
-  if (isAccessingAdmin || isAccessingLogin || isAccessingAdminApi) {
+  // Rute /cms, /admin, /login, dan /api/admin di domain utama dikunci 404 Not Found.
+  // (Di Vercel pun jika mengakses /admin juga kena 404 karena di Vercel wajib pakai /cms).
+  if (isAccessingCms || isAccessingLegacyAdmin || isAccessingLogin || isAccessingAdminApi) {
     const notFoundUrl = request.nextUrl.clone()
     notFoundUrl.pathname = '/404'
     return NextResponse.rewrite(notFoundUrl, { status: 404 })

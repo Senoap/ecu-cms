@@ -99,13 +99,13 @@ export function canUserAccessMenu(user: CurrentAdminUser, menuId: string): boole
 
 export function getDefaultMenuHref(user: CurrentAdminUser): string {
   if (user.isSuperadmin || user.id === 'superadmin') {
-    return '/admin/users'
+    return '/cms/users'
   }
   if (user.isRootAdmin || user.permissions.includes('global')) {
-    return '/admin'
+    return '/cms'
   }
   const firstAllowed = AVAILABLE_MENUS.find((m) => canUserAccessMenu(user, m.id))
-  return firstAllowed ? firstAllowed.href : '/admin'
+  return firstAllowed ? firstAllowed.href : '/cms'
 }
 
 export async function isAdmin(): Promise<boolean> {

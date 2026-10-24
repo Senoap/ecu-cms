@@ -1714,7 +1714,7 @@ export async function addVisitorLog(pathName: string, _ip?: string, _userAgent?:
   void _userAgent
   void _referer
   try {
-    if (pathName.startsWith('/admin') || pathName.startsWith('/api') || pathName.startsWith('/login') || pathName.includes('.')) {
+    if (pathName.startsWith('/cms') || pathName.startsWith('/admin') || pathName.startsWith('/api') || pathName.startsWith('/login') || pathName.includes('.')) {
       return
     }
 

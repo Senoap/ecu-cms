@@ -40,7 +40,7 @@ import type { CurrentAdminUser } from '@/lib/auth'
 import type { CmsDraftLock } from '@/lib/db'
 import { useSmartViewport } from '@/components/SmartViewportProvider'
 
-const WEBSITE_PATHS = ['/admin/hero', '/admin/scheduled-content', '/admin/about', '/admin/services', '/admin/portfolio', '/admin/gallery', '/admin/certifications', '/admin/compro-requests', '/admin/footer', '/admin/legal']
+const WEBSITE_PATHS = ['/cms/hero', '/cms/scheduled-content', '/cms/about', '/cms/services', '/cms/portfolio', '/cms/gallery', '/cms/certifications', '/cms/compro-requests', '/cms/footer', '/cms/legal', '/admin/hero', '/admin/scheduled-content', '/admin/about', '/admin/services', '/admin/portfolio', '/admin/gallery', '/admin/certifications', '/admin/compro-requests', '/admin/footer', '/admin/legal']
 
 interface SectionConfig {
   id: string
@@ -93,7 +93,7 @@ export default function AdminLayoutClient({
   const [showSuccessToast, setShowSuccessToast] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
-  const { isCompactViewport, isShortViewport, isSplitScreen, modeLabel, viewportWidth, viewportHeight, osPlatform } = useSmartViewport()
+  const { isCompactViewport, isShortViewport, isSplitScreen } = useSmartViewport()
 
   // Otomatis lipat sidebar saat layar sempit atau dibagi multi-window (2 atau 4 jendela)
   useEffect(() => {
@@ -155,10 +155,10 @@ export default function AdminLayoutClient({
       setIsStandalone(checkStandalone())
     })
 
-    // 1. Daftarkan Service Worker untuk scope admin
+    // 1. Daftarkan Service Worker untuk scope CMS
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
-        .register('/admin-sw.js', { scope: '/admin' })
+        .register('/admin-sw.js', { scope: '/cms' })
         .then((reg) => {
           console.log('[PWA] Service Worker terdaftar pada scope:', reg.scope)
         })
@@ -215,8 +215,8 @@ export default function AdminLayoutClient({
   // State Submenus (terbuka / tertutup)
   const [openSubmenus, setOpenSubmenus] = useState<Record<string, boolean>>(() => ({
     website: WEBSITE_PATHS.some((p) => pathname?.startsWith(p)),
-    career: ['/admin/career', '/admin/applications', '/admin/career-templates'].some((p) => pathname?.startsWith(p)),
-    system: ['/admin/users', '/admin/audit-log'].some((p) => pathname?.startsWith(p)),
+    career: ['/cms/career', '/cms/applications', '/cms/career-templates', '/admin/career', '/admin/applications', '/admin/career-templates'].some((p) => pathname?.startsWith(p)),
+    system: ['/cms/users', '/cms/audit-log', '/admin/users', '/admin/audit-log'].some((p) => pathname?.startsWith(p)),
   }))
 
   // Buka otomatis submenu yang rutenya sedang aktif & auto-close sidebar pada mobile saat rute berganti
@@ -227,9 +227,9 @@ export default function AdminLayoutClient({
       }
       if (WEBSITE_PATHS.some((p) => pathname?.startsWith(p))) {
         setOpenSubmenus((prev) => ({ ...prev, website: true }))
-      } else if (['/admin/career', '/admin/applications', '/admin/career-templates'].some((p) => pathname?.startsWith(p))) {
+      } else if (['/cms/career', '/cms/applications', '/cms/career-templates', '/admin/career', '/admin/applications', '/admin/career-templates'].some((p) => pathname?.startsWith(p))) {
         setOpenSubmenus((prev) => ({ ...prev, career: true }))
-      } else if (['/admin/users', '/admin/audit-log'].some((p) => pathname?.startsWith(p))) {
+      } else if (['/cms/users', '/cms/audit-log', '/admin/users', '/admin/audit-log'].some((p) => pathname?.startsWith(p))) {
         setOpenSubmenus((prev) => ({ ...prev, system: true }))
       }
     })
@@ -259,13 +259,13 @@ export default function AdminLayoutClient({
   // Hitung hanya notifikasi yang belum dilihat untuk badge angka
   const unreadCount = visibleNotifications.filter(n => !n.viewedAt).length
 
-  // Handler navigasi ke website publik saat panel CMS dibuka dari subdomain admin
+  // Handler navigasi ke website publik saat panel CMS dibuka dari subdomain CMS
   const handleOpenMainSite = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (typeof window !== 'undefined') {
       const { hostname, host, protocol } = window.location
-      if (/^(admin|cms)[.-]/i.test(hostname)) {
+      if (/^(cms-4su|cms|admin)[.-]/i.test(hostname)) {
         e.preventDefault()
-        const mainHost = host.replace(/^(admin|cms)[.-]/i, '')
+        const mainHost = host.replace(/^(cms-4su|cms|admin)[.-]/i, '')
         window.open(`${protocol}//${mainHost}/`, '_blank', 'noopener,noreferrer')
       }
     }
@@ -391,23 +391,23 @@ export default function AdminLayoutClient({
 
   // 1. Group Halaman Website
   const websiteItems = [
-    { id: 'hero', label: getSectionLabel('hero', 'Hero Section'), href: '/admin/hero', icon: Layout },
-    { id: 'scheduled-content', label: getSectionLabel('scheduled-content', 'Konten Harian & Bulanan'), href: '/admin/scheduled-content', icon: Calendar },
-    { id: 'about', label: getSectionLabel('about', 'Tentang Kami'), href: '/admin/about', icon: Users },
-    { id: 'services', label: getSectionLabel('services', 'Layanan'), href: '/admin/services', icon: Briefcase },
-    { id: 'portfolio', label: getSectionLabel('portfolio', 'Portofolio'), href: '/admin/portfolio', icon: FolderKanban },
-    { id: 'gallery', label: getSectionLabel('gallery', 'Galeri Foto'), href: '/admin/gallery', icon: ImageIcon },
-    { id: 'certifications', label: 'Sertifikasi Perusahaan', href: '/admin/certifications', icon: Award },
-    { id: 'compro-requests', label: 'Permintaan Compro PDF', href: '/admin/compro-requests', icon: FileDown },
-    { id: 'footer', label: getSectionLabel('contact', 'Kontak & Footer'), href: '/admin/footer', icon: PhoneCall },
-    { id: 'legal', label: 'Kebijakan & Ketentuan', href: '/admin/legal', icon: FileText },
+    { id: 'hero', label: getSectionLabel('hero', 'Hero Section'), href: '/cms/hero', icon: Layout },
+    { id: 'scheduled-content', label: getSectionLabel('scheduled-content', 'Konten Harian & Bulanan'), href: '/cms/scheduled-content', icon: Calendar },
+    { id: 'about', label: getSectionLabel('about', 'Tentang Kami'), href: '/cms/about', icon: Users },
+    { id: 'services', label: getSectionLabel('services', 'Layanan'), href: '/cms/services', icon: Briefcase },
+    { id: 'portfolio', label: getSectionLabel('portfolio', 'Portofolio'), href: '/cms/portfolio', icon: FolderKanban },
+    { id: 'gallery', label: getSectionLabel('gallery', 'Galeri Foto'), href: '/cms/gallery', icon: ImageIcon },
+    { id: 'certifications', label: 'Sertifikasi Perusahaan', href: '/cms/certifications', icon: Award },
+    { id: 'compro-requests', label: 'Permintaan Compro PDF', href: '/cms/compro-requests', icon: FileDown },
+    { id: 'footer', label: getSectionLabel('contact', 'Kontak & Footer'), href: '/cms/footer', icon: PhoneCall },
+    { id: 'legal', label: 'Kebijakan & Ketentuan', href: '/cms/legal', icon: FileText },
   ].filter((item) => canAccess(item.id))
 
   // 2. Group Karir & Rekrutmen
   const careerItems = [
-    { id: 'career', label: getSectionLabel('career', 'Lowongan Karir'), href: '/admin/career', icon: UserCheck },
-    { id: 'applications', label: 'Lamaran Masuk', href: '/admin/applications', icon: Inbox },
-    { id: 'career-templates', label: 'Template Balasan', href: '/admin/career-templates', icon: MessageSquare },
+    { id: 'career', label: getSectionLabel('career', 'Lowongan Karir'), href: '/cms/career', icon: UserCheck },
+    { id: 'applications', label: 'Lamaran Masuk', href: '/cms/applications', icon: Inbox },
+    { id: 'career-templates', label: 'Template Balasan', href: '/cms/career-templates', icon: MessageSquare },
   ].filter((item) => {
     if (item.id === 'career-templates') return canAccess('career-templates') || canAccess('career')
     return canAccess(item.id)
@@ -415,8 +415,8 @@ export default function AdminLayoutClient({
 
   // 4. Group Sistem & Hak Akses
   const systemItems = [
-    { id: 'users', label: 'Manajemen Pengguna & Role', href: '/admin/users', icon: Shield },
-    { id: 'audit-log', label: 'Audit Log Aktivitas', href: '/admin/audit-log', icon: FileText },
+    { id: 'users', label: 'Manajemen Pengguna & Role', href: '/cms/users', icon: Shield },
+    { id: 'audit-log', label: 'Audit Log Aktivitas', href: '/cms/audit-log', icon: FileText },
   ].filter((item) => canAccess(item.id))
 
   return (
@@ -477,24 +477,11 @@ export default function AdminLayoutClient({
                   <p className="text-[10px] text-[#A12323] dark:text-[#E05252] font-semibold tracking-wider uppercase">Enterprise Control</p>
                 </div>
               </div>
-              
-              <button
-                type="button"
-                onClick={() => setIsSidebarOpen(false)}
-                className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all border cursor-pointer ${
-                  isDarkMode 
-                    ? 'bg-[#181B26] text-zinc-300 border-[#222736] hover:bg-[#202534] hover:text-white' 
-                    : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200'
-                }`}
-                title="Tutup Menu CMS"
-              >
-                <Menu className="w-4 h-4" />
-              </button>
             </div>
 
             {/* PROFIL PENGGUNA YANG LOGIN */}
             {currentUser && (
-              <div className={`px-3 py-2 rounded-lg border space-y-1 ${isDarkMode ? 'border-[#222736] bg-[#181B26]' : 'border-gray-200 bg-gray-50'}`}>
+              <div className={`px-3 py-2 rounded-lg border ${isDarkMode ? 'border-[#222736] bg-[#181B26]' : 'border-gray-200 bg-gray-50'}`}>
                 <div className="overflow-hidden">
                   <div className="text-xs font-black text-gray-900 dark:text-white truncate">
                     {currentUser.name}
@@ -502,10 +489,6 @@ export default function AdminLayoutClient({
                   <div className="text-[10px] text-[#A12323] dark:text-[#E05252] font-semibold">
                     {currentUser.role}
                   </div>
-                </div>
-                <div suppressHydrationWarning className="pt-1 border-t border-gray-200/80 dark:border-gray-800 text-[10px] text-gray-500 dark:text-gray-400 font-mono flex items-center justify-between">
-                  <span className="truncate">{modeLabel}</span>
-                  <span className="shrink-0">{viewportWidth}×{viewportHeight} ({osPlatform})</span>
                 </div>
               </div>
             )}
@@ -521,9 +504,9 @@ export default function AdminLayoutClient({
                   Navigasi Utama
                 </div>
                 <Link 
-                  href="/admin" 
+                  href="/cms" 
                   className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-all duration-200 border text-xs font-bold uppercase tracking-wide ${
-                    pathname === '/admin'
+                    pathname === '/cms' || pathname === '/admin'
                       ? isDarkMode 
                         ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 font-black shadow-sm' 
                         : 'bg-amber-100/90 text-amber-950 border-amber-400/80 font-black shadow-sm'
@@ -533,7 +516,7 @@ export default function AdminLayoutClient({
                   }`}
                 >
                   <Settings className={`w-4 h-4 transition-transform ${
-                    pathname === '/admin' ? 'text-amber-500' : 'text-gray-400'
+                    pathname === '/cms' || pathname === '/admin' ? 'text-amber-500' : 'text-gray-400'
                   }`} />
                   <span>Pengaturan Global</span>
                 </Link>
@@ -576,7 +559,7 @@ export default function AdminLayoutClient({
                   }`}>
                     <div className="ml-3 pl-2.5 border-l-2 border-gray-200 dark:border-gray-800/80 space-y-1">
                       {websiteItems.map((item) => {
-                        const isItemActive = pathname === item.href || (item.href !== '/admin' && pathname?.startsWith(item.href))
+                        const isItemActive = pathname === item.href || pathname?.startsWith(item.href) || pathname?.startsWith(item.href.replace('/cms/', '/admin/'))
                         const Icon = item.icon
                         return (
                           <Link
@@ -634,7 +617,7 @@ export default function AdminLayoutClient({
                   }`}>
                     <div className="ml-3 pl-2.5 border-l-2 border-gray-200 dark:border-gray-800/80 space-y-1">
                       {careerItems.map((item) => {
-                        const isItemActive = pathname === item.href || pathname?.startsWith(item.href)
+                        const isItemActive = pathname === item.href || pathname?.startsWith(item.href) || pathname?.startsWith(item.href.replace('/cms/', '/admin/'))
                         const Icon = item.icon
                         return (
                           <Link
@@ -699,7 +682,7 @@ export default function AdminLayoutClient({
                   }`}>
                     <div className="ml-3 pl-2.5 border-l-2 border-gray-200 dark:border-gray-800/80 space-y-1">
                       {systemItems.map((item) => {
-                        const isItemActive = pathname === item.href || pathname?.startsWith(item.href)
+                        const isItemActive = pathname === item.href || pathname?.startsWith(item.href) || pathname?.startsWith(item.href.replace('/cms/', '/admin/'))
                         const Icon = item.icon
                         return (
                           <Link
@@ -826,11 +809,6 @@ export default function AdminLayoutClient({
               <span className="font-black text-xs sm:text-sm tracking-wider uppercase text-gray-900 dark:text-white truncate">
                 4SU CMS
               </span>
-              {isSplitScreen && (
-                <span suppressHydrationWarning className="text-[10px] font-mono text-gray-500 dark:text-gray-400 truncate">
-                  · {modeLabel}
-                </span>
-              )}
             </div>
           </div>
 

@@ -35,13 +35,13 @@ export default function AdminLoginPage() {
   const [isDarkMode, setIsDarkMode] = useState(true)
   const router = useRouter()
 
-  // Handler navigasi ke website publik saat login diakses melalui subdomain admin
+  // Handler navigasi ke website publik saat login diakses melalui subdomain CMS
   const handleOpenMainSite = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (typeof window !== 'undefined') {
       const { hostname, host, protocol } = window.location
-      if (/^(admin|cms)[.-]/i.test(hostname)) {
+      if (/^(cms-4su|cms|admin)[.-]/i.test(hostname)) {
         e.preventDefault()
-        const mainHost = host.replace(/^(admin|cms)[.-]/i, '')
+        const mainHost = host.replace(/^(cms-4su|cms|admin)[.-]/i, '')
         window.location.href = `${protocol}//${mainHost}/`
       }
     }
@@ -102,7 +102,7 @@ export default function AdminLoginPage() {
         }
 
         localStorage.setItem('esu_admin_logged', 'true')
-        router.push(result.redirectUrl || '/admin')
+        router.push(result.redirectUrl || '/cms')
         router.refresh()
       } else {
         setErrorMsg(result.message || 'Terjadi kesalahan')
@@ -152,7 +152,7 @@ export default function AdminLoginPage() {
       const result = await changePasswordOnLoginAction(formData)
       if (result.success) {
         localStorage.setItem('esu_admin_logged', 'true')
-        router.push(result.redirectUrl || '/admin')
+        router.push(result.redirectUrl || '/cms')
         router.refresh()
       } else {
         setErrorMsg(result.message || 'Gagal memperbarui password.')

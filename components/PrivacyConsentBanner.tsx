@@ -3,6 +3,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { Cookie, Settings, Check, X } from 'lucide-react'
 import {
   getCookieConsent,
@@ -11,11 +12,20 @@ import {
 } from '@/lib/cookieConsent'
 
 export default function PrivacyConsentBanner() {
+  const pathname = usePathname()
   const [isVisible, setIsVisible] = useState(false)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [analyticsChecked, setAnalyticsChecked] = useState(false)
 
+  // Jangan pernah tampilkan banner cookie pada halaman Login, CMS (/cms atau /admin), maupun subdomain CMS
+  const isCmsOrAuthRoute =
+    Boolean(pathname && (pathname.startsWith('/login') || pathname.startsWith('/cms') || pathname.startsWith('/admin'))) ||
+    (typeof window !== 'undefined' && /^(cms-4su|cms|admin)[.-]/i.test(window.location.hostname))
+
   useEffect(() => {
+    if (isCmsOrAuthRoute) {
+      return
+    }
     // 1. Cek apakah pengguna sudah memiliki preferensi tersimpan
     const existing = getCookieConsent()
     if (!existing) {
@@ -36,7 +46,7 @@ export default function PrivacyConsentBanner() {
     return () => {
       window.removeEventListener(OPEN_COOKIE_SETTINGS_EVENT, handleOpenSettings)
     }
-  }, [])
+  }, [isCmsOrAuthRoute])
 
   // Aksi: Terima semua (dari banner atau panel)
   const handleAcceptAll = () => {
@@ -80,7 +90,7 @@ export default function PrivacyConsentBanner() {
     }
   }
 
-  if (!isVisible) return null
+  if (!isVisible || isCmsOrAuthRoute) return null
 
   return (
     <aside

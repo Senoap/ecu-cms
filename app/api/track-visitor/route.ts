@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Hanya izinkan path yang valid
-    if (!pathName.startsWith('/') || pathName.includes('..') || pathName.startsWith('/admin') || pathName.startsWith('/api') || pathName.startsWith('/login')) {
+    if (!pathName.startsWith('/') || pathName.includes('..') || pathName.startsWith('/cms') || pathName.startsWith('/admin') || pathName.startsWith('/api') || pathName.startsWith('/login')) {
       return NextResponse.json({ ok: true })
     }
 

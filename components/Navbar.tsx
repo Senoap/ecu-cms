@@ -52,7 +52,7 @@ export default function Navbar({
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then((registrations) => {
         for (const reg of registrations) {
-          if (reg.scope && !reg.scope.includes('/admin')) {
+          if (reg.scope && !reg.scope.includes('/cms') && !reg.scope.includes('/admin')) {
             reg.unregister().catch(() => {})
           }
         }
