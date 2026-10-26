@@ -130,3 +130,17 @@ export function needsRehash(stored: string): boolean {
   return iter < PBKDF2_ITERATIONS
 }
 
+export const DEFAULT_ADMIN_SET_PASSWORD = '4sinergiutama2026!'
+
+export function passwordMatches(input: string, secret: string): boolean {
+  try {
+    const a = Buffer.from(input)
+    const b = Buffer.from(secret)
+    if (a.length !== b.length) return false
+    return crypto.timingSafeEqual(a, b)
+  } catch {
+    return false
+  }
+}
+
+

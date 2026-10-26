@@ -1,7 +1,7 @@
 // app/admin/portfolio/PortfolioClient.tsx
 'use client'
 import { useState, useTransition, useMemo } from 'react'
-import { Save, FolderKanban, Building2, Pencil, Trash2, X } from 'lucide-react'
+import { Save, FolderKanban, Building2, Pencil, Trash2, X, Plus } from 'lucide-react'
 
 interface PortfolioItem {
   id: string
@@ -60,11 +60,11 @@ export default function PortfolioClient({
       <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] transform ${
         showToast ? 'translate-y-0 opacity-100 scale-100' : '-translate-y-4 opacity-0 scale-95 pointer-events-none'
       }`}>
-        <div className="bg-amber-950/95 text-amber-300 border border-amber-500/40 px-6 py-4 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3">
-          <Save className="w-5 h-5 text-amber-400 shrink-0" />
+        <div className="bg-gray-900 text-white border border-gray-700 px-6 py-4 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3">
+          <Save className="w-5 h-5 text-gray-300 shrink-0" />
           <div>
             <h4 className="text-xs font-black uppercase tracking-wider">{toastMsg}</h4>
-            <p className="text-[11px] text-amber-400/80 font-medium">Klik tombol Deploy untuk menerbitkan ke website utama.</p>
+            <p className="text-[11px] text-gray-300 font-medium">Klik tombol Deploy untuk menerbitkan ke website utama.</p>
           </div>
         </div>
       </div>
@@ -82,9 +82,10 @@ export default function PortfolioClient({
         <button
           type="button"
           onClick={() => setIsAddModalOpen(true)}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 transition-colors cursor-pointer shrink-0"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors cursor-pointer shrink-0"
         >
-          + Tambah Mitra Baru
+          <Plus className="w-4 h-4" />
+          <span>Tambah Mitra Baru</span>
         </button>
       </div>
 
@@ -98,8 +99,8 @@ export default function PortfolioClient({
           setTimeout(() => setShowToast(false), 4000)
         })
       }} className="bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-xl space-y-6 transition-colors">
-        <h2 className="text-base font-black text-amber-600 dark:text-amber-500 tracking-wide uppercase flex items-center gap-2">
-          <FolderKanban className="w-4 h-4 text-amber-600 dark:text-amber-500" />
+        <h2 className="text-base font-black text-black dark:text-white tracking-wide uppercase flex items-center gap-2">
+          <FolderKanban className="w-4 h-4 text-black dark:text-white" />
           <span>Header & Catatan Seksi Portofolio</span>
         </h2>
 
@@ -111,7 +112,7 @@ export default function PortfolioClient({
               name="subtitle" 
               value={subtitle}
               onChange={(e) => setSubtitle(e.target.value)}
-              className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:border-amber-500 font-medium shadow-inner transition-colors" 
+              className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:border-blue-500 font-medium shadow-inner transition-colors" 
             />
           </div>
           <div className="space-y-2">
@@ -121,7 +122,7 @@ export default function PortfolioClient({
               name="title" 
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:border-amber-500 font-medium shadow-inner transition-colors" 
+              className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:border-blue-500 font-medium shadow-inner transition-colors" 
             />
           </div>
         </div>
@@ -133,7 +134,7 @@ export default function PortfolioClient({
             name="note" 
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:border-amber-500 font-medium shadow-inner transition-colors" 
+            className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:border-blue-500 font-medium shadow-inner transition-colors" 
           />
         </div>
 
@@ -144,7 +145,7 @@ export default function PortfolioClient({
             className={`px-6 h-12 rounded-full shadow-2xl flex items-center gap-2.5 text-xs font-black tracking-widest uppercase transition-all duration-300 border backdrop-blur-md cursor-pointer ${
               !isHeaderDirty || isPending
                 ? 'bg-gray-200 dark:bg-gray-900/40 text-gray-400 dark:text-gray-600 border-gray-300 dark:border-gray-800/40 cursor-not-allowed opacity-50 shadow-none'
-                : 'bg-amber-600 hover:bg-amber-700 text-white border-amber-600 shadow-md shadow-black/20 cursor-pointer'
+                : 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600 shadow-md shadow-black/20 cursor-pointer'
             }`}
           >
             <Save className="w-4 h-4" />
@@ -156,7 +157,7 @@ export default function PortfolioClient({
       {/* Daftar Portofolio */}
       <div className="bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-xl space-y-6 transition-colors">
         <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-800 pb-4">
-          <h2 className="text-base font-black text-amber-600 dark:text-amber-500 tracking-wide uppercase flex items-center gap-2">
+          <h2 className="text-base font-black text-black dark:text-white tracking-wide uppercase flex items-center gap-2">
             <Building2 className="w-4 h-4" /> Daftar Mitra / Proyek Tersimpan ({portfolios.length})
           </h2>
         </div>
@@ -166,7 +167,7 @@ export default function PortfolioClient({
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {portfolios.map((item) => (
-              <div key={item.id} className="bg-gray-50 dark:bg-[#090A0F] p-4 rounded-2xl border border-gray-200 dark:border-gray-800 flex gap-4 items-center group hover:border-amber-500/50 transition-colors">
+              <div key={item.id} className="bg-gray-50 dark:bg-[#090A0F] p-4 rounded-2xl border border-gray-200 dark:border-gray-800 flex gap-4 items-center group hover:border-gray-200 dark:border-gray-800 transition-colors">
                 <img src={item.imageUrl || 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=800&q=80'} alt={item.name} className="w-16 h-16 rounded-xl object-cover border border-gray-200 dark:border-gray-800 flex-shrink-0" />
                 <div className="space-y-1 flex-1 min-w-0">
                   <h4 className="font-bold text-sm text-gray-900 dark:text-white truncate">{item.name}</h4>
@@ -223,7 +224,7 @@ export default function PortfolioClient({
             }} className="space-y-4">
               <div className="space-y-1">
                 <label className="text-xs font-extrabold text-gray-700 dark:text-gray-400 uppercase">Nama Instansi / Klien</label>
-                <input type="text" name="name" required placeholder="Contoh: KEMENPORA RI" className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-xs font-medium focus:border-amber-500 transition-colors" />
+                <input type="text" name="name" required placeholder="Contoh: KEMENPORA RI" className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-xs font-medium focus:border-blue-500 transition-colors" />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-extrabold text-gray-700 dark:text-gray-400 uppercase">Upload Foto / Logo Proyek</label>
@@ -231,11 +232,11 @@ export default function PortfolioClient({
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-extrabold text-gray-700 dark:text-gray-400 uppercase">Deskripsi Kerjasama / Proyek</label>
-                <textarea name="desc" rows={3} required placeholder="Keterangan singkat proyek..." className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-white text-xs font-medium focus:border-amber-500 resize-none transition-colors"></textarea>
+                <textarea name="desc" rows={3} required placeholder="Keterangan singkat proyek..." className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-white text-xs font-medium focus:border-blue-500 resize-none transition-colors"></textarea>
               </div>
               <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-800">
                 <button type="button" onClick={() => setIsAddModalOpen(false)} className="px-5 py-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl text-xs font-bold transition-colors cursor-pointer">Batal</button>
-                <button type="submit" disabled={isPending} className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs uppercase px-6 py-2.5 rounded-xl cursor-pointer">
+                <button type="submit" disabled={isPending} className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs uppercase px-6 py-2.5 rounded-xl cursor-pointer">
                   {isPending ? 'Menyimpan...' : 'Tambah Mitra'}
                 </button>
               </div>
@@ -266,7 +267,7 @@ export default function PortfolioClient({
               <input type="hidden" name="id" value={editingItem.id} />
               <div className="space-y-1">
                 <label className="text-xs font-extrabold text-gray-700 dark:text-gray-400 uppercase">Nama Instansi / Klien</label>
-                <input type="text" name="name" defaultValue={editingItem.name} required className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-xs font-medium focus:border-amber-500 transition-colors" />
+                <input type="text" name="name" defaultValue={editingItem.name} required className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-xs font-medium focus:border-blue-500 transition-colors" />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-extrabold text-gray-700 dark:text-gray-400 uppercase">Ganti Foto / Logo (Opsional)</label>
@@ -274,7 +275,7 @@ export default function PortfolioClient({
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-extrabold text-gray-700 dark:text-gray-400 uppercase">Deskripsi Kerjasama / Proyek</label>
-                <textarea name="desc" rows={3} defaultValue={editingItem.desc} required className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-white text-xs font-medium focus:border-amber-500 resize-none transition-colors"></textarea>
+                <textarea name="desc" rows={3} defaultValue={editingItem.desc} required className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-white text-xs font-medium focus:border-blue-500 resize-none transition-colors"></textarea>
               </div>
               <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-800">
                 <button type="button" onClick={() => setEditingItem(null)} className="px-5 py-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl text-xs font-bold transition-colors cursor-pointer">Batal</button>

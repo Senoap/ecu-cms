@@ -263,6 +263,7 @@ export async function saveNewApplication(
 
   // 1. Simpan berkas fisik CV terlebih dahulu (Atomic Step 1)
   try {
+    await fs.mkdir(path.dirname(localCvPath), { recursive: true })
     await fs.writeFile(localCvPath, cvBuffer)
   } catch (fileErr) {
     console.error('[applications] Gagal menyimpan berkas CV ke disk lokal:', fileErr)

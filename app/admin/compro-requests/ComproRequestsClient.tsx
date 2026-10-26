@@ -237,8 +237,8 @@ export default function ComproRequestsClient({
             onClick={() => setActiveTab('list')}
             className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
               activeTab === 'list'
-                ? 'bg-amber-600 text-white'
-                : 'bg-white dark:bg-[#13161F] border border-gray-200 dark:border-[#222736] text-gray-600 dark:text-gray-400 hover:border-amber-500'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white dark:bg-[#13161F] border border-gray-200 dark:border-[#222736] text-gray-600 dark:text-gray-400 hover:border-gray-200 dark:border-gray-800'
             }`}
           >
             <Clock className="w-3.5 h-3.5" />
@@ -250,8 +250,8 @@ export default function ComproRequestsClient({
             onClick={() => setActiveTab('template')}
             className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
               activeTab === 'template'
-                ? 'bg-amber-600 text-white'
-                : 'bg-white dark:bg-[#13161F] border border-gray-200 dark:border-[#222736] text-gray-600 dark:text-gray-400 hover:border-amber-500'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white dark:bg-[#13161F] border border-gray-200 dark:border-[#222736] text-gray-600 dark:text-gray-400 hover:border-gray-200 dark:border-gray-800'
             }`}
           >
             <Paperclip className="w-3.5 h-3.5" />
@@ -263,12 +263,12 @@ export default function ComproRequestsClient({
       {/* CARD KONTROL VISIBILITAS PUBLIK FITUR PERMINTAAN COMPRO */}
       <div className={`p-6 rounded-3xl border transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm ${
         isComproEnabled
-          ? 'bg-amber-50/60 dark:bg-amber-950/20 border-amber-500/30'
+          ? 'bg-gray-50 dark:bg-[#090A0F] dark:bg-gray-900/40 border-gray-200 dark:border-gray-800'
           : 'bg-red-50/60 dark:bg-red-950/20 border-red-500/30'
       }`}>
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className={`w-2.5 h-2.5 rounded-full ${isComproEnabled ? 'bg-amber-600' : 'bg-red-500'}`} />
+            <span className={`w-2.5 h-2.5 rounded-full ${isComproEnabled ? 'bg-blue-600' : 'bg-red-500'}`} />
             <h3 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider">
               Status Fitur: {isComproEnabled ? 'AKTIF DITAMPILKAN DI WEBSITE' : 'NONAKTIF / DISEMBUNYIKAN DARI WEBSITE'}
             </h3>
@@ -284,7 +284,7 @@ export default function ComproRequestsClient({
         <div className="flex items-center gap-3.5 self-start sm:self-auto shrink-0">
           <span className={`text-xs font-black uppercase tracking-wider transition-colors select-none ${
             isComproEnabled
-              ? 'text-amber-700 dark:text-amber-400'
+              ? 'text-black dark:text-white dark:text-gray-500 dark:text-gray-400'
               : 'text-gray-400 dark:text-gray-500'
           }`}>
             {isComproEnabled ? 'Aktif (Tampil)' : 'Nonaktif (Sembunyi)'}
@@ -296,8 +296,8 @@ export default function ComproRequestsClient({
             aria-label="Toggle Fitur Permintaan Compro PDF"
             onClick={handleToggleCompro}
             disabled={isPending}
-            className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500/30 ${
-              isComproEnabled ? 'bg-amber-600' : 'bg-gray-300 dark:bg-gray-700'
+            className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500/20 ${
+              isComproEnabled ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-700'
             }`}
           >
             <span
@@ -324,7 +324,7 @@ export default function ComproRequestsClient({
             </div>
             <div className="p-4">
               <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400">Menunggu</p>
-              <p className="text-xl font-black text-amber-600 dark:text-amber-400 mt-0.5 tabular-nums">{totalPending}</p>
+              <p className="text-xl font-black text-gray-500 dark:text-gray-400 mt-0.5 tabular-nums">{totalPending}</p>
             </div>
             <div className="p-4">
               <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400">Ditindaklanjuti</p>
@@ -341,7 +341,7 @@ export default function ComproRequestsClient({
                 placeholder="Cari nama, email, perusahaan..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl pl-10 pr-4 py-2 text-xs text-gray-900 dark:text-white focus:outline-none focus:border-amber-500 font-medium"
+                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl pl-10 pr-4 py-2 text-xs text-gray-900 dark:text-white focus:outline-none focus:border-blue-500 font-medium"
               />
             </div>
 
@@ -360,7 +360,7 @@ export default function ComproRequestsClient({
                     onClick={() => setFilterStatus(st)}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors shrink-0 cursor-pointer ${
                       filterStatus === st
-                        ? 'bg-amber-600 text-white'
+                        ? 'bg-blue-600 text-white'
                         : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                     }`}
                   >
@@ -392,13 +392,13 @@ export default function ComproRequestsClient({
                 return (
                   <div
                     key={req.id}
-                    className="bg-white dark:bg-[#10131C] p-6 rounded-3xl border border-gray-200 dark:border-gray-800 space-y-4 shadow-sm hover:border-amber-500/40 transition-all"
+                    className="bg-white dark:bg-[#10131C] p-6 rounded-3xl border border-gray-200 dark:border-gray-800 space-y-4 shadow-sm hover:border-gray-200 dark:border-gray-800 transition-all"
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 dark:border-gray-800/60 pb-3">
                       <div>
                         <div className="flex items-center gap-2">
                           <h3 className="font-black text-sm text-gray-900 dark:text-white uppercase tracking-wider">{req.name}</h3>
-                          <span className="text-xs text-amber-600 dark:text-amber-400 font-bold">({req.company})</span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400 font-bold">({req.company})</span>
                         </div>
                         <p className="text-[11px] text-gray-400 font-mono mt-0.5">
                           Masuk: {new Date(req.createdAt).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}
@@ -415,7 +415,7 @@ export default function ComproRequestsClient({
                               ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border-emerald-500/30'
                               : req.status === 'followed_up'
                               ? 'bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 border-blue-500/30'
-                              : 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border-amber-500/30'
+                              : 'bg-gray-50 dark:bg-[#090A0F] dark:bg-gray-900/40 text-black dark:text-white dark:text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-800'
                           }`}
                         >
                           <option value="pending">Pending</option>
@@ -428,11 +428,11 @@ export default function ComproRequestsClient({
                     {/* Informasi Kontak & Catatan */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                       <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                        <Mail className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                        <a href={`mailto:${req.email}`} className="hover:text-amber-500 underline truncate">{req.email}</a>
+                        <Mail className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400 shrink-0" />
+                        <a href={`mailto:${req.email}`} className="hover:text-gray-500 dark:text-gray-400 underline truncate">{req.email}</a>
                       </div>
                       <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                        <Phone className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                        <Phone className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400 shrink-0" />
                         <span>{req.phone}</span>
                       </div>
                     </div>
@@ -461,7 +461,7 @@ export default function ComproRequestsClient({
                           type="button"
                           onClick={() => handleResend(req.id)}
                           disabled={isPending}
-                          className="px-3.5 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-amber-600 hover:text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
+                          className="px-3.5 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-blue-600 hover:text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
                         >
                           <Send className="w-3.5 h-3.5" />
                           <span>Kirim Ulang Compro + PDF</span>
@@ -492,7 +492,7 @@ export default function ComproRequestsClient({
           <div className="bg-white dark:bg-[#10131C] p-8 md:p-10 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-sm space-y-6">
             <div className="space-y-1 border-b border-gray-200 dark:border-gray-800 pb-4">
               <div className="flex items-center gap-2">
-                <Paperclip className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                <Paperclip className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                 <h2 className="text-base font-black text-gray-900 dark:text-white uppercase tracking-wide">
                   Berkas PDF Terlampir Langsung (Direct Attachment)
                 </h2>
@@ -503,9 +503,9 @@ export default function ComproRequestsClient({
             </div>
 
             {/* Status Berkas PDF Saat Ini */}
-            <div className="p-5 rounded-2xl bg-amber-50/40 dark:bg-amber-950/20 border border-amber-500/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="p-5 rounded-2xl bg-gray-50 dark:bg-[#090A0F] dark:bg-gray-900/40 border border-gray-200 dark:border-gray-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div className="flex items-center gap-3.5">
-                <div className="w-12 h-12 rounded-2xl bg-amber-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-sm">
                   <FileText className="w-6 h-6" />
                 </div>
                 <div>
@@ -519,7 +519,7 @@ export default function ComproRequestsClient({
                     </span>
                   </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                    Ukuran: <strong className="text-gray-800 dark:text-gray-200">{currentPdfInfo.sizeKb} KB</strong> · Lokasi internal: <code className="font-mono text-amber-700 dark:text-amber-400">/compro.pdf</code>
+                    Ukuran: <strong className="text-gray-800 dark:text-gray-200">{currentPdfInfo.sizeKb} KB</strong> · Lokasi internal: <code className="font-mono text-black dark:text-white dark:text-gray-500 dark:text-gray-400">/compro.pdf</code>
                   </p>
                 </div>
               </div>
@@ -529,7 +529,7 @@ export default function ComproRequestsClient({
                   href="/compro.pdf"
                   target="_blank"
                   rel="noreferrer"
-                  className="px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 hover:border-amber-500 text-gray-700 dark:text-gray-200 text-xs font-bold flex items-center gap-1.5 transition-colors"
+                  className="px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 hover:border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-200 text-xs font-bold flex items-center gap-1.5 transition-colors"
                 >
                   <Eye className="w-4 h-4 text-gray-400" />
                   <span>Lihat PDF</span>
@@ -548,7 +548,7 @@ export default function ComproRequestsClient({
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isUploading}
-                  className="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
+                  className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
                 >
                   <UploadCloud className="w-4 h-4" />
                   <span>{isUploading ? 'Mengunggah...' : 'Ganti Berkas PDF'}</span>
@@ -562,7 +562,7 @@ export default function ComproRequestsClient({
             <div className="space-y-1 border-b border-gray-200 dark:border-gray-800 pb-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <Server className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                  <Server className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                   <h2 className="text-base font-black text-gray-900 dark:text-white uppercase tracking-wide">
                     Server Email SMTP (Mailspace / Domain Korporat)
                   </h2>
@@ -572,7 +572,7 @@ export default function ComproRequestsClient({
                     Status: SMTP Aktif & Terhubung
                   </span>
                 ) : (
-                  <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
+                  <span className="text-xs font-bold text-gray-500 dark:text-gray-400">
                     Status: Mode Simulasi Dev (Belum Diatur di .env)
                   </span>
                 )}
@@ -609,9 +609,9 @@ export default function ComproRequestsClient({
               </div>
 
               {/* Form Uji Coba Pengiriman */}
-              <div className="p-5 rounded-2xl bg-amber-50/40 dark:bg-amber-950/20 border border-amber-500/30 flex flex-col justify-between space-y-4">
+              <div className="p-5 rounded-2xl bg-gray-50 dark:bg-[#090A0F] dark:bg-gray-900/40 border border-gray-200 dark:border-gray-800 flex flex-col justify-between space-y-4">
                 <div className="space-y-1.5">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-amber-700 dark:text-amber-400">Uji Coba Pengiriman Email</span>
+                  <span className="text-[10px] font-black uppercase tracking-wider text-black dark:text-white dark:text-gray-500 dark:text-gray-400">Uji Coba Pengiriman Email</span>
                   <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
                     Kirim email uji coba ke alamat email Anda untuk memastikan server Mailspace dapat mengirim pesan dan lampiran tanpa kendala.
                   </p>
@@ -623,12 +623,12 @@ export default function ComproRequestsClient({
                     placeholder="Masukkan email Anda (mis. nama@perusahaan.com)..."
                     value={testEmail}
                     onChange={(e) => setTestEmail(e.target.value)}
-                    className="w-full bg-white dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl px-3.5 py-2 text-xs text-gray-900 dark:text-white focus:border-amber-500 font-medium"
+                    className="w-full bg-white dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl px-3.5 py-2 text-xs text-gray-900 dark:text-white focus:border-blue-500 font-medium"
                   />
                   <button
                     type="submit"
                     disabled={isTestingSmtp}
-                    className="w-full py-2.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
+                    className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
                   >
                     <Send className="w-3.5 h-3.5" />
                     <span>{isTestingSmtp ? 'Menguji Koneksi...' : 'Uji Coba Kirim Email'}</span>
@@ -642,11 +642,11 @@ export default function ComproRequestsClient({
           <form onSubmit={handleSaveTemplate} className="bg-white dark:bg-[#10131C] p-8 md:p-10 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-sm space-y-6">
             <div className="space-y-1 border-b border-gray-200 dark:border-gray-800 pb-4">
               <h2 className="text-base font-black text-gray-900 dark:text-white flex items-center gap-2">
-                <Mail className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                <Mail className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                 <span>Pengaturan Teks & Narasi Email</span>
               </h2>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Sesuaikan teks surat yang dikirimkan. Gunakan tag dinamis <code className="text-amber-600 dark:text-amber-400 font-mono">&#123;name&#125;</code> untuk nama klien dan <code className="text-amber-600 dark:text-amber-400 font-mono">&#123;company&#125;</code> untuk nama perusahaannya.
+                Sesuaikan teks surat yang dikirimkan. Gunakan tag dinamis <code className="text-gray-500 dark:text-gray-400 font-mono">&#123;name&#125;</code> untuk nama klien dan <code className="text-gray-500 dark:text-gray-400 font-mono">&#123;company&#125;</code> untuk nama perusahaannya.
               </p>
             </div>
 
@@ -660,7 +660,7 @@ export default function ComproRequestsClient({
                   value={templateData.subject}
                   onChange={(e) => setTemplateData({ ...templateData, subject: e.target.value })}
                   required
-                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:border-amber-500 font-medium"
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:border-blue-500 font-medium"
                 />
               </div>
 
@@ -673,7 +673,7 @@ export default function ComproRequestsClient({
                   value={templateData.heading || ''}
                   onChange={(e) => setTemplateData({ ...templateData, heading: e.target.value })}
                   required
-                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:border-amber-500 font-medium"
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:border-blue-500 font-medium"
                 />
               </div>
 
@@ -687,7 +687,7 @@ export default function ComproRequestsClient({
                   onChange={(e) => setTemplateData({ ...templateData, bodyIntro: e.target.value, body: e.target.value })}
                   required
                   placeholder="Tuliskan isi surat pengantar..."
-                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl p-3.5 text-sm text-gray-900 dark:text-white focus:border-amber-500 font-medium resize-none leading-relaxed"
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl p-3.5 text-sm text-gray-900 dark:text-white focus:border-blue-500 font-medium resize-none leading-relaxed"
                 ></textarea>
               </div>
 
@@ -699,7 +699,7 @@ export default function ComproRequestsClient({
                   type="text"
                   value={templateData.footerText || ''}
                   onChange={(e) => setTemplateData({ ...templateData, footerText: e.target.value })}
-                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:border-amber-500 font-medium"
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:border-blue-500 font-medium"
                 />
               </div>
             </div>
@@ -708,7 +708,7 @@ export default function ComproRequestsClient({
               <button
                 type="submit"
                 disabled={isPending}
-                className="px-6 py-3 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-black text-xs uppercase tracking-wider shadow-sm flex items-center gap-2 transition-transform hover:scale-105 cursor-pointer disabled:opacity-50"
+                className="px-6 py-3 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs uppercase tracking-wider shadow-sm flex items-center gap-2 transition-transform hover:scale-105 cursor-pointer disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
                 <span>Simpan Template Email</span>

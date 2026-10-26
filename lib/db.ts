@@ -165,6 +165,7 @@ export interface CmsUser {
   createdAt: number
   passwordUpdatedAt?: number
   mustResetPassword?: boolean
+  skipPasswordExpiry?: boolean
 }
 
 export interface DirectorItem {
@@ -261,6 +262,10 @@ export interface NotificationItem {
   type: 'CREATE' | 'UPDATE' | 'DELETE' | 'DEPLOY' | 'CAREER' | 'COMPRO' | 'VISITOR' | 'AUTH'
   category?: 'system' | 'visitor' | 'career' | 'compro' | string
   viewedAt?: number
+  userId?: string
+  userName?: string
+  userEmail?: string
+  userRole?: string
 }
 
 export interface AuditLogItem {
@@ -269,6 +274,7 @@ export interface AuditLogItem {
   timestamp: number
   type: 'CREATE' | 'UPDATE' | 'DELETE' | 'DEPLOY' | 'CAREER' | 'COMPRO' | 'VISITOR' | 'AUTH'
   category: 'system' | 'visitor' | 'career' | 'compro'
+  userId?: string
   userName?: string
   userEmail?: string
   userRole?: string
@@ -1113,6 +1119,7 @@ function processParsedData(parsed: Partial<Database>): Database {
       return {
         ...rest,
         mustResetPassword: Boolean(u.mustResetPassword ?? mustChangePassword),
+        skipPasswordExpiry: Boolean(u.skipPasswordExpiry),
       }
     }),
     careerTemplates: (parsed.careerTemplates && parsed.careerTemplates.length > 0) ? parsed.careerTemplates : defaultCareerTemplates,
@@ -1339,7 +1346,15 @@ async function writeSupabaseRaw(data: Database) {
     if (fs && path) {
       const dataDir = path.join(process.cwd(), 'data')
       await fs.mkdir(dataDir, { recursive: true })
-      await fs.writeFile(path.join(dataDir, 'db.json'), JSON.stringify(data, null, 2), 'utf-8')
+      const filePath = path.join(dataDir, 'db.json')
+      const tmpPath = path.join(dataDir, 'db.json.tmp.' + Date.now())
+      await fs.writeFile(tmpPath, JSON.stringify(data, null, 2), 'utf-8')
+      try {
+        await fs.rename(tmpPath, filePath)
+      } catch {
+        await fs.copyFile(tmpPath, filePath)
+        await fs.unlink(tmpPath).catch(() => {})
+      }
     }
   } catch (fileErr) {
     console.error('Gagal menyimpan ke data/db.json:', fileErr)
@@ -1450,11 +1465,34 @@ export async function addNotification(
   message: string, 
   type: 'CREATE' | 'UPDATE' | 'DELETE' | 'DEPLOY' | 'CAREER' | 'COMPRO' | 'VISITOR' | 'AUTH',
   category: 'system' | 'visitor' | 'career' | 'compro' = 'system',
-  customUser?: { userName?: string; userEmail?: string; userRole?: string; ip?: string; isSystemOnly?: boolean }
+  customUser?: { userId?: string; userName?: string; userEmail?: string; userRole?: string; ip?: string; isSystemOnly?: boolean }
 ) {
   const db = await readDB()
   if (!db.notifications) db.notifications = []
   if (!db.auditLogs) db.auditLogs = []
+
+  let activeUserId = customUser?.userId
+  let activeUserName = customUser?.userName
+  let activeUserEmail = customUser?.userEmail
+  let activeUserRole = customUser?.userRole
+
+  if (!activeUserId && !activeUserName) {
+    try {
+      const { getCurrentUser } = await import('./auth')
+      const curr = await getCurrentUser()
+      if (curr) {
+        activeUserId = curr.id
+        activeUserName = curr.name
+        activeUserEmail = curr.username
+        activeUserRole = curr.role
+      }
+    } catch {}
+  }
+
+  const resolvedUserId = activeUserId || (category === 'visitor' ? 'visitor' : 'admin')
+  const resolvedUserName = activeUserName || (category === 'visitor' ? 'Pengunjung' : 'Administrator')
+  const resolvedUserEmail = activeUserEmail || (category === 'visitor' ? 'visitor' : 'admin')
+  const resolvedUserRole = activeUserRole || (category === 'visitor' ? 'Pengunjung Web' : 'Administrator')
 
   const logItem: AuditLogItem = {
     id: 'log-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
@@ -1462,9 +1500,10 @@ export async function addNotification(
     timestamp: Date.now(),
     type,
     category,
-    userName: customUser?.userName || 'Administrator',
-    userEmail: customUser?.userEmail || 'admin',
-    userRole: customUser?.userRole || 'Superadmin',
+    userId: resolvedUserId,
+    userName: resolvedUserName,
+    userEmail: resolvedUserEmail,
+    userRole: resolvedUserRole,
     ip: customUser?.ip,
   }
 
@@ -1474,6 +1513,10 @@ export async function addNotification(
     time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
     type,
     category,
+    userId: resolvedUserId,
+    userName: resolvedUserName,
+    userEmail: resolvedUserEmail,
+    userRole: resolvedUserRole,
   })
   db.auditLogs.unshift(logItem)
 
@@ -1490,21 +1533,34 @@ export async function addNotification(
   await writeSupabaseRaw(db)
 }
 
-export async function markNotificationsAsViewed() {
+export async function markNotificationsAsViewed(forUserId?: string, isPrivileged?: boolean) {
   const db = await readDB()
   const now = Date.now()
   if (db.notifications) {
-    db.notifications = db.notifications.map(n => ({
-      ...n,
-      viewedAt: n.viewedAt || now
-    }))
+    db.notifications = db.notifications.map(n => {
+      const isTarget = isPrivileged || !forUserId || n.userId === forUserId || n.userEmail === forUserId
+      if (isTarget) {
+        return {
+          ...n,
+          viewedAt: n.viewedAt || now
+        }
+      }
+      return n
+    })
   }
   await writeSupabaseRaw(db)
 }
 
-export async function clearNotifications() {
+export async function clearNotifications(forUserId?: string, isPrivileged?: boolean) {
   const db = await readDB()
-  db.notifications = []
+  if (!db.notifications) return
+  if (isPrivileged || !forUserId) {
+    db.notifications = []
+  } else {
+    db.notifications = db.notifications.filter(
+      (n) => n.userId !== forUserId && n.userEmail !== forUserId
+    )
+  }
   await writeSupabaseRaw(db)
 }
 
@@ -1722,17 +1778,52 @@ export function generateAuditLogTxt(logs: AuditLogItem[], dailyVisitors?: DailyV
 }
 
 // ==================== POINT 6 REVISI: VISITOR DAILY COUNTER (30 HARI BERGULIR) ====================
+export function isComproPath(pathName: string): boolean {
+  if (!pathName || typeof pathName !== "string") return false
+  const normalized = pathName.toLowerCase().split("?")[0].split("#")[0].replace(/\/+/g, "/").trim()
+  if (
+    !normalized.startsWith("/") ||
+    normalized.startsWith("/cms") ||
+    normalized.startsWith("/admin") ||
+    normalized.startsWith("/login") ||
+    normalized.startsWith("/api") ||
+    normalized.includes("..") ||
+    normalized.includes(".")
+  ) {
+    return false
+  }
+  return true
+}
+
 export async function addVisitorLog(pathName: string, _ip?: string, _userAgent?: string, _referer?: string) {
   void _ip
   void _userAgent
   void _referer
   try {
-    if (pathName.startsWith('/cms') || pathName.startsWith('/admin') || pathName.startsWith('/api') || pathName.startsWith('/login') || pathName.includes('.')) {
+    if (!isComproPath(pathName)) {
       return
     }
 
     const db = await readDB()
     if (!db.dailyVisitorCounts) db.dailyVisitorCounts = []
+    // Bersihkan jalur non-compro (seperti /login) dari data harian yang tersimpan
+    for (const item of db.dailyVisitorCounts) {
+      if (item.paths) {
+        let dirty = false
+        const cleanPaths: Record<string, number> = {}
+        for (const [p, c] of Object.entries(item.paths)) {
+          if (isComproPath(p)) {
+            cleanPaths[p] = c
+          } else {
+            dirty = true
+          }
+        }
+        if (dirty) {
+          item.paths = cleanPaths
+          item.count = Object.values(cleanPaths).reduce((acc, val) => acc + val, 0)
+        }
+      }
+    }
 
     // Format tanggal hari ini WIB / Asia/Jakarta (YYYY-MM-DD)
     const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta' }).format(new Date())

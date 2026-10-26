@@ -17,8 +17,8 @@ const STATUS_LABEL: Record<string, string> = {
 
 const STATUS_COLOR: Record<string, string> = {
   new: 'text-blue-600 dark:text-blue-400',
-  reviewed: 'text-amber-600 dark:text-amber-400',
-  interview: 'text-purple-600 dark:text-purple-400',
+  reviewed: 'text-gray-500 dark:text-gray-400',
+  interview: 'text-gray-500 dark:text-gray-400',
   accepted: 'text-emerald-600 dark:text-emerald-400',
   rejected: 'text-rose-600 dark:text-rose-400',
 }
@@ -79,7 +79,7 @@ export default async function ApplicationsPage({
         </div>
         <div className="p-4">
           <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400">Tahap Wawancara</p>
-          <p className="text-xl font-black text-amber-600 dark:text-amber-400 mt-0.5 tabular-nums">{totalInterview}</p>
+          <p className="text-xl font-black text-gray-500 dark:text-gray-400 mt-0.5 tabular-nums">{totalInterview}</p>
         </div>
         <div className="p-4">
           <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400">Diterima</p>
@@ -102,9 +102,9 @@ export default async function ApplicationsPage({
             type="email"
             defaultValue={hrEmail}
             placeholder={db.footer?.email ? `Kosong = pakai email footer (${db.footer.email})` : 'hr@perusahaan.com'}
-            className="flex-1 px-3.5 py-2.5 rounded-xl text-sm bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white outline-none focus:border-amber-500"
+            className="flex-1 px-3.5 py-2.5 rounded-xl text-sm bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white outline-none focus:border-blue-500"
           />
-          <button id="save-hr-email" type="submit" className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-sm font-black cursor-pointer shadow-sm transition-colors">
+          <button id="save-hr-email" type="submit" className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-600 text-white text-sm font-black cursor-pointer shadow-sm transition-colors">
             Simpan
           </button>
         </div>

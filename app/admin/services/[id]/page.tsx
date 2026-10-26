@@ -114,7 +114,7 @@ export default async function AdminEditServicePage({ params }: { params: Promise
                     )}
                 </div>
 
-                <button type="submit" className="w-full bg-amber-600 hover:bg-amber-700 text-white font-black text-xs uppercase tracking-widest py-3.5 rounded-xl transition-all shadow-sm cursor-pointer">
+                <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black text-xs uppercase tracking-widest py-3.5 rounded-xl transition-all shadow-sm cursor-pointer">
                     Simpan Perubahan Layanan
                 </button>
             </form>

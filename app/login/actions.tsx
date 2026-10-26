@@ -7,7 +7,7 @@ import { SESSION_COOKIE, SESSION_MAX_AGE, createSessionToken } from '@/lib/sessi
 import { readDB } from '@/lib/db'
 import { verifyPassword, checkPasswordExpiry } from '@/lib/password'
 
-import { AVAILABLE_MENUS, canUserAccessMenu } from '@/lib/auth'
+import { AVAILABLE_MENUS, canUserAccessMenu, isUserAdministrator, isUserSuperadmin } from '@/lib/auth'
 
 export type LoginResult = {
   success: boolean
@@ -204,11 +204,11 @@ export async function loginAdmin(formData: FormData): Promise<LoginResult> {
   }
 
   const SESSION_INACTIVITY_LIMIT = 30 * 60 * 1000 // 30 menit
-  const superAdminPassword = process.env.SUPERADMIN_PASSWORD || 'rahasiasu4su2026'
+  const superAdminPassword = process.env.SUPERADMIN_PASSWORD
 
   // 0. Cek Superadmin (username === 'superadmin') - Tier tertinggi di atas admin, khusus kontrol user
   if (username.toLowerCase() === 'superadmin') {
-    if (passwordMatches(password, superAdminPassword)) {
+    if (superAdminPassword && passwordMatches(password, superAdminPassword)) {
       await clearLoginAttempts(ip, 'superadmin')
 
       const db = await readDB()
@@ -337,8 +337,9 @@ export async function loginAdmin(formData: FormData): Promise<LoginResult> {
       await clearLoginAttempts(ip, matchedUser.username)
 
       // Cek Kedaluwarsa Password 3 Bulan & Peringatan H-7 (Point 3 & Point 4)
+      const isExempt = Boolean(matchedUser.skipPasswordExpiry)
       const expiryStatus = checkPasswordExpiry(matchedUser.passwordUpdatedAt, matchedUser.createdAt)
-      const needsPasswordReset = matchedUser.mustResetPassword || expiryStatus.isExpired || expiryStatus.isWarning
+      const needsPasswordReset = matchedUser.mustResetPassword || (!isExempt && (expiryStatus.isExpired || expiryStatus.isWarning))
 
       if (needsPasswordReset) {
         const { createPasswordResetToken } = await import('@/lib/session')
@@ -413,7 +414,7 @@ export async function loginAdmin(formData: FormData): Promise<LoginResult> {
         path: '/',
       })
 
-      const hasAllAccess = matchedUser.role.toLowerCase() === 'superadmin' || matchedUser.permissions.includes('users')
+      const hasAllAccess = isUserAdministrator(matchedUser) || isUserSuperadmin(matchedUser)
       let redirectUrl = '/cms'
       if (!hasAllAccess && !matchedUser.permissions.includes('global')) {
         const dummyUser = {
@@ -545,7 +546,7 @@ export async function changePasswordOnLoginAction(formData: FormData): Promise<{
       path: '/',
     })
 
-    const hasAllAccess = user.role.toLowerCase() === 'superadmin' || user.permissions.includes('users')
+    const hasAllAccess = isUserAdministrator(user) || isUserSuperadmin(user)
     let redirectUrl = '/cms'
     if (!hasAllAccess && !user.permissions.includes('global')) {
       const dummyUser = {
@@ -577,18 +578,12 @@ export async function logoutAdmin() {
       const { getSessionPayload } = await import('@/lib/session')
       const payload = await getSessionPayload(token)
       if (payload?.userId) {
-        const { readDB, writeSystemDB, addNotification } = await import('@/lib/db')
+        const { readDB, writeSystemDB } = await import('@/lib/db')
         const db = await readDB()
         if (db.activeSessions && db.activeSessions[payload.userId]) {
           delete db.activeSessions[payload.userId]
           await writeSystemDB(db)
         }
-        await addNotification(
-          `Pengguna "${payload.userId}" telah logout dari sistem CMS.`,
-          'AUTH',
-          'system',
-          { userName: payload.userId, userRole: 'CMS User' }
-        )
       }
     } catch (e) {
       console.warn('Gagal menghapus active session saat logout:', e)

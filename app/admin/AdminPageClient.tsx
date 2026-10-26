@@ -259,11 +259,11 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
       {/* TOAST NOTIFIKASI SUKSES */}
       <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] transform ${showSuccessToast ? 'translate-y-0 opacity-100 scale-100' : '-translate-y-4 opacity-0 scale-95 pointer-events-none'
         }`}>
-        <div className="bg-amber-950/95 text-amber-300 border border-amber-500/40 px-6 py-4 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3">
-          <Save className="w-5 h-5 text-amber-300" />
+        <div className="bg-gray-900 text-white border border-gray-700 px-6 py-4 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3">
+          <Save className="w-5 h-5 text-gray-300" />
           <div>
             <h4 className="text-xs font-black uppercase tracking-wider">Berhasil Disimpan ke Draft!</h4>
-            <p className="text-[11px] text-amber-400/80 font-medium">Masuk ke log notifikasi. Klik tombol Deploy untuk menerbitkan.</p>
+            <p className="text-[11px] text-gray-300 font-medium">Masuk ke log notifikasi. Klik tombol Deploy untuk menerbitkan.</p>
           </div>
         </div>
       </div>
@@ -285,8 +285,8 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
         {/* Identitas & Konfigurasi Card */}
         <div className="bg-white dark:bg-[#10131C] p-8 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-800/80 space-y-6">
           <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-4">
-            <h2 className="text-base font-black text-amber-600 dark:text-amber-500 tracking-wide uppercase flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-amber-600 dark:text-amber-500" /> Identitas Korporat & Tampilan
+            <h2 className="text-sm font-black text-black dark:text-white uppercase tracking-wider flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-gray-500 dark:text-gray-400" /> Identitas Korporat & Tampilan
             </h2>
           </div>
 
@@ -298,7 +298,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
                 name="siteName"
                 value={siteName}
                 onChange={(e) => setSiteName(e.target.value)}
-                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 transition-colors shadow-inner font-medium"
+                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 transition-colors shadow-inner font-medium"
               />
             </div>
             <div className="space-y-2">
@@ -308,7 +308,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
                 name="tagline"
                 value={tagline}
                 onChange={(e) => setTagline(e.target.value)}
-                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 transition-colors shadow-inner font-medium"
+                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 transition-colors shadow-inner font-medium"
               />
             </div>
             
@@ -316,7 +316,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
             <div className="space-y-3 md:col-span-2 pt-2 border-t border-gray-200 dark:border-gray-800/80">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-wider text-amber-700 dark:text-amber-400">
+                  <label className="block text-xs font-black uppercase tracking-wider text-black dark:text-white">
                     Palet Warna Korporat (3 Warna Harmonis)
                   </label>
                   <p className="text-[11px] text-gray-600 dark:text-gray-400 font-medium">
@@ -327,7 +327,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
                   type="button"
                   onClick={handleAutoGenerateColor}
                   disabled={isExtracting}
-                  className="px-3.5 py-2 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-800 dark:text-amber-300 text-xs font-black tracking-wider hover:bg-amber-500/30 transition-all disabled:opacity-50 flex items-center gap-2 cursor-pointer shadow-sm self-start sm:self-auto"
+                  className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold tracking-wider transition-all disabled:opacity-50 flex items-center gap-2 cursor-pointer shadow-xs self-start sm:self-auto"
                 >
                   {isExtracting ? 'Menganalisis Logo...' : 'Auto-Generate 3 Warna dari Logo'}
                 </button>
@@ -344,7 +344,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
                       onClick={() => handleApplyPreset(p)}
                       className={`p-3 rounded-2xl border text-left transition-all duration-300 flex flex-col justify-between space-y-2 cursor-pointer ${
                         isCurrent
-                          ? 'bg-amber-500/15 border-amber-500 ring-2 ring-amber-500/40'
+                          ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-600 ring-2 ring-blue-500/30'
                           : 'bg-gray-50 dark:bg-[#090A0F] border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900/60'
                       }`}
                     >
@@ -390,7 +390,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
                       setPrimaryColor(e.target.value)
                       setIsDirty(true)
                     }}
-                    className="flex-1 bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2 text-gray-900 dark:text-white text-xs font-mono font-bold uppercase focus:outline-none focus:border-amber-500"
+                    className="flex-1 bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2 text-gray-900 dark:text-white text-xs font-mono font-bold uppercase focus:outline-none focus:border-blue-500"
                   />
                 </div>
                 <p className="text-[10px] text-gray-500 leading-tight">Tombol CTA, navbar, dan identitas utama.</p>
@@ -399,8 +399,8 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
               {/* Warna 2: Sekunder / Aksen Emas */}
               <div className="space-y-2 bg-gray-50 dark:bg-[#090A0F] p-4 rounded-2xl border border-gray-200 dark:border-gray-800/90">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-black uppercase tracking-wider text-amber-700 dark:text-amber-400">2. Warna Sekunder</label>
-                  <span className="text-[10px] font-bold text-amber-600 dark:text-amber-500/80">Highlight / Aksen</span>
+                  <label className="text-xs font-black uppercase tracking-wider text-black dark:text-white">2. Warna Sekunder</label>
+                  <span className="text-[10px] font-bold text-gray-500">Highlight / Aksen</span>
                 </div>
                 <div className="flex gap-2.5 items-center">
                   <input
@@ -421,7 +421,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
                       setSecondaryColor(e.target.value)
                       setIsDirty(true)
                     }}
-                    className="flex-1 bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2 text-gray-900 dark:text-white text-xs font-mono font-bold uppercase focus:outline-none focus:border-amber-500"
+                    className="flex-1 bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2 text-gray-900 dark:text-white text-xs font-mono font-bold uppercase focus:outline-none focus:border-blue-500"
                   />
                 </div>
                 <p className="text-[10px] text-gray-500 leading-tight">Ikon, garis aksen, badge & bintang kepuasan.</p>
@@ -452,7 +452,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
                       setAccentColor(e.target.value)
                       setIsDirty(true)
                     }}
-                    className="flex-1 bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2 text-gray-900 dark:text-white text-xs font-mono font-bold uppercase focus:outline-none focus:border-amber-500"
+                    className="flex-1 bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2 text-gray-900 dark:text-white text-xs font-mono font-bold uppercase focus:outline-none focus:border-blue-500"
                   />
                 </div>
                 <p className="text-[10px] text-gray-500 leading-tight">Latar kartu kontras, teks pendukung & tag.</p>
@@ -486,7 +486,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
                     setLoadingBgColor(e.target.value)
                     setIsDirty(true)
                   }}
-                  className="flex-1 bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2 text-gray-900 dark:text-white text-xs font-mono font-bold uppercase focus:outline-none focus:border-amber-500"
+                  className="flex-1 bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2 text-gray-900 dark:text-white text-xs font-mono font-bold uppercase focus:outline-none focus:border-blue-500"
                 />
                 <button
                   type="button"
@@ -507,8 +507,8 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
             {/* LIVE PREVIEW HARMONISASI 3 WARNA */}
             <div className="md:col-span-2 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-100/50 dark:bg-[#07090E] space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-black uppercase tracking-widest text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
-                  <Eye className="w-3.5 h-3.5" /> Live Preview Harmonisasi 3 Warna
+                <span className="text-xs font-black uppercase tracking-widest text-black dark:text-white flex items-center gap-1.5">
+                  <Eye className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" /> Live Preview Harmonisasi 3 Warna
                 </span>
                 <span className="text-[10px] text-gray-500">Real-time Visual Check</span>
               </div>
@@ -561,7 +561,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
                 onChange={(e) => setSlideDuration(Number(e.target.value) || 3)}
                 min={1}
                 max={10}
-                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 transition-colors shadow-inner font-medium"
+                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 transition-colors shadow-inner font-medium"
               />
             </div>
           </div>
@@ -589,8 +589,8 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
 
         {/* BAGIAN UPLOAD BACKGROUND IMAGE (TAMBAHAN) */}
         <div className="space-y-4 pt-6 border-t border-gray-200 dark:border-gray-800">
-          <h2 className="text-sm font-black text-amber-600 dark:text-amber-500 tracking-wider uppercase flex items-center gap-2">
-            <ImageIcon className="w-4 h-4" /> Foto Latar Belakang (Global Background)
+          <h2 className="text-sm font-black text-black dark:text-white uppercase tracking-wider flex items-center gap-2">
+            <ImageIcon className="w-4 h-4 text-gray-500 dark:text-gray-400" /> Foto Latar Belakang (Global Background)
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
@@ -620,8 +620,8 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
         {/* Modul Visibilitas Tambahan Card */}
         <div className="bg-white dark:bg-[#10131C] p-8 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-800/80 space-y-6">
           <div className="border-b border-gray-200 dark:border-gray-800 pb-4">
-            <h2 className="text-base font-black text-amber-600 dark:text-amber-500 tracking-wide uppercase flex items-center gap-2">
-              <Shield className="w-4 h-4 text-amber-600 dark:text-amber-500" />
+            <h2 className="text-base font-black text-black dark:text-white tracking-wide uppercase flex items-center gap-2">
+              <Shield className="w-4 h-4 text-gray-500 dark:text-gray-400" />
               <span>Visibilitas Modul Publik (Pimpinan & Sertifikasi)</span>
             </h2>
             <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-1">
@@ -635,7 +635,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white flex items-center gap-2">
-                    <Users className="w-4 h-4 text-amber-500" />
+                    <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                     <span>Modul Profil Pimpinan</span>
                   </span>
                   <label className="relative inline-flex items-center cursor-pointer select-none">
@@ -646,7 +646,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
                       onChange={(e) => setShowLeadership(e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-14 h-7 bg-gray-300 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:bg-amber-600 transition-colors duration-300 ease-in-out"></div>
+                    <div className="w-14 h-7 bg-gray-300 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:bg-blue-600 transition-colors duration-300 ease-in-out"></div>
                     <div className="absolute left-0.5 top-0.5 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300 ease-in-out peer-checked:translate-x-7"></div>
                   </label>
                 </div>
@@ -662,7 +662,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
                   value={leadershipLabel}
                   onChange={(e) => setLeadershipLabel(e.target.value)}
                   placeholder="Profil Pimpinan"
-                  className="w-full bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-1.5 text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:border-amber-500"
+                  className="w-full bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-1.5 text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:border-blue-500"
                 />
               </div>
             </div>
@@ -672,7 +672,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white flex items-center gap-2">
-                    <Award className="w-4 h-4 text-amber-500" />
+                    <Award className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                     <span>Modul Sertifikasi</span>
                   </span>
                   <label className="relative inline-flex items-center cursor-pointer select-none">
@@ -683,7 +683,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
                       onChange={(e) => setShowCertifications(e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-14 h-7 bg-gray-300 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:bg-amber-600 transition-colors duration-300 ease-in-out"></div>
+                    <div className="w-14 h-7 bg-gray-300 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:bg-blue-600 transition-colors duration-300 ease-in-out"></div>
                     <div className="absolute left-0.5 top-0.5 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300 ease-in-out peer-checked:translate-x-7"></div>
                   </label>
                 </div>
@@ -698,7 +698,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white flex items-center gap-2">
-                    <FileDown className="w-4 h-4 text-amber-500" />
+                    <FileDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                     <span>Fitur Compro (PDF)</span>
                   </span>
                   <label className="relative inline-flex items-center cursor-pointer select-none">
@@ -709,7 +709,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
                       onChange={(e) => setShowCompro(e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-14 h-7 bg-gray-300 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:bg-amber-600 transition-colors duration-300 ease-in-out"></div>
+                    <div className="w-14 h-7 bg-gray-300 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:bg-blue-600 transition-colors duration-300 ease-in-out"></div>
                     <div className="absolute left-0.5 top-0.5 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300 ease-in-out peer-checked:translate-x-7"></div>
                   </label>
                 </div>
@@ -725,8 +725,8 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
         <div className="bg-white dark:bg-[#10131C] p-8 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-800/80 space-y-6">
           <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-800 pb-4">
             <div className="space-y-0.5">
-              <h2 className="text-base font-black text-amber-600 dark:text-amber-500 tracking-wide uppercase flex items-center gap-2">
-                <Layers className="w-4 h-4 text-amber-600 dark:text-amber-500" />
+              <h2 className="text-base font-black text-black dark:text-white tracking-wide uppercase flex items-center gap-2">
+                <Layers className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                 <span>Tata Letak & Urutan Seksi Website</span>
               </h2>
               <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Seret dan letakkan (*drag*) kotak seksi untuk mengubah susunan tampilan website.</p>
@@ -745,7 +745,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
                 onDragStart={(e) => handleDragStart(e, index)}
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e, index)}
-                className={`flex items-center justify-between gap-4 bg-gray-50 dark:bg-[#090A0F] p-4 rounded-2xl border transition-all shadow-sm cursor-grab active:cursor-grabbing ${draggedIndex === index ? 'opacity-40 border-amber-500 dashed' : 'border-gray-200 dark:border-gray-800/90 hover:border-gray-300 dark:hover:border-gray-700'
+                className={`flex items-center justify-between gap-4 bg-gray-50 dark:bg-[#090A0F] p-4 rounded-2xl border transition-all shadow-sm cursor-grab active:cursor-grabbing ${draggedIndex === index ? 'opacity-40 border-blue-500 dashed' : 'border-gray-200 dark:border-gray-800/90 hover:border-gray-300 dark:hover:border-gray-700'
                   }`}
               >
                 <div className="flex items-center gap-3.5 w-full">
@@ -766,7 +766,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
                       }}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-gray-300 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:bg-amber-600 transition-colors duration-300 ease-in-out"></div>
+                    <div className="w-11 h-6 bg-gray-300 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:bg-blue-600 transition-colors duration-300 ease-in-out"></div>
                     <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-300 ease-in-out peer-checked:translate-x-5"></div>
                   </label>
 
@@ -779,9 +779,9 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
                         const val = e.target.value
                         setSections(prev => prev.map((s, i) => i === index ? { ...s, label: val } : s))
                       }}
-                      className="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-800 rounded-xl px-3.5 py-2 text-gray-900 dark:text-white text-xs font-extrabold focus:border-amber-500 focus:outline-none shadow-inner"
+                      className="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-800 rounded-xl px-3.5 py-2 text-gray-900 dark:text-white text-xs font-extrabold focus:border-blue-500 focus:outline-none shadow-inner"
                     />
-                    <span className="text-[10px] text-amber-600 dark:text-amber-500/90 font-bold uppercase tracking-wider block mt-1">
+                    <span className="text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider block mt-1">
                       ID: {sec.id} {sec.type ? `• Tipe: ${sec.type}` : ''}
                     </span>
                   </div>
@@ -798,7 +798,7 @@ export default function AdminPageClient({ initialSetting, initialSections, updat
             disabled={!isDirty || isPending}
             className={`px-5 h-12 rounded-full shadow-2xl flex items-center gap-2.5 text-xs font-black tracking-widest uppercase transition-all duration-300 border backdrop-blur-md cursor-pointer ${!isDirty || isPending
                 ? 'bg-gray-200 dark:bg-gray-900/40 text-gray-400 dark:text-gray-600 border-gray-300 dark:border-gray-800/40 cursor-not-allowed opacity-50 shadow-none'
-                : 'bg-amber-600 hover:bg-amber-700 text-white border-amber-600 shadow-md shadow-black/20 cursor-pointer'
+                : 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600 shadow-md shadow-black/20 cursor-pointer'
               }`}
             title={isDirty ? 'Simpan perubahan ke draft' : 'Belum ada perubahan untuk disimpan'}
           >

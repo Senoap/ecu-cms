@@ -178,7 +178,7 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
     const endDT = `${item.endDate}T${item.endTime || '23:59'}`
 
     if (currentDT < startDT) {
-      return { label: 'Terjadwal', color: 'text-amber-600 dark:text-amber-400 font-semibold' }
+      return { label: 'Terjadwal', color: 'text-black dark:text-white font-semibold' }
     }
     if (currentDT > endDT) {
       const endDateTime = new Date(`${item.endDate}T${item.endTime || '23:59'}:59.999Z`).getTime()
@@ -226,7 +226,7 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
         <button
           type="button"
           onClick={() => openAddModal('daily')}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 transition-colors cursor-pointer shrink-0"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors cursor-pointer shrink-0 shadow-xs"
         >
           <Plus className="w-4 h-4" />
           <span>Tambah Konten</span>
@@ -234,9 +234,9 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
       </div>
 
       {/* INFO KEBIJAKAN AUTO-PURGE H+7 */}
-      <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-        <div className="flex items-center gap-2.5 text-amber-800 dark:text-amber-300 font-bold">
-          <Clock className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
+      <div className="bg-gray-100 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+        <div className="flex items-center gap-2.5 text-black dark:text-white font-medium">
+          <Clock className="w-4 h-4 shrink-0 text-gray-500 dark:text-gray-400" />
           <span>Kebijakan Auto-Purge H+7: Konten yang melewati batas tanggal selesai lebih dari 7 hari otomatis terhapus permanen dari sistem &amp; media penyimpanan.</span>
         </div>
       </div>
@@ -267,7 +267,7 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
         </div>
         <div className="p-4">
           <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400">Terjadwal Mendatang</p>
-          <p className="text-xl font-black text-amber-600 dark:text-amber-400 mt-0.5 tabular-nums">{totalUpcoming}</p>
+          <p className="text-xl font-black text-black dark:text-white mt-0.5 tabular-nums">{totalUpcoming}</p>
         </div>
       </div>
 
@@ -289,8 +289,8 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
           onClick={() => setActiveTab('daily')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
             activeTab === 'daily'
-              ? 'bg-amber-600 text-white shadow-sm'
-              : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+              ? 'bg-blue-600 text-white shadow-sm'
+              : 'text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
           }`}
         >
           <SunMedium className="w-3.5 h-3.5" />
@@ -301,8 +301,8 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
           onClick={() => setActiveTab('monthly')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
             activeTab === 'monthly'
-              ? 'bg-indigo-600 text-white shadow-sm'
-              : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+              ? 'bg-blue-600 text-white shadow-sm'
+              : 'text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
           }`}
         >
           <CalendarCheck className="w-3.5 h-3.5" />
@@ -321,9 +321,9 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
             </p>
             <button
               onClick={() => openAddModal(activeTab === 'monthly' ? 'monthly' : 'daily')}
-              className="mt-2 px-4 py-2 text-xs font-bold bg-amber-500 text-white rounded-xl hover:bg-amber-600 transition-colors cursor-pointer"
+              className="mt-2 px-4 py-2 text-xs font-bold bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors cursor-pointer shadow-xs"
             >
-              + Tambah Konten Pertama
+              <span>Tambah Konten Pertama</span>
             </button>
           </div>
         ) : (
@@ -333,7 +333,7 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
               return (
                 <div
                   key={item.id}
-                  className="p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm space-y-4 hover:border-amber-500/40 transition-all"
+                  className="p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm space-y-4 hover:border-gray-300 dark:hover:border-gray-700 transition-all"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                     <div className="flex items-start gap-3.5">
@@ -345,15 +345,15 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
                         />
                       ) : (
                         <div className="w-16 h-16 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-400 shrink-0">
-                          {item.type === 'daily' ? <SunMedium className="w-7 h-7 text-amber-500" /> : <CalendarCheck className="w-7 h-7 text-indigo-500" />}
+                          {item.type === 'daily' ? <SunMedium className="w-7 h-7 text-gray-500 dark:text-gray-400" /> : <CalendarCheck className="w-7 h-7 text-gray-500 dark:text-gray-400" />}
                         </div>
                       )}
                       <div>
                         <div className="flex flex-wrap items-center gap-2 text-xs">
                           <span className={`font-bold ${
                             item.type === 'daily' 
-                              ? 'text-amber-600 dark:text-amber-400' 
-                              : 'text-indigo-600 dark:text-indigo-400'
+                              ? 'text-black dark:text-white font-bold' 
+                              : 'text-black dark:text-white font-bold'
                           }`}>
                             {item.type === 'daily' ? 'Harian' : 'Bulanan'}
                           </span>
@@ -372,7 +372,7 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
                         </div>
                         <h3 className="font-black text-base text-gray-900 dark:text-white mt-1">{item.title}</h3>
                         <div className="flex flex-wrap items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                          <Clock className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                          <Clock className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400 shrink-0" />
                           <span>
                             Tayang: <b className="text-gray-700 dark:text-gray-300">{item.startDate} ({item.startTime || '00:00'})</b> s/d <b className="text-gray-700 dark:text-gray-300">{item.endDate} ({item.endTime || '23:59'}) WIB</b>
                           </span>
@@ -387,8 +387,8 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
                         role="switch"
                         aria-checked={item.isActive}
                         onClick={() => handleToggleActive(item.id)}
-                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500/30 ${
-                          item.isActive ? 'bg-amber-600' : 'bg-gray-300 dark:bg-gray-700'
+                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500/20 ${
+                          item.isActive ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-700'
                         }`}
                         title={item.isActive ? 'Nonaktifkan konten' : 'Aktifkan konten'}
                       >
@@ -401,7 +401,7 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
                       <button
                         type="button"
                         onClick={() => openEditModal(item)}
-                        className="p-2 rounded-xl text-gray-600 dark:text-gray-400 hover:text-amber-600 hover:bg-amber-500/10 border border-gray-200 dark:border-gray-800 transition-colors cursor-pointer"
+                        className="p-2 rounded-xl text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-800 transition-colors cursor-pointer"
                         title="Edit Konten"
                       >
                         <Pencil className="w-4 h-4" />
@@ -466,8 +466,8 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
                     }}
                     className={`p-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                       formType === 'daily'
-                        ? 'bg-amber-600 text-white border-amber-700 shadow-sm'
-                        : 'border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                        ? 'bg-blue-600 text-white border-blue-700 shadow-sm'
+                        : 'border-gray-300 dark:border-gray-700 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
                     }`}
                   >
                     <SunMedium className="w-4 h-4" />
@@ -481,8 +481,8 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
                     }}
                     className={`p-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                       formType === 'monthly'
-                        ? 'bg-indigo-600 text-white border-indigo-700 shadow-sm'
-                        : 'border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                        ? 'bg-blue-600 text-white border-blue-700 shadow-sm'
+                        : 'border-gray-300 dark:border-gray-700 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
                     }`}
                   >
                     <CalendarCheck className="w-4 h-4" />
@@ -502,7 +502,7 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
                     value={formTitle}
                     onChange={(e) => setFormTitle(e.target.value)}
                     placeholder="Contoh: Tips K3 Hari Ini"
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white text-sm outline-none focus:border-amber-500"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white text-sm outline-none focus:border-blue-500"
                     required
                   />
                 </div>
@@ -515,15 +515,15 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
                     value={formBadge}
                     onChange={(e) => setFormBadge(e.target.value)}
                     placeholder="DAILY TIPS / PROGRAM OKTOBER"
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white text-sm outline-none focus:border-amber-500"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white text-sm outline-none focus:border-blue-500"
                   />
                 </div>
               </div>
 
               {/* JANGKA WAKTU TANGGAL & JAM TAYANG (START & END DATETIME) */}
-              <div className="p-4 rounded-2xl border border-amber-500/20 bg-amber-500/5 dark:bg-amber-950/20 space-y-3">
-                <div className="text-xs font-black uppercase tracking-wider text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
-                  <Clock className="w-4 h-4 text-amber-500" />
+              <div className="p-4 rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#090A0F] space-y-3">
+                <div className="text-xs font-black uppercase tracking-wider text-black dark:text-white flex items-center gap-1.5">
+                  <Clock className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                   <span>Jadwal Waktu & Tanggal Tayang (WIB)</span>
                 </div>
 
@@ -540,7 +540,7 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
                           type="date"
                           value={formStartDate}
                           onChange={(e) => setFormStartDate(e.target.value)}
-                          className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white text-xs outline-none focus:border-amber-500 cursor-pointer"
+                          className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white text-xs outline-none focus:border-blue-500 cursor-pointer"
                           required
                         />
                       </div>
@@ -550,7 +550,7 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
                           type="time"
                           value={formStartTime}
                           onChange={(e) => setFormStartTime(e.target.value)}
-                          className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white text-xs outline-none focus:border-amber-500 cursor-pointer"
+                          className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white text-xs outline-none focus:border-blue-500 cursor-pointer"
                           required
                         />
                       </div>
@@ -569,7 +569,7 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
                           type="date"
                           value={formEndDate}
                           onChange={(e) => setFormEndDate(e.target.value)}
-                          className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white text-xs outline-none focus:border-amber-500 cursor-pointer"
+                          className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white text-xs outline-none focus:border-blue-500 cursor-pointer"
                           required
                         />
                       </div>
@@ -579,7 +579,7 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
                           type="time"
                           value={formEndTime}
                           onChange={(e) => setFormEndTime(e.target.value)}
-                          className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white text-xs outline-none focus:border-amber-500 cursor-pointer"
+                          className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white text-xs outline-none focus:border-blue-500 cursor-pointer"
                           required
                         />
                       </div>
@@ -599,7 +599,7 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
                     value={formImageUrl}
                     onChange={(e) => setFormImageUrl(e.target.value)}
                     placeholder="URL gambar (https://...)"
-                    className="flex-1 px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white text-sm outline-none focus:border-amber-500"
+                    className="flex-1 px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white text-sm outline-none focus:border-blue-500"
                   />
                   <div className="flex items-center gap-2">
                     <label className="px-4 py-2.5 rounded-xl text-xs font-bold border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors cursor-pointer text-gray-700 dark:text-gray-200 flex items-center gap-1.5">
@@ -624,7 +624,7 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
                   onChange={(e) => setFormContent(e.target.value)}
                   rows={6}
                   placeholder="Ketik isi pengumuman, tips, agenda, atau program kerja..."
-                  className="w-full p-4 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white text-sm outline-none focus:border-amber-500 leading-relaxed"
+                  className="w-full p-4 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white text-sm outline-none focus:border-blue-500 leading-relaxed"
                   required
                 />
               </div>
@@ -646,8 +646,8 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
                     role="switch"
                     aria-checked={formIsActive}
                     onClick={() => setFormIsActive(!formIsActive)}
-                    className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500/30 ${
-                      formIsActive ? 'bg-amber-600' : 'bg-gray-300 dark:bg-gray-700'
+                    className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500/20 ${
+                      formIsActive ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-700'
                     }`}
                   >
                     <span
@@ -671,7 +671,7 @@ export default function ScheduledContentClient({ contents }: ScheduledContentCli
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider text-white bg-amber-600 hover:bg-amber-700 shadow-sm transition-all cursor-pointer disabled:opacity-50"
+                  className="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider text-white bg-blue-600 hover:bg-blue-700 shadow-sm transition-all cursor-pointer disabled:opacity-50"
                 >
                   {isPending ? 'Menyimpan...' : (editingItem ? 'Simpan Perubahan' : 'Jadwalkan Konten')}
                 </button>

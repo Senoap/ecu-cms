@@ -91,11 +91,11 @@ export default function LegalClient({ initialPrivacy, initialTerms }: LegalClien
       {/* TOAST SUKSES */}
       {toastMsg && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-top-4 duration-300">
-          <div className="bg-amber-950/95 text-amber-300 border border-amber-500/40 px-6 py-3.5 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3">
-            <CheckCircle2 className="w-5 h-5 text-amber-400 shrink-0" />
+          <div className="bg-gray-900 text-black dark:text-white border border-gray-200 dark:border-gray-800 px-6 py-3.5 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3">
+            <CheckCircle2 className="w-5 h-5 text-gray-500 dark:text-gray-400 shrink-0" />
             <div>
               <h4 className="text-xs font-black uppercase tracking-wider">Perubahan Disimpan!</h4>
-              <p className="text-[11px] text-amber-400/80 font-medium">{toastMsg}</p>
+              <p className="text-[11px] text-gray-300 font-medium">{toastMsg}</p>
             </div>
           </div>
         </div>
@@ -118,7 +118,7 @@ export default function LegalClient({ initialPrivacy, initialTerms }: LegalClien
               href={activeTab === 'privacy' ? '/privacy-policy' : '/terms'}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-4 py-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 hover:text-amber-600 dark:hover:text-amber-400 text-xs font-bold transition-all border border-gray-200 dark:border-gray-700 flex items-center gap-1.5 shadow-sm"
+              className="px-4 py-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 hover:text-gray-500 dark:text-gray-400 dark:hover:text-gray-500 dark:text-gray-400 text-xs font-bold transition-all border border-gray-200 dark:border-gray-700 flex items-center gap-1.5 shadow-sm"
             >
               <span>Lihat Halaman Publik</span>
               <ExternalLink className="w-3.5 h-3.5" />
@@ -133,7 +133,7 @@ export default function LegalClient({ initialPrivacy, initialTerms }: LegalClien
             onClick={() => setActiveTab('privacy')}
             className={`pb-3 px-2 font-black text-sm flex items-center gap-2 border-b-2 transition-all cursor-pointer ${
               activeTab === 'privacy'
-                ? 'border-amber-500 text-amber-600 dark:text-amber-400'
+                ? 'border-gray-200 dark:border-gray-800 text-gray-500 dark:text-gray-400'
                 : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
             }`}
           >
@@ -145,7 +145,7 @@ export default function LegalClient({ initialPrivacy, initialTerms }: LegalClien
             onClick={() => setActiveTab('terms')}
             className={`pb-3 px-2 font-black text-sm flex items-center gap-2 border-b-2 transition-all cursor-pointer ${
               activeTab === 'terms'
-                ? 'border-amber-500 text-amber-600 dark:text-amber-400'
+                ? 'border-gray-200 dark:border-gray-800 text-gray-500 dark:text-gray-400'
                 : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
             }`}
           >
@@ -167,7 +167,7 @@ export default function LegalClient({ initialPrivacy, initialTerms }: LegalClien
                   name="title"
                   value={privacyTitle}
                   onChange={(e) => setPrivacyTitle(e.target.value)}
-                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner"
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 font-medium shadow-inner"
                   required
                 />
               </div>
@@ -182,7 +182,7 @@ export default function LegalClient({ initialPrivacy, initialTerms }: LegalClien
                     name="lastUpdated"
                     value={privacyDate}
                     onChange={(e) => setPrivacyDate(e.target.value)}
-                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner pl-10"
+                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 font-medium shadow-inner pl-10"
                     placeholder="Contoh: 17 Oktober 2026"
                   />
                   <Calendar className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -199,7 +199,7 @@ export default function LegalClient({ initialPrivacy, initialTerms }: LegalClien
                 rows={16}
                 value={privacyContent}
                 onChange={(e) => setPrivacyContent(e.target.value)}
-                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl p-4 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner font-mono leading-relaxed"
+                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl p-4 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 font-medium shadow-inner font-mono leading-relaxed"
                 placeholder="Tuliskan klausul kebijakan privasi perusahaan..."
                 required
               />
@@ -215,7 +215,7 @@ export default function LegalClient({ initialPrivacy, initialTerms }: LegalClien
                 className={`px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${
                   !isPrivacyDirty || isPending
                     ? 'bg-gray-200 dark:bg-gray-900/40 text-gray-400 dark:text-gray-600 border border-gray-300 dark:border-gray-800/40 cursor-not-allowed opacity-50 shadow-none'
-                    : 'bg-amber-600 hover:bg-amber-700 text-white shadow-lg shadow-amber-950/40 hover:scale-105 active:scale-95 cursor-pointer'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-gray-900/40 hover:scale-105 active:scale-95 cursor-pointer'
                 }`}
               >
                 <Save className="w-4 h-4" />
@@ -238,7 +238,7 @@ export default function LegalClient({ initialPrivacy, initialTerms }: LegalClien
                   name="title"
                   value={termsTitle}
                   onChange={(e) => setTermsTitle(e.target.value)}
-                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner"
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 font-medium shadow-inner"
                   required
                 />
               </div>
@@ -253,7 +253,7 @@ export default function LegalClient({ initialPrivacy, initialTerms }: LegalClien
                     name="lastUpdated"
                     value={termsDate}
                     onChange={(e) => setTermsDate(e.target.value)}
-                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner pl-10"
+                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 font-medium shadow-inner pl-10"
                     placeholder="Contoh: 17 Oktober 2026"
                   />
                   <Calendar className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -270,7 +270,7 @@ export default function LegalClient({ initialPrivacy, initialTerms }: LegalClien
                 rows={16}
                 value={termsContent}
                 onChange={(e) => setTermsContent(e.target.value)}
-                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl p-4 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner font-mono leading-relaxed"
+                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl p-4 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 font-medium shadow-inner font-mono leading-relaxed"
                 placeholder="Tuliskan syarat dan ketentuan penggunaan situs..."
                 required
               />
@@ -286,7 +286,7 @@ export default function LegalClient({ initialPrivacy, initialTerms }: LegalClien
                 className={`px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${
                   !isTermsDirty || isPending
                     ? 'bg-gray-200 dark:bg-gray-900/40 text-gray-400 dark:text-gray-600 border border-gray-300 dark:border-gray-800/40 cursor-not-allowed opacity-50 shadow-none'
-                    : 'bg-amber-600 hover:bg-amber-700 text-white shadow-lg shadow-amber-950/40 hover:scale-105 active:scale-95 cursor-pointer'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-gray-900/40 hover:scale-105 active:scale-95 cursor-pointer'
                 }`}
               >
                 <Save className="w-4 h-4" />

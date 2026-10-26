@@ -2,7 +2,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { requirePermission } from '@/lib/auth'
+import { requirePermission, isUserAdministrator, isUserSuperadmin } from '@/lib/auth'
 import { readDB, writeSystemDB, addNotification, type CmsUser } from '@/lib/db'
 import { hashPassword, validatePasswordStrength } from '@/lib/password'
 
@@ -32,16 +32,25 @@ export async function createUserAction(formData: FormData): Promise<UserActionRe
     const name = String(formData.get('name') ?? '').trim()
     const password = String(formData.get('password') ?? '')
     const role = String(formData.get('role') ?? '').trim() || 'Staff'
-    const canReceiveCareerNotif = formData.get('canReceiveCareerNotif') === 'on' || formData.get('canReceiveCareerNotif') === 'true'
     const isActive = formData.get('isActive') !== 'false'
+    const skipPasswordExpiry = formData.get('skipPasswordExpiry') === 'true' || formData.get('skipPasswordExpiry') === 'on'
 
     // Ambil semua permission yang dicentang
-    const permissions: string[] = []
+    const rawPermissions: string[] = []
     for (const [key, val] of formData.entries()) {
       if (key.startsWith('perm_') && (val === 'on' || val === 'true')) {
-        permissions.push(key.replace('perm_', ''))
+        rawPermissions.push(key.replace('perm_', ''))
       }
     }
+
+    // Menu 'users' (Manajemen Pengguna) hanya boleh diberikan kepada administrator & superadministrator
+    const isRoleAdmin = isUserAdministrator({ role }) || isUserSuperadmin({ role })
+    const permissions = isRoleAdmin
+      ? rawPermissions
+      : rawPermissions.filter((p) => p !== 'users')
+
+    // Otomatis aktif menerima notifikasi karir & lamaran jika memiliki hak akses 'career'
+    const canReceiveCareerNotif = permissions.includes('career')
 
     if (!username || username.length < 3) {
       return { success: false, message: 'Username minimal 3 karakter.' }
@@ -50,11 +59,8 @@ export async function createUserAction(formData: FormData): Promise<UserActionRe
       return { success: false, message: 'Nama pengguna wajib diisi.' }
     }
 
-    // Validasi kekuatan password: min 6 char, uppercase, lowercase, number, symbol
-    const passwordVal = validatePasswordStrength(password)
-    if (!passwordVal.isValid) {
-      return { success: false, message: passwordVal.errors.join(' ') }
-    }
+    // Administrator boleh membuat password tanpa persyaratan untuk user (default: 4sinergiutama2026!)
+    const finalPassword = password.trim() || '4sinergiutama2026!'
 
     const db = await readDB()
     if (!db.cmsUsers) db.cmsUsers = []
@@ -68,12 +74,13 @@ export async function createUserAction(formData: FormData): Promise<UserActionRe
     const newUser: CmsUser = {
       id: 'usr-' + now + '-' + Math.random().toString(36).substring(2, 6),
       username,
-      passwordHash: hashPassword(password),
+      passwordHash: hashPassword(finalPassword),
       name,
       role,
       permissions,
       canReceiveCareerNotif,
       isActive,
+      skipPasswordExpiry,
       createdAt: now,
       passwordUpdatedAt: now,
       mustResetPassword: false,
@@ -108,8 +115,8 @@ export async function updateUserAction(formData: FormData): Promise<UserActionRe
     const name = String(formData.get('name') ?? '').trim()
     const password = String(formData.get('password') ?? '')
     const inputRole = String(formData.get('role') ?? '').trim()
-    const canReceiveCareerNotif = formData.get('canReceiveCareerNotif') === 'on' || formData.get('canReceiveCareerNotif') === 'true'
     const isActive = formData.get('isActive') !== 'false'
+    const skipPasswordExpiry = formData.get('skipPasswordExpiry') === 'true' || formData.get('skipPasswordExpiry') === 'on'
 
     const permissions: string[] = []
     for (const [key, val] of formData.entries()) {
@@ -130,7 +137,14 @@ export async function updateUserAction(formData: FormData): Promise<UserActionRe
 
     // Jika bukan Admin Root, role dan permissions tidak boleh diubah
     const finalRole = currentUser.isRootAdmin ? (inputRole || existing.role) : existing.role
-    const finalPermissions = currentUser.isRootAdmin ? permissions : existing.permissions
+    const isFinalRoleAdmin = isUserAdministrator({ role: finalRole }) || isUserSuperadmin({ role: finalRole })
+    const rawPermissions = currentUser.isRootAdmin ? permissions : existing.permissions
+    const finalPermissions = isFinalRoleAdmin
+      ? rawPermissions
+      : rawPermissions.filter((p) => p !== 'users')
+
+    // Otomatis aktif jika hak akses menu memilih karir & lowongan
+    const canReceiveCareerNotif = finalPermissions.includes('career')
 
     const updatedUser: CmsUser = {
       ...existing,
@@ -139,13 +153,11 @@ export async function updateUserAction(formData: FormData): Promise<UserActionRe
       permissions: finalPermissions,
       canReceiveCareerNotif,
       isActive,
+      skipPasswordExpiry,
     }
 
     if (password && password.trim().length > 0) {
-      const passwordVal = validatePasswordStrength(password.trim())
-      if (!passwordVal.isValid) {
-        return { success: false, message: passwordVal.errors.join(' ') }
-      }
+      // Administrator boleh membuat password tanpa persyaratan untuk user
       updatedUser.passwordHash = hashPassword(password.trim())
       updatedUser.passwordUpdatedAt = Date.now()
       updatedUser.mustResetPassword = false
@@ -194,14 +206,8 @@ export async function resetUserPasswordAction(formData: FormData): Promise<UserA
       }
     }
 
-    if (newPassword !== confirmPassword) {
+    if (!newPassword || newPassword !== confirmPassword) {
       return { success: false, message: 'Konfirmasi password baru tidak cocok.' }
-    }
-
-    // Validasi kekuatan password: min 6 char, uppercase, lowercase, number, symbol
-    const passwordVal = validatePasswordStrength(newPassword)
-    if (!passwordVal.isValid) {
-      return { success: false, message: passwordVal.errors.join(' ') }
     }
 
     const db = await readDB()

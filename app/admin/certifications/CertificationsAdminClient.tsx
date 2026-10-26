@@ -243,11 +243,11 @@ export function CertificationsAdminClient({
           showToast ? 'translate-y-0 opacity-100 scale-100' : '-translate-y-4 opacity-0 scale-95 pointer-events-none'
         }`}
       >
-        <div className="bg-amber-950/95 text-amber-300 border border-amber-500/40 px-6 py-4 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3">
-          <Save className="w-5 h-5 text-amber-400 shrink-0" />
+        <div className="bg-gray-900 text-white border border-gray-700 px-6 py-4 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3">
+          <Save className="w-5 h-5 text-gray-300 shrink-0" />
           <div>
             <h4 className="text-xs font-black uppercase tracking-wider">{toastMessage}</h4>
-            <p className="text-[11px] text-amber-400/80 font-medium">Klik tombol Deploy di pojok kanan bawah untuk menerbitkan ke website utama.</p>
+            <p className="text-[11px] text-gray-300 font-medium">Klik tombol Deploy di pojok kanan bawah untuk menerbitkan ke website utama.</p>
           </div>
         </div>
       </div>
@@ -259,28 +259,28 @@ export function CertificationsAdminClient({
             Kelola Sertifikasi &amp; Lisensi Perusahaan
           </h1>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            Tambah dokumen mutu resmi, izin operasional, watermark perlindungan, dan kustomisasi halaman <span className="font-mono text-amber-600 dark:text-amber-400 font-bold">/certifications</span>.
+            Tambah dokumen mutu resmi, izin operasional, watermark perlindungan, dan kustomisasi halaman <span className="font-mono text-gray-500 dark:text-gray-400 font-bold">/certifications</span>.
           </p>
         </div>
         <button
           type="button"
           onClick={handleOpenAdd}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 transition-colors cursor-pointer shrink-0 self-start sm:self-auto"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors cursor-pointer shrink-0 self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
-          <span>+ Tambah Dokumen Baru</span>
+          <span>Tambah Dokumen Baru</span>
         </button>
       </div>
 
       {/* CARD KONTROL VISIBILITAS PUBLIK SERTIFIKASI */}
       <div className={`p-6 rounded-3xl border transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm ${
         isCertificationsEnabled
-          ? 'bg-amber-50/60 dark:bg-amber-950/20 border-amber-500/30'
+          ? 'bg-gray-50 dark:bg-[#090A0F] dark:bg-gray-900/40 border-gray-200 dark:border-gray-800'
           : 'bg-red-50/60 dark:bg-red-950/20 border-red-500/30'
       }`}>
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className={`w-2.5 h-2.5 rounded-full ${isCertificationsEnabled ? 'bg-amber-600' : 'bg-red-500'}`} />
+            <span className={`w-2.5 h-2.5 rounded-full ${isCertificationsEnabled ? 'bg-blue-600' : 'bg-red-500'}`} />
             <h3 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider">
               Publikasi Halaman Sertifikasi (/certifications)
             </h3>
@@ -296,7 +296,7 @@ export function CertificationsAdminClient({
         <div className="flex items-center gap-3.5 self-start sm:self-auto shrink-0">
           <span className={`text-xs font-black uppercase tracking-wider transition-colors select-none ${
             isCertificationsEnabled
-              ? 'text-amber-700 dark:text-amber-400'
+              ? 'text-black dark:text-white dark:text-gray-500 dark:text-gray-400'
               : 'text-gray-400 dark:text-gray-500'
           }`}>
             {isCertificationsEnabled ? 'Aktif (Tampil)' : 'Nonaktif (Sembunyi)'}
@@ -308,8 +308,8 @@ export function CertificationsAdminClient({
             aria-label="Toggle Publikasi Halaman Sertifikasi"
             onClick={handleToggleGlobalCertifications}
             disabled={isPending}
-            className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500/30 ${
-              isCertificationsEnabled ? 'bg-amber-600' : 'bg-gray-300 dark:bg-gray-700'
+            className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500/20 ${
+              isCertificationsEnabled ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-700'
             }`}
           >
             <span
@@ -324,15 +324,15 @@ export function CertificationsAdminClient({
       {/* FORM CARD: HEADER & KONTEN HALAMAN PUBLIK /certifications - Persis seperti Form Header di Portofolio & Galeri */}
       <div className="bg-white dark:bg-[#10131C] p-8 md:p-10 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-xl space-y-8 transition-colors">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-200 dark:border-gray-800 pb-4">
-          <h2 className="text-sm font-black text-amber-600 dark:text-amber-500 tracking-wider uppercase flex items-center gap-2">
-            <Globe className="w-4 h-4 text-amber-600 dark:text-amber-500" />
+          <h2 className="text-sm font-black text-black dark:text-white tracking-wider uppercase flex items-center gap-2">
+            <Globe className="w-4 h-4 text-black dark:text-white" />
             <span>Header & Konten Halaman Publik (/certifications)</span>
           </h2>
           <a
             href="/certifications"
             target="_blank"
             rel="noreferrer"
-            className="text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1.5 self-start sm:self-auto"
+            className="text-xs font-bold text-gray-500 dark:text-gray-400 hover:underline flex items-center gap-1.5 self-start sm:self-auto"
           >
             <span>Pratinjau Halaman</span>
             <ExternalLink className="w-3.5 h-3.5" />
@@ -341,7 +341,7 @@ export function CertificationsAdminClient({
 
         {/* 1. Banner Header & Navigasi */}
         <div className="space-y-6">
-          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-amber-600 dark:text-amber-500 border-b border-gray-100 dark:border-gray-800 pb-2">
+          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-black dark:text-white border-b border-gray-100 dark:border-gray-800 pb-2">
             <FileText className="w-4 h-4" />
             <span>1. Banner Header & Tombol Navigasi Kembali</span>
           </div>
@@ -356,7 +356,7 @@ export function CertificationsAdminClient({
                 value={pageConfig.headerBadge}
                 onChange={(e) => setPageConfig({ ...pageConfig, headerBadge: e.target.value })}
                 placeholder="Contoh: Kepatuhan Regulasi & Standar Mutu"
-                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:border-amber-500 font-medium shadow-inner transition-colors"
+                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:border-blue-500 font-medium shadow-inner transition-colors"
               />
             </div>
 
@@ -369,7 +369,7 @@ export function CertificationsAdminClient({
                 value={pageConfig.headerTitle}
                 onChange={(e) => setPageConfig({ ...pageConfig, headerTitle: e.target.value })}
                 placeholder="Contoh: Sertifikasi & Izin Operasional Resmi"
-                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:border-amber-500 font-medium shadow-inner transition-colors"
+                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:border-blue-500 font-medium shadow-inner transition-colors"
               />
             </div>
           </div>
@@ -380,7 +380,7 @@ export function CertificationsAdminClient({
                 Deskripsi Pengantar Halaman
               </label>
               <span className="text-[11px] text-gray-400 font-medium">
-                Gunakan variabel <code className="text-amber-600 dark:text-amber-400 font-bold">&#123;company&#125;</code> untuk nama perusahaan otomatis
+                Gunakan variabel <code className="text-gray-500 dark:text-gray-400 font-bold">&#123;company&#125;</code> untuk nama perusahaan otomatis
               </span>
             </div>
             <textarea
@@ -388,7 +388,7 @@ export function CertificationsAdminClient({
               value={pageConfig.headerDesc}
               onChange={(e) => setPageConfig({ ...pageConfig, headerDesc: e.target.value })}
               placeholder="Bukti legalitas, keabsahan akreditasi internasional..."
-              className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl p-4 text-gray-900 dark:text-white text-sm focus:border-amber-500 font-medium shadow-inner transition-colors resize-none leading-relaxed"
+              className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl p-4 text-gray-900 dark:text-white text-sm focus:border-blue-500 font-medium shadow-inner transition-colors resize-none leading-relaxed"
             />
           </div>
 
@@ -402,7 +402,7 @@ export function CertificationsAdminClient({
                 value={pageConfig.backButtonText}
                 onChange={(e) => setPageConfig({ ...pageConfig, backButtonText: e.target.value })}
                 placeholder="Contoh: Kembali ke Beranda"
-                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:border-amber-500 font-medium shadow-inner transition-colors"
+                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:border-blue-500 font-medium shadow-inner transition-colors"
               />
             </div>
 
@@ -415,7 +415,7 @@ export function CertificationsAdminClient({
                 value={pageConfig.backButtonLink}
                 onChange={(e) => setPageConfig({ ...pageConfig, backButtonLink: e.target.value })}
                 placeholder="Contoh: /"
-                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:border-amber-500 font-medium shadow-inner transition-colors"
+                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:border-blue-500 font-medium shadow-inner transition-colors"
               />
             </div>
           </div>
@@ -424,14 +424,14 @@ export function CertificationsAdminClient({
         {/* 2. Kotak Proteksi Keaslian Dokumen */}
         <div className="space-y-6 pt-4 border-t border-gray-100 dark:border-gray-800">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-amber-600 dark:text-amber-500">
+            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-black dark:text-white">
               <ShieldCheck className="w-4 h-4" />
               <span>2. Kotak Informasi Proteksi Keaslian Dokumen Legal</span>
             </div>
 
             <div className="flex items-center gap-3">
               <span className={`text-[11px] font-black uppercase tracking-wider ${
-                pageConfig.showProtectionCard ? 'text-amber-700 dark:text-amber-400' : 'text-gray-400'
+                pageConfig.showProtectionCard ? 'text-black dark:text-white dark:text-gray-500 dark:text-gray-400' : 'text-gray-400'
               }`}>
                 {pageConfig.showProtectionCard ? 'Aktif (Tampil)' : 'Nonaktif (Sembunyi)'}
               </span>
@@ -440,8 +440,8 @@ export function CertificationsAdminClient({
                 role="switch"
                 aria-checked={pageConfig.showProtectionCard}
                 onClick={() => setPageConfig({ ...pageConfig, showProtectionCard: !pageConfig.showProtectionCard })}
-                className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500/30 ${
-                  pageConfig.showProtectionCard ? 'bg-amber-600' : 'bg-gray-300 dark:bg-gray-700'
+                className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500/20 ${
+                  pageConfig.showProtectionCard ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-700'
                 }`}
               >
                 <span
@@ -465,7 +465,7 @@ export function CertificationsAdminClient({
                     value={pageConfig.protectionBadge}
                     onChange={(e) => setPageConfig({ ...pageConfig, protectionBadge: e.target.value })}
                     placeholder="Contoh: Proteksi Keaslian Dokumen Legal"
-                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:border-amber-500 font-medium shadow-inner transition-colors"
+                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:border-blue-500 font-medium shadow-inner transition-colors"
                   />
                 </div>
 
@@ -478,7 +478,7 @@ export function CertificationsAdminClient({
                     value={pageConfig.protectionTitle}
                     onChange={(e) => setPageConfig({ ...pageConfig, protectionTitle: e.target.value })}
                     placeholder="Contoh: Verifikasi & Validasi Dokumen Legal Perusahaan"
-                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:border-amber-500 font-medium shadow-inner transition-colors"
+                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:border-blue-500 font-medium shadow-inner transition-colors"
                   />
                 </div>
               </div>
@@ -489,7 +489,7 @@ export function CertificationsAdminClient({
                     Narasi / Penjelasan Proteksi Dokumen
                   </label>
                   <span className="text-[11px] text-gray-400 font-medium">
-                    Gunakan variabel <code className="text-amber-600 dark:text-amber-400 font-bold">&#123;company&#125;</code> untuk nama perusahaan otomatis
+                    Gunakan variabel <code className="text-gray-500 dark:text-gray-400 font-bold">&#123;company&#125;</code> untuk nama perusahaan otomatis
                   </span>
                 </div>
                 <textarea
@@ -497,14 +497,14 @@ export function CertificationsAdminClient({
                   value={pageConfig.protectionDesc}
                   onChange={(e) => setPageConfig({ ...pageConfig, protectionDesc: e.target.value })}
                   placeholder="Seluruh sertifikat akreditasi ISO, lisensi operasional BUJP POLRI..."
-                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl p-4 text-gray-900 dark:text-white text-sm focus:border-amber-500 font-medium shadow-inner transition-colors resize-none leading-relaxed"
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl p-4 text-gray-900 dark:text-white text-sm focus:border-blue-500 font-medium shadow-inner transition-colors resize-none leading-relaxed"
                 />
               </div>
 
               {/* Tombol Aksi Utama */}
               <div className="p-5 rounded-2xl border border-gray-100 dark:border-gray-800/80 bg-gray-50/50 dark:bg-[#090A0F] space-y-4">
                 <div className="flex items-center gap-2 text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">
-                  <PhoneCall className="w-4 h-4 text-amber-600 dark:text-amber-500" />
+                  <PhoneCall className="w-4 h-4 text-black dark:text-white" />
                   <span>Tombol Aksi Utama (Verifikasi / Kontak)</span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -517,7 +517,7 @@ export function CertificationsAdminClient({
                       value={pageConfig.protectionCtaText}
                       onChange={(e) => setPageConfig({ ...pageConfig, protectionCtaText: e.target.value })}
                       placeholder="Contoh: Verifikasi Berkas Kemitraan"
-                      className="w-full bg-white dark:bg-[#10131C] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-xs text-gray-900 dark:text-white focus:border-amber-500 font-medium"
+                      className="w-full bg-white dark:bg-[#10131C] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-xs text-gray-900 dark:text-white focus:border-blue-500 font-medium"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -529,7 +529,7 @@ export function CertificationsAdminClient({
                       value={pageConfig.protectionCtaLink}
                       onChange={(e) => setPageConfig({ ...pageConfig, protectionCtaLink: e.target.value })}
                       placeholder="Contoh: /#contact"
-                      className="w-full bg-white dark:bg-[#10131C] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-xs text-gray-900 dark:text-white focus:border-amber-500 font-medium"
+                      className="w-full bg-white dark:bg-[#10131C] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-xs text-gray-900 dark:text-white focus:border-blue-500 font-medium"
                     />
                   </div>
                 </div>
@@ -539,7 +539,7 @@ export function CertificationsAdminClient({
               <div className="p-5 rounded-2xl border border-gray-100 dark:border-gray-800/80 bg-gray-50/50 dark:bg-[#090A0F] space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">
-                    <Users className="w-4 h-4 text-amber-600 dark:text-amber-500" />
+                    <Users className="w-4 h-4 text-black dark:text-white" />
                     <span>Tampilkan Tombol Navigasi ke Halaman Pimpinan (/leadership)</span>
                   </div>
                   <button
@@ -547,8 +547,8 @@ export function CertificationsAdminClient({
                     role="switch"
                     aria-checked={pageConfig.protectionShowLeadershipBtn}
                     onClick={() => setPageConfig({ ...pageConfig, protectionShowLeadershipBtn: !pageConfig.protectionShowLeadershipBtn })}
-                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500/30 ${
-                      pageConfig.protectionShowLeadershipBtn ? 'bg-amber-600' : 'bg-gray-300 dark:bg-gray-700'
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500/20 ${
+                      pageConfig.protectionShowLeadershipBtn ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-700'
                     }`}
                   >
                     <span
@@ -570,7 +570,7 @@ export function CertificationsAdminClient({
                         value={pageConfig.protectionLeadershipText}
                         onChange={(e) => setPageConfig({ ...pageConfig, protectionLeadershipText: e.target.value })}
                         placeholder="Contoh: Lihat Profil Pimpinan"
-                        className="w-full bg-white dark:bg-[#10131C] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-xs text-gray-900 dark:text-white focus:border-amber-500 font-medium"
+                        className="w-full bg-white dark:bg-[#10131C] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-xs text-gray-900 dark:text-white focus:border-blue-500 font-medium"
                       />
                     </div>
                     <div className="space-y-1.5">
@@ -582,7 +582,7 @@ export function CertificationsAdminClient({
                         value={pageConfig.protectionLeadershipLink}
                         onChange={(e) => setPageConfig({ ...pageConfig, protectionLeadershipLink: e.target.value })}
                         placeholder="Contoh: /leadership"
-                        className="w-full bg-white dark:bg-[#10131C] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-xs text-gray-900 dark:text-white focus:border-amber-500 font-medium"
+                        className="w-full bg-white dark:bg-[#10131C] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-xs text-gray-900 dark:text-white focus:border-blue-500 font-medium"
                       />
                     </div>
                   </div>
@@ -595,7 +595,7 @@ export function CertificationsAdminClient({
         {/* Tombol Simpan Kustomisasi Halaman ke Draft - Posisi persis seperti Form Header Portofolio/Galeri */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-gray-100 dark:border-gray-800">
           <div className="flex items-center gap-2">
-            <span className={`w-2.5 h-2.5 rounded-full ${isPageDirty ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'}`} />
+            <span className={`w-2.5 h-2.5 rounded-full ${isPageDirty ? 'bg-gray-50 dark:bg-[#090A0F]0 animate-pulse' : 'bg-emerald-500'}`} />
             <span className="text-xs font-bold text-gray-600 dark:text-gray-400">
               {isPageDirty ? 'Ada perubahan teks halaman yang belum disimpan.' : 'Pengaturan halaman publik tersimpan rapi.'}
             </span>
@@ -618,7 +618,7 @@ export function CertificationsAdminClient({
               disabled={!isPageDirty || isPending}
               className={`font-black text-xs uppercase tracking-widest px-6 py-3.5 rounded-2xl transition-all shadow-sm flex items-center gap-2 cursor-pointer ${
                 isPageDirty && !isPending
-                  ? 'bg-amber-600 hover:bg-amber-700 text-white shadow-lg'
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg'
                   : 'bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed opacity-60'
               }`}
             >
@@ -632,8 +632,8 @@ export function CertificationsAdminClient({
       {/* DAFTAR DOKUMEN SERTIFIKASI RESMI */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-black text-amber-600 dark:text-amber-500 tracking-wide uppercase flex items-center gap-2">
-            <Award className="w-4 h-4 text-amber-600 dark:text-amber-500" />
+          <h2 className="text-base font-black text-black dark:text-white tracking-wide uppercase flex items-center gap-2">
+            <Award className="w-4 h-4 text-black dark:text-white" />
             <span>Daftar Dokumen Sertifikasi Resmi ({certsList.length})</span>
           </h2>
           <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
@@ -646,7 +646,7 @@ export function CertificationsAdminClient({
             <Award className="w-12 h-12 text-gray-400 mx-auto" />
             <h3 className="text-base font-bold text-gray-900 dark:text-white">Belum Ada Data Sertifikasi</h3>
             <p className="text-xs text-gray-500 max-w-sm mx-auto">
-              Klik tombol &quot;+ Tambah Dokumen Baru&quot; di atas untuk mengunggah dokumen legalitas pertama Anda.
+              Klik tombol &quot;Tambah Dokumen Baru&quot; di atas untuk mengunggah dokumen legalitas pertama Anda.
             </p>
           </div>
         ) : (
@@ -656,7 +656,7 @@ export function CertificationsAdminClient({
                 key={cert.id}
                 className={`bg-white dark:bg-[#10131C] p-6 rounded-3xl border transition-all flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-sm ${
                   cert.isVisible !== false
-                    ? 'border-gray-200 dark:border-gray-800/80 hover:border-amber-500/40'
+                    ? 'border-gray-200 dark:border-gray-800/80 hover:border-gray-200 dark:border-gray-800'
                     : 'border-red-200 dark:border-red-900/30 opacity-60'
                 }`}
               >
@@ -698,7 +698,7 @@ export function CertificationsAdminClient({
                   {/* Informasi Dokumen */}
                   <div className="space-y-1.5 flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 text-xs">
-                      <span className="font-bold text-amber-600 dark:text-amber-400">
+                      <span className="font-bold text-gray-500 dark:text-gray-400">
                         {cert.issuer}
                       </span>
                       {cert.certNumber && (
@@ -731,7 +731,7 @@ export function CertificationsAdminClient({
 
                     {cert.watermarkText && (
                       <p className="text-[11px] text-gray-400 font-mono truncate flex items-center gap-1.5 pt-0.5">
-                        <ShieldCheck className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                        <ShieldCheck className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400 shrink-0" />
                         <span>Watermark: {cert.watermarkText}</span>
                       </p>
                     )}
@@ -745,7 +745,7 @@ export function CertificationsAdminClient({
                     onClick={() => handleToggleVisibility(cert.id)}
                     className={`p-2.5 rounded-xl border transition-colors cursor-pointer ${
                       cert.isVisible !== false
-                        ? 'border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:text-amber-600 hover:border-amber-500/40'
+                        ? 'border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:text-gray-500 dark:text-gray-400 hover:border-gray-200 dark:border-gray-800'
                         : 'border-red-300 dark:border-red-900 text-red-500 bg-red-50 dark:bg-red-950/20'
                     }`}
                     title={cert.isVisible !== false ? 'Sembunyikan sertifikasi' : 'Tampilkan sertifikasi'}
@@ -756,7 +756,7 @@ export function CertificationsAdminClient({
                   <button
                     type="button"
                     onClick={() => handleOpenEdit(cert)}
-                    className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:text-amber-600 hover:border-amber-500/40 transition-colors cursor-pointer"
+                    className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:text-gray-500 dark:text-gray-400 hover:border-gray-200 dark:border-gray-800 transition-colors cursor-pointer"
                     title="Edit sertifikasi"
                   >
                     <Edit3 className="w-4 h-4" />
@@ -789,7 +789,7 @@ export function CertificationsAdminClient({
           >
             <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                <div className="w-10 h-10 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400">
                   <Award className="w-5 h-5" />
                 </div>
                 <div>
@@ -820,7 +820,7 @@ export function CertificationsAdminClient({
                   value={editingCert.title}
                   onChange={(e) => setEditingCert({ ...editingCert, title: e.target.value })}
                   placeholder="Contoh: ISO 9001:2015 - Sistem Manajemen Mutu"
-                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:border-amber-500 font-medium"
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:border-blue-500 font-medium"
                 />
               </div>
 
@@ -834,7 +834,7 @@ export function CertificationsAdminClient({
                     value={editingCert.issuer}
                     onChange={(e) => setEditingCert({ ...editingCert, issuer: e.target.value })}
                     placeholder="Contoh: Badan Sertifikasi Internasional / POLRI"
-                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:border-amber-500 font-medium"
+                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:border-blue-500 font-medium"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -846,7 +846,7 @@ export function CertificationsAdminClient({
                     value={editingCert.certNumber || ''}
                     onChange={(e) => setEditingCert({ ...editingCert, certNumber: e.target.value })}
                     placeholder="Contoh: QMS/2024/4SU-88912"
-                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:border-amber-500 font-medium"
+                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:border-blue-500 font-medium"
                   />
                 </div>
               </div>
@@ -861,7 +861,7 @@ export function CertificationsAdminClient({
                     value={editingCert.issueDate || ''}
                     onChange={(e) => setEditingCert({ ...editingCert, issueDate: e.target.value })}
                     placeholder="Contoh: 15 Januari 2024"
-                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:border-amber-500 font-medium"
+                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:border-blue-500 font-medium"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -873,7 +873,7 @@ export function CertificationsAdminClient({
                     value={editingCert.expiryDate || ''}
                     onChange={(e) => setEditingCert({ ...editingCert, expiryDate: e.target.value })}
                     placeholder="Contoh: 14 Januari 2027"
-                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:border-amber-500 font-medium"
+                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:border-blue-500 font-medium"
                   />
                 </div>
               </div>
@@ -920,12 +920,12 @@ export function CertificationsAdminClient({
                         >
                           {isUploadingImage ? (
                             <>
-                              <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-600" />
+                              <Loader2 className="w-3.5 h-3.5 animate-spin text-gray-500 dark:text-gray-400" />
                               <span>Mengompresi...</span>
                             </>
                           ) : (
                             <>
-                              <UploadCloud className="w-3.5 h-3.5 text-amber-600" />
+                              <UploadCloud className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
                               <span>Ganti Berkas</span>
                             </>
                           )}
@@ -947,12 +947,12 @@ export function CertificationsAdminClient({
                     onClick={() => !isUploadingImage && fileInputRef.current?.click()}
                     className={`relative border-2 border-dashed rounded-2xl p-6 text-center transition-all cursor-pointer group ${
                       isUploadingImage
-                        ? 'border-amber-500/50 bg-amber-500/5 cursor-wait'
-                        : 'border-gray-300 dark:border-gray-700 hover:border-amber-500 dark:hover:border-amber-500 bg-gray-50/50 dark:bg-[#090A0F] hover:bg-gray-50 dark:hover:bg-[#121520]'
+                        ? 'border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#090A0F] cursor-wait'
+                        : 'border-gray-300 dark:border-gray-700 hover:border-gray-200 dark:border-gray-800 dark:hover:border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#090A0F] hover:bg-gray-50 dark:hover:bg-[#121520]'
                     }`}
                   >
                     <div className="flex flex-col items-center justify-center space-y-2">
-                      <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <div className="w-12 h-12 rounded-2xl bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 flex items-center justify-center group-hover:scale-110 transition-transform">
                         {isUploadingImage ? (
                           <Loader2 className="w-6 h-6 animate-spin" />
                         ) : (
@@ -990,14 +990,14 @@ export function CertificationsAdminClient({
                     value={editingCert.imageUrl}
                     onChange={(e) => setEditingCert({ ...editingCert, imageUrl: e.target.value })}
                     placeholder="Atau masukkan URL gambar langsung (https://...)"
-                    className="w-full bg-white dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-1.5 text-xs text-gray-700 dark:text-gray-300 focus:border-amber-500 font-mono"
+                    className="w-full bg-white dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-1.5 text-xs text-gray-700 dark:text-gray-300 focus:border-blue-500 font-mono"
                   />
                 </div>
               </div>
 
               {/* TEKS WATERMARK PERLINDUNGAN GAMBAR */}
-              <div className="space-y-1.5 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20">
-                <label className="text-xs font-black uppercase tracking-wider text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+              <div className="space-y-1.5 p-4 rounded-2xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-800">
+                <label className="text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4" />
                   <span>Teks Watermark Perlindungan Gambar Dokumen</span>
                 </label>
@@ -1006,7 +1006,7 @@ export function CertificationsAdminClient({
                   value={editingCert.watermarkText || ''}
                   onChange={(e) => setEditingCert({ ...editingCert, watermarkText: e.target.value })}
                   placeholder={`Contoh: ${siteName} • DOKUMEN RESMI`}
-                  className="w-full bg-white dark:bg-[#090A0F] border border-amber-500/30 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:border-amber-500 font-medium"
+                  className="w-full bg-white dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:border-blue-500 font-medium"
                 />
                 <p className="text-[11px] text-gray-600 dark:text-gray-400">
                   Teks ini akan dirender secara diagonal berulang di atas gambar sertifikat pada website publik untuk mencegah pencurian atau duplikasi berkas.
@@ -1022,7 +1022,7 @@ export function CertificationsAdminClient({
                   value={editingCert.desc || ''}
                   onChange={(e) => setEditingCert({ ...editingCert, desc: e.target.value })}
                   placeholder="Jelaskan ruang lingkup akreditasi atau jaminan kualitas yang dicakup oleh sertifikasi ini..."
-                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-sm text-gray-900 dark:text-white focus:border-amber-500 font-medium resize-none"
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-sm text-gray-900 dark:text-white focus:border-blue-500 font-medium resize-none"
                 ></textarea>
               </div>
 
@@ -1030,7 +1030,7 @@ export function CertificationsAdminClient({
                 <span className="text-xs font-bold text-gray-700 dark:text-gray-300">Tampilkan di Halaman Sertifikasi (/certifications)</span>
                 <div className="flex items-center gap-3">
                   <span className={`text-[11px] font-black uppercase tracking-wider ${
-                    editingCert.isVisible ? 'text-amber-700 dark:text-amber-400' : 'text-gray-400'
+                    editingCert.isVisible ? 'text-black dark:text-white dark:text-gray-500 dark:text-gray-400' : 'text-gray-400'
                   }`}>
                     {editingCert.isVisible ? 'Aktif' : 'Nonaktif'}
                   </span>
@@ -1039,8 +1039,8 @@ export function CertificationsAdminClient({
                     role="switch"
                     aria-checked={editingCert.isVisible}
                     onClick={() => setEditingCert({ ...editingCert, isVisible: !editingCert.isVisible })}
-                    className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500/30 ${
-                      editingCert.isVisible ? 'bg-amber-600' : 'bg-gray-300 dark:bg-gray-700'
+                    className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500/20 ${
+                      editingCert.isVisible ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-700'
                     }`}
                   >
                     <span
@@ -1065,7 +1065,7 @@ export function CertificationsAdminClient({
                 type="button"
                 onClick={handleSaveModal}
                 disabled={isPending || isUploadingImage}
-                className="px-6 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider shadow-lg flex items-center gap-2 transition-transform hover:scale-105 cursor-pointer disabled:opacity-50"
+                className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-black uppercase tracking-wider shadow-lg flex items-center gap-2 transition-transform hover:scale-105 cursor-pointer disabled:opacity-50"
               >
                 <Check className="w-4 h-4" />
                 <span>Simpan Dokumen</span>

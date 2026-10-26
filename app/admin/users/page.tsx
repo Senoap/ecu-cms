@@ -20,6 +20,7 @@ export default async function UsersPage() {
     createdAt: u.createdAt || 0,
     passwordUpdatedAt: u.passwordUpdatedAt || u.createdAt || 0,
     mustResetPassword: Boolean(u.mustResetPassword),
+    skipPasswordExpiry: Boolean(u.skipPasswordExpiry),
   }))
 
   return (

@@ -1,6 +1,6 @@
 // app/api/admin/audit-log/download/route.ts
 import { NextResponse } from 'next/server'
-import { requireAdmin } from '@/lib/auth'
+import { requireAdmin, isUserAdministrator, isUserSuperadmin } from '@/lib/auth'
 import { readDB, generateAuditLogTxt } from '@/lib/db'
 
 export async function GET() {
@@ -10,8 +10,15 @@ export async function GET() {
       return new NextResponse('Unauthorized', { status: 401 })
     }
 
+    const isPrivilegedAdmin = isUserAdministrator(user) || isUserSuperadmin(user)
     const db = await readDB()
-    const logs = (db.auditLogs || []).filter((l) => l.category !== 'visitor' && l.type !== 'VISITOR')
+    const logs = (db.auditLogs || []).filter((l) => {
+      if (l.category === 'visitor' || l.type === 'VISITOR') return false
+      if (!isPrivilegedAdmin) {
+        return l.category === 'career' || l.category === 'compro'
+      }
+      return true
+    })
     const dailyVisitors = db.dailyVisitorCounts || []
     const txtContent = generateAuditLogTxt(logs, dailyVisitors)
 

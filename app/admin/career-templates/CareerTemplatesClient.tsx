@@ -150,7 +150,7 @@ export default function CareerTemplatesClient({ templates }: CareerTemplatesClie
         <button
           type="button"
           onClick={openAddModal}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 transition-colors cursor-pointer shrink-0"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors cursor-pointer shrink-0"
         >
           <Plus className="w-4 h-4" />
           <span>Buat Template Baru</span>
@@ -174,7 +174,7 @@ export default function CareerTemplatesClient({ templates }: CareerTemplatesClie
       {/* PANDUAN VARIABEL OTOMATIS */}
       <div className="p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/70 shadow-sm space-y-3">
         <div className="flex items-center gap-2">
-          <Code2 className="w-4 h-4 text-amber-500" />
+          <Code2 className="w-4 h-4 text-gray-500 dark:text-gray-400" />
           <h3 className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white">
             Variabel Dinamis yang Didukung
           </h3>
@@ -188,11 +188,11 @@ export default function CareerTemplatesClient({ templates }: CareerTemplatesClie
               key={p.tag}
               type="button"
               onClick={() => handleCopyTag(p.tag)}
-              className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 text-left hover:border-amber-500 transition-colors cursor-pointer group"
+              className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 text-left hover:border-gray-200 dark:border-gray-800 transition-colors cursor-pointer group"
               title="Klik untuk menyalin tag"
             >
               <div className="flex items-center justify-between">
-                <code className="text-xs font-mono font-bold text-amber-600 dark:text-amber-400 group-hover:underline">
+                <code className="text-xs font-mono font-bold text-gray-500 dark:text-gray-400 group-hover:underline">
                   {p.tag}
                 </code>
                 {copiedTag === p.tag ? (
@@ -217,7 +217,7 @@ export default function CareerTemplatesClient({ templates }: CareerTemplatesClie
           {templates.map((tpl) => (
             <div
               key={tpl.id}
-              className="p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm space-y-3.5 hover:border-amber-500/40 transition-all"
+              className="p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm space-y-3.5 hover:border-gray-200 dark:border-gray-800 transition-all"
             >
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                 <div className="space-y-1">
@@ -230,12 +230,12 @@ export default function CareerTemplatesClient({ templates }: CareerTemplatesClie
                       </span>
                     )}
                     {tpl.channel === 'email' && (
-                      <span className="text-xs font-bold text-sky-600 dark:text-sky-400">
+                      <span className="text-xs font-bold text-gray-500 dark:text-gray-400">
                         Saluran: Email
                       </span>
                     )}
                     {tpl.channel === 'both' && (
-                      <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
+                      <span className="text-xs font-bold text-gray-500 dark:text-gray-400">
                         Saluran: WhatsApp & Email
                       </span>
                     )}
@@ -251,7 +251,7 @@ export default function CareerTemplatesClient({ templates }: CareerTemplatesClie
                   <button
                     type="button"
                     onClick={() => openEditModal(tpl)}
-                    className="p-2 rounded-xl text-gray-600 dark:text-gray-400 hover:text-amber-600 hover:bg-amber-500/10 border border-gray-200 dark:border-gray-800 transition-colors cursor-pointer"
+                    className="p-2 rounded-xl text-gray-600 dark:text-gray-400 hover:text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-800 transition-colors cursor-pointer"
                     title="Edit Template"
                   >
                     <Pencil className="w-4 h-4" />
@@ -310,7 +310,7 @@ export default function CareerTemplatesClient({ templates }: CareerTemplatesClie
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
                   placeholder="Contoh: Undangan Wawancara Offline"
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white text-sm outline-none focus:border-amber-500"
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white text-sm outline-none focus:border-blue-500"
                   required
                 />
               </div>
@@ -325,7 +325,7 @@ export default function CareerTemplatesClient({ templates }: CareerTemplatesClie
                     onClick={() => setFormChannel('both')}
                     className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
                       formChannel === 'both'
-                        ? 'bg-purple-500 text-white border-purple-600 shadow-sm'
+                        ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
                         : 'border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                     }`}
                   >
@@ -347,7 +347,7 @@ export default function CareerTemplatesClient({ templates }: CareerTemplatesClie
                     onClick={() => setFormChannel('email')}
                     className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
                       formChannel === 'email'
-                        ? 'bg-sky-600 text-white border-sky-700 shadow-sm'
+                        ? 'bg-blue-600 text-white border-blue-700 shadow-sm'
                         : 'border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                     }`}
                   >
@@ -367,7 +367,7 @@ export default function CareerTemplatesClient({ templates }: CareerTemplatesClie
                     value={formSubject}
                     onChange={(e) => setFormSubject(e.target.value)}
                     placeholder="Subjek email balasan..."
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white text-sm outline-none focus:border-amber-500"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white text-sm outline-none focus:border-blue-500"
                     required
                   />
                 </div>
@@ -389,7 +389,7 @@ export default function CareerTemplatesClient({ templates }: CareerTemplatesClie
                       key={p.tag}
                       type="button"
                       onClick={() => insertTag(p.tag)}
-                      className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/30 hover:bg-amber-500/20 transition-colors cursor-pointer"
+                      className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-gray-100 dark:bg-gray-800 text-black dark:text-white dark:text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:bg-gray-800 transition-colors cursor-pointer"
                     >
                       + {p.tag}
                     </button>
@@ -402,7 +402,7 @@ export default function CareerTemplatesClient({ templates }: CareerTemplatesClie
                   onChange={(e) => setFormBody(e.target.value)}
                   rows={8}
                   placeholder="Ketik isi pesan balasan..."
-                  className="w-full p-4 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white text-sm font-mono outline-none focus:border-amber-500 leading-relaxed"
+                  className="w-full p-4 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white text-sm font-mono outline-none focus:border-blue-500 leading-relaxed"
                   required
                 />
               </div>
@@ -419,7 +419,7 @@ export default function CareerTemplatesClient({ templates }: CareerTemplatesClie
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider text-white bg-amber-600 hover:bg-amber-700 shadow-sm transition-all cursor-pointer disabled:opacity-50"
+                  className="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider text-white bg-blue-600 hover:bg-blue-700 shadow-sm transition-all cursor-pointer disabled:opacity-50"
                 >
                   {isPending ? 'Menyimpan...' : (editingTemplate ? 'Simpan Perubahan' : 'Buat Template')}
                 </button>

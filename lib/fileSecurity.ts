@@ -38,14 +38,16 @@ export function validatePdfBuffer(buffer: Buffer): { valid: boolean; message?: s
  */
 export function sanitizeSvgContent(svgString: string): string {
   return svgString
-    // Hapus script tag dan isinya
+    // Hapus script tag dan isinya secara menyeluruh (termasuk multi-line atau nested)
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    // Hapus event handler inline seperti onload, onclick, onerror, dll.
-    .replace(/\son[a-z]+\s*=\s*(['"]).*?\1/gi, '')
-    .replace(/\son[a-z]+\s*=\s*[^>\s]+/gi, '')
-    // Hapus tautan berbahaya javascript:
-    .replace(/href\s*=\s*(['"])javascript:.*?\1/gi, 'href="#"')
-    .replace(/xlink:href\s*=\s*(['"])javascript:.*?\1/gi, 'xlink:href="#"')
+    // Hapus tag berisiko tinggi yang dapat mengeksekusi script atau memuat resource eksternal
+    .replace(/<\/?(?:foreignObject|embed|iframe|object)\b[^>]*>/gi, '')
+    // Hapus event handler inline seperti onload, onclick, onerror, dll. (mendukung format /onload, whitespace, newline)
+    .replace(/[\s/]on[a-z0-9_-]+\s*=\s*(['"]).*?\1/gi, '')
+    .replace(/[\s/]on[a-z0-9_-]+\s*=\s*[^>\s]+/gi, '')
+    // Hapus tautan berbahaya javascript:, vbscript:, data:text/html
+    .replace(/href\s*=\s*(['"])\s*(?:javascript|vbscript|data:text\/html):.*?\1/gi, 'href="#"')
+    .replace(/xlink:href\s*=\s*(['"])\s*(?:javascript|vbscript|data:text\/html):.*?\1/gi, 'xlink:href="#"')
 }
 
 /**
@@ -127,11 +129,12 @@ export function validateImageBuffer(buffer: Buffer): { valid: boolean; mime?: st
   // 9. Cek SVG: Berkas teks XML yang diawali <svg atau <?xml dan memuat elemen <svg
   const sample = buffer.subarray(0, Math.min(buffer.length, 1024)).toString('utf-8').trim().toLowerCase()
   if (sample.includes('<svg') || (sample.startsWith('<?xml') && sample.includes('<svg'))) {
+    const fullText = buffer.toString('utf-8').toLowerCase()
     // Pastikan tidak ada tag script jahat langsung
-    if (sample.includes('<script') || sample.includes('javascript:')) {
+    if (fullText.includes('<script') || fullText.includes('javascript:') || /[\s/]on[a-z0-9_-]+\s*=/i.test(fullText)) {
       return {
         valid: false,
-        message: 'Berkas SVG memuat kode skrip berbahaya (JavaScript) yang dilarang demi keamanan.',
+        message: 'Berkas SVG memuat kode skrip berbahaya (JavaScript/Event Handler) yang dilarang demi keamanan.',
       }
     }
     return { valid: true, mime: 'image/svg+xml' }

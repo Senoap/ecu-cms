@@ -3,35 +3,30 @@
 
 import { useState, useMemo, useRef } from 'react'
 import type { AuditLogItem, DailyVisitorCount } from '@/lib/db'
-import { 
-  FileText, 
-  Download, 
-  Globe, 
-  Briefcase, 
-  FileDown, 
-  Shield, 
-  Clock, 
+import {
+  FileText,
+  Download,
+  Globe,
   Search,
-  Activity,
   BarChart3,
   TrendingUp,
   Layers,
-  Calendar,
   Compass,
-  Flame,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
-  ChevronsRight
+  ChevronsRight,
+  ChevronDown
 } from 'lucide-react'
 
-type CategoryFilter = 'all' | 'system' | 'visitor' | 'career' | 'compro'
+type CategoryFilter = 'all' | 'system' | 'career' | 'compro' | 'visitor'
 type TimeFilter = 'all' | 'daily' | 'weekly' | 'monthly' | 'yearly'
 type ChartType = 'bar' | 'area'
 
 interface AuditLogClientProps {
   initialLogs: AuditLogItem[]
   dailyVisitors?: DailyVisitorCount[]
+  isPrivilegedAdmin?: boolean
 }
 
 interface TimelineDay {
@@ -86,7 +81,7 @@ function buildAreaPath(points: Array<{ x: number; y: number }>, baseHeight: numb
   return `${lineD} L ${last.x} ${baseHeight} L ${first.x} ${baseHeight} Z`
 }
 
-export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: AuditLogClientProps) {
+export default function AuditLogClient({ initialLogs, dailyVisitors = [], isPrivilegedAdmin = false }: AuditLogClientProps) {
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all')
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('all')
   const [searchTerm, setSearchTerm] = useState('')
@@ -99,9 +94,27 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
 
   // Buat 30 hari linier berkelanjutan (dari H-29 sampai Hari Ini)
   const timeline30Days = useMemo(() => {
-    const map = new Map<string, DailyVisitorCount>()
+    const map = new Map<string, { count: number; paths?: Record<string, number> }>()
     for (const v of dailyVisitors) {
-      map.set(v.date, v)
+      if (v.date) {
+        // Filter jalur agar hanya halaman web compro yang diperhitungkan
+        const cleanPaths: Record<string, number> = {}
+        let sumHits = 0
+        if (v.paths) {
+          for (const [p, c] of Object.entries(v.paths)) {
+            const norm = p.toLowerCase()
+            if (!norm.startsWith('/login') && !norm.startsWith('/admin') && !norm.startsWith('/cms') && !norm.startsWith('/api') && !norm.includes('.')) {
+              cleanPaths[p] = c
+              sumHits += c
+            }
+          }
+        }
+        const hasCleanPaths = Object.keys(cleanPaths).length > 0
+        map.set(v.date, {
+          count: hasCleanPaths ? sumHits : (v.paths ? sumHits : v.count),
+          paths: hasCleanPaths ? cleanPaths : undefined
+        })
+      }
     }
 
     const [y, m, d] = todayStr.split('-').map(Number)
@@ -198,27 +211,14 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
     return { width, height, points, linePath, areaPath, avgY }
   }, [timeline30Days, analytics.maxScale, analytics.avgHits])
 
-  // Hitung jumlah per kategori
-  const counts = useMemo(() => {
-    const res = { all: initialLogs.length, system: 0, visitor: analytics.totalHits, career: 0, compro: 0 }
-    for (const l of initialLogs) {
-      const cat = (l.category || 'system') as 'system' | 'visitor' | 'career' | 'compro'
-      if (cat !== 'visitor') {
-        if (res[cat] !== undefined) {
-          res[cat]++
-        } else {
-          res.system++
-        }
-      }
-    }
-    return res
-  }, [initialLogs, analytics.totalHits])
-
   // Filter untuk log aktivitas (bukan visitor)
   const filteredLogs = useMemo(() => {
     const now = new Date()
     return initialLogs.filter((log) => {
       const cat = log.category || 'system'
+      if (!isPrivilegedAdmin && cat === 'system') {
+        return false
+      }
       if (categoryFilter !== 'all' && cat !== categoryFilter) {
         return false
       }
@@ -248,7 +248,7 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
 
       if (searchTerm.trim()) {
         const term = searchTerm.toLowerCase()
-        const matches = 
+        const matches =
           log.message.toLowerCase().includes(term) ||
           log.type.toLowerCase().includes(term) ||
           (log.userName && log.userName.toLowerCase().includes(term)) ||
@@ -259,7 +259,7 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
 
       return true
     })
-  }, [initialLogs, categoryFilter, timeFilter, searchTerm])
+  }, [initialLogs, categoryFilter, timeFilter, searchTerm, isPrivilegedAdmin])
 
   // Pagination State (5, 25, 50 item per halaman)
   const [pageSize, setPageSize] = useState<number>(25)
@@ -312,77 +312,136 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
 
   return (
     <div className="max-w-5xl mx-auto space-y-8 pb-32">
-      
-      {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white">
-            Audit Log Terpadu
-          </h1>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            Rekaman terpisah untuk riwayat perubahan CMS, grafik tren pengunjung 30 hari, lamaran karir, dan permintaan company profile.
-          </p>
-        </div>
 
-        {/* Tombol Ekspor TXT */}
-        <div className="shrink-0">
-          <a
-            href="/api/admin/audit-log/download"
-            download
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-colors cursor-pointer"
-          >
-            <Download className="w-4 h-4" />
-            <span>Unduh Log (.txt)</span>
-          </a>
-        </div>
-      </div>
+      {/* HEADER & FILTER TOOLBAR - TIDAK TERSCROLL (STICKY TOP-0) */}
+      <div className="sticky top-0 z-30 bg-[#F4F6F9] dark:bg-[#0C0D12] -mx-4 sm:-mx-6 md:-mx-8 px-4 sm:px-6 md:px-8 -mt-4 sm:-mt-6 md:-mt-8 pt-4 sm:pt-6 md:pt-8 pb-4 space-y-4 transition-colors">
+        {/* Header Banner */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-3">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white">
+              Audit Log
+            </h1>
+          </div>
 
-      {/* Info Banner Retensi 90 Hari (Event Log) */}
-      <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-3 text-xs text-amber-800 dark:text-amber-300">
-        <Clock className="w-4 h-4 shrink-0 mt-0.5 text-amber-600" />
-        <div className="space-y-0.5">
-          <p className="font-bold">Otomasi Retensi 90 Hari & Skema Pencadangan Teks Aktif</p>
-          <p className="text-gray-600 dark:text-gray-400 text-[11px] leading-relaxed">
-            Catatan log perubahan yang melewati 90 hari otomatis dicadangkan ke berkas teks terstruktur di folder <code className="bg-amber-500/20 px-1 py-0.5 rounded font-mono">data/backups/audit_backup_*.txt</code> dan dipangkas dari basis data aktif untuk menjaga kecepatan sistem.
-          </p>
-        </div>
-      </div>
-
-      {/* Tab Kategori (Perubahan, Pengunjung, Lamaran, Permintaan Compro) */}
-      <div className="bg-white dark:bg-[#10131C] p-4 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-md">
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-          {([
-            { id: 'all', label: 'Semua Kategori', icon: Shield, count: counts.all, badgeSuffix: '' },
-            { id: 'system', label: 'Perubahan CMS', icon: FileText, count: counts.system, badgeSuffix: '' },
-            { id: 'visitor', label: 'Pengunjung Web', icon: Globe, count: counts.visitor, badgeSuffix: ' hits' },
-            { id: 'career', label: 'Log Karir & Lamaran', icon: Briefcase, count: counts.career, badgeSuffix: '' },
-            { id: 'compro', label: 'Permintaan Compro', icon: FileDown, count: counts.compro, badgeSuffix: '' },
-          ] as const).map((tab) => {
-            const Icon = tab.icon
-            const active = categoryFilter === tab.id
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setCategoryFilter(tab.id)}
-                className={`p-3 rounded-2xl flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer border text-center ${
-                  active
-                    ? 'bg-amber-600 text-white border-amber-500 shadow-md shadow-amber-950/40'
-                    : 'bg-gray-50 dark:bg-[#090A0F] text-gray-700 dark:text-gray-400 border-gray-200 dark:border-gray-800/80 hover:bg-gray-100 dark:hover:bg-gray-800/60'
-                }`}
+          {/* Tombol Ekspor TXT - Hanya tampil jika BUKAN tab Pengunjung Web */}
+          {categoryFilter !== 'visitor' && (
+            <div className="shrink-0">
+              <a
+                href="/api/admin/audit-log/download"
+                download
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-colors cursor-pointer shadow-xs"
               >
-                <div className="flex items-center gap-1.5">
-                  <Icon className="w-3.5 h-3.5" />
-                  <span className="text-xs font-bold">{tab.label}</span>
+                <Download className="w-4 h-4" />
+                <span>Unduh Log (.txt)</span>
+              </a>
+            </div>
+          )}
+        </div>
+
+        {/* Filter Terpadu */}
+        <div className="bg-white dark:bg-[#10131C] p-3 rounded-2xl border border-gray-200 dark:border-gray-800/80 shadow-sm flex flex-col lg:flex-row items-stretch lg:items-center gap-3 justify-between">
+          <div className="flex items-center gap-3 shrink-0">
+            {/* Dropdown Kategori */}
+            <div className="relative w-full sm:w-auto min-w-[200px]">
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value as CategoryFilter)}
+                aria-label="Filter Kategori"
+                className="w-full appearance-none bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl pl-3.5 pr-9 py-2 text-gray-900 dark:text-white text-xs font-semibold focus:outline-none focus:border-blue-500 shadow-inner cursor-pointer"
+              >
+                <option value="all">Semua Kategori</option>
+                {isPrivilegedAdmin && (
+                  <option value="system">Perubahan CMS</option>
+                )}
+                <option value="career">Lamaran &amp; Karir</option>
+                <option value="compro">Permintaan Compro</option>
+                <option value="visitor">Pengunjung Web</option>
+              </select>
+              <ChevronDown className="w-3.5 h-3.5 absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            </div>
+          </div>
+
+          {categoryFilter === 'visitor' ? (
+            /* Nomor 2 & Total Pengunjung dalam 1 baris bersama Nomor 1 */
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full lg:w-auto justify-end">
+              {/* Toggle Tipe Grafik: Bar / Area (Nomor 2) */}
+              <div className="flex items-center gap-1 bg-gray-100 dark:bg-[#090A0F] p-1 rounded-xl border border-gray-200 dark:border-gray-800 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setChartType('bar')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer ${
+                    chartType === 'bar'
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'text-black dark:text-white hover:bg-gray-200/60 dark:hover:bg-gray-800'
+                  }`}
+                >
+                  <BarChart3 className={`w-3.5 h-3.5 ${chartType === 'bar' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`} />
+                  <span>Diagram Batang</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setChartType('area')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer ${
+                    chartType === 'area'
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'text-black dark:text-white hover:bg-gray-200/60 dark:hover:bg-gray-800'
+                  }`}
+                >
+                  <TrendingUp className={`w-3.5 h-3.5 ${chartType === 'area' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`} />
+                  <span>Garis Kurva</span>
+                </button>
+              </div>
+
+              {/* Total Pengunjung 1 Bulan Terakhir */}
+              <div className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-xl bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800/80 shadow-xs">
+                <div className="p-1 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 shrink-0">
+                  <Globe className="w-4 h-4" />
                 </div>
-                <span className={`text-[11px] font-bold ${
-                  active ? 'text-white/90' : 'text-gray-500 dark:text-gray-400'
-                }`}>
-                  ({tab.count}{tab.badgeSuffix})
-                </span>
-              </button>
-            )
-          })}
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-bold text-black dark:text-white">
+                    Total Pengunjung (1 Bulan Terakhir):
+                  </span>
+                  <span className="text-sm font-black text-black dark:text-white">
+                    {analytics.totalHits}
+                  </span>
+                  <span className="text-xs font-bold text-black dark:text-white font-sans">
+                    hits
+                  </span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto justify-end">
+              {/* Dropdown Rentang Waktu */}
+              <div className="relative w-full sm:w-auto min-w-[160px]">
+                <select
+                  value={timeFilter}
+                  onChange={(e) => setTimeFilter(e.target.value as TimeFilter)}
+                  aria-label="Filter Rentang Waktu"
+                  className="w-full appearance-none bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl pl-3.5 pr-9 py-2 text-gray-900 dark:text-white text-xs font-semibold focus:outline-none focus:border-blue-500 shadow-inner cursor-pointer"
+                >
+                  <option value="all">Semua Waktu</option>
+                  <option value="daily">Hari Ini</option>
+                  <option value="weekly">7 Hari Terakhir</option>
+                  <option value="monthly">Bulan Ini</option>
+                  <option value="yearly">Tahun Ini</option>
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              </div>
+
+              {/* Kolom Pencarian (Search Input) */}
+              <div className="relative w-full sm:w-64">
+                <Search className="w-3.5 h-3.5 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Cari aktivitas atau pengguna..."
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl pl-9 pr-4 py-2 text-gray-900 dark:text-white text-xs focus:outline-none focus:border-blue-500 shadow-inner font-medium"
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -391,139 +450,35 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
       {/* ========================================================================= */}
       {categoryFilter === 'visitor' ? (
         <div className="space-y-6">
-          {/* Kartu Statistik Cepat */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Total Hits 30 Hari */}
-            <div className="bg-white dark:bg-[#10131C] p-4 sm:p-5 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-md space-y-1.5">
-              <div className="flex items-center justify-between text-gray-500 dark:text-gray-400">
-                <span className="text-[11px] font-bold uppercase tracking-wider">Total Kunjungan</span>
-                <Globe className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
-              </div>
-              <div className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white">
-                {analytics.totalHits}
-                <span className="text-xs font-bold text-gray-500 ml-1.5 font-sans">hits</span>
-              </div>
-              <p className="text-[11px] text-gray-500">Rentang 30 hari terakhir</p>
-            </div>
-
-            {/* Hits Hari Ini */}
-            <div className="bg-white dark:bg-[#10131C] p-4 sm:p-5 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-md space-y-1.5">
-              <div className="flex items-center justify-between text-gray-500 dark:text-gray-400">
-                <span className="text-[11px] font-bold uppercase tracking-wider">Hari Ini</span>
-                <Activity className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <div className="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400">
-                {analytics.todayHits}
-                <span className="text-xs font-bold text-gray-500 ml-1.5 font-sans">hits</span>
-              </div>
-              <p className="text-[11px] text-gray-500">{todayStr}</p>
-            </div>
-
-            {/* Rata-Rata Kunjungan */}
-            <div className="bg-white dark:bg-[#10131C] p-4 sm:p-5 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-md space-y-1.5">
-              <div className="flex items-center justify-between text-gray-500 dark:text-gray-400">
-                <span className="text-[11px] font-bold uppercase tracking-wider">Rata-Rata</span>
-                <BarChart3 className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-              </div>
-              <div className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white">
-                {analytics.avgHits}
-                <span className="text-xs font-bold text-gray-500 ml-1.5 font-sans">hits/hari</span>
-              </div>
-              <p className="text-[11px] text-gray-500">Standar performa 30 hari</p>
-            </div>
-
-            {/* Hari Puncak */}
-            <div className="bg-white dark:bg-[#10131C] p-4 sm:p-5 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-md space-y-1.5">
-              <div className="flex items-center justify-between text-gray-500 dark:text-gray-400">
-                <span className="text-[11px] font-bold uppercase tracking-wider">Puncak Kunjungan</span>
-                <Flame className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
-              </div>
-              <div className="text-2xl sm:text-3xl font-black text-rose-600 dark:text-rose-400">
-                {analytics.rawMax}
-                <span className="text-xs font-bold text-gray-500 ml-1.5 font-sans">hits</span>
-              </div>
-              <p className="text-[11px] text-gray-500">{analytics.peakDay ? analytics.peakDay.dayLabel : '-'}</p>
-            </div>
-          </div>
 
           {/* ========================================================================= */}
           {/* CARD GRAFIK TREN PENGUNJUNG INTERAKTIF (BAR / AREA)                       */}
           {/* ========================================================================= */}
           <div className="bg-white dark:bg-[#10131C] p-6 sm:p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-xl space-y-6">
-            
-            {/* Header Grafik & Switch Tampilan */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 dark:border-gray-800/80 pb-4">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="p-1.5 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400">
-                    <Calendar className="w-4 h-4" />
-                  </span>
-                  <h2 className="text-base font-black text-gray-900 dark:text-white tracking-tight">
-                    Grafik Kunjungan 30 Hari Terakhir
-                  </h2>
-                </div>
-                <p className="text-xs text-gray-500 mt-1 pl-8">
-                  Periode: <span className="font-bold text-gray-700 dark:text-gray-300">{timeline30Days[0]?.dayLabel}</span> s/d <span className="font-bold text-cyan-600 dark:text-cyan-400">{timeline30Days[29]?.dayLabel} (Hari Ini)</span>
-                </p>
-              </div>
-
-              {/* Toggle Tipe Grafik: Bar / Area */}
-              <div className="flex items-center gap-1 bg-gray-100 dark:bg-[#090A0F] p-1 rounded-2xl border border-gray-200 dark:border-gray-800 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setChartType('bar')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer ${
-                    chartType === 'bar'
-                      ? 'bg-cyan-600 text-white shadow-sm'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                  }`}
-                >
-                  <BarChart3 className="w-3.5 h-3.5" />
-                  <span>Diagram Batang</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setChartType('area')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer ${
-                    chartType === 'area'
-                      ? 'bg-cyan-600 text-white shadow-sm'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                  }`}
-                >
-                  <TrendingUp className="w-3.5 h-3.5" />
-                  <span>Garis Kurva</span>
-                </button>
-              </div>
-            </div>
 
             {/* Panel Inspeksi Detail Tanggal Aktif / Diarahkan */}
             <div className="p-4 rounded-2xl bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all">
               <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black text-sm shadow-inner ${
-                  activeDay.isToday 
-                    ? 'bg-emerald-500 text-white' 
-                    : activeDay.count > 0 
-                      ? 'bg-cyan-600 text-white' 
+                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black text-sm shadow-inner ${activeDay.isToday
+                    ? 'bg-gray-900 text-white dark:bg-gray-100 dark:text-black'
+                    : activeDay.count > 0
+                      ? 'bg-gray-800 text-white dark:bg-gray-700 dark:text-white'
                       : 'bg-gray-200 dark:bg-gray-800 text-gray-500'
-                }`}>
+                  }`}>
                   {activeDay.shortLabel}
                 </div>
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-extrabold text-sm text-gray-900 dark:text-white">
+                    <span className="font-extrabold text-sm text-black dark:text-white">
                       {activeDay.fullDateLabel}
                     </span>
                     <span className="text-gray-300 dark:text-gray-700">|</span>
-                    <span className={`text-xs font-bold ${
-                      activeDay.isToday
-                        ? 'text-emerald-600 dark:text-emerald-400'
-                        : 'text-gray-500 dark:text-gray-400'
-                    }`}>
+                    <span className="text-xs font-bold text-black dark:text-white">
                       {activeDay.relativeLabel}
                     </span>
                   </div>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    Total Kunjungan: <b className="text-cyan-600 dark:text-cyan-400 font-black text-sm">{activeDay.count}</b> hits
+                  <p className="text-xs text-black dark:text-white mt-0.5">
+                    Total Kunjungan: <b className="text-black dark:text-white font-black text-sm">{activeDay.count}</b> hits
                   </p>
                 </div>
               </div>
@@ -532,12 +487,12 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
               <div className="flex items-center gap-2 flex-wrap text-xs">
                 {activeDay.paths && Object.keys(activeDay.paths).length > 0 ? (
                   Object.entries(activeDay.paths).slice(0, 3).map(([path, pCount], idx) => (
-                    <span 
+                    <span
                       key={path}
                       className="font-mono font-semibold text-gray-700 dark:text-gray-300"
                     >
                       {idx > 0 && <span className="text-gray-300 dark:text-gray-700 mr-2">|</span>}
-                      {path === '/' ? 'Home (/)' : path}: <b className="text-cyan-600 dark:text-cyan-400">{pCount}</b>
+                      {path === '/' ? 'Home (/)' : path}: <b className="text-black dark:text-white font-bold">{pCount}</b>
                     </span>
                   ))
                 ) : (
@@ -550,7 +505,7 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
 
             {/* Kanvas Grafik Utama */}
             <div className="relative pt-4 pb-2">
-              
+
               {/* Garis Panduan Grid Sumbu Y */}
               <div className="absolute inset-0 pointer-events-none flex flex-col justify-between text-[10px] font-mono text-gray-400 pl-1 pb-6">
                 <div className="border-b border-dashed border-gray-200 dark:border-gray-800/80 w-full flex justify-between pr-2">
@@ -589,15 +544,14 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
                         {/* Batang Kolom */}
                         <div
                           style={{ height: `${heightPercent}%` }}
-                          className={`w-full max-w-[20px] rounded-t-md transition-all duration-300 ${
-                            isSelected
+                          className={`w-full max-w-[20px] rounded-t-md transition-all duration-300 ${isSelected
                               ? 'bg-blue-600 ring-2 ring-blue-500 ring-offset-2 ring-offset-white dark:ring-offset-[#10131C] shadow-md'
                               : d.isToday
                                 ? 'bg-emerald-600'
                                 : d.count > 0
                                   ? 'bg-blue-500/80 hover:bg-blue-600'
                                   : 'bg-gray-200 dark:bg-gray-800/80 hover:bg-gray-300 dark:hover:bg-gray-700'
-                          }`}
+                            }`}
                         />
                       </div>
                     )
@@ -614,13 +568,13 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
                     preserveAspectRatio="none"
                   >
                     {/* Area Mengambang Solid Transparan */}
-                    <path d={svgData.areaPath} fill="#0284c7" fillOpacity="0.12" />
+                    <path d={svgData.areaPath} fill="#2563eb" fillOpacity="0.12" />
 
                     {/* Garis Kurva Solid */}
                     <path
                       d={svgData.linePath}
                       fill="none"
-                      stroke="#0284c7"
+                      stroke="#2563eb"
                       strokeWidth="2.5"
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -630,7 +584,7 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
                     {svgData.points.map((pt) => {
                       const isSelected = pt.day.date === activeDay.date
                       return (
-                        <g 
+                        <g
                           key={pt.day.date}
                           onClick={() => setSelectedDate(pt.day.date)}
                           onMouseEnter={() => setSelectedDate(pt.day.date)}
@@ -644,15 +598,14 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
                             cx={pt.x}
                             cy={pt.y}
                             r={isSelected ? 6 : pt.day.count > 0 ? 3.5 : 2}
-                            className={`transition-all duration-200 ${
-                              isSelected
-                                ? 'fill-white stroke-cyan-500 stroke-[3.5px]'
+                            className={`transition-all duration-200 ${isSelected
+                                ? 'fill-white stroke-blue-600 stroke-[3.5px]'
                                 : pt.day.isToday
-                                  ? 'fill-emerald-400 stroke-emerald-600 stroke-2'
+                                  ? 'fill-gray-900 stroke-gray-700 stroke-2 dark:fill-white dark:stroke-gray-300'
                                   : pt.day.count > 0
-                                    ? 'fill-cyan-400'
+                                    ? 'fill-blue-500'
                                     : 'fill-gray-400/60 dark:fill-gray-600'
-                            }`}
+                              }`}
                           />
                         </g>
                       )
@@ -667,8 +620,8 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
                 <span className="hidden sm:inline">{timeline30Days[7]?.dayLabel}</span>
                 <span className="hidden sm:inline">{timeline30Days[14]?.dayLabel}</span>
                 <span className="hidden sm:inline">{timeline30Days[21]?.dayLabel}</span>
-                <span className="font-extrabold text-cyan-600 dark:text-cyan-400 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                <span className="font-extrabold text-black dark:text-white flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gray-500"></span>
                   {timeline30Days[29]?.dayLabel} (Hari Ini)
                 </span>
               </div>
@@ -683,12 +636,12 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
           {/* RANGKUMAN HALAMAN POPULER & KEPATUHAN BUFFER (KOMPAK & ELEGAN)            */}
           {/* ========================================================================= */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            
+
             {/* Halaman Paling Sering Dikunjungi */}
             <div className="bg-white dark:bg-[#10131C] p-6 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-md space-y-4">
               <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-3">
                 <div className="flex items-center gap-2">
-                  <Compass className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+                  <Compass className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                   <h3 className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white">
                     Top Halaman Dikunjungi (30 Hari)
                   </h3>
@@ -708,7 +661,7 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
                       <div key={path} className="space-y-1">
                         <div className="flex items-center justify-between text-xs font-bold">
                           <span className="text-gray-700 dark:text-gray-300 flex items-center gap-1.5 font-mono">
-                            <span className="text-[10px] text-cyan-600 dark:text-cyan-400 font-sans">#{idx + 1}</span>
+                            <span className="text-[10px] text-gray-600 dark:text-gray-400 font-sans font-bold">#{idx + 1}</span>
                             {path === '/' ? 'Beranda Utama (/)' : path}
                           </span>
                           <span className="text-gray-900 dark:text-white font-black">
@@ -716,7 +669,7 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
                           </span>
                         </div>
                         <div className="w-full bg-gray-100 dark:bg-gray-800 h-1.5 rounded-full overflow-hidden">
-                          <div 
+                          <div
                             className="bg-blue-600 h-full rounded-full"
                             style={{ width: `${pct}%` }}
                           />
@@ -732,12 +685,12 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
             <div className="bg-white dark:bg-[#10131C] p-6 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-md space-y-4">
               <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-3">
                 <div className="flex items-center gap-2">
-                  <Layers className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                  <Layers className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                   <h3 className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white">
                     Sistem Buffer Retensi 30 Hari
                   </h3>
                 </div>
-                <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                <span className="text-xs font-bold text-black dark:text-white">
                   Status Optimal
                 </span>
               </div>
@@ -749,11 +702,11 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
                 </div>
                 <div className="flex items-center justify-between py-1.5 border-b border-gray-100 dark:border-gray-800/60">
                   <span className="text-gray-600 dark:text-gray-400">Maksimum Rentang Slot</span>
-                  <span className="font-extrabold text-cyan-600 dark:text-cyan-400">30 Hari Bergulir</span>
+                  <span className="font-extrabold text-black dark:text-white">30 Hari Bergulir</span>
                 </div>
                 <div className="flex items-center justify-between py-1.5 border-b border-gray-100 dark:border-gray-800/60">
                   <span className="text-gray-600 dark:text-gray-400">Mekanisme Overwrite</span>
-                  <span className="font-extrabold text-amber-600 dark:text-amber-400">Otomatis FIFO (H-31 tertimpa)</span>
+                  <span className="font-extrabold text-black dark:text-white">Otomatis FIFO (H-31 tertimpa)</span>
                 </div>
                 <div className="flex items-center justify-between py-1.5">
                   <span className="text-gray-600 dark:text-gray-400">Hari dengan Kunjungan Aktif</span>
@@ -766,54 +719,15 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
         </div>
       ) : (
         <>
-          {/* Filter Waktu & Pencarian (Untuk Kategori Selain Visitor) */}
-          <div className="bg-white dark:bg-[#10131C] p-6 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-xl flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div className="flex flex-wrap gap-2 w-full md:w-auto">
-              {([
-                { id: 'all', label: 'Semua Waktu' },
-                { id: 'daily', label: 'Hari Ini' },
-                { id: 'weekly', label: '7 Hari Terakhir' },
-                { id: 'monthly', label: 'Bulan Ini' },
-                { id: 'yearly', label: 'Tahun Ini' },
-              ] as const).map((tab) => (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setTimeFilter(tab.id)}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
-                    timeFilter === tab.id
-                      ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900 border-transparent shadow-sm'
-                      : 'bg-gray-100 dark:bg-[#090A0F] text-gray-700 dark:text-gray-400 border-gray-200 dark:border-gray-800 hover:text-gray-950 dark:hover:text-white'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="relative w-full md:w-72">
-              <Search className="w-3.5 h-3.5 absolute left-3.5 top-3 text-gray-400" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Cari teks, IP, atau pengguna..."
-                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-2xl pl-9 pr-4 py-2 text-gray-900 dark:text-white text-xs focus:outline-none focus:border-amber-500 shadow-inner font-medium"
-              />
-            </div>
-          </div>
 
           {/* Daftar Log Peristiwa (CMS, Karir, Compro) */}
           <div ref={listRef} className="bg-white dark:bg-[#10131C] p-6 sm:p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-xl space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
               <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-sm font-black text-amber-600 dark:text-amber-500 tracking-wide uppercase flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-amber-600 dark:text-amber-500" />
-                  <span>Riwayat Log Aktivitas ({filteredLogs.length})</span>
+                <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-gray-500" />
+                  <span>Riwayat Aktivitas ({filteredLogs.length})</span>
                 </h2>
-                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-                  • {categoryFilter === 'all' ? 'Seluruh Kategori' : categoryFilter.toUpperCase()}
-                </span>
               </div>
 
               {/* Selector Jumlah Item per Halaman: 5, 25, 50 */}
@@ -825,11 +739,10 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
                       key={size}
                       type="button"
                       onClick={() => setPageSize(size)}
-                      className={`px-3 py-1 text-xs font-black rounded-xl transition-all cursor-pointer ${
-                        pageSize === size
-                          ? 'bg-white dark:bg-[#10131C] text-amber-600 dark:text-amber-400 shadow-sm border border-gray-200 dark:border-gray-700'
+                      className={`px-3 py-1 text-xs font-black rounded-xl transition-all cursor-pointer ${pageSize === size
+                          ? 'bg-white dark:bg-[#10131C] text-black dark:text-white font-black shadow-xs border border-gray-300 dark:border-gray-700'
                           : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                      }`}
+                        }`}
                     >
                       {size}
                     </button>
@@ -839,85 +752,101 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
               </div>
             </div>
 
-            <div className="space-y-3">
-              {paginatedLogs.length === 0 ? (
-                <div className="text-center py-16 space-y-2">
-                  <p className="text-sm font-bold text-gray-700 dark:text-gray-300">Tidak ada log yang sesuai.</p>
-                  <p className="text-xs text-gray-500">Coba ubah filter kategori atau kata kunci pencarian Anda.</p>
-                </div>
-              ) : (
-                paginatedLogs.map((log) => {
-                  const dateStr = new Date(log.timestamp).toLocaleString('id-ID', {
-                    dateStyle: 'medium',
-                    timeStyle: 'medium',
-                  })
-                  
-                  const cat = log.category || 'system'
-                  const catColor = 
-                    cat === 'career' ? 'text-purple-600 dark:text-purple-400' :
-                    cat === 'compro' ? 'text-emerald-600 dark:text-emerald-400' :
-                    'text-amber-600 dark:text-amber-400'
-
-                  const catLabel = 
-                    cat === 'career' ? 'Karir' :
-                    cat === 'compro' ? 'Compro PDF' :
-                    'Perubahan CMS'
-
-                  return (
-                    <div 
-                      key={log.id} 
-                      className="bg-gray-50 dark:bg-[#090A0F] p-4 rounded-2xl border border-gray-200 dark:border-gray-800/90 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-sm hover:border-amber-500/30 transition-all"
-                    >
-                      <div className="space-y-1.5 flex-1">
-                        <div className="flex items-center gap-2 flex-wrap text-xs">
-                          <span className={`font-bold ${catColor}`}>
-                            {catLabel}
-                          </span>
-                          <span className="text-gray-300 dark:text-gray-700">|</span>
-                          <span className="font-mono font-bold text-gray-700 dark:text-gray-300">
-                            {log.type}
-                          </span>
-                          <span className="text-gray-300 dark:text-gray-700">|</span>
-                          <span className="text-gray-500 dark:text-gray-400 font-medium">{dateStr}</span>
-                          
-                          {log.userName && (
-                            <>
-                              <span className="text-gray-300 dark:text-gray-700">|</span>
-                              <span className="font-semibold text-gray-700 dark:text-gray-300">
-                                Oleh: <strong className="text-amber-600 dark:text-amber-400">{log.userName}</strong>
-                                {log.userRole ? ` (${log.userRole})` : ''}
-                              </span>
-                            </>
-                          )}
-
-                          {log.ip && (
-                            <>
-                              <span className="text-gray-300 dark:text-gray-700">|</span>
-                              <span className="font-mono text-gray-500 dark:text-gray-400">
-                                IP: {log.ip}
-                              </span>
-                            </>
-                          )}
+            {/* TABEL AUDIT LOG TERPADU */}
+            <div className="overflow-x-auto overflow-y-auto overscroll-contain max-h-[540px] rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#090A0F] shadow-xs custom-scrollbar">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-[#090A0F] border-b border-gray-200 dark:border-gray-800 shadow-xs">
+                  <tr className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#090A0F] text-[11px] font-bold uppercase tracking-wider text-black dark:text-white">
+                    <th scope="col" className="sticky top-0 z-10 bg-gray-50 dark:bg-[#090A0F] py-3 px-4 whitespace-nowrap border-b border-gray-200 dark:border-gray-800">Waktu</th>
+                    <th scope="col" className="sticky top-0 z-10 bg-gray-50 dark:bg-[#090A0F] py-3 px-4 whitespace-nowrap border-b border-gray-200 dark:border-gray-800">Tipe</th>
+                    <th scope="col" className="sticky top-0 z-10 bg-gray-50 dark:bg-[#090A0F] py-3 px-4 border-b border-gray-200 dark:border-gray-800">Aktivitas</th>
+                    <th scope="col" className="sticky top-0 z-10 bg-gray-50 dark:bg-[#090A0F] py-3 px-4 whitespace-nowrap border-b border-gray-200 dark:border-gray-800">Pengguna</th>
+                    <th scope="col" className="sticky top-0 z-10 bg-gray-50 dark:bg-[#090A0F] py-3 px-4 whitespace-nowrap border-b border-gray-200 dark:border-gray-800">Alamat IP</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 dark:divide-gray-800/70">
+                  {paginatedLogs.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="py-16 text-center">
+                        <div className="space-y-2">
+                          <FileText className="w-10 h-10 text-gray-400 dark:text-gray-500 mx-auto stroke-[1.5]" />
+                          <p className="text-sm font-bold text-black dark:text-white">Tidak ada catatan audit yang cocok</p>
+                          <p className="text-xs text-black dark:text-white">Coba ubah kata kunci pencarian, filter kategori, atau rentang waktu di atas.</p>
                         </div>
-                        <p className="text-xs md:text-sm text-gray-900 dark:text-gray-200 font-medium leading-relaxed">
-                          {log.message}
-                        </p>
-                      </div>
-                    </div>
-                  )
-                })
-              )}
+                      </td>
+                    </tr>
+                  ) : (
+                    paginatedLogs.map((log) => {
+                      const dateStr = new Date(log.timestamp).toLocaleString('id-ID', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })
+
+                      const cleanMessage = log.message
+                        ? log.message
+                            .replace(/\s*dari IP:\s*([a-f\d:.]+|\[[a-f\d:.]+\])(\.|\s|$)/i, (match, ip, p) => (p === '.' || !p ? '.' : ' '))
+                            .replace(/\s*dari IP:\s*[^.]+\.?/i, '.')
+                            .replace(/\s+/g, ' ')
+                            .replace(/\s+\./g, '.')
+                            .replace(/\.\.+$/, '.')
+                            .trim()
+                        : ''
+
+                      return (
+                        <tr
+                          key={log.id}
+                          className="hover:bg-gray-50/70 dark:hover:bg-gray-900/40 transition-colors"
+                        >
+                          {/* Waktu */}
+                          <td className="py-3 px-4 whitespace-nowrap text-black dark:text-white font-mono text-[11px] align-top">
+                            {dateStr}
+                          </td>
+
+                          {/* Tipe */}
+                          <td className="py-3 px-4 whitespace-nowrap align-top">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-gray-100 dark:bg-gray-800 text-black dark:text-white border border-gray-200 dark:border-gray-700">
+                              {log.type || (log.category ? log.category.toUpperCase() : 'INFO')}
+                            </span>
+                          </td>
+
+                          {/* Aktivitas */}
+                          <td className="py-3 px-4 text-xs text-black dark:text-white leading-relaxed font-normal align-top">
+                            {cleanMessage}
+                          </td>
+
+                          {/* Pengguna */}
+                          <td className="py-3 px-4 whitespace-nowrap align-top">
+                            <span className="font-bold text-black dark:text-white">
+                              {log.userName || 'Sistem'}
+                            </span>
+                          </td>
+
+                          {/* Alamat IP */}
+                          <td className="py-3 px-4 whitespace-nowrap align-top">
+                            <span className="font-mono text-[11px] text-black dark:text-white bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded border border-gray-200/60 dark:border-gray-700/60">
+                              {log.ip || '-'}
+                            </span>
+                          </td>
+                        </tr>
+                      )
+                    })
+                  )}
+                </tbody>
+              </table>
             </div>
 
             {/* Pagination Controls */}
             {filteredLogs.length > 0 && (
               <div className="pt-5 border-t border-gray-200 dark:border-gray-800/80 flex flex-col md:flex-row items-center justify-between gap-4">
                 {/* Info range item */}
-                <div className="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                  Menampilkan <span className="font-extrabold text-gray-900 dark:text-white">{startIndex + 1}</span> - <span className="font-extrabold text-gray-900 dark:text-white">{endIndex}</span> dari <span className="font-extrabold text-gray-900 dark:text-white">{filteredLogs.length}</span> aktivitas
+                <div className="text-xs text-black dark:text-white font-medium">
+                  Menampilkan <span className="font-extrabold text-black dark:text-white">{startIndex + 1}</span> - <span className="font-extrabold text-black dark:text-white">{endIndex}</span> dari <span className="font-extrabold text-black dark:text-white">{filteredLogs.length}</span> aktivitas
                   {totalPages > 1 && (
                     <span className="ml-2 text-gray-400">
-                      (Halaman <b className="text-amber-600 dark:text-amber-400">{activePage}</b> dari {totalPages})
+                      (Halaman <b className="text-black dark:text-white">{activePage}</b> dari {totalPages})
                     </span>
                   )}
                 </div>
@@ -931,11 +860,10 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
                       onClick={() => handlePageChange(1)}
                       disabled={activePage <= 1}
                       title="Halaman Pertama"
-                      className={`p-2 rounded-xl text-xs font-bold border transition-all ${
-                        activePage <= 1
+                      className={`p-2 rounded-xl text-xs font-bold border transition-all ${activePage <= 1
                           ? 'opacity-30 cursor-not-allowed bg-gray-100 dark:bg-gray-800/40 text-gray-400 border-gray-200 dark:border-gray-800'
-                          : 'bg-white dark:bg-[#10131C] text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer shadow-xs'
-                      }`}
+                          : 'bg-white dark:bg-[#10131C] text-black dark:text-white border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer shadow-xs'
+                        }`}
                     >
                       <ChevronsLeft className="w-3.5 h-3.5" />
                     </button>
@@ -946,11 +874,10 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
                     type="button"
                     onClick={() => handlePageChange(activePage - 1)}
                     disabled={activePage <= 1}
-                    className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
-                      activePage <= 1
+                    className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${activePage <= 1
                         ? 'opacity-30 cursor-not-allowed bg-gray-100 dark:bg-gray-800/40 text-gray-400 border-gray-200 dark:border-gray-800'
-                        : 'bg-white dark:bg-[#10131C] text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer shadow-xs'
-                    }`}
+                        : 'bg-white dark:bg-[#10131C] text-black dark:text-white border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer shadow-xs'
+                      }`}
                   >
                     <ChevronLeft className="w-3.5 h-3.5" />
                     <span>Sebelumnya</span>
@@ -971,11 +898,10 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
                         key={`page-${p}`}
                         type="button"
                         onClick={() => handlePageChange(p as number)}
-                        className={`min-w-[32px] h-8 px-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                          isCurrent
-                            ? 'bg-amber-500 text-white shadow-md font-black shadow-amber-500/20'
-                            : 'bg-gray-100 dark:bg-gray-800/60 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                        }`}
+                        className={`min-w-[32px] h-8 px-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${isCurrent
+                            ? 'bg-blue-600 text-white shadow-md font-black shadow-blue-500/20'
+                            : 'bg-gray-100 dark:bg-gray-800/60 text-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700'
+                          }`}
                       >
                         {p}
                       </button>
@@ -987,11 +913,10 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
                     type="button"
                     onClick={() => handlePageChange(activePage + 1)}
                     disabled={activePage >= totalPages}
-                    className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all ${
-                      activePage >= totalPages
+                    className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all ${activePage >= totalPages
                         ? 'opacity-30 cursor-not-allowed bg-gray-100 dark:bg-gray-800/40 text-gray-400 border-gray-200 dark:border-gray-800'
-                        : 'bg-amber-500 hover:bg-amber-600 text-white border-amber-600 shadow-md shadow-amber-500/20 cursor-pointer'
-                    }`}
+                        : 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600 shadow-md shadow-blue-500/20 cursor-pointer'
+                      }`}
                   >
                     <span>Halaman Selanjutnya</span>
                     <ChevronRight className="w-3.5 h-3.5" />
@@ -1004,11 +929,10 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [] }: Audi
                       onClick={() => handlePageChange(totalPages)}
                       disabled={activePage >= totalPages}
                       title="Halaman Terakhir"
-                      className={`p-2 rounded-xl text-xs font-bold border transition-all ${
-                        activePage >= totalPages
+                      className={`p-2 rounded-xl text-xs font-bold border transition-all ${activePage >= totalPages
                           ? 'opacity-30 cursor-not-allowed bg-gray-100 dark:bg-gray-800/40 text-gray-400 border-gray-200 dark:border-gray-800'
-                          : 'bg-white dark:bg-[#10131C] text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer shadow-xs'
-                      }`}
+                          : 'bg-white dark:bg-[#10131C] text-black dark:text-white border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer shadow-xs'
+                        }`}
                     >
                       <ChevronsRight className="w-3.5 h-3.5" />
                     </button>

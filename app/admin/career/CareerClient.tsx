@@ -97,11 +97,11 @@ export default function CareerClient({
       <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] transform ${
         showSuccessToast ? 'translate-y-0 opacity-100 scale-100' : '-translate-y-4 opacity-0 scale-95 pointer-events-none'
       }`}>
-        <div className="bg-amber-950/95 text-amber-300 border border-amber-500/40 px-6 py-4 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3">
-          <Save className="w-5 h-5 text-amber-400 shrink-0" />
+        <div className="bg-gray-900 text-white border border-gray-700 px-6 py-4 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3">
+          <Save className="w-5 h-5 text-gray-300 shrink-0" />
           <div>
             <h4 className="text-xs font-black uppercase tracking-wider">{toastMessage}</h4>
-            <p className="text-[11px] text-amber-400/80 font-medium">Masuk ke log notifikasi. Klik tombol Deploy untuk menerbitkan.</p>
+            <p className="text-[11px] text-gray-300 font-medium">Masuk ke log notifikasi. Klik tombol Deploy untuk menerbitkan.</p>
           </div>
         </div>
       </div>
@@ -119,7 +119,7 @@ export default function CareerClient({
         <button
           type="button"
           onClick={() => setIsAddModalOpen(true)}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 transition-colors cursor-pointer shrink-0"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors cursor-pointer shrink-0"
         >
           <Plus className="w-4 h-4" />
           <span>Tambah Lowongan</span>
@@ -140,8 +140,8 @@ export default function CareerClient({
           setTimeout(() => setShowSuccessToast(false), 4000)
         })
       }} className="bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-xl space-y-6">
-        <h2 className="text-base font-black text-amber-600 dark:text-amber-500 tracking-wide uppercase flex items-center gap-2">
-          <Briefcase className="w-4 h-4 text-amber-600 dark:text-amber-500" />
+        <h2 className="text-base font-black text-black dark:text-white tracking-wide uppercase flex items-center gap-2">
+          <Briefcase className="w-4 h-4 text-black dark:text-white" />
           <span>Header & Judul Seksi Karir</span>
         </h2>
 
@@ -153,7 +153,7 @@ export default function CareerClient({
               name="subtitle" 
               value={headerSubtitle}
               onChange={(e) => setHeaderSubtitle(e.target.value)}
-              className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner" 
+              className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 font-medium shadow-inner" 
             />
           </div>
           <div className="space-y-2">
@@ -163,7 +163,7 @@ export default function CareerClient({
               name="title" 
               value={headerTitle}
               onChange={(e) => setHeaderTitle(e.target.value)}
-              className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner" 
+              className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 font-medium shadow-inner" 
             />
           </div>
         </div>
@@ -175,7 +175,7 @@ export default function CareerClient({
             rows={2} 
             value={headerContent}
             onChange={(e) => setHeaderContent(e.target.value)}
-            className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner resize-none"
+            className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 font-medium shadow-inner resize-none"
           ></textarea>
         </div>
 
@@ -190,7 +190,7 @@ export default function CareerClient({
             className={`px-6 h-12 rounded-full shadow-2xl flex items-center gap-2.5 text-xs font-black tracking-widest uppercase transition-all duration-300 border backdrop-blur-md cursor-pointer ${
               !isHeaderDirty || isPending
                 ? 'bg-gray-200 dark:bg-gray-900/40 text-gray-400 dark:text-gray-600 border-gray-300 dark:border-gray-800/40 cursor-not-allowed opacity-50 shadow-none'
-                : 'bg-amber-600 hover:bg-amber-700 text-white border-amber-600 shadow-md shadow-black/20 cursor-pointer'
+                : 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600 shadow-md shadow-black/20 cursor-pointer'
             }`}
           >
             {isPending ? (
@@ -213,7 +213,7 @@ export default function CareerClient({
 
       {/* List Daftar Lowongan Kerja */}
       <div className="bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-xl space-y-6">
-        <h2 className="text-base font-black text-amber-600 dark:text-amber-500 tracking-wide uppercase flex items-center gap-2">
+        <h2 className="text-base font-black text-black dark:text-white tracking-wide uppercase flex items-center gap-2">
           <ClipboardList className="w-4 h-4" /> Daftar Posisi Lowongan ({careers.length})
         </h2>
 
@@ -229,12 +229,12 @@ export default function CareerClient({
                       {job.isActive ? 'Aktif' : 'Nonaktif'}
                     </span>
                     <span className="text-gray-300 dark:text-gray-700">|</span>
-                    <span className="font-bold text-amber-600 dark:text-amber-400">
+                    <span className="font-bold text-gray-500 dark:text-gray-400">
                       {job.type}
                     </span>
                     <span className="text-gray-300 dark:text-gray-700">|</span>
                     <span className="font-semibold text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                      <MapPin className="w-3 h-3 text-amber-600 dark:text-amber-500" />
+                      <MapPin className="w-3 h-3 text-black dark:text-white" />
                       <span>{job.location}</span>
                     </span>
                   </div>
@@ -292,16 +292,16 @@ export default function CareerClient({
             }} className="space-y-4">
               <div className="space-y-1">
                 <label className="text-xs font-extrabold text-gray-700 dark:text-gray-400 uppercase">Posisi / Jabatan</label>
-                <input type="text" name="title" required placeholder="Contoh: Security Officer" className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-amber-500" />
+                <input type="text" name="title" required placeholder="Contoh: Security Officer" className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-blue-500" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="text-xs font-extrabold text-gray-700 dark:text-gray-400 uppercase">Lokasi Penempatan</label>
-                  <input type="text" name="location" required placeholder="Contoh: Jakarta Selatan" className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-amber-500" />
+                  <input type="text" name="location" required placeholder="Contoh: Jakarta Selatan" className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-blue-500" />
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs font-extrabold text-gray-700 dark:text-gray-400 uppercase">Tipe Pekerjaan</label>
-                  <select name="type" required className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-amber-500 cursor-pointer">
+                  <select name="type" required className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-blue-500 cursor-pointer">
                     <option value="Full-time">Full-time</option>
                     <option value="Part-time">Part-time</option>
                   </select>
@@ -309,16 +309,16 @@ export default function CareerClient({
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-extrabold text-gray-700 dark:text-gray-400 uppercase">Deskripsi Pekerjaan</label>
-                <textarea name="desc" rows={2} required placeholder="Deskripsi ringkas posisi..." className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-amber-500 resize-none"></textarea>
+                <textarea name="desc" rows={2} required placeholder="Deskripsi ringkas posisi..." className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-blue-500 resize-none"></textarea>
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-extrabold text-gray-700 dark:text-gray-400 uppercase">Kualifikasi / Persyaratan</label>
-                <textarea name="requirements" rows={2} required placeholder="Persyaratan utama pelamar..." className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-amber-500 resize-none"></textarea>
+                <textarea name="requirements" rows={2} required placeholder="Persyaratan utama pelamar..." className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-blue-500 resize-none"></textarea>
               </div>
               <input type="hidden" name="isActive" value="true" />
               <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-800">
                 <button type="button" onClick={() => setIsAddModalOpen(false)} className="px-5 py-2.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-300 rounded-xl text-xs font-extrabold uppercase transition-colors cursor-pointer">Batal</button>
-                <button type="submit" disabled={isPending} className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs uppercase tracking-widest px-6 py-2.5 rounded-xl transition-all shadow-sm cursor-pointer">
+                <button type="submit" disabled={isPending} className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs uppercase tracking-widest px-6 py-2.5 rounded-xl transition-all shadow-sm cursor-pointer">
                   {isPending ? 'Menyimpan...' : 'Simpan Lowongan'}
                 </button>
               </div>
@@ -359,7 +359,7 @@ export default function CareerClient({
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
                   required 
-                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-amber-500" 
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-blue-500" 
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -371,7 +371,7 @@ export default function CareerClient({
                     value={editLocation}
                     onChange={(e) => setEditLocation(e.target.value)}
                     required 
-                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-amber-500" 
+                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-blue-500" 
                   />
                 </div>
                 <div className="space-y-1">
@@ -381,7 +381,7 @@ export default function CareerClient({
                     value={editType}
                     onChange={(e) => setEditType(e.target.value)}
                     required 
-                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-amber-500 cursor-pointer"
+                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-blue-500 cursor-pointer"
                   >
                     <option value="Full-time">Full-time</option>
                     <option value="Part-time">Part-time</option>
@@ -396,7 +396,7 @@ export default function CareerClient({
                   value={editDesc}
                   onChange={(e) => setEditDesc(e.target.value)}
                   required 
-                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-amber-500 resize-none"
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-blue-500 resize-none"
                 ></textarea>
               </div>
               <div className="space-y-1">
@@ -407,7 +407,7 @@ export default function CareerClient({
                   value={editRequirements}
                   onChange={(e) => setEditRequirements(e.target.value)}
                   required 
-                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-amber-500 resize-none"
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:border-blue-500 resize-none"
                 ></textarea>
               </div>
 
@@ -424,8 +424,8 @@ export default function CareerClient({
                   aria-checked={editIsActive}
                   aria-label="Toggle Status Aktif Lowongan"
                   onClick={() => setEditIsActive(!editIsActive)}
-                  className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500/30 ${
-                    editIsActive ? 'bg-amber-600' : 'bg-gray-300 dark:bg-gray-700'
+                  className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500/20 ${
+                    editIsActive ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-700'
                   }`}
                 >
                   <span
@@ -444,7 +444,7 @@ export default function CareerClient({
                   className={`px-6 py-2.5 rounded-xl text-xs font-black tracking-widest uppercase transition-all duration-300 border backdrop-blur-md cursor-pointer ${
                     !isEditDirty || isPending
                       ? 'bg-gray-200 dark:bg-gray-900/40 text-gray-400 dark:text-gray-600 border-gray-300 dark:border-gray-800/40 cursor-not-allowed opacity-50'
-                      : 'bg-amber-600 hover:bg-amber-700 text-white border-amber-600 shadow-sm cursor-pointer'
+                      : 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600 shadow-sm cursor-pointer'
                   }`}
                 >
                   {isPending ? 'Menyimpan...' : (

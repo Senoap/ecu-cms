@@ -11,11 +11,16 @@ import path from 'path'
  */
 export function sanitizeSvgContent(svgString: string): string {
   return svgString
+    // Hapus script tag dan isinya secara menyeluruh (termasuk multi-line atau nested)
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    .replace(/\son[a-z]+\s*=\s*(['"]).*?\1/gi, '')
-    .replace(/\son[a-z]+\s*=\s*[^>\s]+/gi, '')
-    .replace(/href\s*=\s*(['"])javascript:.*?\1/gi, 'href="#"')
-    .replace(/xlink:href\s*=\s*(['"])javascript:.*?\1/gi, 'xlink:href="#"')
+    // Hapus tag berisiko tinggi yang dapat mengeksekusi script atau memuat resource eksternal
+    .replace(/<\/?(?:foreignObject|embed|iframe|object)\b[^>]*>/gi, '')
+    // Hapus event handler inline seperti onload, onclick, onerror, dll. (mendukung format /onload, whitespace, newline)
+    .replace(/[\s/]on[a-z0-9_-]+\s*=\s*(['"]).*?\1/gi, '')
+    .replace(/[\s/]on[a-z0-9_-]+\s*=\s*[^>\s]+/gi, '')
+    // Hapus tautan berbahaya javascript:, vbscript:, data:text/html
+    .replace(/href\s*=\s*(['"])\s*(?:javascript|vbscript|data:text\/html):.*?\1/gi, 'href="#"')
+    .replace(/xlink:href\s*=\s*(['"])\s*(?:javascript|vbscript|data:text\/html):.*?\1/gi, 'xlink:href="#"')
 }
 
 export const MAX_IMAGE_FILE_SIZE = 15 * 1024 * 1024 // 15 Megabytes

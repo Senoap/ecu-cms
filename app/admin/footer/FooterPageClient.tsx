@@ -107,11 +107,11 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
       <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] transform ${
         showSuccessToast ? 'translate-y-0 opacity-100 scale-100' : '-translate-y-4 opacity-0 scale-95 pointer-events-none'
       }`}>
-        <div className="bg-amber-950/95 text-amber-300 border border-amber-500/40 px-6 py-4 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3">
-          <Save className="w-5 h-5 text-amber-400 shrink-0" />
+        <div className="bg-gray-900 text-white border border-gray-700 px-6 py-4 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3">
+          <Save className="w-5 h-5 text-gray-300 shrink-0" />
           <div>
             <h4 className="text-xs font-black uppercase tracking-wider">Berhasil Disimpan ke Draft!</h4>
-            <p className="text-[11px] text-amber-400/80 font-medium">Pengaturan footer, media sosial, dan template pertanyaan tersimpan.</p>
+            <p className="text-[11px] text-gray-300 font-medium">Pengaturan footer, media sosial, dan template pertanyaan tersimpan.</p>
           </div>
         </div>
       </div>
@@ -132,7 +132,7 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
           
           {/* BAGIAN 1: INFORMASI UTAMA & KONTAK */}
           <div className="bg-white dark:bg-[#10131C] p-8 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-800/80 space-y-6 transition-colors">
-            <h3 className="text-sm font-black uppercase tracking-wider text-amber-600 dark:text-amber-400 border-b border-gray-100 dark:border-gray-800 pb-3 flex items-center gap-2">
+            <h3 className="text-sm font-black uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-800 pb-3 flex items-center gap-2">
               <PhoneCall className="w-4 h-4" />
               <span>1. Informasi Utama & Kontak</span>
             </h3>
@@ -144,7 +144,7 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
                 rows={3} 
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner transition-colors"
+                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 font-medium shadow-inner transition-colors"
               />
             </div>
 
@@ -155,7 +155,7 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
                 name="address" 
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner transition-colors" 
+                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 font-medium shadow-inner transition-colors" 
                 placeholder="Contoh: Casa De Bosco No.3, Tangerang Selatan" 
               />
             </div>
@@ -168,7 +168,7 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
                   name="phone" 
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner transition-colors" 
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 font-medium shadow-inner transition-colors" 
                   placeholder="021-5551234" 
                 />
               </div>
@@ -179,7 +179,7 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
                   name="whatsapp" 
                   value={whatsapp}
                   onChange={(e) => setWhatsapp(e.target.value)}
-                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner transition-colors" 
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 font-medium shadow-inner transition-colors" 
                   placeholder="6281234567890" 
                 />
                 <p className="text-[10px] text-gray-500 dark:text-gray-400">Gunakan format kode negara (contoh: 628...)</p>
@@ -191,7 +191,7 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
                   name="email" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner transition-colors" 
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 font-medium shadow-inner transition-colors" 
                   placeholder="info@perusahaan.com" 
                 />
               </div>
@@ -202,7 +202,7 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
           <div className="bg-white dark:bg-[#10131C] p-8 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-800/80 space-y-6 transition-colors">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 dark:border-gray-800 pb-4">
               <div>
-                <h3 className="text-sm font-black uppercase tracking-wider text-amber-600 dark:text-amber-400 flex items-center gap-2">
+                <h3 className="text-sm font-black uppercase tracking-wider text-gray-500 dark:text-gray-400 flex items-center gap-2">
                   <Share2 className="w-4 h-4" />
                   <span>2. Media Sosial (Opsional)</span>
                 </h3>
@@ -215,7 +215,7 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
               <div className="flex items-center gap-3.5 self-start sm:self-auto shrink-0">
                 <span className={`text-xs font-black uppercase tracking-wider transition-colors select-none ${
                   socialEnabled
-                    ? 'text-amber-700 dark:text-amber-400'
+                    ? 'text-black dark:text-white dark:text-gray-500 dark:text-gray-400'
                     : 'text-gray-400 dark:text-gray-500'
                 }`}>
                   {socialEnabled ? 'Aktif (Tampil)' : 'Nonaktif (Sembunyi)'}
@@ -226,8 +226,8 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
                   aria-checked={socialEnabled}
                   aria-label="Toggle Media Sosial Footer"
                   onClick={() => setSocialEnabled(!socialEnabled)}
-                  className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500/30 ${
-                    socialEnabled ? 'bg-amber-600' : 'bg-gray-300 dark:bg-gray-700'
+                  className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500/20 ${
+                    socialEnabled ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-700'
                   }`}
                 >
                   <span
@@ -251,7 +251,7 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
                     value={instagram}
                     onChange={(e) => setInstagram(e.target.value)}
                     placeholder="https://instagram.com/empatsinergiutama"
-                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-2.5 text-gray-900 dark:text-white text-xs focus:outline-none focus:border-amber-500 font-medium shadow-inner"
+                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-2.5 text-gray-900 dark:text-white text-xs focus:outline-none focus:border-blue-500 font-medium shadow-inner"
                   />
                 </div>
 
@@ -265,7 +265,7 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
                     value={linkedin}
                     onChange={(e) => setLinkedin(e.target.value)}
                     placeholder="https://linkedin.com/company/empat-sinergi-utama"
-                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-2.5 text-gray-900 dark:text-white text-xs focus:outline-none focus:border-amber-500 font-medium shadow-inner"
+                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-2.5 text-gray-900 dark:text-white text-xs focus:outline-none focus:border-blue-500 font-medium shadow-inner"
                   />
                 </div>
 
@@ -279,7 +279,7 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
                     value={facebook}
                     onChange={(e) => setFacebook(e.target.value)}
                     placeholder="https://facebook.com/empatsinergiutama"
-                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-2.5 text-gray-900 dark:text-white text-xs focus:outline-none focus:border-amber-500 font-medium shadow-inner"
+                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-2.5 text-gray-900 dark:text-white text-xs focus:outline-none focus:border-blue-500 font-medium shadow-inner"
                   />
                 </div>
 
@@ -293,7 +293,7 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
                     value={tiktok}
                     onChange={(e) => setTiktok(e.target.value)}
                     placeholder="https://tiktok.com/@empatsinergiutama"
-                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-2.5 text-gray-900 dark:text-white text-xs focus:outline-none focus:border-amber-500 font-medium shadow-inner"
+                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-2.5 text-gray-900 dark:text-white text-xs focus:outline-none focus:border-blue-500 font-medium shadow-inner"
                   />
                 </div>
 
@@ -307,7 +307,7 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
                     value={youtube}
                     onChange={(e) => setYoutube(e.target.value)}
                     placeholder="https://youtube.com/@empatsinergiutama"
-                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-2.5 text-gray-900 dark:text-white text-xs focus:outline-none focus:border-amber-500 font-medium shadow-inner"
+                    className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-2.5 text-gray-900 dark:text-white text-xs focus:outline-none focus:border-blue-500 font-medium shadow-inner"
                   />
                 </div>
               </div>
@@ -320,7 +320,7 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
 
           {/* BAGIAN 3: TEMPLATE PERTANYAAN PENGUNJUNG (POINT 10) */}
           <div className="bg-white dark:bg-[#10131C] p-8 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-800/80 space-y-6 transition-colors">
-            <h3 className="text-sm font-black uppercase tracking-wider text-amber-600 dark:text-amber-400 border-b border-gray-100 dark:border-gray-800 pb-3 flex items-center gap-2">
+            <h3 className="text-sm font-black uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-800 pb-3 flex items-center gap-2">
               <MessageSquare className="w-4 h-4" />
               <span>3. Template Pertanyaan Pengunjung (WA & Email)</span>
             </h3>
@@ -340,7 +340,7 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
                 value={waMessage}
                 onChange={(e) => setWaMessage(e.target.value)}
                 placeholder="Contoh: Halo PT. Empat Sinergi Utama, saya ingin berkonsultasi mengenai kebutuhan layanan alih daya..."
-                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium shadow-inner"
+                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 font-medium shadow-inner"
               />
               <p className="text-[10px] text-gray-500 dark:text-gray-400">
                 Pesan ini akan langsung muncul di kotak chat WhatsApp pengunjung saat mengklik nomor/WhatsApp di footer.
@@ -351,7 +351,7 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
             <div className="space-y-4 pt-2">
               <div className="space-y-1.5">
                 <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                  <Mail className="w-3.5 h-3.5 text-amber-500" />
+                  <Mail className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
                   <span>Subjek Email Pengunjung</span>
                 </label>
                 <input
@@ -360,7 +360,7 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
                   value={emailSubject}
                   onChange={(e) => setEmailSubject(e.target.value)}
                   placeholder="Contoh: Konsultasi Layanan Alih Daya - PT. Empat Sinergi Utama"
-                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-2.5 text-gray-900 dark:text-white text-xs focus:outline-none focus:border-amber-500 font-medium shadow-inner"
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-2.5 text-gray-900 dark:text-white text-xs focus:outline-none focus:border-blue-500 font-medium shadow-inner"
                 />
               </div>
 
@@ -374,7 +374,7 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
                   value={emailBody}
                   onChange={(e) => setEmailBody(e.target.value)}
                   placeholder="Contoh template isi email pengunjung..."
-                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-mono text-xs leading-relaxed shadow-inner"
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 font-mono text-xs leading-relaxed shadow-inner"
                 />
               </div>
             </div>
@@ -391,7 +391,7 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
               className={`px-5 h-12 rounded-full shadow-2xl flex items-center gap-2.5 text-xs font-black tracking-widest uppercase transition-all duration-300 border backdrop-blur-md cursor-pointer ${
                 !isDirty || isPending
                   ? 'bg-gray-200 dark:bg-gray-900/40 text-gray-400 dark:text-gray-600 border-gray-300 dark:border-gray-800/40 cursor-not-allowed opacity-50 shadow-none'
-                  : 'bg-amber-600 hover:bg-amber-700 text-white border-amber-600 shadow-md shadow-black/20 cursor-pointer'
+                  : 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600 shadow-md shadow-black/20 cursor-pointer'
               }`}
             >
               {isPending ? (

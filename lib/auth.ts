@@ -18,6 +18,34 @@ export interface CurrentAdminUser {
   canReceiveCareerNotif: boolean
 }
 
+/**
+ * Pengecekan apakah user memiliki peran Superadministrator
+ */
+export function isUserSuperadmin(user: { id?: string; role?: string; isSuperadmin?: boolean } | null | undefined): boolean {
+  if (!user) return false
+  if (user.isSuperadmin || user.id === 'superadmin') return true
+  const role = user.role?.toLowerCase().trim() || ''
+  return role === 'superadmin' || role === 'superadministrator' || role === 'super administrator'
+}
+
+/**
+ * Pengecekan apakah user memiliki peran Administrator
+ */
+export function isUserAdministrator(user: { id?: string; role?: string; isRootAdmin?: boolean } | null | undefined): boolean {
+  if (!user) return false
+  if (user.isRootAdmin || user.id === 'admin') return true
+  const role = user.role?.toLowerCase().trim() || ''
+  return role === 'admin' || role === 'administrator' || role === 'administrator master' || role === 'root admin'
+}
+
+/**
+ * Pengecekan apakah user berhak mengakses grup menu "Sistem & Hak Akses" (users dan audit-log)
+ * Aturan: Menu sistem dan akses hanya bisa diakses oleh administrator dan superadministrator
+ */
+export function isSystemAndAccessAuthorized(user: { id?: string; role?: string; isSuperadmin?: boolean; isRootAdmin?: boolean } | null | undefined): boolean {
+  return isUserSuperadmin(user) || isUserAdministrator(user)
+}
+
 export async function getCurrentUser(): Promise<CurrentAdminUser | null> {
   const store = await cookies()
   const token = store.get(SESSION_COOKIE)?.value
@@ -36,7 +64,7 @@ export async function getCurrentUser(): Promise<CurrentAdminUser | null> {
       return null
     }
 
-    // 1. Jika user 'superadmin' (Tier tertinggi di atas admin, khusus kontrol user)
+    // 1. Jika user 'superadmin' (Tier kontrol sistem, user & audit log)
     if (payload.userId === 'superadmin') {
       return {
         id: 'superadmin',
@@ -45,12 +73,12 @@ export async function getCurrentUser(): Promise<CurrentAdminUser | null> {
         role: 'Superadmin',
         isSuperadmin: true,
         isRootAdmin: true,
-        permissions: ['users'],
+        permissions: ['users', 'audit-log'],
         canReceiveCareerNotif: false,
       }
     }
 
-    // 2. Jika master admin ('admin') -> Di bawah superadmin, akses semua menu CMS
+    // 2. Jika master admin ('admin') -> Akses penuh seluruh menu CMS
     if (payload.userId === 'admin') {
       return {
         id: 'admin',
@@ -68,15 +96,30 @@ export async function getCurrentUser(): Promise<CurrentAdminUser | null> {
     const user = db.cmsUsers?.find((u) => u.id === payload.userId && u.isActive !== false)
     if (!user) return null
 
-    const hasAllAccess = user.role.toLowerCase() === 'superadmin' || user.permissions.includes('users')
+    const isSuper = isUserSuperadmin(user)
+    const isAdmin = isUserAdministrator(user)
+
+    // Menu 'users' (Manajemen Pengguna) hanya untuk administrator dan superadministrator
+    let finalPermissions: string[]
+    if (isSuper) {
+      finalPermissions = ['users', 'audit-log']
+    } else if (isAdmin) {
+      finalPermissions = (user.permissions && user.permissions.length > 0) ? [...user.permissions] : [...ALL_MENU_IDS]
+      if (!finalPermissions.includes('users')) finalPermissions.push('users')
+      if (!finalPermissions.includes('audit-log')) finalPermissions.push('audit-log')
+    } else {
+      // Non-admin/staff biasa: 'users' tidak bisa diakses, 'audit-log' tetap bisa jika dipilih
+      finalPermissions = (user.permissions || []).filter((p) => p !== 'users')
+    }
+
     return {
       id: user.id,
       username: user.username,
       name: user.name,
       role: user.role,
-      isSuperadmin: false,
-      isRootAdmin: false, // User tambahan tidak pernah menjadi Root Admin
-      permissions: hasAllAccess ? [...ALL_MENU_IDS] : user.permissions,
+      isSuperadmin: isSuper,
+      isRootAdmin: false, // User tambahan bukan Root Admin sistem utama
+      permissions: finalPermissions,
       canReceiveCareerNotif: Boolean(user.canReceiveCareerNotif),
     }
   } catch (err) {
@@ -86,22 +129,41 @@ export async function getCurrentUser(): Promise<CurrentAdminUser | null> {
 }
 
 export function canUserAccessMenu(user: CurrentAdminUser, menuId: string): boolean {
-  // Superadmin hanya punya akses kontrol user ('users'), selain itu tidak bisa akses!
-  if (user.isSuperadmin || user.id === 'superadmin') {
-    return menuId === 'users'
+  // 1. Menu Manajemen Pengguna ('users')
+  // HANYA BISA DIAKSES OLEH ADMINISTRATOR DAN SUPERADMINISTRATOR
+  if (menuId === 'users') {
+    return isSystemAndAccessAuthorized(user)
   }
-  if (user.isRootAdmin) return true
+
+  // 2. Menu Audit Log ('audit-log')
+  // Administrator & Superadministrator selalu bisa mengakses; user/staf tambahan bisa mengakses jika memiliki izin 'audit-log'
+  if (menuId === 'audit-log') {
+    if (isSystemAndAccessAuthorized(user)) return true
+    return user.permissions.includes('audit-log')
+  }
+
+  // 3. Superadministrator hanya mengelola menu sistem ('users' dan 'audit-log'), tidak mengakses modul website
+  if (isUserSuperadmin(user)) {
+    return false
+  }
+
+  // 4. Administrator Root utama memiliki akses ke semua menu CMS
+  if (user.isRootAdmin || user.id === 'admin') return true
+
+  // 5. Modul template balasan karir
   if (menuId === 'career-templates') {
     return user.permissions.includes('career-templates') || user.permissions.includes('career')
   }
+
+  // 6. Modul lainnya berdasarkan permissions yang dimiliki
   return user.permissions.includes(menuId)
 }
 
 export function getDefaultMenuHref(user: CurrentAdminUser): string {
-  if (user.isSuperadmin || user.id === 'superadmin') {
+  if (isUserSuperadmin(user)) {
     return '/cms/users'
   }
-  if (user.isRootAdmin || user.permissions.includes('global')) {
+  if (user.isRootAdmin || user.id === 'admin' || user.permissions.includes('global')) {
     return '/cms'
   }
   const firstAllowed = AVAILABLE_MENUS.find((m) => canUserAccessMenu(user, m.id))

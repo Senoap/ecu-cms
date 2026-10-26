@@ -1,14 +1,14 @@
 // app/admin/layout.tsx
 import type { Metadata, Viewport } from 'next'
 import { redirect } from 'next/navigation'
-import { getCurrentUser, requireAdmin } from '@/lib/auth'
+import { getCurrentUser, requireAdmin, isUserAdministrator, isUserSuperadmin } from '@/lib/auth'
 import { readDB, clearNotifications, markNotificationsAsViewed, checkDraftLock } from '@/lib/db'
 import { deployWithAudit } from '@/lib/audit'
 import { revalidatePath } from 'next/cache'
 import AdminLayoutClient from './AdminLayoutClient'
 
 export const viewport: Viewport = {
-  themeColor: '#6B0808',
+  themeColor: '#1e293b',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
@@ -17,6 +17,7 @@ export const viewport: Viewport = {
 
 export async function generateMetadata(): Promise<Metadata> {
   const db = await readDB()
+  const siteName = db.setting?.siteName || 'PT. EMPAT SINERGI UTAMA'
   const rawLogoUrl = db.setting?.logoUrl || '/icons/icon-192x192.png'
   const iconMimeType = rawLogoUrl.endsWith('.svg')
     ? 'image/svg+xml'
@@ -25,13 +26,15 @@ export async function generateMetadata(): Promise<Metadata> {
       : 'image/png'
 
   return {
-    title: '4SU Company CMS',
-    description: 'Panel Manajemen Konten & Administrasi Resmi PT Empat Sinergi Utama (4SU)',
+    title: {
+      absolute: `CMS | ${siteName}`,
+    },
+    description: `Panel Manajemen Konten & Administrasi Resmi ${siteName}`,
     manifest: '/admin-manifest.json',
     appleWebApp: {
       capable: true,
       statusBarStyle: 'default',
-      title: '4SU CMS',
+      title: `CMS | ${siteName}`,
     },
     icons: {
       icon: [
@@ -57,15 +60,17 @@ async function handleDeployAction() {
 
 async function handleClearNotifications() {
   'use server'
-  await requireAdmin()
-  await clearNotifications()
+  const user = await requireAdmin()
+  const isPrivileged = isUserAdministrator(user) || isUserSuperadmin(user)
+  await clearNotifications(user.id, isPrivileged)
   revalidatePath('/admin')
 }
 
 async function handleMarkAsViewed() {
   'use server'
-  await requireAdmin()
-  await markNotificationsAsViewed()
+  const user = await requireAdmin()
+  const isPrivileged = isUserAdministrator(user) || isUserSuperadmin(user)
+  await markNotificationsAsViewed(user.id, isPrivileged)
   revalidatePath('/admin')
 }
 
@@ -80,10 +85,24 @@ export default async function AdminLayout({
     redirect('/login')
   }
 
+  const isPrivilegedAdmin = isUserAdministrator(user) || isUserSuperadmin(user)
+
   // 2. AMBIL DATA DATABASE JIKA SUDAH LOGIN
   const db = await readDB()
   const sections = [...(db.sections || [])].sort((a, b) => a.order - b.order)
-  const notifications = db.notifications || []
+
+  // Aturan Notifikasi:
+  // - Admin & Superadmin wajib melihat keseluruhan notifikasi dari user di bawahnya.
+  // - User/staf biasa tidak melihat perubahan selain yang dibuat oleh user itu sendiri.
+  const allNotifications = db.notifications || []
+  const notifications = allNotifications.filter((n) => {
+    if (isPrivilegedAdmin) return true
+    return (
+      (n.userId && n.userId === user.id) ||
+      (n.userEmail && n.userEmail.toLowerCase() === user.username.toLowerCase()) ||
+      (n.userName && n.userName.toLowerCase() === user.name.toLowerCase())
+    )
+  })
   const hasDraft = db.hasDraft ?? false
   const isDraftLocked = checkDraftLock(user, db).isLockedByOther
 

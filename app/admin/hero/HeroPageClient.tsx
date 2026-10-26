@@ -12,7 +12,8 @@ import {
   Users,
   Link2,
   Search,
-  Check
+  Check,
+  Sparkles
 } from 'lucide-react'
 import type { HeroContent } from '@/lib/db'
 import { defaultHeroShowcase, type HeroShowcaseConfig } from '@/lib/showcaseConstants'
@@ -49,14 +50,14 @@ function ShowcaseIconPicker({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl hover:border-amber-500 transition-all text-xs font-bold text-gray-800 dark:text-gray-200 cursor-pointer shadow-xs min-w-[130px] justify-between"
+        className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl hover:border-gray-400 dark:hover:border-gray-700 transition-all text-xs font-bold text-black dark:text-white cursor-pointer shadow-xs min-w-[130px] justify-between"
         title="Klik untuk memilih icon"
       >
         <div className="flex items-center gap-2 truncate">
-          <span className="w-6 h-6 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
+          <span className="w-6 h-6 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400 shrink-0">
             {renderShowcaseIcon(value, 'w-3.5 h-3.5')}
           </span>
-          <span className="truncate text-left text-[11px]">{value || 'Pilih Icon'}</span>
+          <span className="truncate text-left text-[11px] text-black dark:text-white">{value || 'Pilih Icon'}</span>
         </div>
         <span className="text-[10px] text-gray-400">▾</span>
       </button>
@@ -66,13 +67,13 @@ function ShowcaseIconPicker({
           <div className="bg-white dark:bg-[#10131C] border border-gray-200 dark:border-gray-800 rounded-2xl p-6 w-full max-w-lg shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
             <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-3">
               <div>
-                <h3 className="text-sm font-black text-gray-900 dark:text-white">Pilih Icon Showcase</h3>
-                <p className="text-xs text-gray-500">Pilih salah satu icon resmi Lucide atau ketik custom icon/emoji.</p>
+                <h3 className="text-sm font-black text-black dark:text-white">Pilih Icon Showcase</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Pilih salah satu icon resmi Lucide atau ketik custom icon/emoji.</p>
               </div>
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="text-gray-400 hover:text-gray-700 dark:hover:text-white text-xs font-bold px-2 py-1 rounded-lg cursor-pointer"
+                className="text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white text-xs font-bold px-2 py-1 rounded-lg cursor-pointer"
               >
                 ✕ Tutup
               </button>
@@ -87,7 +88,7 @@ function ShowcaseIconPicker({
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Cari icon (contoh: Shield, User, Car, Zap, Building)..."
-                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl pl-8 pr-3 py-2 text-xs focus:outline-none focus:border-amber-500 font-medium"
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl pl-8 pr-3 py-2 text-xs text-black dark:text-white focus:outline-none focus:border-blue-500 font-medium"
                 />
               </div>
               <div className="flex gap-1.5 flex-wrap">
@@ -104,8 +105,8 @@ function ShowcaseIconPicker({
                     type="button"
                     onClick={() => setFilterCat(cat.id)}
                     className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${filterCat === cat.id
-                      ? 'bg-amber-600 text-white'
-                      : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-gray-950 dark:hover:text-white'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 dark:bg-gray-800 text-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700'
                       }`}
                   >
                     {cat.label}
@@ -128,13 +129,13 @@ function ShowcaseIconPicker({
                       setIsOpen(false)
                     }}
                     className={`p-2.5 rounded-xl border flex items-center gap-2.5 text-left text-xs transition-all cursor-pointer ${isSelected
-                      ? 'border-amber-500 bg-amber-500/10 text-amber-700 dark:text-amber-400 font-black'
-                      : 'border-gray-200 dark:border-gray-800 hover:border-gray-400 dark:hover:border-gray-600 text-gray-700 dark:text-gray-300'
+                      ? 'border-blue-600 bg-blue-50 dark:bg-blue-950/40 text-black dark:text-white font-black'
+                      : 'border-gray-200 dark:border-gray-800 hover:border-gray-400 dark:hover:border-gray-600 text-black dark:text-white'
                       }`}
                   >
-                    <IconComp className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                    <IconComp className="w-4 h-4 shrink-0 text-gray-500 dark:text-gray-400" />
                     <span className="truncate flex-1">{item.id}</span>
-                    {isSelected && <Check className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />}
+                    {isSelected && <Check className="w-3.5 h-3.5 text-blue-600 shrink-0" />}
                   </button>
                 )
               })}
@@ -142,13 +143,13 @@ function ShowcaseIconPicker({
 
             {/* Manual input fallback */}
             <div className="pt-2 border-t border-gray-100 dark:border-gray-800 flex items-center gap-2">
-              <span className="text-[11px] text-gray-500 shrink-0">Atau ketik nama / emoji:</span>
+              <span className="text-[11px] text-gray-500 dark:text-gray-400 shrink-0">Atau ketik nama / emoji:</span>
               <input
                 type="text"
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder="Contoh: Shield, Car, ⚡, 🛡️..."
-                className="flex-1 bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-lg px-2.5 py-1.5 text-xs text-gray-900 dark:text-white"
+                className="flex-1 bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-lg px-2.5 py-1.5 text-xs text-black dark:text-white focus:outline-none focus:border-blue-500"
               />
             </div>
           </div>
@@ -161,8 +162,9 @@ function ShowcaseIconPicker({
 export default function HeroPageClient({ initialHero, updateHeroAction }: HeroPageClientProps) {
   const [isPending, startTransition] = useTransition()
   const [showSuccessToast, setShowSuccessToast] = useState(false)
+  const [mainTab, setMainTab] = useState<'banner' | 'showcase'>('banner')
 
-  // Controlled states untuk input teks
+  // Controlled states untuk input teks banner
   const [titleLine1, setTitleLine1] = useState(initialHero.titleLine1 || '')
   const [titleHighlight, setTitleHighlight] = useState(initialHero.titleHighlight || '')
   const [description, setDescription] = useState(initialHero.description || '')
@@ -201,9 +203,7 @@ export default function HeroPageClient({ initialHero, updateHeroAction }: HeroPa
     return JSON.stringify(current) !== JSON.stringify(savedBaseline)
   }, [titleLine1, titleHighlight, description, showcase, savedBaseline])
 
-  // No-op setter untuk menjaga kompatibilitas jika ada fungsi yang memanggil setIsDirty
-  const setIsDirty = (_val: boolean) => {}
-
+  // Sub-tab untuk detail showcase
   const [activeShowcaseTab, setActiveShowcaseTab] = useState<'strengths' | 'metrics' | 'sectors' | 'roles' | 'actions'>('strengths')
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -231,104 +231,149 @@ export default function HeroPageClient({ initialHero, updateHeroAction }: HeroPa
   }
 
   return (
-    <div className="relative pb-32">
+    <div className="space-y-8 animate-in fade-in duration-300 pb-32">
 
       {/* TOAST NOTIFIKASI SUKSES */}
-      <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] transform ${showSuccessToast ? 'translate-y-0 opacity-100 scale-100' : '-translate-y-4 opacity-0 scale-95 pointer-events-none'
-        }`}>
-        <div className="bg-amber-950 text-amber-300 border border-amber-500/40 px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3">
-          <Save className="w-5 h-5 text-amber-400 shrink-0" />
+      <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] transform ${
+        showSuccessToast ? 'translate-y-0 opacity-100 scale-100' : '-translate-y-4 opacity-0 scale-95 pointer-events-none'
+      }`}>
+        <div className="bg-gray-900 text-white border border-gray-700 px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3">
+          <Save className="w-5 h-5 text-gray-300 shrink-0" />
           <div>
-            <h4 className="text-xs font-black uppercase tracking-wider">Berhasil Disimpan ke Draft!</h4>
-            <p className="text-[11px] text-amber-400/80 font-medium">Perubahan masuk ke draft. Klik tombol Deploy untuk menerbitkan.</p>
+            <h4 className="text-xs font-black uppercase tracking-wider text-white">Berhasil Disimpan ke Draft!</h4>
+            <p className="text-[11px] text-gray-300 font-medium">Perubahan masuk ke draft. Klik tombol Deploy untuk menerbitkan.</p>
           </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto space-y-8">
-
-        {/* HEADER PAGE */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white">
-              Setting Hero Section &amp; Kartu Showcase
-            </h1>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Atur teks banner sambutan utama serta kelola komponen kartu showcase interaktif di sebelah kanan hero.
-            </p>
-          </div>
+      {/* HEADER */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white">
+            Banner Teks Hero
+          </h1>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Atur teks narasi sambutan utama, highlight, serta kelola kartu showcase interaktif di sebelah kanan hero.
+          </p>
         </div>
+      </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
+      {/* FILTER / SECTION TABS */}
+      <div className="flex flex-wrap items-center gap-2 border-b border-gray-200 dark:border-gray-800 pb-3">
+        <button
+          type="button"
+          onClick={() => setMainTab('banner')}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+            mainTab === 'banner'
+              ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-950 shadow-sm'
+              : 'text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
+          }`}
+        >
+          <FileText className="w-3.5 h-3.5 text-gray-400" />
+          <span>Teks Banner Hero</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setMainTab('showcase')}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+            mainTab === 'showcase'
+              ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-950 shadow-sm'
+              : 'text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
+          }`}
+        >
+          <Building2 className="w-3.5 h-3.5 text-gray-400" />
+          <span>Kartu Showcase Korporat</span>
+          <span className={`text-[10px] px-1.5 py-0.5 rounded font-extrabold ${showcase.enabled ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400' : 'bg-gray-200 dark:bg-gray-800 text-gray-500'}`}>
+            {showcase.enabled ? 'Aktif' : 'Off'}
+          </span>
+        </button>
+      </div>
 
-          {/* BAGIAN 1: TEKS BANNER HERO UTAMA */}
-          <div className="bg-white dark:bg-[#10131C] p-8 rounded-3xl shadow-md border border-gray-200 dark:border-gray-800/80 space-y-6">
-            <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-4">
-              <h2 className="text-base font-black text-amber-600 dark:text-amber-400 uppercase tracking-wide flex items-center gap-2">
-                <FileText className="w-4 h-4 text-amber-600 dark:text-amber-400" />Banner
-              </h2>
-              <span className="text-[10px] text-gray-500 uppercase tracking-widest font-bold"></span>
+      <form id="hero-form" onSubmit={handleSubmit} className="space-y-8">
+
+        {/* ========================================================================= */}
+        {/* TAB 1: TEKS BANNER HERO UTAMA                                             */}
+        {/* ========================================================================= */}
+        {mainTab === 'banner' && (
+          <div className="bg-white dark:bg-[#10131C] p-6 sm:p-8 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm space-y-6">
+            <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-4">
+              <div className="flex items-center gap-2">
+                <FileText className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                <h2 className="text-sm font-black text-black dark:text-white uppercase tracking-wider">
+                  Narasi & Konten Banner Utama
+                </h2>
+              </div>
+              <span className="text-[11px] text-gray-500 dark:text-gray-400 font-medium">Halaman Beranda Depan</span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Tag Line</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-black dark:text-white">
+                  Tag Line
+                </label>
                 <input
                   type="text"
                   name="titleLine1"
                   value={titleLine1}
                   onChange={(e) => setTitleLine1(e.target.value)}
-                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium"
+                  placeholder="Contoh: Solusi Terpadu & Terpercaya"
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-black dark:text-white text-sm focus:outline-none focus:border-blue-500 font-medium"
                 />
               </div>
               <div className="space-y-2">
-                <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Highlight</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-black dark:text-white">
+                  Highlight
+                </label>
                 <input
                   type="text"
                   name="titleHighlight"
                   value={titleHighlight}
                   onChange={(e) => setTitleHighlight(e.target.value)}
-                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium"
+                  placeholder="Contoh: Pengamanan & Tenaga Kerja Profesional"
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-black dark:text-white text-sm focus:outline-none focus:border-blue-500 font-medium"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Deskripsi</label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-black dark:text-white">
+                Deskripsi Singkat Sambutan
+              </label>
               <textarea
                 name="description"
-                rows={3}
+                rows={4}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 font-medium"
+                placeholder="Tuliskan narasi sambutan utama perusahaan di sini..."
+                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-black dark:text-white text-sm focus:outline-none focus:border-blue-500 font-medium"
               />
             </div>
           </div>
+        )}
 
-          {/* BAGIAN 2: KARTU SHOWCASE KORPORAT */}
-          <div className="bg-white dark:bg-[#10131C] p-8 rounded-3xl shadow-md border border-gray-200 dark:border-gray-800/80 space-y-6">
+        {/* ========================================================================= */}
+        {/* TAB 2: KARTU SHOWCASE KORPORAT                                            */}
+        {/* ========================================================================= */}
+        {mainTab === 'showcase' && (
+          <div className="bg-white dark:bg-[#10131C] p-6 sm:p-8 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm space-y-6">
 
             {/* Saklar Tampil / Sembunyi */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-gray-200 dark:border-gray-800">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <Building2 className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-                  <h2 className="text-base font-black text-gray-900 dark:text-white uppercase tracking-wide">
+                  <Building2 className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                  <h2 className="text-sm font-black text-black dark:text-white uppercase tracking-wider">
                     Kartu Showcase Korporat
                   </h2>
                 </div>
-                <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+                <p className="text-xs text-black dark:text-white font-medium">
                   Aktifkan atau nonaktifkan tampilan kartu showcase interaktif di sebelah kanan banner hero.
                 </p>
               </div>
 
               {/* Saklar Geser ala Apple (iOS Toggle Switch) */}
               <div className="flex items-center gap-3.5 self-start sm:self-auto">
-                <span className={`text-xs font-black uppercase tracking-wider transition-colors select-none ${
-                  showcase.enabled
-                    ? 'text-amber-700 dark:text-amber-400'
-                    : 'text-gray-400 dark:text-gray-500'
-                }`}>
+                <span className="text-xs font-black uppercase tracking-wider select-none text-black dark:text-white">
                   {showcase.enabled ? 'Aktif (Tampil)' : 'Nonaktif (Sembunyi)'}
                 </span>
 
@@ -340,8 +385,8 @@ export default function HeroPageClient({ initialHero, updateHeroAction }: HeroPa
                   onClick={() => {
                     setShowcase((prev) => ({ ...prev, enabled: !prev.enabled }))
                   }}
-                  className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500/30 ${
-                    showcase.enabled ? 'bg-amber-600' : 'bg-gray-300 dark:bg-gray-700'
+                  className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${
+                    showcase.enabled ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-700'
                   }`}
                 >
                   <span
@@ -360,10 +405,10 @@ export default function HeroPageClient({ initialHero, updateHeroAction }: HeroPa
                 {/* Sub-Tab Navigasi Editor Isi Kartu */}
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <label className="text-xs font-black uppercase tracking-wider text-gray-700 dark:text-gray-300">
+                    <label className="text-xs font-black uppercase tracking-wider text-black dark:text-white">
                       Kelola Isi Tab & Komponen Kartu
                     </label>
-                    <span className="text-[11px] text-amber-600 dark:text-amber-500 font-bold">Pilih Tab untuk Mengedit</span>
+                    <span className="text-[11px] text-gray-500 dark:text-gray-400 font-bold">Pilih Tab untuk Mengedit</span>
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 bg-gray-100 dark:bg-[#090A0F] p-1.5 rounded-2xl border border-gray-200 dark:border-gray-800">
@@ -381,12 +426,13 @@ export default function HeroPageClient({ initialHero, updateHeroAction }: HeroPa
                           key={tab.id}
                           type="button"
                           onClick={() => setActiveShowcaseTab(tab.id)}
-                          className={`py-2 px-3 rounded-xl text-xs font-black transition-all cursor-pointer truncate flex items-center justify-center gap-1.5 ${active
-                            ? 'bg-amber-600 text-white shadow-sm'
-                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-950 dark:hover:text-white'
-                            }`}
+                          className={`py-2 px-3 rounded-xl text-xs font-black transition-all cursor-pointer truncate flex items-center justify-center gap-1.5 ${
+                            active
+                              ? 'bg-blue-600 text-white shadow-sm'
+                              : 'text-black dark:text-white hover:bg-gray-200/60 dark:hover:bg-gray-800'
+                          }`}
                         >
-                          <IconComp className="w-3.5 h-3.5 shrink-0" />
+                          <IconComp className={`w-3.5 h-3.5 shrink-0 ${active ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`} />
                           <span>{tab.label}</span>
                         </button>
                       )
@@ -398,7 +444,7 @@ export default function HeroPageClient({ initialHero, updateHeroAction }: HeroPa
                 {activeShowcaseTab === 'strengths' && (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+                      <p className="text-xs text-black dark:text-white font-medium">
                         Atur 4 poin keunggulan utama perusahaan beserta icon yang mewakilinya:
                       </p>
                       <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
@@ -417,7 +463,6 @@ export default function HeroPageClient({ initialHero, updateHeroAction }: HeroPa
                                 const updated = [...(showcase.strengths || [])]
                                 updated[idx].icon = newIcon
                                 setShowcase((prev) => ({ ...prev, strengths: updated }))
-                                setIsDirty(true)
                               }}
                             />
                             <input
@@ -427,10 +472,9 @@ export default function HeroPageClient({ initialHero, updateHeroAction }: HeroPa
                                 const updated = [...(showcase.strengths || [])]
                                 updated[idx].title = e.target.value
                                 setShowcase((prev) => ({ ...prev, strengths: updated }))
-                                setIsDirty(true)
                               }}
                               placeholder="Judul Keunggulan"
-                              className="flex-1 bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2 text-gray-900 dark:text-white text-xs font-bold focus:outline-none focus:border-amber-500"
+                              className="flex-1 bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2 text-black dark:text-white text-xs font-bold focus:outline-none focus:border-blue-500"
                             />
                           </div>
                           <textarea
@@ -440,10 +484,9 @@ export default function HeroPageClient({ initialHero, updateHeroAction }: HeroPa
                               const updated = [...(showcase.strengths || [])]
                               updated[idx].desc = e.target.value
                               setShowcase((prev) => ({ ...prev, strengths: updated }))
-                              setIsDirty(true)
                             }}
                             placeholder="Deskripsi singkat keunggulan..."
-                            className="w-full bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl p-2.5 text-gray-800 dark:text-gray-300 text-xs font-medium focus:outline-none focus:border-amber-500"
+                            className="w-full bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl p-2.5 text-black dark:text-white text-xs font-medium focus:outline-none focus:border-blue-500"
                           />
                         </div>
                       ))}
@@ -454,14 +497,14 @@ export default function HeroPageClient({ initialHero, updateHeroAction }: HeroPa
                 {/* TAB 2: 4 KARTU METRIK & REKAM JEJAK */}
                 {activeShowcaseTab === 'metrics' && (
                   <div className="space-y-4">
-                    <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+                    <p className="text-xs text-black dark:text-white font-medium">
                       Atur 4 angka statistik dan pembuktian kinerja korporat:
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {(showcase.metrics || []).map((item, idx) => (
                         <div key={idx} className="bg-gray-50 dark:bg-[#090A0F] p-4 rounded-2xl border border-gray-200 dark:border-gray-800 space-y-2.5">
                           <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-black uppercase tracking-wider text-amber-700 dark:text-amber-500">
+                            <span className="text-[10px] font-black uppercase tracking-wider text-black dark:text-white">
                               Metrik #{idx + 1}
                             </span>
                           </div>
@@ -473,10 +516,9 @@ export default function HeroPageClient({ initialHero, updateHeroAction }: HeroPa
                                 const updated = [...(showcase.metrics || [])]
                                 updated[idx].num = e.target.value
                                 setShowcase((prev) => ({ ...prev, metrics: updated }))
-                                setIsDirty(true)
                               }}
                               placeholder="15+"
-                              className="bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2 text-amber-700 dark:text-amber-400 text-sm font-black text-center focus:outline-none focus:border-amber-500"
+                              className="bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2 text-black dark:text-white text-sm font-black text-center focus:outline-none focus:border-blue-500"
                             />
                             <input
                               type="text"
@@ -485,10 +527,9 @@ export default function HeroPageClient({ initialHero, updateHeroAction }: HeroPa
                                 const updated = [...(showcase.metrics || [])]
                                 updated[idx].label = e.target.value
                                 setShowcase((prev) => ({ ...prev, metrics: updated }))
-                                setIsDirty(true)
                               }}
                               placeholder="Tahun Pengalaman"
-                              className="col-span-2 bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2 text-gray-900 dark:text-white text-xs font-bold focus:outline-none focus:border-amber-500"
+                              className="col-span-2 bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2 text-black dark:text-white text-xs font-bold focus:outline-none focus:border-blue-500"
                             />
                           </div>
                           <input
@@ -498,10 +539,9 @@ export default function HeroPageClient({ initialHero, updateHeroAction }: HeroPa
                               const updated = [...(showcase.metrics || [])]
                               updated[idx].sub = e.target.value
                               setShowcase((prev) => ({ ...prev, metrics: updated }))
-                              setIsDirty(true)
                             }}
                             placeholder="Sub-label (e.g. Pimpinan Teruji)"
-                            className="w-full bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-1.5 text-gray-600 dark:text-gray-400 text-[11px] font-medium focus:outline-none focus:border-amber-500"
+                            className="w-full bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-1.5 text-black dark:text-white text-[11px] font-medium focus:outline-none focus:border-blue-500"
                           />
                         </div>
                       ))}
@@ -512,7 +552,7 @@ export default function HeroPageClient({ initialHero, updateHeroAction }: HeroPa
                 {/* TAB 3: SEKTOR INDUSTRI */}
                 {activeShowcaseTab === 'sectors' && (
                   <div className="space-y-4">
-                    <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+                    <p className="text-xs text-black dark:text-white font-medium">
                       Atur 6 sektor industri yang dilayani beserta icon representasinya:
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -525,7 +565,6 @@ export default function HeroPageClient({ initialHero, updateHeroAction }: HeroPa
                               const updated = [...(showcase.sectors || [])]
                               updated[idx].icon = newIcon
                               setShowcase((prev) => ({ ...prev, sectors: updated }))
-                              setIsDirty(true)
                             }}
                           />
                           <input
@@ -535,10 +574,9 @@ export default function HeroPageClient({ initialHero, updateHeroAction }: HeroPa
                               const updated = [...(showcase.sectors || [])]
                               updated[idx].name = e.target.value
                               setShowcase((prev) => ({ ...prev, sectors: updated }))
-                              setIsDirty(true)
                             }}
                             placeholder="Nama Sektor"
-                            className="flex-1 bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2 text-gray-900 dark:text-white text-xs font-bold focus:outline-none focus:border-amber-500"
+                            className="flex-1 bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2 text-black dark:text-white text-xs font-bold focus:outline-none focus:border-blue-500"
                           />
                         </div>
                       ))}
@@ -549,7 +587,7 @@ export default function HeroPageClient({ initialHero, updateHeroAction }: HeroPa
                 {/* TAB 4: ROSTER PENEMPATAN PERSONEL (MINI TICKER) */}
                 {activeShowcaseTab === 'roles' && (
                   <div className="space-y-4">
-                    <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+                    <p className="text-xs text-black dark:text-white font-medium">
                       Atur peran tenaga kerja beserta icon penempatan yang berputar di kartu:
                     </p>
                     <div className="space-y-3">
@@ -563,7 +601,6 @@ export default function HeroPageClient({ initialHero, updateHeroAction }: HeroPa
                                 const updated = [...(showcase.roles || [])]
                                 updated[idx].icon = newIcon
                                 setShowcase((prev) => ({ ...prev, roles: updated }))
-                                setIsDirty(true)
                               }}
                             />
                             <input
@@ -573,10 +610,9 @@ export default function HeroPageClient({ initialHero, updateHeroAction }: HeroPa
                                 const updated = [...(showcase.roles || [])]
                                 updated[idx].title = e.target.value
                                 setShowcase((prev) => ({ ...prev, roles: updated }))
-                                setIsDirty(true)
                               }}
                               placeholder="Judul Peran (e.g. Satuan Pengamanan)"
-                              className="flex-1 min-w-[200px] bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2 text-gray-900 dark:text-white text-xs font-bold focus:outline-none focus:border-amber-500"
+                              className="flex-1 min-w-[200px] bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2 text-black dark:text-white text-xs font-bold focus:outline-none focus:border-blue-500"
                             />
                             <input
                               type="text"
@@ -585,10 +621,9 @@ export default function HeroPageClient({ initialHero, updateHeroAction }: HeroPa
                                 const updated = [...(showcase.roles || [])]
                                 updated[idx].tag = e.target.value
                                 setShowcase((prev) => ({ ...prev, roles: updated }))
-                                setIsDirty(true)
                               }}
                               placeholder="Tag (e.g. Personel Tersertifikasi)"
-                              className="w-full sm:w-44 bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2 text-amber-700 dark:text-amber-400 text-xs font-black uppercase tracking-wider focus:outline-none focus:border-amber-500"
+                              className="w-full sm:w-44 bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2 text-black dark:text-white text-xs font-black uppercase tracking-wider focus:outline-none focus:border-blue-500"
                             />
                           </div>
                           <input
@@ -598,10 +633,9 @@ export default function HeroPageClient({ initialHero, updateHeroAction }: HeroPa
                               const updated = [...(showcase.roles || [])]
                               updated[idx].desc = e.target.value
                               setShowcase((prev) => ({ ...prev, roles: updated }))
-                              setIsDirty(true)
                             }}
                             placeholder="Deskripsi singkat peran..."
-                            className="w-full bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2 text-gray-800 dark:text-gray-300 text-xs font-medium focus:outline-none focus:border-amber-500"
+                            className="w-full bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2 text-black dark:text-white text-xs font-medium focus:outline-none focus:border-blue-500"
                           />
                         </div>
                       ))}
@@ -612,12 +646,12 @@ export default function HeroPageClient({ initialHero, updateHeroAction }: HeroPa
                 {/* TAB 5: TOMBOL CTA & AKSI */}
                 {activeShowcaseTab === 'actions' && (
                   <div className="space-y-4">
-                    <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+                    <p className="text-xs text-black dark:text-white font-medium">
                       Atur label dan tautan dua tombol aksi di bagian bawah kartu:
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="bg-gray-50 dark:bg-[#090A0F] p-4 rounded-2xl border border-gray-200 dark:border-gray-800 space-y-2">
-                        <span className="text-[10px] font-black uppercase tracking-wider text-amber-700 dark:text-amber-500">
+                        <span className="text-[10px] font-black uppercase tracking-wider text-black dark:text-white">
                           Tombol Utama (Primary Action)
                         </span>
                         <input
@@ -625,25 +659,23 @@ export default function HeroPageClient({ initialHero, updateHeroAction }: HeroPa
                           value={showcase.ctaText || ''}
                           onChange={(e) => {
                             setShowcase((prev) => ({ ...prev, ctaText: e.target.value }))
-                            setIsDirty(true)
                           }}
                           placeholder="Teks Tombol (e.g. Konsultasi Kebutuhan Mitra →)"
-                          className="w-full bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2 text-gray-900 dark:text-white text-xs font-bold"
+                          className="w-full bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2 text-black dark:text-white text-xs font-bold focus:outline-none focus:border-blue-500"
                         />
                         <input
                           type="text"
                           value={showcase.ctaLink || ''}
                           onChange={(e) => {
                             setShowcase((prev) => ({ ...prev, ctaLink: e.target.value }))
-                            setIsDirty(true)
                           }}
                           placeholder="Link Target (e.g. #contact atau /career)"
-                          className="w-full bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-1.5 text-gray-600 dark:text-gray-400 text-xs font-mono"
+                          className="w-full bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-1.5 text-black dark:text-white text-xs font-mono focus:outline-none focus:border-blue-500"
                         />
                       </div>
 
                       <div className="bg-gray-50 dark:bg-[#090A0F] p-4 rounded-2xl border border-gray-200 dark:border-gray-800 space-y-2">
-                        <span className="text-[10px] font-black uppercase tracking-wider text-gray-700 dark:text-gray-400">
+                        <span className="text-[10px] font-black uppercase tracking-wider text-black dark:text-white">
                           Tombol Sekunder (Secondary Action)
                         </span>
                         <input
@@ -651,20 +683,18 @@ export default function HeroPageClient({ initialHero, updateHeroAction }: HeroPa
                           value={showcase.profileText || ''}
                           onChange={(e) => {
                             setShowcase((prev) => ({ ...prev, profileText: e.target.value }))
-                            setIsDirty(true)
                           }}
                           placeholder="Teks Tombol (e.g. Profil Perusahaan)"
-                          className="w-full bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2 text-gray-900 dark:text-white text-xs font-bold"
+                          className="w-full bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2 text-black dark:text-white text-xs font-bold focus:outline-none focus:border-blue-500"
                         />
                         <input
                           type="text"
                           value={showcase.profileLink || ''}
                           onChange={(e) => {
                             setShowcase((prev) => ({ ...prev, profileLink: e.target.value }))
-                            setIsDirty(true)
                           }}
                           placeholder="Link Target (e.g. #about)"
-                          className="w-full bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-1.5 text-gray-600 dark:text-gray-400 text-xs font-mono"
+                          className="w-full bg-white dark:bg-[#10131C] border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-1.5 text-black dark:text-white text-xs font-mono focus:outline-none focus:border-blue-500"
                         />
                       </div>
                     </div>
@@ -673,46 +703,49 @@ export default function HeroPageClient({ initialHero, updateHeroAction }: HeroPa
 
               </div>
             ) : (
-              <div className="p-6 rounded-2xl bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 text-center space-y-2 text-gray-600 dark:text-gray-400">
-                <span className="text-3xl">⚪</span>
-                <h4 className="text-sm font-black text-gray-900 dark:text-white uppercase">Kartu Showcase Sedang Dinonaktifkan</h4>
-                <p className="text-xs max-w-md mx-auto">
+              <div className="p-8 rounded-2xl bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 text-center space-y-3">
+                <div className="w-12 h-12 mx-auto rounded-2xl bg-gray-200 dark:bg-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400">
+                  <Sparkles className="w-6 h-6" />
+                </div>
+                <h4 className="text-sm font-black text-black dark:text-white uppercase tracking-wider">Kartu Showcase Sedang Dinonaktifkan</h4>
+                <p className="text-xs text-black dark:text-white max-w-md mx-auto leading-relaxed">
                   Hero banner di halaman depan akan tampil dengan layout bersih penuh tanpa kartu di sisi kanan. Aktifkan saklar di atas untuk menampilkan kembali.
                 </p>
               </div>
             )}
 
           </div>
+        )}
 
-          {/* TOMBOL SIMPAN KE DRAFT MELAYANG (SOLID EXECUTIVE STYLE - NO GRADIENT, NO PULSE) */}
-          <div style={{ bottom: 'max(1.25rem, calc(env(safe-area-inset-bottom, 0px) + 0.75rem))' }} className="fixed right-4 sm:right-6 z-45">
-            <button
-              type="submit"
-              disabled={!isDirty || isPending}
-              className={`px-5 h-12 rounded-full shadow-lg flex items-center gap-2.5 text-xs font-black tracking-widest uppercase transition-all duration-300 border cursor-pointer ${!isDirty || isPending
+        {/* TOMBOL SIMPAN KE DRAFT MELAYANG (Hanya muncul jika dirty atau untuk kemudahan akses cepat) */}
+        <div style={{ bottom: 'max(1.25rem, calc(env(safe-area-inset-bottom, 0px) + 0.75rem))' }} className="fixed right-4 sm:right-6 z-45">
+          <button
+            type="submit"
+            disabled={!isDirty || isPending}
+            className={`px-5 h-12 rounded-full shadow-lg flex items-center gap-2.5 text-xs font-black tracking-widest uppercase transition-all duration-300 border cursor-pointer ${
+              !isDirty || isPending
                 ? 'bg-gray-200 dark:bg-gray-900/40 text-gray-400 dark:text-gray-600 border-gray-300 dark:border-gray-800/40 cursor-not-allowed opacity-50 shadow-none'
-                : 'bg-amber-600 hover:bg-amber-700 text-white border-amber-500 shadow-md shadow-amber-950/20 active:scale-95'
-                }`}
-            >
-              {isPending ? (
-                <>
-                  <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  <span>Menyimpan...</span>
-                </>
-              ) : (
-                <>
-                  <Save className="w-4 h-4" />
-                  <span>Simpan ke Draft</span>
-                </>
-              )}
-            </button>
-          </div>
+                : 'bg-blue-600 hover:bg-blue-700 text-white border-blue-500 shadow-md shadow-blue-950/20 active:scale-95'
+            }`}
+          >
+            {isPending ? (
+              <>
+                <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Menyimpan...</span>
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4 text-white" />
+                <span>Simpan ke Draft</span>
+              </>
+            )}
+          </button>
+        </div>
 
-        </form>
-      </div>
+      </form>
     </div>
   )
 }
