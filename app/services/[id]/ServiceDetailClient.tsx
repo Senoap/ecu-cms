@@ -196,12 +196,7 @@ export default function ServiceDetailClient({
             Pengaturan Cookie
           </button>
         </div>
-        <div className="flex items-center gap-2 select-none">
-          <span>Website by</span>
-          <span className="px-2.5 py-0.5 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 font-black uppercase tracking-wider">
-            lembahtech
-          </span>
-        </div>
+        
       </footer>
 
       {/* Modal Zoom Foto */}

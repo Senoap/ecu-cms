@@ -151,12 +151,7 @@ export default function LegalPageClient({ db, legal, type }: LegalPageClientProp
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 dark:text-gray-400 font-bold gap-4">
           <p>© 2026 {setting.siteName}. All Rights Reserved.</p>
           
-          <div className="flex items-center gap-2 select-none text-[11px]">
-            <span>crafted by</span>
-            <span className="px-2.5 py-0.5 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 font-black uppercase tracking-wider">
-              lembahtech
-            </span>
-          </div>
+          
 
           <div className="flex items-center gap-4">
             <Link href="/privacy-policy" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">Kebijakan Privasi</Link>

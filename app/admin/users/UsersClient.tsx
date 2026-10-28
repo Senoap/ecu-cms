@@ -18,7 +18,7 @@ import {
   UserX,
   RefreshCw
 } from 'lucide-react'
-import { AVAILABLE_MENUS, ALL_MENU_IDS } from '@/lib/menus'
+import { AVAILABLE_MENUS } from '@/lib/menus'
 import { checkPasswordExpiry, DEFAULT_ADMIN_SET_PASSWORD } from '@/lib/password'
 import { useSmartViewport } from '@/components/SmartViewportProvider'
 import type { ActiveSessionRecord } from '@/lib/db'
@@ -371,7 +371,7 @@ export default function UsersClient({
             Kontrol Pengguna & Sesi Aktif
           </h1>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            Kelola akun pengguna, pantau sesi login langsung, putuskan koneksi (kick), dan atur hak akses menu halaman CMS.
+            Kelola akun pengguna.
           </p>
         </div>
 
@@ -464,7 +464,6 @@ export default function UsersClient({
                 <th className="px-4 py-3 min-w-[200px]">Pengguna & Peran</th>
                 <th className="px-4 py-3 min-w-[210px]">Sesi & Perangkat</th>
                 <th className="px-4 py-3 min-w-[170px]">Keamanan & Password</th>
-                <th className="px-4 py-3 min-w-[220px]">Hak Akses & Notifikasi</th>
                 <th className="px-4 py-3 min-w-[100px]">Status Akun</th>
                 <th className="px-4 py-3 text-right min-w-[130px]">Aksi</th>
               </tr>
@@ -479,11 +478,10 @@ export default function UsersClient({
                         AD
                       </div>
                       <span
-                        className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-[#13161F] ${
-                          adminSessionStatus.isLoggedIn
+                        className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-[#13161F] ${adminSessionStatus.isLoggedIn
                             ? adminSessionStatus.isOnline ? 'bg-emerald-500' : 'bg-gray-400'
                             : 'bg-gray-300 dark:bg-gray-600'
-                        }`}
+                          }`}
                         title={adminSessionStatus.isLoggedIn ? (adminSessionStatus.isOnline ? 'Online' : 'Login (Idle)') : 'Offline'}
                       />
                     </div>
@@ -534,17 +532,6 @@ export default function UsersClient({
                 </td>
 
                 <td className="px-4 py-3.5 align-middle">
-                  <div className="space-y-0.5 text-[11px] max-w-[220px]">
-                    <div className="font-bold text-gray-900 dark:text-white truncate">
-                      Semua Modul CMS ({ALL_MENU_IDS.length})
-                    </div>
-                    <div className="text-[10px] text-gray-400">
-                      Notifikasi Karir: <strong className="text-gray-900 dark:text-white">Aktif</strong>
-                    </div>
-                  </div>
-                </td>
-
-                <td className="px-4 py-3.5 align-middle">
                   <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/40">
                     Aktif
                   </span>
@@ -572,9 +559,6 @@ export default function UsersClient({
               {users.map((u) => {
                 const st = getSessionStatus(u.id)
                 const expiry = checkPasswordExpiry(u.passwordUpdatedAt, u.createdAt)
-                const accessibleMenuLabels = (u.permissions || [])
-                  .map((menuId) => AVAILABLE_MENUS.find((m) => m.id === menuId)?.label || menuId)
-                  .join(', ')
 
                 return (
                   <tr key={u.id} className="hover:bg-gray-50/60 dark:hover:bg-[#181C28] transition-colors">
@@ -586,11 +570,10 @@ export default function UsersClient({
                             {u.name.substring(0, 2).toUpperCase()}
                           </div>
                           <span
-                            className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-[#13161F] ${
-                              st.isLoggedIn
+                            className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-[#13161F] ${st.isLoggedIn
                                 ? st.isOnline ? 'bg-emerald-500' : 'bg-gray-400'
                                 : 'bg-gray-300 dark:bg-gray-600'
-                            }`}
+                              }`}
                             title={st.isLoggedIn ? (st.isOnline ? 'Online' : 'Login (Idle)') : 'Offline'}
                           />
                         </div>
@@ -660,22 +643,6 @@ export default function UsersClient({
                       </div>
                     </td>
 
-                    {/* Hak Akses & Notifikasi */}
-                    <td className="px-4 py-3.5 align-middle">
-                      <div className="space-y-0.5 text-[11px] max-w-[220px]">
-                        <div className="truncate font-medium text-gray-700 dark:text-gray-300" title={accessibleMenuLabels}>
-                          {u.permissions?.length === 0 ? (
-                            <span className="text-rose-500 italic">Tidak ada modul</span>
-                          ) : (
-                            <span>{u.permissions?.length || 0} Modul: <span className="text-gray-500 dark:text-gray-400">{accessibleMenuLabels}</span></span>
-                          )}
-                        </div>
-                        <div className="text-[10px] text-gray-400">
-                          Notifikasi Karir: <strong className={u.canReceiveCareerNotif ? 'text-gray-900 dark:text-white' : 'text-gray-400'}>{u.canReceiveCareerNotif ? 'Aktif' : 'Nonaktif'}</strong>
-                        </div>
-                      </div>
-                    </td>
-
                     {/* Status Akun */}
                     <td className="px-4 py-3.5 align-middle">
                       <button
@@ -683,15 +650,13 @@ export default function UsersClient({
                         role="switch"
                         aria-checked={u.isActive}
                         onClick={() => handleToggleStatus(u.id)}
-                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${
-                          u.isActive ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-700'
-                        }`}
+                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${u.isActive ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-700'
+                          }`}
                         title={u.isActive ? 'Nonaktifkan akun' : 'Aktifkan akun'}
                       >
                         <span
-                          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow transition duration-200 ${
-                            u.isActive ? 'translate-x-5' : 'translate-x-0'
-                          }`}
+                          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow transition duration-200 ${u.isActive ? 'translate-x-5' : 'translate-x-0'
+                            }`}
                         />
                       </button>
                     </td>

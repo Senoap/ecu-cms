@@ -253,7 +253,7 @@ export default function Navbar({
         {/* 2. NAVIGATION FLOATING CARD (Kanan) */}
         <div ref={menuContainerRef} className="relative pointer-events-auto">
           <nav 
-            className={`flex items-center rounded-2xl shadow-xl border border-white/20 transition-all duration-300 ease-in-out backdrop-blur-2xl text-xs md:text-sm font-black tracking-wide text-white ${
+            className={`flex items-center rounded-2xl shadow-xl border border-white/20 transition-all duration-300 ease-in-out backdrop-blur-2xl text-xs md:text-sm font-black tracking-wide text-white overflow-visible ${
               isCompactNav 
                 ? 'h-11 w-11 sm:h-12 sm:w-12 justify-center p-0' 
                 : 'h-13 sm:h-15 md:h-16 w-13 sm:w-15 lg:w-auto justify-center lg:justify-start px-0 lg:px-5 xl:px-7'
@@ -262,10 +262,10 @@ export default function Navbar({
           >
             {/* TAMPILAN DESKTOP & LAPTOP (Menutup secara soft & smooth saat di-scroll atau saat layar dipisah menjadi 2/4 jendela) */}
             <div 
-              className={`hidden lg:flex items-center gap-3 xl:gap-5 transition-all duration-300 ease-in-out overflow-hidden whitespace-nowrap h-full ${
+              className={`hidden lg:flex items-center gap-3 xl:gap-5 transition-all duration-300 ease-in-out whitespace-nowrap h-full ${
                 isCompactNav 
-                  ? 'max-w-0 opacity-0 pointer-events-none' 
-                  : 'max-w-[1400px] opacity-100 pointer-events-auto'
+                  ? 'max-w-0 opacity-0 pointer-events-none overflow-hidden' 
+                  : 'max-w-[1400px] opacity-100 pointer-events-auto overflow-visible'
               }`}
             >
               {navLinks.map((link) => {
@@ -274,7 +274,7 @@ export default function Navbar({
                     <div 
                       key={link.name} 
                       ref={dropdownRef}
-                      className="relative"
+                      className="relative h-full flex items-center"
                       onMouseEnter={() => setAboutDropdownOpen(true)}
                       onMouseLeave={() => setAboutDropdownOpen(false)}
                     >
@@ -294,7 +294,7 @@ export default function Navbar({
 
                       {/* DROPDOWN SUBMENU DENGAN AESTHETIC ELEGAN */}
                       <div 
-                        className={`absolute top-full left-1/2 -translate-x-1/2 pt-2.5 transition-all duration-300 ${
+                        className={`absolute top-full left-1/2 -translate-x-1/2 pt-2.5 transition-all duration-300 z-50 ${
                           aboutDropdownOpen 
                             ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto' 
                             : 'opacity-0 -translate-y-2 scale-95 pointer-events-none'
