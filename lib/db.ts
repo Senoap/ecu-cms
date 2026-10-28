@@ -1629,6 +1629,17 @@ export async function uploadFile(
     console.warn('[ImageEngine] Konversi gambar gagal atau dilewati, menggunakan buffer asli:', optErr)
   }
 
+  // 4. Selalu simpan salinan lokal di public/uploads/ agar file terjamin selalu ada
+  try {
+    const fs = (await import('fs')).promises
+    const path = await import('path')
+    const uploadsDir = path.join(process.cwd(), 'public', 'uploads')
+    await fs.mkdir(uploadsDir, { recursive: true })
+    await fs.writeFile(path.join(uploadsDir, targetFileName), uploadBuffer)
+  } catch (localErr) {
+    console.warn('Gagal menyimpan file ke public/uploads lokal:', localErr)
+  }
+
   const isLocalStorage = process.env.STORAGE_DRIVER === 'local'
 
   if (!isLocalStorage) {
@@ -1646,27 +1657,20 @@ export async function uploadFile(
           const { data: publicUrlData } = client.storage
             .from('uploads')
             .getPublicUrl(targetFileName)
-          return publicUrlData.publicUrl
+          // Jika URL Supabase adalah remote publik HTTPS (produksi), gunakan URL tersebut
+          if (publicUrlData.publicUrl && publicUrlData.publicUrl.startsWith('https://')) {
+            return publicUrlData.publicUrl
+          }
+        } else {
+          console.warn('Gagal upload ke Supabase Storage, menggunakan path lokal:', error.message)
         }
-        console.warn('Gagal upload ke Supabase Storage, beralih ke penyimpanan lokal:', error.message)
       }
     } catch (err) {
-      console.warn('Supabase Storage tidak dapat dihubungi (fetch failed), beralih ke penyimpanan lokal:', err)
+      console.warn('Supabase Storage tidak dapat dihubungi, menggunakan path lokal:', err)
     }
   }
 
-  // Fallback / Penyimpanan Lokal: Simpan file ke public/uploads/
-  try {
-    const fs = (await import('fs')).promises
-    const path = await import('path')
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads')
-    await fs.mkdir(uploadsDir, { recursive: true })
-    await fs.writeFile(path.join(uploadsDir, targetFileName), uploadBuffer)
-    return `/uploads/${targetFileName}`
-  } catch (localErr) {
-    console.error('Gagal upload ke penyimpanan lokal:', localErr)
-    throw new Error('Gagal menyimpan file.')
-  }
+  return `/uploads/${targetFileName}`
 }
 
 export async function deleteFile(fileName: string): Promise<void> {

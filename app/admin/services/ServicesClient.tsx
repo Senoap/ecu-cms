@@ -140,6 +140,15 @@ const EXTENDED_ICONS = Array.from(
 )
 
 export default function ServicesClient({ initialServices }: { initialServices: ServiceItem[] }) {
+  const getDisplayImageUrl = (url: string) => {
+    if (!url) return ''
+    if (url.includes('/storage/v1/object/public/uploads/')) {
+      const filename = url.substring(url.lastIndexOf('/') + 1)
+      return `/uploads/${filename}`
+    }
+    return url
+  }
+
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingService, setEditingService] = useState<ServiceItem | null>(null)
 
@@ -363,11 +372,11 @@ export default function ServicesClient({ initialServices }: { initialServices: S
 
       {/* POPUP MODAL EDIT KONTEN & WATERMARK */}
       {isModalOpen && editingService && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto">
-          <div className="bg-white dark:bg-[#10131C] border border-gray-200 dark:border-gray-800 w-full max-w-3xl rounded-3xl p-8 shadow-2xl space-y-6 my-8 relative transition-colors">
-            <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-800 pb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-5 overflow-hidden">
+          <div className="bg-white dark:bg-[#10131C] border border-gray-200 dark:border-gray-800 w-full max-w-3xl max-h-[92vh] max-h-[92dvh] rounded-3xl shadow-2xl relative transition-colors flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-800 px-6 sm:px-8 py-4 sm:py-5 shrink-0 bg-white dark:bg-[#10131C]">
               <div>
-                <h2 className="text-lg font-black text-gray-900 dark:text-white">Edit Konten & Watermark: {editingService.title}</h2>
+                <h2 className="text-base sm:text-lg font-black text-gray-900 dark:text-white">Edit Konten & Watermark: {editingService.title}</h2>
                 <p className="text-gray-600 dark:text-gray-400 text-xs font-medium">Atur opsi watermark diagonal, preview foto, lalu simpan ke draft.</p>
               </div>
               <button
@@ -387,10 +396,11 @@ export default function ServicesClient({ initialServices }: { initialServices: S
                 setTimeout(() => setShowSuccessToast(false), 4000)
                 handleCloseModal()
               })
-            }} className="space-y-5">
-              <input type="hidden" name="id" value={editingService.id} />
-              <input type="hidden" name="icon" value={editServiceIcon} />
-              <input type="hidden" name="watermarkText" value={watermarkCaption} />
+            }} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+              <div className="flex-1 overflow-y-auto px-6 sm:px-8 py-5 sm:py-6 space-y-5 overscroll-contain">
+                <input type="hidden" name="id" value={editingService.id} />
+                <input type="hidden" name="icon" value={editServiceIcon} />
+                <input type="hidden" name="watermarkText" value={watermarkCaption} />
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="md:col-span-2 space-y-2">
@@ -534,7 +544,7 @@ export default function ServicesClient({ initialServices }: { initialServices: S
                     <div className="grid grid-cols-4 gap-3">
                       {editingService.images.map((img, idx) => (
                         <div key={idx} className="relative rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#090A0F] h-24 group">
-                          <img src={img} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
+                          <img src={getDisplayImageUrl(img)} alt={`Gallery ${idx}`} className="w-full h-full object-cover" onError={(e) => { const el = e.currentTarget; const fallback = getDisplayImageUrl(img); if (el.src !== fallback) el.src = fallback; }} />
                           <button
                             type="button"
                             onClick={() => handleDeleteSavedImage(img)}
@@ -550,8 +560,10 @@ export default function ServicesClient({ initialServices }: { initialServices: S
                 )}
               </div>
 
-              {/* TOMBOL SIMPAN KE DRAFT DI DALAM MODAL */}
-              <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-800">
+              </div>
+
+              {/* TOMBOL SIMPAN KE DRAFT DI DALAM MODAL - STICKY FOOTER */}
+              <div className="flex justify-end gap-3 px-6 sm:px-8 py-4 border-t border-gray-200 dark:border-gray-800 bg-gray-50/80 dark:bg-[#0c0e15] shrink-0">
                 <button
                   type="button"
                   onClick={handleCloseModal}
@@ -583,9 +595,9 @@ export default function ServicesClient({ initialServices }: { initialServices: S
 
       {/* POPUP MODAL PILIH IKON */}
       {isIconModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 overflow-y-auto">
-          <div className="bg-white dark:bg-[#10131C] border border-gray-200 dark:border-gray-800 w-full max-w-6xl rounded-3xl p-8 shadow-2xl space-y-6 relative animate-in fade-in zoom-in duration-200 transition-colors">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-5 overflow-hidden">
+          <div className="bg-white dark:bg-[#10131C] border border-gray-200 dark:border-gray-800 w-full max-w-6xl max-h-[92vh] max-h-[92dvh] rounded-3xl p-6 sm:p-8 shadow-2xl flex flex-col space-y-5 relative animate-in fade-in zoom-in duration-200 transition-colors overflow-hidden">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-5 shrink-0">
               <div>
                 <h3 className="text-lg font-black text-gray-900 dark:text-white">Pilih Ikon Layanan ({filteredIcons.length} Tersedia)</h3>
                 <p className="text-gray-600 dark:text-gray-400 text-xs font-medium">Cari dan klik salah satu ikon di bawah ini untuk menggunakannya.</p>
@@ -608,7 +620,7 @@ export default function ServicesClient({ initialServices }: { initialServices: S
               </div>
             </div>
 
-            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-3 max-h-[70vh] overflow-y-auto pr-2">
+            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-3 flex-1 overflow-y-auto pr-2">
               {filteredIcons.map((ic) => (
                 <button
                   key={ic.value}
