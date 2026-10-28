@@ -44,7 +44,7 @@ export async function updateService(formData: FormData) {
   const icon = formData.get('icon') as string
   const content = formData.get('content') as string
   const watermarkText = formData.get('watermarkText') as string || 'PT. EMPAT SINERGI UTAMA'
-  const applyWatermark = formData.get('applyWatermark') === 'on'
+  const applyWatermark = formData.get('applyWatermark') === 'true' || formData.get('applyWatermark') === 'on'
   const photoFiles = formData.getAll('photoFile') as File[]
 
   const db = await readDB()

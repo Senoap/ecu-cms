@@ -98,26 +98,56 @@ export default function Navbar({
   // Fungsi navigasi yang bekerja baik di halaman utama maupun di halaman detail
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, target: string) => {
     setMobileMenuOpen(false)
+    setAboutDropdownOpen(false)
 
-    if (target.startsWith('#')) {
-      if (typeof window !== 'undefined' && window.location.pathname !== '/') {
-        return
-      }
-      e.preventDefault()
-      setTransitioning(true)
+    const hashIndex = target.indexOf('#')
+    if (hashIndex !== -1) {
+      const hash = target.slice(hashIndex)
+      const targetId = hash.slice(1)
 
-      setTimeout(() => {
-        const targetElement = document.querySelector(target)
+      if (typeof window !== 'undefined' && window.location.pathname === '/') {
+        e.preventDefault()
+
+        const targetElement = document.getElementById(targetId) || document.querySelector(hash)
         if (targetElement) {
-          targetElement.scrollIntoView({ behavior: 'smooth' })
-        }
-      }, 300)
+          const headerOffset = 85
+          const currentScroll = window.scrollY ?? window.pageYOffset ?? 0
+          const elementPosition = targetElement.getBoundingClientRect().top
+          const offsetPosition = elementPosition + currentScroll - headerOffset
 
-      setTimeout(() => {
-        setTransitioning(false)
-      }, 500)
+          window.scrollTo({
+            top: targetId === 'home' ? 0 : Math.max(0, offsetPosition),
+            behavior: 'smooth'
+          })
+
+          window.history.pushState(null, '', hash)
+        }
+      }
     }
   }
+
+  // Smooth scroll otomatis saat halaman dibuka langsung dengan URL ber-hash (misal /#services)
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const hash = window.location.hash
+    if (hash) {
+      const targetId = hash.slice(1)
+      const timer = setTimeout(() => {
+        const targetElement = document.getElementById(targetId) || document.querySelector(hash)
+        if (targetElement) {
+          const headerOffset = 85
+          const currentScroll = window.scrollY ?? window.pageYOffset ?? 0
+          const elementPosition = targetElement.getBoundingClientRect().top
+          const offsetPosition = elementPosition + currentScroll - headerOffset
+          window.scrollTo({
+            top: targetId === 'home' ? 0 : Math.max(0, offsetPosition),
+            behavior: 'smooth'
+          })
+        }
+      }, 300)
+      return () => clearTimeout(timer)
+    }
+  }, [])
 
   // Menutup dropdown saat klik di luar
   useEffect(() => {
