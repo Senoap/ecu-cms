@@ -2,11 +2,11 @@
 'use server'
 import { readDB, writeDB, addNotification, uploadFile, deleteFile } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
-import sharp from 'sharp'
+import sharp, { type Sharp } from 'sharp'
 import { requirePermission } from '@/lib/auth'
 import { WATERMARK_FONT_BASE64 } from '@/lib/watermarkFont'
 import { validateImageBuffer } from '@/lib/fileSecurity'
-import { MAX_IMAGE_FILE_SIZE } from '@/lib/imageOptimizer'
+import { MAX_IMAGE_FILE_SIZE, isHeicFormat, decodeHeicToSharp } from '@/lib/imageOptimizer'
 import type { Font } from 'opentype.js'
 
 // Cache singleton untuk parsing font OpenType agar performa kilat dan hemat memori
@@ -90,43 +90,23 @@ export async function updateService(formData: FormData): Promise<{ success: bool
         const validation = validateImageBuffer(buffer, photoFile.name)
         if (!validation.valid) continue
 
-        let inputBuffer = buffer
-        const isHeic =
-          photoFile.name.toLowerCase().endsWith('.heic') ||
-          photoFile.name.toLowerCase().endsWith('.heif') ||
-          photoFile.type.includes('heic') ||
-          photoFile.type.includes('heif') ||
-          (buffer.length >= 12 &&
-            buffer.subarray(4, 12).toString('ascii').includes('ftyp') &&
-            !buffer.subarray(4, 12).toString('ascii').toLowerCase().includes('avif'))
-
-        if (isHeic) {
-          try {
-            const heicConvertMod = await import('heic-convert')
-            const heicConvert = ((heicConvertMod as unknown as { default?: unknown }).default || heicConvertMod) as (options: {
-              buffer: Uint8Array
-              format: 'JPEG' | 'PNG'
-              quality?: number
-            }) => Promise<Uint8Array>
-
-            const converted = await heicConvert({
-              buffer,
-              format: 'JPEG',
-              quality: 0.94,
-            })
-            inputBuffer = Buffer.from(converted)
-          } catch (heicErr) {
-            console.warn('[ServicesAction] Gagal decode HEIC dengan heic-convert:', heicErr)
-          }
-        }
-
         const filename = `service-${id}-${Date.now()}-${Math.random().toString(36).substring(2, 7)}.webp`
 
-        // 1. Normalisasi orientasi EXIF & resize proporsional ke buffer terlebih dahulu.
-        // Sangat krusial agar dimensi EXACT foto (mode potrait maupun lanskap kamera HP)
-        // terukur akurat sebelum watermark SVG dibuat, mencegah error Sharp composite dimension mismatch.
-        const normalizedBuffer = await sharp(inputBuffer, { limitInputPixels: 100_000_000 })
-          .rotate()
+        // 1. Dekode & normalisasi orientasi EXIF serta resize proporsional ke buffer terlebih dahulu.
+        // Untuk HEIC: langsung didekode ke raw RGBA buffer via WebAssembly (heic-decode) sehingga sangat cepat (milidetik).
+        let imageInstance: Sharp
+        if (isHeicFormat(buffer, photoFile.name)) {
+          try {
+            imageInstance = await decodeHeicToSharp(buffer)
+          } catch (heicErr) {
+            console.warn('[ServicesAction] Gagal decode HEIC dengan heic-decode:', heicErr)
+            imageInstance = sharp(buffer, { limitInputPixels: 100_000_000 }).rotate()
+          }
+        } else {
+          imageInstance = sharp(buffer, { limitInputPixels: 100_000_000 }).rotate()
+        }
+
+        const normalizedBuffer = await imageInstance
           .resize({ width: 1200, height: 1200, fit: 'inside', withoutEnlargement: true })
           .toBuffer()
 

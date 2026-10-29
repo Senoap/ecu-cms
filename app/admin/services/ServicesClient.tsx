@@ -227,25 +227,35 @@ export default function ServicesClient({ initialServices }: { initialServices: S
       })
       setPreviewItems(initialItems)
 
-      // Decode HEIC di browser agar foto asli iPhone/Samsung langsung tampil di pratinjau sebelum disimpan!
+      // Decode HEIC di browser secara asinkron dengan batasan waktu (timeout 3.5 detik).
+      // Jika berhasil, pratinjau asli foto iPhone/Samsung tampil tajam dan berkas terkonversi dikompresi proporsional.
+      // Jika browser tidak mendukung atau melebihi batas waktu, sistem otomatis fallback ke server decoding WebP secara instan.
       filesArray.forEach(async (file, idx) => {
         const isHeic = /\.(heic|heif)$/i.test(file.name) || file.type.includes('heic') || file.type.includes('heif')
         if (!isHeic) return
 
         try {
-          const heic2anyMod = await import('heic2any')
-          const heic2any = ((heic2anyMod as unknown as { default?: unknown }).default || heic2anyMod) as (options: {
-            blob: Blob
-            toType?: string
-            quality?: number
-          }) => Promise<Blob | Blob[]>
+          const timeoutPromise = new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('Browser HEIC preview timeout')), 3500)
+          )
 
-          const res = await heic2any({
-            blob: file,
-            toType: 'image/jpeg',
-            quality: 0.85
-          })
-          const blob = Array.isArray(res) ? res[0] : res
+          const convertPromise = (async () => {
+            const heic2anyMod = await import('heic2any')
+            const heic2any = ((heic2anyMod as unknown as { default?: unknown }).default || heic2anyMod) as (options: {
+              blob: Blob
+              toType?: string
+              quality?: number
+            }) => Promise<Blob | Blob[]>
+
+            const res = await heic2any({
+              blob: file,
+              toType: 'image/jpeg',
+              quality: 0.85
+            })
+            return Array.isArray(res) ? res[0] : res
+          })()
+
+          const blob = await Promise.race([convertPromise, timeoutPromise])
           const previewUrl = URL.createObjectURL(blob)
           const convertedFile = new File([blob], file.name.replace(/\.(heic|heif)$/i, '.jpg'), { type: 'image/jpeg' })
 
@@ -650,7 +660,12 @@ export default function ServicesClient({ initialServices }: { initialServices: S
                       : 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600 shadow-sm cursor-pointer'
                   }`}
                 >
-                  {isPending ? 'Menyimpan...' : (
+                  {isPending ? (
+                    <span className="flex items-center gap-2">
+                      <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                      <span>Menyimpan ke Draft...</span>
+                    </span>
+                  ) : (
                     <span className="flex items-center gap-1.5">
                       <Save className="w-4 h-4" />
                       <span>Simpan ke Draft</span>

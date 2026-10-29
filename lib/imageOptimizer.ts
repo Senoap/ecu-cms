@@ -3,7 +3,7 @@
 // 1. Foto umum langsung di-convert ke WebP dengan ketajaman tinggi & kompresi efisien.
 // 2. Logo perusahaan otomatis di-convert ke format vektor SVG murni berskala tajam.
 
-import sharp from 'sharp'
+import sharp, { type Sharp } from 'sharp'
 import path from 'path'
 
 /**
@@ -53,23 +53,23 @@ export function isHeicFormat(buffer: Buffer, fileName?: string): boolean {
 }
 
 /**
- * Mengonversi berkas HEIC / HEIF menjadi buffer JPEG kompatibel sebelum diolah Sharp
+ * Mengonversi berkas HEIC / HEIF menjadi instance Sharp menggunakan heic-decode (WASM murni ke raw RGBA).
+ * Jauh lebih cepat (milidetik) daripada heic-convert karena menghindari overhead kompresi JPEG murni di JavaScript.
  */
-export async function convertHeicToJpeg(buffer: Buffer): Promise<Buffer> {
-  const heicConvertMod = await import('heic-convert')
-  const heicConvert = ((heicConvertMod as unknown as { default?: unknown }).default || heicConvertMod) as (options: {
+export async function decodeHeicToSharp(buffer: Buffer): Promise<Sharp> {
+  const decodeMod = await import('heic-decode')
+  const decode = ((decodeMod as unknown as { default?: unknown }).default || decodeMod) as (options: {
     buffer: Uint8Array
-    format: 'JPEG' | 'PNG'
-    quality?: number
-  }) => Promise<Uint8Array>
+  }) => Promise<{ width: number; height: number; data: Uint8Array }>
 
-  const converted = await heicConvert({
-    buffer,
-    format: 'JPEG',
-    quality: 0.94,
+  const { width, height, data } = await decode({ buffer })
+  return sharp(Buffer.from(data), {
+    raw: {
+      width,
+      height,
+      channels: 4,
+    },
   })
-
-  return Buffer.from(converted)
 }
 
 export interface ImageOptimizationOptions {
@@ -117,16 +117,18 @@ export async function optimizeImage(
   const effort = options?.effort ?? 5
 
   try {
-    let inputBuffer = buffer
+    let image: Sharp
     if (isHeicFormat(buffer, originalFileName)) {
       try {
-        inputBuffer = await convertHeicToJpeg(buffer)
+        image = await decodeHeicToSharp(buffer)
       } catch (heicErr) {
-        console.warn('[ImageOptimizer] Gagal decode HEIC dengan heic-convert, mencoba sharp langsung:', heicErr)
+        console.warn('[ImageOptimizer] Gagal decode HEIC dengan heic-decode, mencoba sharp langsung:', heicErr)
+        image = sharp(buffer)
       }
+    } else {
+      image = sharp(buffer)
     }
 
-    const image = sharp(inputBuffer)
     const metadata = await image.metadata()
 
     if (!metadata.format) {
@@ -212,16 +214,18 @@ export async function convertLogoToSvg(
 
   // 2. Jika berkas adalah gambar raster (PNG, JPG, WebP, dsb), ubah ke SVG vektor murni
   try {
-    let inputBuffer = buffer
+    let image: Sharp
     if (isHeicFormat(buffer, originalFileName)) {
       try {
-        inputBuffer = await convertHeicToJpeg(buffer)
+        image = await decodeHeicToSharp(buffer)
       } catch (heicErr) {
-        console.warn('[ImageOptimizer] Gagal decode HEIC dengan heic-convert, mencoba sharp langsung:', heicErr)
+        console.warn('[ImageOptimizer] Gagal decode HEIC dengan heic-decode, mencoba sharp langsung:', heicErr)
+        image = sharp(buffer)
       }
+    } else {
+      image = sharp(buffer)
     }
 
-    const image = sharp(inputBuffer)
     const metadata = await image.metadata()
     const width = metadata.width || 400
     const height = metadata.height || 120
