@@ -142,10 +142,6 @@ const EXTENDED_ICONS = Array.from(
 export default function ServicesClient({ initialServices }: { initialServices: ServiceItem[] }) {
   const getDisplayImageUrl = (url: string) => {
     if (!url) return ''
-    if (url.includes('/storage/v1/object/public/uploads/')) {
-      const filename = url.substring(url.lastIndexOf('/') + 1)
-      return `/uploads/${filename}`
-    }
     return url
   }
 
@@ -513,7 +509,7 @@ export default function ServicesClient({ initialServices }: { initialServices: S
                     <div className="grid grid-cols-4 gap-3">
                       {editingService.images.map((img, idx) => (
                         <div key={idx} className="relative rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#090A0F] h-24 group">
-                          <img src={getDisplayImageUrl(img)} alt={`Gallery ${idx}`} className="w-full h-full object-cover" onError={(e) => { const el = e.currentTarget; const fallback = getDisplayImageUrl(img); if (el.src !== fallback) el.src = fallback; }} />
+                          <img src={getDisplayImageUrl(img)} alt={`Gallery ${idx}`} className="w-full h-full object-cover" loading="lazy" />
                           <button
                             type="button"
                             onClick={() => handleDeleteSavedImage(img)}

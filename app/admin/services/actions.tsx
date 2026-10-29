@@ -83,26 +83,27 @@ export async function updateService(formData: FormData) {
       let processedBuffer = imageInstance.resize({ width: 1200, withoutEnlargement: true })
 
       if (applyWatermark) {
-        const fontSize = Math.round(targetWidth * 0.045)
+        const fontSize = Math.max(22, Math.round(targetWidth * 0.045))
+        const strokeWidth = Math.max(1, Math.round(fontSize * 0.035))
+        const cleanWatermark = escapeXml(watermarkText || 'PT. EMPAT SINERGI UTAMA')
 
-        const svgWatermark = Buffer.from(`
-          <svg width="${targetWidth}" height="${targetHeight}">
-            <style>
-              .text { 
-                fill: rgba(255, 255, 255, 0.6); 
-                stroke: rgba(0, 0, 0, 0.65); 
-                stroke-width: 1.5px; 
-                font-size: ${fontSize}px; 
-                font-weight: bold; 
-                font-family: Arial, sans-serif; 
-                letter-spacing: 3px; 
-                text-anchor: middle;
-                dominant-baseline: central;
-              }
-            </style>
-            <text x="50%" y="50%" transform="rotate(-30 ${targetWidth / 2} ${targetHeight / 2})" class="text">© ${escapeXml(watermarkText)}</text>
-          </svg>
-        `)
+        const svgWatermark = Buffer.from(`<?xml version="1.0" encoding="UTF-8"?>
+<svg width="${targetWidth}" height="${targetHeight}" xmlns="http://www.w3.org/2000/svg">
+  <text 
+    x="50%" 
+    y="50%" 
+    transform="rotate(-30 ${targetWidth / 2} ${targetHeight / 2})" 
+    text-anchor="middle" 
+    dominant-baseline="central" 
+    font-size="${fontSize}px" 
+    font-weight="bold" 
+    font-family="Liberation Sans, DejaVu Sans, FreeSans, Arial, sans-serif" 
+    fill="rgba(255, 255, 255, 0.75)"
+    stroke="rgba(0, 0, 0, 0.6)"
+    stroke-width="${strokeWidth}"
+    paint-order="stroke fill"
+  >&#169; ${cleanWatermark}</text>
+</svg>`)
 
         processedBuffer = processedBuffer.composite([
           {
