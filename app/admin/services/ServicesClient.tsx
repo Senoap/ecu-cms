@@ -139,6 +139,14 @@ const EXTENDED_ICONS = Array.from(
   ).values()
 )
 
+interface ServicePreviewItem {
+  url: string
+  isHeic: boolean
+  isConverting?: boolean
+  name: string
+  convertedFile?: File
+}
+
 export default function ServicesClient({ initialServices }: { initialServices: ServiceItem[] }) {
   const getDisplayImageUrl = (url: string) => {
     if (!url) return ''
@@ -154,7 +162,7 @@ export default function ServicesClient({ initialServices }: { initialServices: S
   const [addDesc, setAddDesc] = useState('')
 
   // State untuk Preview Foto, Caption, dan Watermark
-  const [previewItems, setPreviewItems] = useState<{ url: string; isHeic: boolean; name: string }[]>([])
+  const [previewItems, setPreviewItems] = useState<ServicePreviewItem[]>([])
   const [watermarkCaption, setWatermarkCaption] = useState('PT. EMPAT SINERGI UTAMA')
   const [applyWatermark, setApplyWatermark] = useState(true)
 
@@ -207,15 +215,58 @@ export default function ServicesClient({ initialServices }: { initialServices: S
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files)
-      const items = filesArray.map(file => {
+      const initialItems: ServicePreviewItem[] = filesArray.map(file => {
         const isHeic = /\.(heic|heif)$/i.test(file.name) || file.type.includes('heic') || file.type.includes('heif')
         return {
-          url: URL.createObjectURL(file),
+          url: isHeic ? '' : URL.createObjectURL(file),
           isHeic,
-          name: file.name
+          isConverting: isHeic,
+          name: file.name,
+          convertedFile: file
         }
       })
-      setPreviewItems(items)
+      setPreviewItems(initialItems)
+
+      // Decode HEIC di browser agar foto asli iPhone/Samsung langsung tampil di pratinjau sebelum disimpan!
+      filesArray.forEach(async (file, idx) => {
+        const isHeic = /\.(heic|heif)$/i.test(file.name) || file.type.includes('heic') || file.type.includes('heif')
+        if (!isHeic) return
+
+        try {
+          const heic2anyMod = await import('heic2any')
+          const heic2any = ((heic2anyMod as unknown as { default?: unknown }).default || heic2anyMod) as (options: {
+            blob: Blob
+            toType?: string
+            quality?: number
+          }) => Promise<Blob | Blob[]>
+
+          const res = await heic2any({
+            blob: file,
+            toType: 'image/jpeg',
+            quality: 0.85
+          })
+          const blob = Array.isArray(res) ? res[0] : res
+          const previewUrl = URL.createObjectURL(blob)
+          const convertedFile = new File([blob], file.name.replace(/\.(heic|heif)$/i, '.jpg'), { type: 'image/jpeg' })
+
+          setPreviewItems(prev =>
+            prev.map((item, i) =>
+              i === idx
+                ? { ...item, url: previewUrl, isConverting: false, convertedFile }
+                : item
+            )
+          )
+        } catch (err) {
+          console.warn('Browser heic2any fallback to server decoding:', err)
+          setPreviewItems(prev =>
+            prev.map((item, i) =>
+              i === idx
+                ? { ...item, isConverting: false }
+                : item
+            )
+          )
+        }
+      })
     }
   }
 
@@ -376,6 +427,14 @@ export default function ServicesClient({ initialServices }: { initialServices: S
             <form action={async (formData) => {
               startTransition(async () => {
                 try {
+                  if (previewItems.length > 0 && previewItems.some(p => p.convertedFile)) {
+                    formData.delete('photoFile')
+                    previewItems.forEach(item => {
+                      if (item.convertedFile) {
+                        formData.append('photoFile', item.convertedFile)
+                      }
+                    })
+                  }
                   const res = await updateService(formData)
                   if (res && !res.success) {
                     setToastMessage(`Gagal: ${res.error || 'Terjadi kesalahan sistem'}`)
@@ -515,16 +574,21 @@ export default function ServicesClient({ initialServices }: { initialServices: S
                     <div className="grid grid-cols-4 gap-3">
                       {previewItems.map((item, idx) => (
                         <div key={idx} className="relative rounded-2xl overflow-hidden border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#090A0F] h-24 flex items-center justify-center">
-                          {item.isHeic ? (
+                          {item.isConverting ? (
+                            <div className="w-full h-full flex flex-col items-center justify-center bg-blue-50/80 dark:bg-blue-950/40 p-2 text-center select-none">
+                              <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                              <span className="text-[9px] font-black text-blue-700 dark:text-blue-300 uppercase mt-1.5">Memproses Foto...</span>
+                            </div>
+                          ) : item.url ? (
+                            <img src={item.url} alt={`Preview ${idx}`} className="w-full h-full object-cover" />
+                          ) : (
                             <div className="w-full h-full flex flex-col items-center justify-center bg-blue-50/80 dark:bg-blue-950/40 p-2 text-center select-none">
                               <span className="text-xl">📱</span>
                               <span className="text-[10px] font-black text-blue-700 dark:text-blue-300 uppercase mt-0.5">HEIC / HEIF</span>
                               <span className="text-[8px] text-gray-500 dark:text-gray-400 truncate max-w-full px-1">{item.name}</span>
                             </div>
-                          ) : (
-                            <img src={item.url} alt={`Preview ${idx}`} className="w-full h-full object-cover" />
                           )}
-                          {applyWatermark && (
+                          {applyWatermark && !item.isConverting && (
                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                               <span
                                 className="font-bold text-[10px] transform -rotate-30 tracking-wider text-center px-1"
