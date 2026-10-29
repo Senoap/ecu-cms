@@ -1170,7 +1170,7 @@ export default function AboutClient({
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/png, image/jpeg, image/jpg, image/webp"
+                  accept="image/*, .heic, .heif"
                   onChange={handlePhotoUpload}
                   className="hidden"
                 />

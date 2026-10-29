@@ -467,7 +467,7 @@ export default function ServicesClient({ initialServices }: { initialServices: S
                     <input
                       type="file"
                       name="photoFile"
-                      accept="image/*"
+                      accept="image/*, .heic, .heif"
                       multiple
                       onChange={handleFileChange}
                       className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-gray-900 dark:text-white text-xs cursor-pointer file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-gray-200 dark:file:bg-gray-800 file:text-gray-800 dark:file:text-white hover:file:bg-gray-300 dark:hover:file:bg-gray-700"

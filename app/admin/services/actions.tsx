@@ -4,9 +4,10 @@ import { readDB, writeDB, addNotification, uploadFile, deleteFile } from '@/lib/
 import { revalidatePath } from 'next/cache'
 import sharp from 'sharp'
 import { requirePermission } from '@/lib/auth'
+import { WATERMARK_FONT_BASE64 } from '@/lib/watermarkFont'
+import { validateImageBuffer } from '@/lib/fileSecurity'
+import { MAX_IMAGE_FILE_SIZE } from '@/lib/imageOptimizer'
 
-const MAX_IMAGE_BYTES = 8 * 1024 * 1024
-const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 
 function escapeXml(s: string): string {
   return s.replace(/[<>&'"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[c] as string))
@@ -61,14 +62,18 @@ export async function updateService(formData: FormData) {
   for (const photoFile of photoFiles) {
     if (photoFile && photoFile.size > 0) {
       if (srv.images.length >= 10) break
-      if (!ALLOWED_IMAGE_TYPES.includes(photoFile.type) || photoFile.size > MAX_IMAGE_BYTES) continue
-      if (srv.images.length >= 10) break
+      if (photoFile.size > MAX_IMAGE_FILE_SIZE) continue
 
       const bytes = await photoFile.arrayBuffer()
       const buffer = Buffer.from(bytes)
-      const filename = `service-${id}-${Date.now()}-${Math.random().toString(36).substring(2, 7)}.jpg`
 
-      const imageInstance = sharp(buffer, { limitInputPixels: 50_000_000 })
+      // Validasi biner gambar (Mendukung JPEG, PNG, WebP, GIF, BMP, TIFF, AVIF, HEIC/HEIF, SVG)
+      const validation = validateImageBuffer(buffer)
+      if (!validation.valid) continue
+
+      const filename = `service-${id}-${Date.now()}-${Math.random().toString(36).substring(2, 7)}.webp`
+
+      const imageInstance = sharp(buffer, { limitInputPixels: 100_000_000 }).rotate()
       const metadata = await imageInstance.metadata()
       const origWidth = metadata.width || 1200
       const origHeight = metadata.height || 800
@@ -89,19 +94,32 @@ export async function updateService(formData: FormData) {
 
         const svgWatermark = Buffer.from(`<?xml version="1.0" encoding="UTF-8"?>
 <svg width="${targetWidth}" height="${targetHeight}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style type="text/css">
+      @font-face {
+        font-family: 'WatermarkCustomFont';
+        src: url(data:font/truetype;charset=utf-8;base64,${WATERMARK_FONT_BASE64}) format('truetype');
+        font-weight: bold;
+        font-style: normal;
+      }
+      .wm-text {
+        font-family: 'WatermarkCustomFont', sans-serif;
+        font-size: ${fontSize}px;
+        font-weight: bold;
+        fill: rgba(255, 255, 255, 0.75);
+        stroke: rgba(0, 0, 0, 0.6);
+        stroke-width: ${strokeWidth}px;
+        paint-order: stroke fill;
+        text-anchor: middle;
+        dominant-baseline: central;
+      }
+    </style>
+  </defs>
   <text 
     x="50%" 
     y="50%" 
     transform="rotate(-30 ${targetWidth / 2} ${targetHeight / 2})" 
-    text-anchor="middle" 
-    dominant-baseline="central" 
-    font-size="${fontSize}px" 
-    font-weight="bold" 
-    font-family="Liberation Sans, DejaVu Sans, FreeSans, Arial, sans-serif" 
-    fill="rgba(255, 255, 255, 0.75)"
-    stroke="rgba(0, 0, 0, 0.6)"
-    stroke-width="${strokeWidth}"
-    paint-order="stroke fill"
+    class="wm-text"
   >&#169; ${cleanWatermark}</text>
 </svg>`)
 
@@ -113,9 +131,9 @@ export async function updateService(formData: FormData) {
         ])
       }
 
-      const finalBuffer = await processedBuffer.jpeg({ quality: 85 }).toBuffer()
+      const finalBuffer = await processedBuffer.webp({ quality: 86, smartSubsample: true }).toBuffer()
 
-      const imageUrl = await uploadFile(finalBuffer, filename, 'image/jpeg')
+      const imageUrl = await uploadFile(finalBuffer, filename, 'image/webp')
       srv.images.push(imageUrl)
     }
   }

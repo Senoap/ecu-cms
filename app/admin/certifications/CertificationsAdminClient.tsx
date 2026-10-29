@@ -974,7 +974,7 @@ export function CertificationsAdminClient({
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/png, image/jpeg, image/jpg, image/webp"
+                  accept="image/*, .heic, .heif"
                   onChange={handleImageUpload}
                   className="hidden"
                 />
