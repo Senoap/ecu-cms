@@ -25,6 +25,53 @@ export function sanitizeSvgContent(svgString: string): string {
 
 export const MAX_IMAGE_FILE_SIZE = 15 * 1024 * 1024 // 15 Megabytes
 
+/**
+ * Mendeteksi apakah buffer berkas merupakan format HEIC / HEIF (kamera Apple iOS / Android modern)
+ */
+export function isHeicFormat(buffer: Buffer, fileName?: string): boolean {
+  if (fileName && /\.(heic|heif)$/i.test(fileName)) {
+    return true
+  }
+  if (buffer.length >= 12) {
+    const sample = buffer.subarray(4, Math.min(buffer.length, 32)).toString('ascii').toLowerCase()
+    if (sample.includes('ftyp') && !sample.includes('avif') && !sample.includes('avis')) {
+      if (
+        sample.includes('heic') ||
+        sample.includes('heix') ||
+        sample.includes('mif1') ||
+        sample.includes('msf1') ||
+        sample.includes('hevc') ||
+        sample.includes('hevx') ||
+        sample.includes('heim') ||
+        sample.includes('heis')
+      ) {
+        return true
+      }
+    }
+  }
+  return false
+}
+
+/**
+ * Mengonversi berkas HEIC / HEIF menjadi buffer JPEG kompatibel sebelum diolah Sharp
+ */
+export async function convertHeicToJpeg(buffer: Buffer): Promise<Buffer> {
+  const heicConvertMod = await import('heic-convert')
+  const heicConvert = ((heicConvertMod as unknown as { default?: unknown }).default || heicConvertMod) as (options: {
+    buffer: Uint8Array
+    format: 'JPEG' | 'PNG'
+    quality?: number
+  }) => Promise<Uint8Array>
+
+  const converted = await heicConvert({
+    buffer,
+    format: 'JPEG',
+    quality: 0.94,
+  })
+
+  return Buffer.from(converted)
+}
+
 export interface ImageOptimizationOptions {
   maxWidth?: number
   maxHeight?: number
@@ -70,7 +117,16 @@ export async function optimizeImage(
   const effort = options?.effort ?? 5
 
   try {
-    const image = sharp(buffer)
+    let inputBuffer = buffer
+    if (isHeicFormat(buffer, originalFileName)) {
+      try {
+        inputBuffer = await convertHeicToJpeg(buffer)
+      } catch (heicErr) {
+        console.warn('[ImageOptimizer] Gagal decode HEIC dengan heic-convert, mencoba sharp langsung:', heicErr)
+      }
+    }
+
+    const image = sharp(inputBuffer)
     const metadata = await image.metadata()
 
     if (!metadata.format) {
@@ -156,7 +212,16 @@ export async function convertLogoToSvg(
 
   // 2. Jika berkas adalah gambar raster (PNG, JPG, WebP, dsb), ubah ke SVG vektor murni
   try {
-    const image = sharp(buffer)
+    let inputBuffer = buffer
+    if (isHeicFormat(buffer, originalFileName)) {
+      try {
+        inputBuffer = await convertHeicToJpeg(buffer)
+      } catch (heicErr) {
+        console.warn('[ImageOptimizer] Gagal decode HEIC dengan heic-convert, mencoba sharp langsung:', heicErr)
+      }
+    }
+
+    const image = sharp(inputBuffer)
     const metadata = await image.metadata()
     const width = metadata.width || 400
     const height = metadata.height || 120

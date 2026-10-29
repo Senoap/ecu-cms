@@ -154,7 +154,7 @@ export default function ServicesClient({ initialServices }: { initialServices: S
   const [addDesc, setAddDesc] = useState('')
 
   // State untuk Preview Foto, Caption, dan Watermark
-  const [previewUrls, setPreviewUrls] = useState<string[]>([])
+  const [previewItems, setPreviewItems] = useState<{ url: string; isHeic: boolean; name: string }[]>([])
   const [watermarkCaption, setWatermarkCaption] = useState('PT. EMPAT SINERGI UTAMA')
   const [applyWatermark, setApplyWatermark] = useState(true)
 
@@ -182,9 +182,9 @@ export default function ServicesClient({ initialServices }: { initialServices: S
       editDesc !== (editingService.desc || '') ||
       editContent !== (editingService.content || editingService.desc || '') ||
       editServiceIcon !== (editingService.icon || 'Briefcase') ||
-      previewUrls.length > 0
+      previewItems.length > 0
     )
-  }, [editingService, editTitle, editDesc, editContent, editServiceIcon, previewUrls])
+  }, [editingService, editTitle, editDesc, editContent, editServiceIcon, previewItems])
 
   const handleOpenEdit = (srv: ServiceItem) => {
     setEditingService(srv)
@@ -192,7 +192,7 @@ export default function ServicesClient({ initialServices }: { initialServices: S
     setEditDesc(srv.desc || '')
     setEditContent(srv.content || srv.desc || '')
     setEditServiceIcon(srv.icon || 'Briefcase')
-    setPreviewUrls([])
+    setPreviewItems([])
     setApplyWatermark(true)
     setWatermarkCaption('PT. EMPAT SINERGI UTAMA')
     setIsModalOpen(true)
@@ -201,14 +201,21 @@ export default function ServicesClient({ initialServices }: { initialServices: S
   const handleCloseModal = () => {
     setIsModalOpen(false)
     setEditingService(null)
-    setPreviewUrls([])
+    setPreviewItems([])
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files)
-      const urls = filesArray.map(file => URL.createObjectURL(file))
-      setPreviewUrls(urls)
+      const items = filesArray.map(file => {
+        const isHeic = /\.(heic|heif)$/i.test(file.name) || file.type.includes('heic') || file.type.includes('heif')
+        return {
+          url: URL.createObjectURL(file),
+          isHeic,
+          name: file.name
+        }
+      })
+      setPreviewItems(items)
     }
   }
 
@@ -467,7 +474,7 @@ export default function ServicesClient({ initialServices }: { initialServices: S
                     <input
                       type="file"
                       name="photoFile"
-                      accept="image/*, .heic, .heif"
+                      accept="image/*, .heic, .heif, image/heic, image/heif"
                       multiple
                       onChange={handleFileChange}
                       className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-gray-900 dark:text-white text-xs cursor-pointer file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-gray-200 dark:file:bg-gray-800 file:text-gray-800 dark:file:text-white hover:file:bg-gray-300 dark:hover:file:bg-gray-700"
@@ -476,13 +483,21 @@ export default function ServicesClient({ initialServices }: { initialServices: S
                 </div>
 
                 {/* Pratinjau Foto Sebelum Disimpan */}
-                {previewUrls.length > 0 && (
+                {previewItems.length > 0 && (
                   <div className="space-y-2">
                     <p className="text-xs font-bold text-gray-700 dark:text-gray-400">Pratinjau Foto Sebelum Disimpan:</p>
                     <div className="grid grid-cols-4 gap-3">
-                      {previewUrls.map((url, idx) => (
+                      {previewItems.map((item, idx) => (
                         <div key={idx} className="relative rounded-2xl overflow-hidden border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#090A0F] h-24 flex items-center justify-center">
-                          <img src={url} alt={`Preview ${idx}`} className="w-full h-full object-cover" />
+                          {item.isHeic ? (
+                            <div className="w-full h-full flex flex-col items-center justify-center bg-blue-50/80 dark:bg-blue-950/40 p-2 text-center select-none">
+                              <span className="text-xl">📱</span>
+                              <span className="text-[10px] font-black text-blue-700 dark:text-blue-300 uppercase mt-0.5">HEIC / HEIF</span>
+                              <span className="text-[8px] text-gray-500 dark:text-gray-400 truncate max-w-full px-1">{item.name}</span>
+                            </div>
+                          ) : (
+                            <img src={item.url} alt={`Preview ${idx}`} className="w-full h-full object-cover" />
+                          )}
                           {applyWatermark && (
                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                               <span

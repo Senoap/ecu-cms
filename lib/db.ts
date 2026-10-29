@@ -1624,7 +1624,7 @@ export async function uploadFile(
   }
 
   // 2. Validasi biner berkas gambar demi mencegah Stored XSS / file script
-  const imgCheck = validateImageBuffer(buffer)
+  const imgCheck = validateImageBuffer(buffer, safeName)
   if (!imgCheck.valid) {
     throw new Error(imgCheck.message || 'Berkas bukan gambar yang valid atau format ditolak demi alasan keamanan.')
   }

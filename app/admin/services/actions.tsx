@@ -68,12 +68,41 @@ export async function updateService(formData: FormData) {
       const buffer = Buffer.from(bytes)
 
       // Validasi biner gambar (Mendukung JPEG, PNG, WebP, GIF, BMP, TIFF, AVIF, HEIC/HEIF, SVG)
-      const validation = validateImageBuffer(buffer)
+      const validation = validateImageBuffer(buffer, photoFile.name)
       if (!validation.valid) continue
+
+      let inputBuffer = buffer
+      const isHeic = (
+        photoFile.name.toLowerCase().endsWith('.heic') ||
+        photoFile.name.toLowerCase().endsWith('.heif') ||
+        photoFile.type.includes('heic') ||
+        photoFile.type.includes('heif') ||
+        (buffer.length >= 12 && buffer.subarray(4, 12).toString('ascii').includes('ftyp') && !buffer.subarray(4, 12).toString('ascii').toLowerCase().includes('avif'))
+      )
+
+      if (isHeic) {
+        try {
+          const heicConvertMod = await import('heic-convert')
+          const heicConvert = ((heicConvertMod as unknown as { default?: unknown }).default || heicConvertMod) as (options: {
+            buffer: Uint8Array
+            format: 'JPEG' | 'PNG'
+            quality?: number
+          }) => Promise<Uint8Array>
+
+          const converted = await heicConvert({
+            buffer,
+            format: 'JPEG',
+            quality: 0.94,
+          })
+          inputBuffer = Buffer.from(converted)
+        } catch (heicErr) {
+          console.warn('[ServicesAction] Gagal decode HEIC dengan heic-convert:', heicErr)
+        }
+      }
 
       const filename = `service-${id}-${Date.now()}-${Math.random().toString(36).substring(2, 7)}.webp`
 
-      const imageInstance = sharp(buffer, { limitInputPixels: 100_000_000 }).rotate()
+      const imageInstance = sharp(inputBuffer, { limitInputPixels: 100_000_000 }).rotate()
       const metadata = await imageInstance.metadata()
       const origWidth = metadata.width || 1200
       const origHeight = metadata.height || 800
@@ -89,38 +118,35 @@ export async function updateService(formData: FormData) {
 
       if (applyWatermark) {
         const fontSize = Math.max(22, Math.round(targetWidth * 0.045))
+        const cleanWatermark = `© ${watermarkText || 'PT. EMPAT SINERGI UTAMA'}`
+
+        // Konversi teks watermark ke kurva geometri vektor SVG murni menggunakan opentype.js
+        // 100% bebas dari ketergantungan font OS / sistem Vercel Linux sehingga kotak tahu (tofu) mustahil muncul!
+        const opentypeMod = await import('opentype.js')
+        const opentype = ((opentypeMod as unknown as { default?: unknown }).default || opentypeMod) as typeof import('opentype.js')
+        const fontBuffer = Buffer.from(WATERMARK_FONT_BASE64, 'base64')
+        const ab = fontBuffer.buffer.slice(fontBuffer.byteOffset, fontBuffer.byteOffset + fontBuffer.byteLength)
+        const font = opentype.parse(ab)
+
+        const textWidth = font.getAdvanceWidth(cleanWatermark, fontSize)
+        const x = (targetWidth - textWidth) / 2
+        const y = targetHeight / 2 + Math.round(fontSize * 0.35)
+
+        const textPath = font.getPath(cleanWatermark, x, y, fontSize)
+        const pathData = textPath.toPathData(2)
         const strokeWidth = Math.max(1, Math.round(fontSize * 0.035))
-        const cleanWatermark = escapeXml(watermarkText || 'PT. EMPAT SINERGI UTAMA')
 
         const svgWatermark = Buffer.from(`<?xml version="1.0" encoding="UTF-8"?>
 <svg width="${targetWidth}" height="${targetHeight}" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <style type="text/css">
-      @font-face {
-        font-family: 'WatermarkCustomFont';
-        src: url(data:font/truetype;charset=utf-8;base64,${WATERMARK_FONT_BASE64}) format('truetype');
-        font-weight: bold;
-        font-style: normal;
-      }
-      .wm-text {
-        font-family: 'WatermarkCustomFont', sans-serif;
-        font-size: ${fontSize}px;
-        font-weight: bold;
-        fill: rgba(255, 255, 255, 0.75);
-        stroke: rgba(0, 0, 0, 0.6);
-        stroke-width: ${strokeWidth}px;
-        paint-order: stroke fill;
-        text-anchor: middle;
-        dominant-baseline: central;
-      }
-    </style>
-  </defs>
-  <text 
-    x="50%" 
-    y="50%" 
-    transform="rotate(-30 ${targetWidth / 2} ${targetHeight / 2})" 
-    class="wm-text"
-  >&#169; ${cleanWatermark}</text>
+  <g transform="rotate(-30 ${targetWidth / 2} ${targetHeight / 2})">
+    <path 
+      d="${pathData}" 
+      fill="rgba(255, 255, 255, 0.75)" 
+      stroke="rgba(0, 0, 0, 0.6)" 
+      stroke-width="${strokeWidth}" 
+      paint-order="stroke fill"
+    />
+  </g>
 </svg>`)
 
         processedBuffer = processedBuffer.composite([

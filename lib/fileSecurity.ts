@@ -54,7 +54,7 @@ export function sanitizeSvgContent(svgString: string): string {
  * Validasi biner gambar untuk SEMUA jenis format berkas gambar:
  * Mendukung PNG, JPG/JPEG, WEBP, GIF, BMP, TIFF, AVIF, HEIC, ICO, dan SVG.
  */
-export function validateImageBuffer(buffer: Buffer): { valid: boolean; mime?: string; message?: string } {
+export function validateImageBuffer(buffer: Buffer, fileName?: string): { valid: boolean; mime?: string; message?: string } {
   if (!buffer || buffer.length < 4) {
     return { valid: false, message: 'Berkas gambar terlalu kecil atau kosong.' }
   }
@@ -110,9 +110,12 @@ export function validateImageBuffer(buffer: Buffer): { valid: boolean; mime?: st
     return { valid: true, mime: 'image/tiff' }
   }
 
-  // 7. Cek AVIF / HEIC / HEIF: berisi 'ftyp' di 4-12 byte pertama
+  // 7. Cek AVIF / HEIC / HEIF (Mendukung foto kamera iPhone & Android modern)
+  if (fileName && /\.(heic|heif)$/i.test(fileName) && buffer.length >= 12) {
+    return { valid: true, mime: 'image/heic' }
+  }
   if (buffer.length >= 12) {
-    const ftyp = buffer.subarray(4, 12).toString('ascii')
+    const ftyp = buffer.subarray(4, 12).toString('ascii').toLowerCase()
     if (ftyp.includes('ftyp')) {
       if (ftyp.includes('avif') || ftyp.includes('avis')) {
         return { valid: true, mime: 'image/avif' }
