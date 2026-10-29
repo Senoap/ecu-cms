@@ -1243,11 +1243,21 @@ export async function readDB(): Promise<Database> {
     console.warn('Supabase tidak dapat dihubungi saat readDB, menggunakan data lokal:', err)
   }
 
-  // Fallback: baca dari data/db.json jika ada
+  // Fallback: baca dari data/db.json (atau /tmp/db.json di lingkungan Vercel)
   try {
     const fs = await getFs()
     const path = await getPath()
     if (!fs || !path) return defaultData
+    if (process.env.VERCEL) {
+      try {
+        const tmpContent = await fs.readFile('/tmp/db.json', 'utf-8')
+        const parsed = processParsedData(JSON.parse(tmpContent))
+        ;(parsed as unknown as Record<string, unknown>)._readSource = 'local'
+        return parsed
+      } catch {
+        // Fallback ke file data bawaan jika belum ada di /tmp
+      }
+    }
     const localContent = await fs.readFile(path.join(process.cwd(), 'data', 'db.json'), 'utf-8')
     const parsed = processParsedData(JSON.parse(localContent))
     ;(parsed as unknown as Record<string, unknown>)._readSource = 'local'
@@ -1379,12 +1389,13 @@ async function writeSupabaseRaw(data: Database) {
     console.warn('Supabase tidak dapat dihubungi saat writeDB:', err)
   }
 
-  // Selalu cadangkan / fallback ke data/db.json secara lokal
+    // Selalu cadangkan / fallback ke db.json secara lokal (gunakan /tmp di Vercel jika filesystem utama read-only)
   try {
     const fs = await getFs()
     const path = await getPath()
     if (fs && path) {
-      const dataDir = path.join(process.cwd(), 'data')
+      const isVercel = Boolean(process.env.VERCEL)
+      const dataDir = isVercel ? '/tmp' : path.join(process.cwd(), 'data')
       await fs.mkdir(dataDir, { recursive: true })
       const filePath = path.join(dataDir, 'db.json')
       const tmpPath = path.join(dataDir, 'db.json.tmp.' + Date.now())
@@ -1397,8 +1408,8 @@ async function writeSupabaseRaw(data: Database) {
       }
     }
   } catch (fileErr) {
-    console.error('Gagal menyimpan ke data/db.json:', fileErr)
-    if (!supabaseSuccess) {
+    console.warn('Gagal menyimpan fallback lokal db.json:', fileErr)
+    if (!supabaseSuccess && !process.env.VERCEL) {
       throw new Error('Gagal menyimpan data ke database cloud maupun lokal.')
     }
   }

@@ -228,14 +228,27 @@ export default function ServicesClient({ initialServices }: { initialServices: S
     formData.append('imagePath', imagePath)
 
     startTransition(async () => {
-      await deleteServiceImage(formData)
-      setEditingService({
-        ...editingService,
-        images: (editingService.images || []).filter(img => img !== imagePath)
-      })
-      setToastMessage('Foto berhasil dihapus dari Draft!')
-      setShowSuccessToast(true)
-      setTimeout(() => setShowSuccessToast(false), 4000)
+      try {
+        const res = await deleteServiceImage(formData)
+        if (res && !res.success) {
+          setToastMessage(`Gagal: ${res.error || 'Gagal menghapus foto'}`)
+          setShowSuccessToast(true)
+          setTimeout(() => setShowSuccessToast(false), 5000)
+          return
+        }
+        setEditingService({
+          ...editingService,
+          images: (editingService.images || []).filter(img => img !== imagePath)
+        })
+        setToastMessage('Foto berhasil dihapus dari Draft!')
+        setShowSuccessToast(true)
+        setTimeout(() => setShowSuccessToast(false), 4000)
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Kendala saat menghapus foto.'
+        setToastMessage(`Gagal: ${msg}`)
+        setShowSuccessToast(true)
+        setTimeout(() => setShowSuccessToast(false), 5000)
+      }
     })
   }
 
@@ -362,11 +375,24 @@ export default function ServicesClient({ initialServices }: { initialServices: S
 
             <form action={async (formData) => {
               startTransition(async () => {
-                await updateService(formData)
-                setToastMessage('Perubahan layanan disimpan ke Draft!')
-                setShowSuccessToast(true)
-                setTimeout(() => setShowSuccessToast(false), 4000)
-                handleCloseModal()
+                try {
+                  const res = await updateService(formData)
+                  if (res && !res.success) {
+                    setToastMessage(`Gagal: ${res.error || 'Terjadi kesalahan sistem'}`)
+                    setShowSuccessToast(true)
+                    setTimeout(() => setShowSuccessToast(false), 5000)
+                    return
+                  }
+                  setToastMessage('Perubahan layanan disimpan ke Draft!')
+                  setShowSuccessToast(true)
+                  setTimeout(() => setShowSuccessToast(false), 4000)
+                  handleCloseModal()
+                } catch (err: unknown) {
+                  const msg = err instanceof Error ? err.message : 'Gagal memproses penyimpanan foto.'
+                  setToastMessage(`Gagal: ${msg}`)
+                  setShowSuccessToast(true)
+                  setTimeout(() => setShowSuccessToast(false), 5000)
+                }
               })
             }} className="flex flex-col flex-1 min-h-0 overflow-hidden">
               <div className="flex-1 overflow-y-auto px-6 sm:px-8 py-5 sm:py-6 space-y-5 overscroll-contain">
