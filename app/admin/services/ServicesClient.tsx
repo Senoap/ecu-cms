@@ -183,6 +183,10 @@ export default function ServicesClient({ initialServices }: { initialServices: S
   const [showSuccessToast, setShowSuccessToast] = useState(false)
   const [toastMessage, setToastMessage] = useState('Berhasil Disimpan ke Draft!')
 
+  const isConvertingAny = useMemo(() => {
+    return previewItems.some(p => p.isConverting)
+  }, [previewItems])
+
   const isDirty = useMemo(() => {
     if (!editingService) return false
     return (
@@ -495,36 +499,46 @@ export default function ServicesClient({ initialServices }: { initialServices: S
               </button>
             </div>
 
-            <form action={async (formData) => {
-              startTransition(async () => {
-                try {
-                  if (previewItems.length > 0 && previewItems.some(p => p.convertedFile)) {
-                    formData.delete('photoFile')
-                    previewItems.forEach(item => {
-                      if (item.convertedFile) {
-                        formData.append('photoFile', item.convertedFile)
-                      }
-                    })
-                  }
-                  const res = await updateService(formData)
-                  if (res && !res.success) {
-                    setToastMessage(`Gagal: ${res.error || 'Terjadi kesalahan sistem'}`)
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                if (isPending || isConvertingAny) return
+
+                const form = e.currentTarget
+                const formData = new FormData(form)
+
+                if (previewItems.length > 0 && previewItems.some(p => p.convertedFile)) {
+                  formData.delete('photoFile')
+                  previewItems.forEach(item => {
+                    if (item.convertedFile) {
+                      formData.append('photoFile', item.convertedFile)
+                    }
+                  })
+                }
+
+                startTransition(async () => {
+                  try {
+                    const res = await updateService(formData)
+                    if (res && !res.success) {
+                      setToastMessage(`Gagal: ${res.error || 'Terjadi kesalahan sistem'}`)
+                      setShowSuccessToast(true)
+                      setTimeout(() => setShowSuccessToast(false), 5000)
+                      return
+                    }
+                    setToastMessage('Perubahan layanan disimpan ke Draft!')
+                    setShowSuccessToast(true)
+                    setTimeout(() => setShowSuccessToast(false), 4000)
+                    handleCloseModal()
+                  } catch (err: unknown) {
+                    const msg = err instanceof Error ? err.message : 'Gagal memproses penyimpanan foto.'
+                    setToastMessage(`Gagal: ${msg}`)
                     setShowSuccessToast(true)
                     setTimeout(() => setShowSuccessToast(false), 5000)
-                    return
                   }
-                  setToastMessage('Perubahan layanan disimpan ke Draft!')
-                  setShowSuccessToast(true)
-                  setTimeout(() => setShowSuccessToast(false), 4000)
-                  handleCloseModal()
-                } catch (err: unknown) {
-                  const msg = err instanceof Error ? err.message : 'Gagal memproses penyimpanan foto.'
-                  setToastMessage(`Gagal: ${msg}`)
-                  setShowSuccessToast(true)
-                  setTimeout(() => setShowSuccessToast(false), 5000)
-                }
-              })
-            }} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+                })
+              }}
+              className="flex flex-col flex-1 min-h-0 overflow-hidden"
+            >
               <div className="flex-1 overflow-y-auto px-6 sm:px-8 py-5 sm:py-6 space-y-5 overscroll-contain">
                 <input type="hidden" name="id" value={editingService.id} />
                 <input type="hidden" name="icon" value={editServiceIcon} />
@@ -685,7 +699,23 @@ export default function ServicesClient({ initialServices }: { initialServices: S
                     <div className="grid grid-cols-4 gap-3">
                       {editingService.images.map((img, idx) => (
                         <div key={idx} className="relative rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#090A0F] h-24 group">
-                          <img src={getDisplayImageUrl(img)} alt={`Gallery ${idx}`} className="w-full h-full object-cover" loading="lazy" />
+                          <img
+                            src={getDisplayImageUrl(img)}
+                            alt={`Gallery ${idx}`}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                            onError={(e) => {
+                              const target = e.currentTarget as HTMLImageElement
+                              target.style.display = 'none'
+                              const parent = target.parentElement
+                              if (parent && !parent.querySelector('.broken-img-tag')) {
+                                const placeholder = document.createElement('div')
+                                placeholder.className = 'broken-img-tag w-full h-full flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-850 text-gray-400 p-2 text-center select-none'
+                                placeholder.innerHTML = '<span class="text-[10px] font-bold text-red-500">Berkas Rusak / Hilang</span><span class="text-[9px] text-gray-500">Klik ✕ untuk hapus</span>'
+                                parent.appendChild(placeholder)
+                              }
+                            }}
+                          />
                           <button
                             type="button"
                             onClick={() => handleDeleteSavedImage(img)}
@@ -714,9 +744,9 @@ export default function ServicesClient({ initialServices }: { initialServices: S
                 </button>
                 <button
                   type="submit"
-                  disabled={!isDirty || isPending}
+                  disabled={!isDirty || isPending || isConvertingAny}
                   className={`px-6 py-2.5 rounded-xl text-xs font-black tracking-widest uppercase transition-all duration-300 border backdrop-blur-md cursor-pointer ${
-                    !isDirty || isPending
+                    !isDirty || isPending || isConvertingAny
                       ? 'bg-gray-200 dark:bg-gray-900/40 text-gray-400 dark:text-gray-600 border-gray-300 dark:border-gray-800/40 cursor-not-allowed opacity-50'
                       : 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600 shadow-sm cursor-pointer'
                   }`}
@@ -725,6 +755,11 @@ export default function ServicesClient({ initialServices }: { initialServices: S
                     <span className="flex items-center gap-2">
                       <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
                       <span>Menyimpan ke Draft...</span>
+                    </span>
+                  ) : isConvertingAny ? (
+                    <span className="flex items-center gap-2">
+                      <span className="w-3.5 h-3.5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></span>
+                      <span>Memproses Foto...</span>
                     </span>
                   ) : (
                     <span className="flex items-center gap-1.5">
