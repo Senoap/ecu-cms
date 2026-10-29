@@ -287,31 +287,31 @@ export default function ServicesClient({ initialServices }: { initialServices: S
       </div>
 
       {/* List Daftar Layanan */}
-      <div className="bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-xl space-y-6 transition-colors">
+      <div className="bg-white dark:bg-[#10131C] p-4 sm:p-6 lg:p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-xl space-y-5 sm:space-y-6 transition-colors">
         <h2 className="text-base font-black text-black dark:text-white tracking-wide uppercase flex items-center gap-2">
-          <Layers className="w-4 h-4" />
+          <Layers className="w-4 h-4 text-blue-600" />
           <span>Daftar Layanan Saat Ini</span>
         </h2>
-        <div className="space-y-4">
+        <div className="space-y-3.5 sm:space-y-4">
           {(initialServices || []).map((srv) => (
-            <div key={srv.id} className="flex justify-between items-center bg-gray-50 dark:bg-[#090A0F] p-5 rounded-2xl border border-gray-200 dark:border-gray-800/90 shadow-sm transition-colors">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 flex items-center justify-center text-black dark:text-white shadow-inner">
+            <div key={srv.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4 bg-gray-50 dark:bg-[#090A0F] p-4 sm:p-5 rounded-2xl border border-gray-200 dark:border-gray-800/90 shadow-sm transition-colors">
+              <div className="flex items-start sm:items-center gap-3.5 sm:gap-4 min-w-0 flex-1">
+                <div className="w-12 h-12 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 flex items-center justify-center text-black dark:text-white shadow-inner shrink-0">
                   <DynamicIcon name={srv.icon} className="w-6 h-6" />
                 </div>
-                <div>
-                  <h3 className="font-bold text-sm text-gray-900 dark:text-white">{srv.title}</h3>
-                  <p className="text-gray-600 dark:text-gray-400 text-xs font-medium">{srv.desc}</p>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-bold text-sm text-gray-900 dark:text-white truncate">{srv.title}</h3>
+                  <p className="text-gray-600 dark:text-gray-400 text-xs font-medium line-clamp-2">{srv.desc}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mt-1">
                     Foto galeri terlampir: {(srv.images || []).length} foto
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2 sm:gap-2.5 w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-gray-200/70 dark:border-gray-800/70 shrink-0">
                 <button
                   type="button"
                   onClick={() => handleOpenEdit(srv)}
-                  className="bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 px-4 py-2.5 rounded-xl text-xs font-extrabold transition-colors border border-blue-200 dark:border-blue-500/30 cursor-pointer shadow-sm"
+                  className="flex-1 sm:flex-initial text-center bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 px-3.5 sm:px-4 py-2.5 rounded-xl text-xs font-extrabold transition-colors border border-blue-200 dark:border-blue-500/30 cursor-pointer shadow-sm"
                 >
                   Edit Konten & Watermark
                 </button>
@@ -323,7 +323,7 @@ export default function ServicesClient({ initialServices }: { initialServices: S
                     setShowSuccessToast(true)
                     setTimeout(() => setShowSuccessToast(false), 4000)
                   })
-                }}>
+                }} className="shrink-0">
                   <input type="hidden" name="id" value={srv.id} />
                   <button type="submit" className="bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/60 text-red-700 dark:text-red-300 px-3.5 py-2.5 rounded-xl text-xs font-extrabold transition-colors border border-red-200 dark:border-red-500/30 cursor-pointer shadow-sm">
                     Hapus
