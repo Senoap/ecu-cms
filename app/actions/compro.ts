@@ -168,7 +168,7 @@ export async function submitComproRequest(formData: FormData): Promise<{ success
     const tpl = db.comproEmailTemplate || defaultComproEmailTemplate
     const pdfUrl = tpl.pdfUrl || '/compro.pdf'
     const siteName = db.setting?.siteName || 'PT Empat Sinergi Utama'
-    const siteUrl = getSiteUrl()
+    const siteUrl = db.seoSetting?.canonicalUrl?.trim() || getSiteUrl()
     const comproUrl = toAbsoluteUrl(pdfUrl) || `${siteUrl}/compro.pdf`
 
     const replacePlaceholders = (str: string) =>
@@ -240,7 +240,7 @@ export async function resendComproEmailAction(requestId: string): Promise<{ succ
 
     const tpl = db.comproEmailTemplate || defaultComproEmailTemplate
     const pdfUrl = tpl.pdfUrl || '/compro.pdf'
-    const siteUrl = getSiteUrl()
+    const siteUrl = db.seoSetting?.canonicalUrl?.trim() || getSiteUrl()
     const comproUrl = toAbsoluteUrl(pdfUrl) || `${siteUrl}/compro.pdf`
 
     const replacePlaceholders = (str: string) =>

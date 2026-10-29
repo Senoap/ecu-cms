@@ -1,7 +1,7 @@
 // app/admin/services/ServicesClient.tsx
 'use client'
 import { useState, useMemo, useTransition } from 'react'
-import { Save, Briefcase, Layers, Plus } from 'lucide-react'
+import { Save, Briefcase, Layers, Plus, X } from 'lucide-react'
 import type { ServiceItem } from '@/lib/db'
 import { AVAILABLE_ICONS, DynamicIcon } from '@/components/DynamicIcon'
 import { addService, updateService, deleteService, deleteServiceImage } from './actions'
@@ -152,6 +152,11 @@ export default function ServicesClient({ initialServices }: { initialServices: S
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingService, setEditingService] = useState<ServiceItem | null>(null)
 
+  // State untuk Modal Tambah Layanan
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [addTitle, setAddTitle] = useState('')
+  const [addDesc, setAddDesc] = useState('')
+
   // State untuk Preview Foto, Caption, dan Watermark
   const [previewUrls, setPreviewUrls] = useState<string[]>([])
   const [watermarkCaption, setWatermarkCaption] = useState('PT. EMPAT SINERGI UTAMA')
@@ -264,7 +269,8 @@ export default function ServicesClient({ initialServices }: { initialServices: S
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
+      {/* HEADER SECTION (STICKY) */}
+      <div className="sticky top-0 z-20 bg-[#F4F6F9] dark:bg-[#0C0D12] !-mt-6 md:!-mt-8 pt-6 md:pt-8 pb-5 border-b border-gray-200 dark:border-gray-800 transition-colors flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white">
             Kelola Layanan (Services)
@@ -273,52 +279,15 @@ export default function ServicesClient({ initialServices }: { initialServices: S
             Tambah, edit isi konten, ikon visual, dan foto galeri dengan opsi watermark diagonal.
           </p>
         </div>
-      </div>
 
-      {/* Form Tambah Layanan Baru */}
-      <div className="bg-white dark:bg-[#10131C] p-8 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-xl space-y-6 transition-colors">
-        <h2 className="text-base font-black text-black dark:text-white tracking-wide uppercase flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setIsAddModalOpen(true)}
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors cursor-pointer shrink-0 shadow-xs"
+        >
           <Plus className="w-4 h-4" />
-          <span>Tambah Layanan Baru</span>
-        </h2>
-        <form action={async (formData) => {
-          startTransition(async () => {
-            await addService(formData)
-            setToastMessage('Layanan baru berhasil disimpan ke Draft!')
-            setShowSuccessToast(true)
-            setTimeout(() => setShowSuccessToast(false), 4000)
-          })
-        }} className="space-y-4">
-          <input type="hidden" name="icon" value={newServiceIcon} />
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-2 space-y-2">
-              <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Judul Layanan</label>
-              <input type="text" name="title" required placeholder="Contoh: Jasa Pengamanan" className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 font-medium shadow-inner transition-colors" />
-            </div>
-            <div className="space-y-2">
-              <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Pilih Ikon Visual</label>
-              <button
-                type="button"
-                onClick={() => { setIconTarget('add'); setIsIconModalOpen(true); }}
-                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 hover:border-gray-400 dark:hover:border-gray-600 rounded-2xl px-4 py-3 text-gray-900 dark:text-white flex items-center justify-between transition-colors shadow-inner cursor-pointer"
-              >
-                <div className="flex items-center gap-2.5">
-                  <DynamicIcon name={newServiceIcon} className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                  <span className="text-xs font-bold">{newServiceIcon}</span>
-                </div>
-                <span className="text-xs text-gray-500 dark:text-gray-400 font-bold underline">Ganti</span>
-              </button>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">Deskripsi Singkat (Card Home)</label>
-            <textarea name="desc" rows={2} placeholder="Penjelasan ringkas..." className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 font-medium shadow-inner transition-colors"></textarea>
-          </div>
-          <button type="submit" disabled={isPending} className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs uppercase tracking-widest px-6 py-3.5 rounded-xl transition-all shadow-sm cursor-pointer">
-            {isPending ? 'Menyimpan...' : 'Simpan Layanan Baru ke Draft'}
-          </button>
-        </form>
+          <span>Tambah Layanan</span>
+        </button>
       </div>
 
       {/* List Daftar Layanan */}
@@ -593,9 +562,121 @@ export default function ServicesClient({ initialServices }: { initialServices: S
         </div>
       )}
 
+      {/* MODAL TAMBAH LAYANAN BARU */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#10131C] border border-gray-200 dark:border-gray-800 rounded-3xl p-6 sm:p-8 w-full max-w-xl shadow-2xl space-y-6 relative animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-blue-600/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 flex items-center justify-center font-bold">
+                  <Plus className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-gray-900 dark:text-white uppercase tracking-wide">
+                    Tambah Layanan Baru
+                  </h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Masukkan judul, ikon, dan deskripsi singkat untuk kartu beranda.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAddModalOpen(false)}
+                className="w-8 h-8 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 flex items-center justify-center font-bold text-sm transition-colors cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form
+              action={async (formData) => {
+                startTransition(async () => {
+                  await addService(formData)
+                  setIsAddModalOpen(false)
+                  setAddTitle('')
+                  setAddDesc('')
+                  setNewServiceIcon('Briefcase')
+                  setToastMessage('Layanan baru berhasil ditambahkan ke Draft!')
+                  setShowSuccessToast(true)
+                  setTimeout(() => setShowSuccessToast(false), 4000)
+                })
+              }}
+              className="space-y-4"
+            >
+              <input type="hidden" name="icon" value={newServiceIcon} />
+
+              <div className="space-y-2">
+                <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">
+                  Judul Layanan
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  required
+                  value={addTitle}
+                  onChange={(e) => setAddTitle(e.target.value)}
+                  placeholder="Contoh: Jasa Pengamanan"
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 font-medium shadow-inner transition-colors"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">
+                  Pilih Ikon Visual
+                </label>
+                <button
+                  type="button"
+                  onClick={() => { setIconTarget('add'); setIsIconModalOpen(true); }}
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 hover:border-gray-400 dark:hover:border-gray-600 rounded-2xl px-4 py-3 text-gray-900 dark:text-white flex items-center justify-between transition-colors shadow-inner cursor-pointer"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <DynamicIcon name={newServiceIcon} className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                    <span className="text-xs font-bold">{newServiceIcon}</span>
+                  </div>
+                  <span className="text-xs text-blue-600 dark:text-blue-400 font-bold underline">Ganti Ikon</span>
+                </button>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">
+                  Deskripsi Singkat (Card Home)
+                </label>
+                <textarea
+                  name="desc"
+                  rows={3}
+                  value={addDesc}
+                  onChange={(e) => setAddDesc(e.target.value)}
+                  placeholder="Penjelasan ringkas layanan untuk kartu beranda..."
+                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 font-medium shadow-inner transition-colors"
+                ></textarea>
+              </div>
+
+              <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-gray-100 dark:border-gray-800">
+                <button
+                  type="button"
+                  onClick={() => setIsAddModalOpen(false)}
+                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={isPending || !addTitle.trim()}
+                  className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all shadow-sm cursor-pointer flex items-center gap-2"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  <span>{isPending ? 'Menyimpan...' : 'Simpan Layanan Baru'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* POPUP MODAL PILIH IKON */}
       {isIconModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-5 overflow-hidden">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-5 overflow-hidden">
           <div className="bg-white dark:bg-[#10131C] border border-gray-200 dark:border-gray-800 w-full max-w-6xl max-h-[92vh] max-h-[92dvh] rounded-3xl p-6 sm:p-8 shadow-2xl flex flex-col space-y-5 relative animate-in fade-in zoom-in duration-200 transition-colors overflow-hidden">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-5 shrink-0">
               <div>

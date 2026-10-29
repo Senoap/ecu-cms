@@ -1,6 +1,6 @@
 // components/GallerySectionClient.tsx
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { useLanguage } from '@/components/LanguageContext'
 import { SectionConfig, GalleryHeaderContent } from '@/lib/db'
@@ -102,15 +102,12 @@ export default function GallerySectionClient({ sec, galleryHeader, galleries, pr
 
 function CategoryUniformSlider({ categoryName, items, primaryColor, onImageClick }: { categoryName: string; items: GalleryItem[]; primaryColor: string; onImageClick: (item: GalleryItem) => void }) {
   const N = items.length
-  const { t } = useLanguage()
-  const [currentIndex, setCurrentIndex] = useState(N)
-  const [enableTransition, setEnableTransition] = useState(true)
   const [cardWidth, setCardWidth] = useState(340)
   const [isPaused, setIsPaused] = useState(false)
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
 
-  // Responsif card width untuk mobile screen & multi-window (2/4 jendela)
+  // Responsif card width untuk mobile screen & multi-window
   useEffect(() => {
     const updateWidth = () => {
       if (typeof window === 'undefined') return
@@ -130,27 +127,47 @@ function CategoryUniformSlider({ categoryName, items, primaryColor, onImageClick
     return () => window.removeEventListener('resize', updateWidth)
   }, [])
 
-  // Gandakan array menjadi 3 set (Triple-Buffer) untuk infinite loop seamless
-  const extendedItems = [...items, ...items, ...items]
+  // Gandakan array agar selalu cukup panjang untuk continuous infinite loop mulus tanpa celah
+  const repeatCount = useMemo(() => {
+    if (N <= 0) return 0
+    return Math.max(5, Math.ceil(15 / N))
+  }, [N])
 
-  // Auto slide 1 foto per interval 4 detik, dijeda jika di-hover, tab tidak aktif, atau reduced-motion aktif
+  const extendedItems = useMemo(() => {
+    if (N <= 0) return []
+    const list: GalleryItem[] = []
+    for (let i = 0; i < repeatCount; i++) {
+      list.push(...items)
+    }
+    return list
+  }, [items, repeatCount, N])
+
+  const middleSet = Math.floor(repeatCount / 2)
+  const [currentIndex, setCurrentIndex] = useState(() => middleSet * N)
+  const [enableTransition, setEnableTransition] = useState(true)
+
+  // Auto slide interval 3.5 detik jika ada lebih dari 1 foto dan tidak sedang di-pause
   useEffect(() => {
     if (N <= 1 || isPaused) return
     const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (prefersReducedMotion) return
 
     const interval = setInterval(() => {
-      if (document.hidden) return
+      if (typeof document !== 'undefined' && document.hidden) return
+      setEnableTransition(true)
       setCurrentIndex((prev) => prev + 1)
-    }, 4000)
+    }, 3500)
+
     return () => clearInterval(interval)
   }, [N, isPaused])
 
   // Reset posisi secara instan tanpa animasi saat mencapai batas set terakhir atau awal
   const handleTransitionEnd = () => {
-    if (currentIndex >= N * 2) {
+    if (N <= 1) return
+    if (currentIndex >= (repeatCount - 1) * N) {
       setEnableTransition(false)
-      setCurrentIndex(N)
+      const target = middleSet * N + (currentIndex % N)
+      setCurrentIndex(target)
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           setEnableTransition(true)
@@ -158,7 +175,8 @@ function CategoryUniformSlider({ categoryName, items, primaryColor, onImageClick
       })
     } else if (currentIndex < N) {
       setEnableTransition(false)
-      setCurrentIndex(N * 2 - 1)
+      const target = middleSet * N + (currentIndex % N)
+      setCurrentIndex(target)
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           setEnableTransition(true)
@@ -179,6 +197,7 @@ function CategoryUniformSlider({ categoryName, items, primaryColor, onImageClick
 
   // Dukungan Swipe Touch Gestures untuk iOS dan Android
   const handleTouchStart = (e: React.TouchEvent) => {
+    setIsPaused(true)
     setTouchEnd(null)
     setTouchStart(e.targetTouches[0].clientX)
   }
@@ -188,6 +207,7 @@ function CategoryUniformSlider({ categoryName, items, primaryColor, onImageClick
   }
 
   const handleTouchEnd = () => {
+    setIsPaused(false)
     if (!touchStart || !touchEnd) return
     const distance = touchStart - touchEnd
     const isLeftSwipe = distance > 40
@@ -203,49 +223,81 @@ function CategoryUniformSlider({ categoryName, items, primaryColor, onImageClick
 
   if (N === 0) return null
 
+  // Kasus Khusus: Jika kategori hanya memiliki 1 foto, tampilkan 1 kartu terpusat tanpa tombol geser / duplikat palsu
+  if (N === 1) {
+    const item = items[0]
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between px-2">
+          <h3 className="text-base sm:text-lg font-black text-gray-900 dark:text-white tracking-wide flex items-center gap-2">
+            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: primaryColor }}></span>
+            <span>{categoryName}</span>
+          </h3>
+        </div>
+        <div className="flex justify-center py-4 px-2">
+          <div 
+            onClick={() => onImageClick(item)}
+            style={{ width: `${cardWidth}px` }}
+            className="bg-white dark:bg-[#0D1017] rounded-3xl overflow-hidden shadow-xl border border-gray-100 dark:border-gray-800 group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl ring-2 ring-amber-500/50"
+          >
+            <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-gray-900">
+              <img 
+                src={item.imageUrl} 
+                alt={item.title || 'Foto Dokumentasi Kegiatan Operasional'} 
+                loading="lazy"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+              <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6 text-white space-y-2">
+                <span className="text-[10px] font-black uppercase tracking-widest bg-amber-500 text-white px-2.5 py-0.5 rounded-full inline-block">
+                  {item.category || categoryName}
+                </span>
+                <h4 className="text-base sm:text-lg font-black tracking-tight text-white line-clamp-1">{item.title}</h4>
+                <p className="text-gray-200 text-xs line-clamp-2 font-medium">{item.desc}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   const gap = 20
 
   return (
-    <div 
-      className="space-y-4"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
-      onFocus={() => setIsPaused(true)}
-      onBlur={() => setIsPaused(false)}
-    >
+    <div className="space-y-4">
       <div className="flex items-center justify-between px-2">
         <h3 className="text-base sm:text-lg font-black text-gray-900 dark:text-white tracking-wide flex items-center gap-2">
           <span className="w-3 h-3 rounded-full" style={{ backgroundColor: primaryColor }}></span>
           <span>{categoryName}</span>
         </h3>
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-bold text-gray-600 dark:text-gray-400">
-            {t.gallery.photo} {(currentIndex % N) + 1} {t.gallery.of} {N}
-          </span>
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={slidePrev}
-              aria-label="Foto sebelumnya"
-              className="p-1.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-amber-500 hover:text-white transition-colors cursor-pointer"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={slideNext}
-              aria-label="Foto selanjutnya"
-              className="p-1.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-amber-500 hover:text-white transition-colors cursor-pointer"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
+        
+        {/* Navigasi Panah Kiri / Kanan (Label "Foto X dari Y" dihilangkan sesuai permintaan) */}
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={slidePrev}
+            aria-label="Foto sebelumnya"
+            className="p-1.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-amber-500 hover:text-white transition-colors cursor-pointer"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            onClick={slideNext}
+            aria-label="Foto selanjutnya"
+            className="p-1.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-amber-500 hover:text-white transition-colors cursor-pointer"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
         </div>
       </div>
 
       {/* Container Slider dengan Continuous Infinite Loop, Touch Swipe & Posisi Tengah */}
       <div 
         className="relative overflow-hidden w-full py-6 px-2 touch-pan-y"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}

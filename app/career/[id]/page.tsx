@@ -44,7 +44,8 @@ export default async function CareerDetailPage({
 
   const hrEmail = await getAppSetting(HR_EMAIL_KEY)
 
-  const siteUrl = getSiteUrl()
+  const customDomain = db.seoSetting?.canonicalUrl?.trim()
+  const siteUrl = customDomain ? customDomain.replace(/\/+$/, '') : getSiteUrl()
   const jobPostingJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'JobPosting',

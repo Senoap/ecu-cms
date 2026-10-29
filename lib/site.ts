@@ -1,7 +1,30 @@
 // lib/site.ts
 // Sumber tunggal URL situs & helper JSON-LD agar canonical, sitemap, robots, dan structured data konsisten.
 
-const DEFAULT_SITE_URL = 'https://empatsinergiutama.com'
+const DEFAULT_SITE_URL = 'https://domain.anda'
+
+/**
+ * Normalisasi input domain dari admin agar selalu berformat URL valid:
+ * Contoh:
+ * - 'domain.anda' -> 'https://domain.anda'
+ * - 'www.domain.anda' -> 'https://www.domain.anda'
+ * - 'http://pt-esu.id/' -> 'https://pt-esu.id'
+ */
+export function normalizeDomainUrl(input?: string | null): string {
+  if (!input) return ''
+  let cleaned = input.trim()
+  if (!cleaned) return ''
+  // Hapus trailing slash
+  cleaned = cleaned.replace(/\/+$/, '')
+  // Jika tidak diawali protokol http:// atau https://, tambahkan https://
+  if (!/^https?:\/\//i.test(cleaned)) {
+    cleaned = `https://${cleaned}`
+  } else if (cleaned.startsWith('http://')) {
+    // Upgrade otomatis http ke https
+    cleaned = cleaned.replace(/^http:\/\//i, 'https://')
+  }
+  return cleaned
+}
 
 /** URL publik situs tanpa trailing slash. Atur NEXT_PUBLIC_SITE_URL di environment production. */
 export function getSiteUrl(): string {

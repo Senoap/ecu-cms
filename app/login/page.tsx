@@ -3,17 +3,17 @@
 
 import { useState, useTransition, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { 
-  AlertCircle, 
-  Lock, 
-  KeyRound, 
-  AlertTriangle, 
-  Clock, 
-  CheckCircle2, 
-  XCircle, 
-  Eye, 
-  EyeOff, 
-  ArrowLeft 
+import {
+  AlertCircle,
+  Lock,
+  KeyRound,
+  AlertTriangle,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  Eye,
+  EyeOff,
+  ArrowLeft
 } from 'lucide-react'
 import { validatePasswordStrength } from '@/lib/password'
 import { loginAdmin, changePasswordOnLoginAction, getLoginBrandingAction, type LoginResult } from './actions'
@@ -65,7 +65,7 @@ export default function AdminLoginPage() {
         if (res?.siteName) setSiteName(res.siteName)
         if (res?.bgImageUrl) setBgImageUrl(res.bgImageUrl)
       })
-      .catch(() => {})
+      .catch(() => { })
   }, [])
 
   // Validasi kekuatan password baru secara real-time (Point 5)
@@ -75,7 +75,7 @@ export default function AdminLoginPage() {
   const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setErrorMsg('')
-    
+
     const formData = new FormData(e.currentTarget)
     const enteredPassword = String(formData.get('password') ?? '')
 
@@ -167,34 +167,31 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div 
-      data-admin-scope="true" 
+    <div
+      data-admin-scope="true"
       style={{
         paddingTop: 'max(1rem, calc(env(safe-area-inset-top, 0px) + 0.75rem))',
         paddingBottom: 'max(1rem, calc(env(safe-area-inset-bottom, 0px) + 0.75rem))',
       }}
-      className={`min-h-screen min-h-[100dvh] w-full flex items-center justify-center px-4 sm:px-6 font-sans relative transition-colors duration-300 ${
-        isDarkMode ? 'bg-[#090A0F] text-gray-100' : 'bg-[#F8F7F4] text-gray-800'
-      }`}
+      className={`min-h-screen min-h-[100dvh] w-full flex items-center justify-center px-4 sm:px-6 font-sans relative transition-colors duration-300 ${isDarkMode ? 'bg-[#090A0F] text-gray-100' : 'bg-[#F8F7F4] text-gray-800'
+        }`}
     >
       {/* Background Image Container yang sama dengan Web Compro */}
       {bgImageUrl && (
-        <div 
+        <div
           className="fixed inset-0 pointer-events-none z-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${bgImageUrl})` }}
         />
       )}
 
       {/* Overlay Tipis agar kartu login tetap kontras terbaca */}
-      <div className={`fixed inset-0 pointer-events-none z-0 ${
-        isDarkMode ? 'bg-black/90' : 'bg-[#F9F8F5]/92'
-      }`}></div>
+      <div className={`fixed inset-0 pointer-events-none z-0 ${isDarkMode ? 'bg-black/90' : 'bg-[#F9F8F5]/92'
+        }`}></div>
 
       <div className="relative z-10 w-full max-w-lg">
-        <div className={`p-6 sm:p-8 rounded-2xl shadow-2xl border space-y-6 backdrop-blur-md ${
-          isDarkMode ? 'bg-[#13161F]/95 border-[#222736]' : 'bg-white/95 border-gray-200'
-        }`}>
-          
+        <div className={`p-6 sm:p-8 rounded-2xl shadow-2xl border space-y-6 backdrop-blur-md ${isDarkMode ? 'bg-[#13161F]/95 border-[#222736]' : 'bg-white/95 border-gray-200'
+          }`}>
+
           {/* HEADER LOGO */}
           <div className="text-center space-y-2.5">
             <div className="w-16 h-16 mx-auto rounded-xl bg-[#6B0808] flex items-center justify-center text-white font-bold text-xl shadow-sm overflow-hidden p-1.5">
@@ -219,13 +216,12 @@ export default function AdminLoginPage() {
           {/* MODE FORM 1: RESET PASSWORD WAJIB (EXPIRED / H-7 / MUST RESET) */}
           {resetData ? (
             <div className="space-y-5 animate-in fade-in duration-200">
-              
+
               {/* BANNER PENJELASAN ALASAN RESET */}
-              <div className={`p-4 rounded-2xl border text-xs space-y-1.5 ${
-                resetData.isExpired 
-                  ? 'bg-rose-500/10 border-rose-500/30 text-rose-800 dark:text-rose-300'
-                  : 'bg-amber-500/10 border-amber-500/30 text-amber-800 dark:text-amber-300'
-              }`}>
+              <div className={`p-4 rounded-2xl border text-xs space-y-1.5 ${resetData.isExpired
+                ? 'bg-rose-500/10 border-rose-500/30 text-rose-800 dark:text-rose-300'
+                : 'bg-amber-500/10 border-amber-500/30 text-amber-800 dark:text-amber-300'
+                }`}>
                 <div className="flex items-center gap-2 font-black uppercase tracking-wider">
                   {resetData.isExpired ? (
                     <>
@@ -235,13 +231,13 @@ export default function AdminLoginPage() {
                   ) : (
                     <>
                       <AlertTriangle className="w-4 h-4 shrink-0 text-amber-600" />
-                      <span>Peringatan Keamanan Berkala (H-{resetData.daysRemaining})</span>
+                      <span>{resetData.reason === 'must_reset' ? 'Aktivasi Akun & Keamanan (Wajib Ganti Password)' : `Peringatan Keamanan Berkala (H-${resetData.daysRemaining})`}</span>
                     </>
                   )}
                 </div>
                 <p className="text-[11px] leading-relaxed opacity-90">
                   {resetData.reason === 'must_reset'
-                    ? `Halo ${resetData.name}, password akun Anda baru saja di-reset oleh Administrator. Silakan buat password baru Anda untuk melanjutkan.`
+                    ? `Halo ${resetData.name}, ini adalah login pertama Anda (atau password baru saja diatur oleh Administrator). Demi kepatuhan keamanan data, Anda wajib membuat password pribadi baru untuk melanjutkan.`
                     : resetData.isExpired
                       ? `Masa berlaku password akun "${resetData.name}" telah melewati batas 3 bulan (90 hari). Demi kepatuhan keamanan data, Anda wajib membuat password baru.`
                       : `Masa aktif password akun "${resetData.name}" tersisa ${resetData.daysRemaining} hari lagi (kurang dari 7 hari). Silakan perbarui password Anda sekarang.`}
@@ -256,7 +252,7 @@ export default function AdminLoginPage() {
               )}
 
               <form onSubmit={handleResetSubmit} className="space-y-4">
-                
+
                 {/* 1. OLD PASSWORD */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400">
@@ -270,11 +266,10 @@ export default function AdminLoginPage() {
                       onChange={(e) => setOldPassword(e.target.value)}
                       placeholder="Masukkan password lama..."
                       autoComplete="current-password"
-                      className={`w-full pl-10 pr-10 py-3 rounded-xl border text-base sm:text-sm font-medium outline-none transition-all ${
-                        isDarkMode 
-                          ? 'bg-gray-950/80 border-gray-800 text-white focus:border-amber-500' 
-                          : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-amber-600'
-                      }`}
+                      className={`w-full pl-10 pr-10 py-3 rounded-xl border text-base sm:text-sm font-medium outline-none transition-all ${isDarkMode
+                        ? 'bg-gray-950/80 border-gray-800 text-white focus:border-amber-500'
+                        : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-amber-600'
+                        }`}
                       required
                     />
                     <button
@@ -300,11 +295,10 @@ export default function AdminLoginPage() {
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="Masukkan password baru..."
                       autoComplete="new-password"
-                      className={`w-full pl-10 pr-10 py-3 rounded-xl border text-base sm:text-sm font-medium outline-none transition-all ${
-                        isDarkMode 
-                          ? 'bg-gray-950/80 border-gray-800 text-white focus:border-amber-500' 
-                          : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-amber-600'
-                      }`}
+                      className={`w-full pl-10 pr-10 py-3 rounded-xl border text-base sm:text-sm font-medium outline-none transition-all ${isDarkMode
+                        ? 'bg-gray-950/80 border-gray-800 text-white focus:border-amber-500'
+                        : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-amber-600'
+                        }`}
                       required
                     />
                     <button
@@ -330,11 +324,10 @@ export default function AdminLoginPage() {
                       onChange={(e) => setVerifyPassword(e.target.value)}
                       placeholder="Ulangi password baru..."
                       autoComplete="new-password"
-                      className={`w-full pl-10 pr-10 py-3 rounded-xl border text-base sm:text-sm font-medium outline-none transition-all ${
-                        isDarkMode 
-                          ? 'bg-gray-950/80 border-gray-800 text-white focus:border-amber-500' 
-                          : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-amber-600'
-                      }`}
+                      className={`w-full pl-10 pr-10 py-3 rounded-xl border text-base sm:text-sm font-medium outline-none transition-all ${isDarkMode
+                        ? 'bg-gray-950/80 border-gray-800 text-white focus:border-amber-500'
+                        : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-amber-600'
+                        }`}
                       required
                     />
                     <button
@@ -348,11 +341,10 @@ export default function AdminLoginPage() {
                 </div>
 
                 {/* REALTIME PASSWORD STRENGTH CHECKLIST (POINT 5) */}
-                <div className={`p-3.5 rounded-2xl border space-y-2 ${
-                  isDarkMode ? 'bg-gray-950/60 border-gray-800' : 'bg-gray-50 border-gray-200'
-                }`}>
+                <div className={`p-3.5 rounded-2xl border space-y-2 ${isDarkMode ? 'bg-gray-950/60 border-gray-800' : 'bg-gray-50 border-gray-200'
+                  }`}>
                   <div className="text-[11px] font-black uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                    Kriteria Wajib Password (Panjang min 8, Uppercase, Lowercase, Number, Simbol):
+                    Kriteria Wajib Password:
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[11px]">
                     <div className={`flex items-center gap-1.5 font-medium ${newPasswordVal.details.minLength ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'}`}>
@@ -412,11 +404,10 @@ export default function AdminLoginPage() {
                   autoComplete="username"
                   autoCapitalize="none"
                   placeholder="admin atau nama user..."
-                  className={`w-full px-3.5 py-2.5 rounded-lg border text-sm font-medium outline-none transition-all ${
-                    isDarkMode 
-                      ? 'bg-[#181C28] border-[#262C3D] text-zinc-100 focus:border-[#8B1E1E]' 
-                      : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-[#6B0808]'
-                  }`}
+                  className={`w-full px-3.5 py-2.5 rounded-lg border text-sm font-medium outline-none transition-all ${isDarkMode
+                    ? 'bg-[#181C28] border-[#262C3D] text-zinc-100 focus:border-[#8B1E1E]'
+                    : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-[#6B0808]'
+                    }`}
                 />
               </div>
 
@@ -429,11 +420,10 @@ export default function AdminLoginPage() {
                   name="password"
                   autoComplete="current-password"
                   placeholder="Masukkan password..."
-                  className={`w-full px-4 py-3.5 rounded-2xl border text-base sm:text-sm font-medium outline-none transition-all duration-300 ${
-                    isDarkMode 
-                      ? 'bg-gray-950/80 border-gray-800 text-white focus:border-amber-500' 
-                      : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-amber-600'
-                  }`}
+                  className={`w-full px-4 py-3.5 rounded-2xl border text-base sm:text-sm font-medium outline-none transition-all duration-300 ${isDarkMode
+                    ? 'bg-gray-950/80 border-gray-800 text-white focus:border-amber-500'
+                    : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-amber-600'
+                    }`}
                   required
                 />
                 {errorMsg && (

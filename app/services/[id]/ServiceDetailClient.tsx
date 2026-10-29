@@ -2,7 +2,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { MessageSquare, Sun, Moon } from 'lucide-react'
+import { MessageSquare, Mail, Sun, Moon } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import { DynamicIcon } from '@/components/DynamicIcon'
 import { useLanguage } from '@/components/LanguageContext'
@@ -50,10 +50,64 @@ export default function ServiceDetailClient({
   const desc = srv.desc
   const content = srv.content || srv.desc
 
+  const companyName = setting.siteName || 'PT. EMPAT SINERGI UTAMA'
   const waNumber = formatWhatsAppNumber(footer?.whatsapp || footer?.phone)
-  const waMessage = encodeURIComponent(
-    `Halo PT 4SU, saya ingin berkonsultasi mengenai layanan: ${title}`
-  )
+
+  // Template WA diambil dari CMS (Menu Kontak & Footer) dengan dukungan variabel dinamis {layanan} dan {perusahaan}
+  const rawWaTemplate = footer?.inquiryTemplates?.waMessage || 
+    `Halo Tim {perusahaan},\n\nSaya ingin berkonsultasi mengenai layanan: *{layanan}*.\n\nMohon informasi mengenai ruang lingkup operasional, kualifikasi penempatan personel, dan penawaran kerjasamanya.\n\nTerima kasih.`
+
+  const parsedWaText = rawWaTemplate
+    .replace(/{layanan}|{service}/gi, title)
+    .replace(/{company}|{perusahaan}/gi, companyName)
+
+  const finalWaText = parsedWaText.includes(title) 
+    ? parsedWaText 
+    : `${parsedWaText}\n\n(Layanan yang ditanyakan: *${title}*)`
+
+  const waMessage = encodeURIComponent(finalWaText)
+
+  const emailRecipient = footer?.email || 'manpower.services@empatsinergiumata.com'
+  
+  // Template Subjek Email dari CMS dengan variabel dinamis
+  const rawEmailSubject = footer?.inquiryTemplates?.emailSubject || 
+    `Konsultasi Layanan: {layanan} - [Nama Perusahaan]`
+
+  const parsedEmailSubject = rawEmailSubject
+    .replace(/{layanan}|{service}/gi, title)
+    .replace(/{company}|{perusahaan}/gi, companyName)
+
+  const finalEmailSubject = parsedEmailSubject.includes(title)
+    ? parsedEmailSubject
+    : `${parsedEmailSubject} - ${title}`
+
+  const emailSubject = encodeURIComponent(finalEmailSubject)
+
+  // Template Isi Pesan Email dari CMS dengan variabel dinamis
+  const rawEmailBody = footer?.inquiryTemplates?.emailBody ||
+    `Kepada Yth. Tim Konsultan {perusahaan},\n\n` +
+    `Kami tertarik untuk berkonsultasi lebih lanjut mengenai layanan:\n` +
+    `Layanan: {layanan}\n\n` +
+    `Berikut ringkasan kebutuhan awal kami:\n` +
+    `• Nama Perusahaan / Instansi : \n` +
+    `• Kontak Person (Nama & HP) : \n` +
+    `• Lokasi Penempatan Operasional: \n` +
+    `• Estimasi Jumlah Personel / Volume: \n` +
+    `• Catatan Kebutuhan Khusus   : \n\n` +
+    `Mohon informasi mengenai proposal penawaran, proses kerja sama, atau jadwal pertemuan/survei lokasi.\n\n` +
+    `Terima kasih.\n\n` +
+    `Hormat kami,\n` +
+    `[Nama Anda / Jabatan]`
+
+  const parsedEmailBody = rawEmailBody
+    .replace(/{layanan}|{service}/gi, title)
+    .replace(/{company}|{perusahaan}/gi, companyName)
+
+  const finalEmailBody = parsedEmailBody.includes(title)
+    ? parsedEmailBody
+    : `Layanan yang ditanyakan: ${title}\n\n${parsedEmailBody}`
+
+  const emailBody = encodeURIComponent(finalEmailBody)
 
   return (
     <div className="min-h-screen bg-[#F8F7F4] dark:bg-[#090A0F] text-gray-800 dark:text-gray-100 font-sans transition-colors duration-300">
@@ -145,39 +199,52 @@ export default function ServiceDetailClient({
           </div>
         )}
 
-        {/* CTA Konsultasi & Pengajuan Layanan */}
-        <div className="bg-gradient-to-br from-gray-900 via-gray-950 to-black text-white p-8 sm:p-12 rounded-3xl text-center space-y-6 shadow-2xl border border-gray-800">
-          <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
-            <MessageSquare className="w-8 h-8" />
-          </div>
-          <div className="space-y-2 max-w-xl mx-auto">
-            <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-              Tertarik Menggunakan Layanan Ini?
-            </h3>
-            <p className="text-gray-300 text-xs sm:text-sm font-medium leading-relaxed">
-              Diskusikan kebutuhan operasional dan penempatan tenaga kerja profesional bersama tim konsultan kami.
-            </p>
-          </div>
+        {/* KONSULTASI LAYANAN (MINIMALIS & PROFESIONAL) */}
+        <div className="bg-white dark:bg-[#10131C] border border-gray-200/90 dark:border-gray-800 rounded-2xl p-6 sm:p-8 shadow-sm transition-all duration-300">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            
+            {/* Sisi Kiri: Informasi Singkat & Elegan */}
+            <div className="space-y-1.5 max-w-xl">
+              <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-amber-700 dark:text-amber-400">
+                <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                <span>Konsultasi & Penawaran Resmi</span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight">
+                Diskusikan Kebutuhan {title}
+              </h3>
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium leading-relaxed">
+                Dapatkan proposal kerja sama resmi, survei lokasi operasional, dan estimasi penempatan tenaga kerja profesional dari tim konsultan kami.
+              </p>
+            </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
-            {waNumber && (
-              <a
-                href={`https://wa.me/${waNumber}?text=${waMessage}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto px-8 py-4 rounded-xl text-xs sm:text-sm font-black text-white bg-emerald-600 hover:bg-emerald-500 shadow-xl transition-all duration-300 active:scale-95 uppercase tracking-wider flex items-center justify-center gap-2"
-              >
-                <MessageSquare className="w-4 h-4" />
-                <span>Konsultasi via WhatsApp</span>
-              </a>
-            )}
-            <Link
-              href="/#contact"
-              className="w-full sm:w-auto px-8 py-4 rounded-xl text-xs sm:text-sm font-black text-white shadow-xl transition-all duration-300 active:scale-95 uppercase tracking-wider text-center"
-              style={{ backgroundColor: setting.primaryColor }}
-            >
-              {t.common.contactUs} &rarr;
-            </Link>
+            {/* Sisi Kanan: Opsi WhatsApp & Email yang Selaras & Elegan */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+              {waNumber && (
+                <a
+                  href={`https://wa.me/${waNumber}?text=${waMessage}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs sm:text-sm font-extrabold text-white transition-all duration-300 hover:opacity-90 active:scale-95 shadow-sm"
+                  style={{ backgroundColor: '#25D366' }}
+                  title="Konsultasi langsung via WhatsApp"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  <span>Konsultasi WhatsApp</span>
+                </a>
+              )}
+
+              {emailRecipient && (
+                <a
+                  href={`mailto:${emailRecipient}?subject=${emailSubject}&body=${emailBody}`}
+                  className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs sm:text-sm font-extrabold border transition-all duration-300 active:scale-95 shadow-sm bg-gray-50 hover:bg-gray-100 dark:bg-gray-800/80 dark:hover:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-800 dark:text-gray-200"
+                  title="Kirim permohonan via Email"
+                >
+                  <Mail className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                  <span>Kirim Email</span>
+                </a>
+              )}
+            </div>
+
           </div>
         </div>
       </main>

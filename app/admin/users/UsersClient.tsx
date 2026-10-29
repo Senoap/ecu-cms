@@ -20,7 +20,6 @@ import {
 } from 'lucide-react'
 import { AVAILABLE_MENUS } from '@/lib/menus'
 import { checkPasswordExpiry, DEFAULT_ADMIN_SET_PASSWORD } from '@/lib/password'
-import { useSmartViewport } from '@/components/SmartViewportProvider'
 import type { ActiveSessionRecord } from '@/lib/db'
 import {
   createUserAction,
@@ -158,7 +157,7 @@ export default function UsersClient({
     const isUserRoleAdmin = isRoleAdminOrSuperadmin(user.role)
     const sanitizedPermissions = isUserRoleAdmin
       ? (user.permissions || [])
-      : (user.permissions || []).filter((p) => p !== 'users')
+      : (user.permissions || []).filter((p) => p !== 'users' && p !== 'seo')
     setFormPermissions(sanitizedPermissions)
     setShowPassword(false)
     setErrorMsg('')
@@ -184,7 +183,7 @@ export default function UsersClient({
 
   const selectAllPermissions = () => {
     if (!isRootAdmin) return
-    setFormPermissions(AVAILABLE_MENUS.filter((m) => m.id !== 'users').map((m) => m.id))
+    setFormPermissions(AVAILABLE_MENUS.filter((m) => m.id !== 'users' && m.id !== 'seo').map((m) => m.id))
   }
 
   const clearAllPermissions = () => {
@@ -353,19 +352,17 @@ export default function UsersClient({
 
   const totalUsers = users.length // Administrator Master & Superadmin dikecualikan dari perhitungan akun terdaftar
   const activeUsers = users.filter((u) => u.isActive).length
-  const careerNotifUsers = users.filter((u) => u.canReceiveCareerNotif).length + 1
   const adminSessionStatus = getSessionStatus('admin')
   const onlineBelowSuperadminCount =
     (adminSessionStatus.isLoggedIn ? 1 : 0) +
     users.filter((u) => getSessionStatus(u.id).isLoggedIn).length
 
-  const { isQuadSplit } = useSmartViewport()
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
 
-      {/* HEADER SECTION — BERSIH TANPA BADGE TEMPLATE */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
+      {/* HEADER SECTION — BERSIH TANPA BADGE TEMPLATE (STICKY) */}
+      <div className="sticky top-0 z-20 bg-[#F4F6F9] dark:bg-[#0C0D12] !-mt-6 md:!-mt-8 pt-6 md:pt-8 pb-5 border-b border-gray-200 dark:border-gray-800 transition-colors flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white">
             Kontrol Pengguna & Sesi Aktif
@@ -418,9 +415,8 @@ export default function UsersClient({
         </div>
       )}
 
-      {/* RINGKASAN METRIK — STRIP BERSIH TANPA KARTU AI TEMPLATE */}
-      <div className={`grid border border-gray-200 dark:border-[#222736] rounded-xl bg-white dark:bg-[#13161F] divide-y sm:divide-y-0 sm:divide-x divide-gray-200 dark:divide-[#222736] ${isQuadSplit ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-4'
-        }`}>
+      {/* RINGKASAN METRIK — 3 STRIP BERSIH */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 border border-gray-200 dark:border-[#222736] rounded-xl bg-white dark:bg-[#13161F] divide-y sm:divide-y-0 sm:divide-x divide-gray-200 dark:divide-[#222736]">
         <div className="p-4">
           <div className="text-[11px] text-gray-500 dark:text-gray-400 font-medium">Total Akun Terdaftar</div>
           <div className="text-xl font-black text-gray-900 dark:text-white mt-0.5 tabular-nums">{totalUsers}</div>
@@ -433,10 +429,6 @@ export default function UsersClient({
           <div className="text-[11px] text-gray-500 dark:text-gray-400 font-medium">Sesi Login</div>
           <div className="text-xl font-black text-black dark:text-white mt-0.5 tabular-nums">{onlineBelowSuperadminCount}</div>
         </div>
-        <div className="p-4">
-          <div className="text-[11px] text-gray-500 dark:text-gray-400 font-medium">Penerima Notifikasi Karir</div>
-          <div className="text-xl font-black text-gray-900 dark:text-white mt-0.5 tabular-nums">{careerNotifUsers}</div>
-        </div>
       </div>
 
       {/* TABEL TERPADU: DAFTAR PENGGUNA & SESI KONEKSI AKTIF */}
@@ -444,7 +436,7 @@ export default function UsersClient({
         <div className="px-4 sm:px-5 py-3.5 border-b border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-gray-50/70 dark:bg-[#171B26]">
           <div>
             <h2 className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white">
-              Daftar Pengguna & Sesi Aktif ({totalUsers})
+              Daftar Pengguna & Sesi Aktif
             </h2>
             <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
               Kelola akun pengguna, hak akses menu, dan pantau sesi koneksi real-time dalam satu tabel terpadu.
@@ -479,8 +471,8 @@ export default function UsersClient({
                       </div>
                       <span
                         className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-[#13161F] ${adminSessionStatus.isLoggedIn
-                            ? adminSessionStatus.isOnline ? 'bg-emerald-500' : 'bg-gray-400'
-                            : 'bg-gray-300 dark:bg-gray-600'
+                          ? adminSessionStatus.isOnline ? 'bg-emerald-500' : 'bg-gray-400'
+                          : 'bg-gray-300 dark:bg-gray-600'
                           }`}
                         title={adminSessionStatus.isLoggedIn ? (adminSessionStatus.isOnline ? 'Online' : 'Login (Idle)') : 'Offline'}
                       />
@@ -571,8 +563,8 @@ export default function UsersClient({
                           </div>
                           <span
                             className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-[#13161F] ${st.isLoggedIn
-                                ? st.isOnline ? 'bg-emerald-500' : 'bg-gray-400'
-                                : 'bg-gray-300 dark:bg-gray-600'
+                              ? st.isOnline ? 'bg-emerald-500' : 'bg-gray-400'
+                              : 'bg-gray-300 dark:bg-gray-600'
                               }`}
                             title={st.isLoggedIn ? (st.isOnline ? 'Online' : 'Login (Idle)') : 'Offline'}
                           />
@@ -1015,7 +1007,7 @@ export default function UsersClient({
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto p-3 rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950">
-                  {AVAILABLE_MENUS.filter((menu) => menu.id !== 'users').map((menu) => {
+                  {AVAILABLE_MENUS.filter((menu) => menu.id !== 'users' && menu.id !== 'seo').map((menu) => {
                     const isChecked = formPermissions.includes(menu.id)
                     const isDisabled = !isRootAdmin
                     return (

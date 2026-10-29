@@ -31,11 +31,7 @@ async function updateFooter(formData: FormData) {
     youtube: (formData.get('youtube') as string)?.trim() || '',
   }
 
-  const inquiryTemplates = {
-    waMessage: (formData.get('waMessage') as string)?.trim() || defaultInquiryTemplates.waMessage,
-    emailSubject: (formData.get('emailSubject') as string)?.trim() || defaultInquiryTemplates.emailSubject,
-    emailBody: (formData.get('emailBody') as string)?.trim() || defaultInquiryTemplates.emailBody,
-  }
+  const inquiryTemplates = db.footer?.inquiryTemplates || defaultInquiryTemplates
 
   db.footer = {
     description: desc,

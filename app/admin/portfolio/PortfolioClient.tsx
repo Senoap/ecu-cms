@@ -69,8 +69,8 @@ export default function PortfolioClient({
         </div>
       </div>
 
-      {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
+      {/* Header Banner (STICKY) */}
+      <div className="sticky top-0 z-20 bg-[#F4F6F9] dark:bg-[#0C0D12] !-mt-6 md:!-mt-8 pt-6 md:pt-8 pb-5 border-b border-gray-200 dark:border-gray-800 transition-colors flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white">
             Kelola Portofolio Klien &amp; Proyek

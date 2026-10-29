@@ -316,7 +316,7 @@ export default function ApplicationsListClient({
                   Gunakan Template Balasan
                 </label>
                 <Link
-                  href="/cms/career-templates"
+                  href="/cms/templates?tab=career"
                   target="_blank"
                   className="text-xs text-gray-500 dark:text-gray-400 hover:underline flex items-center gap-1 font-bold"
                 >

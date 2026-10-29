@@ -15,11 +15,17 @@ import {
   defaultCertificationsPageConfig,
   type CertificationsPageConfig
 } from './certificationsConstants'
+import {
+  defaultSeoSetting,
+  type SeoConfig
+} from './seoConstants'
 export {
   defaultLeadershipPageConfig,
   type LeadershipPageConfig,
   defaultCertificationsPageConfig,
-  type CertificationsPageConfig
+  type CertificationsPageConfig,
+  defaultSeoSetting,
+  type SeoConfig
 }
 
 let lastSupabaseFailure = 0
@@ -391,6 +397,7 @@ export interface DatabaseContent {
   portfolios: PortfolioItem[]
   career: CareerItem[]
   galleries: GalleryItem[]
+  galleryCategories?: string[]
   hero: HeroContent
   about: AboutContent
   servicesHeader: ServicesHeaderContent
@@ -406,6 +413,7 @@ export interface DatabaseContent {
   comproEmailTemplate?: ComproEmailTemplate
   leadershipPage?: LeadershipPageConfig
   certificationsPage?: CertificationsPageConfig
+  seoSetting?: SeoConfig
   lastPublishedAt?: number
 }
 
@@ -698,6 +706,7 @@ const defaultDataContent: DatabaseContent = {
     showCompro: true,
     leadershipLabel: 'Profil Pimpinan',
   },
+  seoSetting: defaultSeoSetting,
   sections: [
     {
       id: 'hero',
@@ -821,8 +830,37 @@ const defaultDataContent: DatabaseContent = {
       desc: 'Pemeliharaan kebersihan harian area publik dan perkantoran.',
       category: 'Kebersihan',
       imageUrl: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80'
+    },
+    {
+      id: 'sec-patroli',
+      title: 'Patroli & Pengawasan Area Fasilitas',
+      desc: 'Inspeksi rutin titik rawan dan pengawasan sistem keamanan 24 jam.',
+      category: 'Keamanan',
+      imageUrl: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=800&q=80'
+    },
+    {
+      id: 'sec-access',
+      title: 'Pengendalian Akses & Pemeriksaan Gedung',
+      desc: 'Sistem alur masuk keluar tamu dan verifikasi keamanan profesional.',
+      category: 'Keamanan',
+      imageUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&q=80'
+    },
+    {
+      id: 'cln-sanitasi',
+      title: 'Sanitasi & Perawatan Ruang Kerja',
+      desc: 'Deep cleaning harian area perkantoran untuk kenyamanan karyawan.',
+      category: 'Kebersihan',
+      imageUrl: 'https://images.unsplash.com/photo-1628177142898-93e36e4e3a50?auto=format&fit=crop&w=800&q=80'
+    },
+    {
+      id: 'cln-fasad',
+      title: 'Pembersihan Kaca & Fasad Gedung',
+      desc: 'Pembersihan kaca arsitektural dan pemolesan lantai gedung komersial.',
+      category: 'Kebersihan',
+      imageUrl: 'https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?auto=format&fit=crop&w=800&q=80'
     }
   ],
+  galleryCategories: ['Keamanan', 'Kebersihan'],
   hero: { badge: '', titleLine1: '', titleHighlight: '', description: '' },
   about: { tag: '', heading: '', subtitle: '', title: '', p1: '', p2: '', leadershipTitle: '', leadershipDesc: '', quote: '' },
   servicesHeader: { tag: '', heading: '', note: '' },
@@ -1111,6 +1149,7 @@ function processParsedData(parsed: Partial<Database>): Database {
     portfolios: (parsed.portfolios as PortfolioItem[]) || (parsed.published?.portfolios as PortfolioItem[]) || defaultData.portfolios,
     career: (parsed.career as CareerItem[]) || (parsed.published?.career as CareerItem[]) || defaultData.career,
     galleries: parsed.galleries || parsed.published?.galleries || defaultData.galleries,
+    galleryCategories: (parsed.galleryCategories as string[]) || (parsed.published?.galleryCategories as string[]) || Array.from(new Set(((parsed.galleries || defaultData.galleries) as GalleryItem[]).map((g: GalleryItem) => g.category || 'Umum'))).filter(Boolean),
     scheduledContents: filterExpiredScheduledContentsH7(
       (parsed.scheduledContents as ScheduledContentItem[]) || (parsed.published?.scheduledContents as ScheduledContentItem[]) || []
     ).kept,
@@ -1138,6 +1177,7 @@ function processParsedData(parsed: Partial<Database>): Database {
       ...(parsed.published?.certificationsPage || {}),
       ...(parsed.certificationsPage || {}),
     },
+    seoSetting: parsed.seoSetting || parsed.published?.seoSetting || defaultSeoSetting,
     published,
     notifications: parsed.notifications || [],
     auditLogs: parsed.auditLogs || [],
@@ -1412,6 +1452,7 @@ export async function deployDB(customUser?: { userName?: string; userEmail?: str
     portfolios: JSON.parse(JSON.stringify(db.portfolios)),
     career: JSON.parse(JSON.stringify(db.career)),
     galleries: JSON.parse(JSON.stringify(db.galleries)),
+    galleryCategories: JSON.parse(JSON.stringify(db.galleryCategories || [])),
     hero: JSON.parse(JSON.stringify(db.hero)),
     about: JSON.parse(JSON.stringify(db.about)),
     servicesHeader: JSON.parse(JSON.stringify(db.servicesHeader)),
@@ -1427,6 +1468,7 @@ export async function deployDB(customUser?: { userName?: string; userEmail?: str
     comproEmailTemplate: JSON.parse(JSON.stringify(db.comproEmailTemplate || defaultComproEmailTemplate)),
     leadershipPage: JSON.parse(JSON.stringify(db.leadershipPage || defaultLeadershipPageConfig)),
     certificationsPage: JSON.parse(JSON.stringify(db.certificationsPage || defaultCertificationsPageConfig)),
+    seoSetting: JSON.parse(JSON.stringify(db.seoSetting || defaultSeoSetting)),
   }
   db.published = enrichContent(db.published)
   const publishTime = Date.now()

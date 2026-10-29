@@ -19,6 +19,8 @@ const KNOWN_ADMIN_MENUS = [
   'applications',
   'career',
   'career-templates',
+  'templates',
+  'seo',
 ]
 
 export async function proxy(request: NextRequest) {

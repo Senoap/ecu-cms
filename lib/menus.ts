@@ -11,11 +11,12 @@ export const AVAILABLE_MENUS = [
   { id: 'footer', label: 'Kontak & Footer', href: '/cms/footer' },
   { id: 'legal', label: 'Kebijakan & Syarat Ketentuan', href: '/cms/legal' },
   { id: 'applications', label: 'Lamaran Masuk', href: '/cms/applications' },
-  { id: 'career-templates', label: 'Template Balasan Karir', href: '/cms/career-templates' },
   { id: 'compro-requests', label: 'Permintaan Compro PDF', href: '/cms/compro-requests' },
+  { id: 'templates', label: 'Template Pesan', href: '/cms/templates' },
   { id: 'scheduled-content', label: 'Konten Harian & Bulanan', href: '/cms/scheduled-content' },
   { id: 'audit-log', label: 'Audit Log', href: '/cms/audit-log' },
   { id: 'users', label: 'Manajemen Pengguna & Role', href: '/cms/users' },
+  { id: 'seo', label: 'SEO & Sitemap (Root)', href: '/cms/seo' },
 ] as const
 
 export const ALL_MENU_IDS = AVAILABLE_MENUS.map((m) => m.id)

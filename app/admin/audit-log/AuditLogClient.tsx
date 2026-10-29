@@ -10,7 +10,6 @@ import {
   Search,
   BarChart3,
   TrendingUp,
-  Layers,
   Compass,
   ChevronLeft,
   ChevronRight,
@@ -633,88 +632,49 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [], isPriv
           </div>
 
           {/* ========================================================================= */}
-          {/* RANGKUMAN HALAMAN POPULER & KEPATUHAN BUFFER (KOMPAK & ELEGAN)            */}
+          {/* RANGKUMAN HALAMAN POPULER (KOMPAK & ELEGAN)                               */}
           {/* ========================================================================= */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-            {/* Halaman Paling Sering Dikunjungi */}
-            <div className="bg-white dark:bg-[#10131C] p-6 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-md space-y-4">
-              <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-3">
-                <div className="flex items-center gap-2">
-                  <Compass className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                  <h3 className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white">
-                    Top Halaman Dikunjungi (30 Hari)
-                  </h3>
-                </div>
-                <span className="text-[10px] font-bold text-gray-500">Akumulatif</span>
+          <div className="bg-white dark:bg-[#10131C] p-6 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-md space-y-4">
+            <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-3">
+              <div className="flex items-center gap-2">
+                <Compass className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                <h3 className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white">
+                  Top Halaman Dikunjungi (30 Hari)
+                </h3>
               </div>
+              <span className="text-[10px] font-bold text-gray-500">Akumulatif</span>
+            </div>
 
-              {analytics.topPaths.length === 0 ? (
-                <div className="py-6 text-center text-xs text-gray-400">
-                  Belum ada data halaman yang tercatat.
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {analytics.topPaths.map(([path, count], idx) => {
-                    const pct = Math.round((count / Math.max(analytics.totalHits, 1)) * 100)
-                    return (
-                      <div key={path} className="space-y-1">
-                        <div className="flex items-center justify-between text-xs font-bold">
-                          <span className="text-gray-700 dark:text-gray-300 flex items-center gap-1.5 font-mono">
-                            <span className="text-[10px] text-gray-600 dark:text-gray-400 font-sans font-bold">#{idx + 1}</span>
-                            {path === '/' ? 'Beranda Utama (/)' : path}
-                          </span>
-                          <span className="text-gray-900 dark:text-white font-black">
-                            {count} hits <span className="text-gray-400 font-normal">({pct}%)</span>
-                          </span>
-                        </div>
-                        <div className="w-full bg-gray-100 dark:bg-gray-800 h-1.5 rounded-full overflow-hidden">
-                          <div
-                            className="bg-blue-600 h-full rounded-full"
-                            style={{ width: `${pct}%` }}
-                          />
-                        </div>
+            {analytics.topPaths.length === 0 ? (
+              <div className="py-6 text-center text-xs text-gray-400">
+                Belum ada data halaman yang tercatat.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {analytics.topPaths.map(([path, count], idx) => {
+                  const pct = Math.round((count / Math.max(analytics.totalHits, 1)) * 100)
+                  return (
+                    <div key={path} className="space-y-1">
+                      <div className="flex items-center justify-between text-xs font-bold">
+                        <span className="text-gray-700 dark:text-gray-300 flex items-center gap-1.5 font-mono">
+                          <span className="text-[10px] text-gray-600 dark:text-gray-400 font-sans font-bold">#{idx + 1}</span>
+                          {path === '/' ? 'Beranda Utama (/)' : path}
+                        </span>
+                        <span className="text-gray-900 dark:text-white font-black">
+                          {count} hits <span className="text-gray-400 font-normal">({pct}%)</span>
+                        </span>
                       </div>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* Status Retensi & Kesehatan Penyimpanan */}
-            <div className="bg-white dark:bg-[#10131C] p-6 rounded-3xl border border-gray-200 dark:border-gray-800/80 shadow-md space-y-4">
-              <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-3">
-                <div className="flex items-center gap-2">
-                  <Layers className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                  <h3 className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white">
-                    Sistem Buffer Retensi 30 Hari
-                  </h3>
-                </div>
-                <span className="text-xs font-bold text-black dark:text-white">
-                  Status Optimal
-                </span>
+                      <div className="w-full bg-gray-100 dark:bg-gray-800 h-1.5 rounded-full overflow-hidden">
+                        <div
+                          className="bg-blue-600 h-full rounded-full"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
-
-              <div className="space-y-3 text-xs">
-                <div className="flex items-center justify-between py-1.5 border-b border-gray-100 dark:border-gray-800/60">
-                  <span className="text-gray-600 dark:text-gray-400">Metode Penyimpanan</span>
-                  <span className="font-extrabold text-gray-900 dark:text-white">1 Counter Angka / Hari</span>
-                </div>
-                <div className="flex items-center justify-between py-1.5 border-b border-gray-100 dark:border-gray-800/60">
-                  <span className="text-gray-600 dark:text-gray-400">Maksimum Rentang Slot</span>
-                  <span className="font-extrabold text-black dark:text-white">30 Hari Bergulir</span>
-                </div>
-                <div className="flex items-center justify-between py-1.5 border-b border-gray-100 dark:border-gray-800/60">
-                  <span className="text-gray-600 dark:text-gray-400">Mekanisme Overwrite</span>
-                  <span className="font-extrabold text-black dark:text-white">Otomatis FIFO (H-31 tertimpa)</span>
-                </div>
-                <div className="flex items-center justify-between py-1.5">
-                  <span className="text-gray-600 dark:text-gray-400">Hari dengan Kunjungan Aktif</span>
-                  <span className="font-extrabold text-gray-900 dark:text-white">{analytics.activeDaysCount} dari 30 hari</span>
-                </div>
-              </div>
-            </div>
-
+            )}
           </div>
         </div>
       ) : (
@@ -730,23 +690,23 @@ export default function AuditLogClient({ initialLogs, dailyVisitors = [], isPriv
                 </h2>
               </div>
 
-              {/* Selector Jumlah Item per Halaman: 5, 25, 50 */}
-              <div className="flex items-center gap-2.5 self-start sm:self-auto">
+              {/* Dropdown Jumlah Baris per Halaman */}
+              <div className="flex items-center gap-2 self-start sm:self-auto">
                 <span className="text-xs text-gray-500 dark:text-gray-400 font-bold">Baris:</span>
-                <div className="inline-flex p-1 bg-gray-100 dark:bg-gray-800/70 rounded-2xl border border-gray-200 dark:border-gray-700/80 shadow-inner">
-                  {([5, 25, 50] as const).map((size) => (
-                    <button
-                      key={size}
-                      type="button"
-                      onClick={() => setPageSize(size)}
-                      className={`px-3 py-1 text-xs font-black rounded-xl transition-all cursor-pointer ${pageSize === size
-                          ? 'bg-white dark:bg-[#10131C] text-black dark:text-white font-black shadow-xs border border-gray-300 dark:border-gray-700'
-                          : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                        }`}
-                    >
-                      {size}
-                    </button>
-                  ))}
+                <div className="relative">
+                  <select
+                    value={pageSize}
+                    onChange={(e) => setPageSize(Number(e.target.value))}
+                    aria-label="Pilih jumlah baris per halaman"
+                    className="appearance-none bg-gray-50 dark:bg-[#090A0F] border border-gray-300 dark:border-gray-800 rounded-xl pl-3 pr-8 py-1.5 text-gray-900 dark:text-white text-xs font-bold focus:outline-none focus:border-blue-500 shadow-inner cursor-pointer"
+                  >
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                    <option value={100}>100</option>
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                 </div>
                 <span className="text-xs text-gray-400 font-medium">/ hal</span>
               </div>

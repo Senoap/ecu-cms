@@ -83,7 +83,7 @@ export async function createUserAction(formData: FormData): Promise<UserActionRe
       skipPasswordExpiry,
       createdAt: now,
       passwordUpdatedAt: now,
-      mustResetPassword: false,
+      mustResetPassword: true, // Akun baru wajib mengganti password saat login pertama kali (Skenario A)
     }
 
     db.cmsUsers.push(newUser)
@@ -160,7 +160,7 @@ export async function updateUserAction(formData: FormData): Promise<UserActionRe
       // Administrator boleh membuat password tanpa persyaratan untuk user
       updatedUser.passwordHash = hashPassword(password.trim())
       updatedUser.passwordUpdatedAt = Date.now()
-      updatedUser.mustResetPassword = false
+      updatedUser.mustResetPassword = true // Pengguna wajib mengganti password saat login berikutnya
     }
 
     db.cmsUsers[index] = updatedUser

@@ -108,8 +108,8 @@ export async function getCurrentUser(): Promise<CurrentAdminUser | null> {
       if (!finalPermissions.includes('users')) finalPermissions.push('users')
       if (!finalPermissions.includes('audit-log')) finalPermissions.push('audit-log')
     } else {
-      // Non-admin/staff biasa: 'users' tidak bisa diakses, 'audit-log' tetap bisa jika dipilih
-      finalPermissions = (user.permissions || []).filter((p) => p !== 'users')
+      // Non-admin/staff biasa: 'users' dan 'seo' tidak bisa diakses, 'audit-log' tetap bisa jika dipilih
+      finalPermissions = (user.permissions || []).filter((p) => p !== 'users' && p !== 'seo')
     }
 
     return {
@@ -142,6 +142,12 @@ export function canUserAccessMenu(user: CurrentAdminUser, menuId: string): boole
     return user.permissions.includes('audit-log')
   }
 
+  // 2.1 Menu SEO & Sitemap ('seo')
+  // HANYA BISA DIAKSES OLEH AKUN LEVEL ROOT (isRootAdmin: true / Administrator Master & Superadmin)
+  if (menuId === 'seo') {
+    return Boolean(user.isRootAdmin || user.id === 'admin' || user.id === 'superadmin')
+  }
+
   // 3. Superadministrator hanya mengelola menu sistem ('users' dan 'audit-log'), tidak mengakses modul website
   if (isUserSuperadmin(user)) {
     return false
@@ -150,9 +156,20 @@ export function canUserAccessMenu(user: CurrentAdminUser, menuId: string): boole
   // 4. Administrator Root utama memiliki akses ke semua menu CMS
   if (user.isRootAdmin || user.id === 'admin') return true
 
-  // 5. Modul template balasan karir
+  // 5. Modul template balasan karir (dialihkan ke templates)
   if (menuId === 'career-templates') {
-    return user.permissions.includes('career-templates') || user.permissions.includes('career')
+    return user.permissions.includes('career-templates') || user.permissions.includes('career') || user.permissions.includes('templates')
+  }
+
+  // 5.1 Modul template pesan (Pusat pengelolaan semua template)
+  if (menuId === 'templates') {
+    return (
+      user.permissions.includes('templates') ||
+      user.permissions.includes('career-templates') ||
+      user.permissions.includes('career') ||
+      user.permissions.includes('footer') ||
+      user.permissions.includes('services')
+    )
   }
 
   // 6. Modul lainnya berdasarkan permissions yang dimiliki

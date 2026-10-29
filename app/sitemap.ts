@@ -6,7 +6,8 @@ export const dynamic = 'force-dynamic'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const db = await readPublishedDB()
-  const baseUrl = getSiteUrl()
+  const customCanonical = db.seoSetting?.canonicalUrl?.trim()
+  const baseUrl = customCanonical ? customCanonical.replace(/\/+$/, '') : getSiteUrl()
 
   const routes: MetadataRoute.Sitemap = [
     {

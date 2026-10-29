@@ -43,8 +43,17 @@ export const viewport: Viewport = {
 // Fungsi untuk membuat metadata web dinamis dari CMS untuk desktop, laptop, mobile, & SEO
 export async function generateMetadata(): Promise<Metadata> {
   const db = await readPublishedDB()
+  const seo = db.seoSetting
   const siteName = db.setting.siteName || 'PT. EMPAT SINERGI UTAMA'
   const tagline = db.setting.tagline || 'MANPOWER SERVICES'
+
+  const customTitle = seo?.metaTitle?.trim()
+  const customDesc = seo?.metaDescription?.trim()
+  const customKeywords = seo?.metaKeywords?.trim()
+  const customCanonical = seo?.canonicalUrl?.trim()
+  const customOgImage = seo?.ogImageUrl?.trim()
+  const googleVerification = seo?.googleSiteVerification?.trim()
+  const isNoIndex = seo?.indexingRobots === 'noindex'
 
   const rawLogoUrl = db.setting.logoUrl || '/icons/icon-192x192.png'
   const iconMimeType = rawLogoUrl.endsWith('.svg')
@@ -53,12 +62,18 @@ export async function generateMetadata(): Promise<Metadata> {
       ? 'image/webp'
       : 'image/png'
 
+  const baseUrl = customCanonical ? customCanonical.replace(/\/+$/, '') : getSiteUrl()
+  const defaultDesc = `${siteName} adalah penyedia solusi terintegrasi kebutuhan operasional bisnis, manajemen fasilitas gedung, dan pemenuhan ketenagakerjaan ahli di Indonesia.`
+
   return {
     title: {
-      default: `${siteName} — ${tagline}`,
+      default: customTitle || `${siteName} — ${tagline}`,
       template: `%s | ${siteName}`,
     },
-    description: `${siteName} adalah penyedia solusi terintegrasi kebutuhan operasional bisnis, manajemen fasilitas gedung, dan pemenuhan ketenagakerjaan ahli di Indonesia.`,
+    description: customDesc || defaultDesc,
+    keywords: customKeywords
+      ? customKeywords.split(',').map((k) => k.trim()).filter(Boolean)
+      : undefined,
     applicationName: siteName,
     authors: [{ name: siteName }],
     creator: siteName,
@@ -69,10 +84,16 @@ export async function generateMetadata(): Promise<Metadata> {
       address: true,
       email: true,
     },
-    metadataBase: new URL(getSiteUrl()),
+    metadataBase: new URL(baseUrl),
     alternates: {
       canonical: '/',
     },
+    robots: isNoIndex
+      ? { index: false, follow: false }
+      : { index: true, follow: true },
+    verification: googleVerification
+      ? { google: googleVerification }
+      : undefined,
     icons: {
       icon: [
         { url: rawLogoUrl, type: iconMimeType },
@@ -82,11 +103,12 @@ export async function generateMetadata(): Promise<Metadata> {
       apple: [{ url: rawLogoUrl }],
     },
     openGraph: {
-      title: siteName,
-      description: tagline,
+      title: customTitle || siteName,
+      description: customDesc || tagline,
       siteName: siteName,
       type: 'website',
       locale: 'id_ID',
+      images: customOgImage ? [customOgImage] : (rawLogoUrl ? [rawLogoUrl] : undefined),
     },
   }
 }
@@ -105,7 +127,8 @@ export default async function RootLayout({
       ? 'var(--font-roboto), sans-serif'
       : 'var(--font-inter), sans-serif'
 
-  const siteUrl = getSiteUrl()
+  const customCanonical = db.seoSetting?.canonicalUrl?.trim()
+  const siteUrl = customCanonical ? customCanonical.replace(/\/+$/, '') : getSiteUrl()
   const organizationJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
@@ -135,9 +158,9 @@ export default async function RootLayout({
       : 'image/png'
 
   return (
-    <html 
-      lang="id" 
-      data-scroll-behavior="smooth" 
+    <html
+      lang="id"
+      data-scroll-behavior="smooth"
       suppressHydrationWarning
       className={`${inter.variable} ${poppins.variable} ${roboto.variable}`}
     >
@@ -177,8 +200,8 @@ export default async function RootLayout({
           }}
         />
       </head>
-      <body 
-        style={{ 
+      <body
+        style={{
           ['--primary' as string]: primaryColor,
           fontFamily: activeFontFamily
         } as React.CSSProperties}

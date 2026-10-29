@@ -23,6 +23,7 @@ import {
   PhoneCall,
   Calendar,
   MessageSquare,
+  MessageSquareQuote,
   Shield,
   ChevronDown,
   Layers,
@@ -34,6 +35,7 @@ import {
   Share,
   CheckCircle2,
   KeyRound,
+  Globe,
   X
 } from 'lucide-react'
 import type { CurrentAdminUser } from '@/lib/auth'
@@ -260,7 +262,7 @@ export default function AdminLayoutClient({
   // State Submenus (terbuka / tertutup)
   const [openSubmenus, setOpenSubmenus] = useState<Record<string, boolean>>(() => ({
     website: WEBSITE_PATHS.some((p) => pathname?.startsWith(p)),
-    career: ['/cms/career', '/cms/applications', '/cms/career-templates', '/admin/career', '/admin/applications', '/admin/career-templates'].some((p) => pathname?.startsWith(p)),
+    career: ['/cms/career', '/cms/applications', '/admin/career', '/admin/applications'].some((p) => pathname?.startsWith(p)),
     system: ['/cms/users', '/cms/audit-log', '/admin/users', '/admin/audit-log'].some((p) => pathname?.startsWith(p)),
   }))
 
@@ -272,7 +274,7 @@ export default function AdminLayoutClient({
       }
       if (WEBSITE_PATHS.some((p) => pathname?.startsWith(p))) {
         setOpenSubmenus((prev) => ({ ...prev, website: true }))
-      } else if (['/cms/career', '/cms/applications', '/cms/career-templates', '/admin/career', '/admin/applications', '/admin/career-templates'].some((p) => pathname?.startsWith(p))) {
+      } else if (['/cms/career', '/cms/applications', '/admin/career', '/admin/applications'].some((p) => pathname?.startsWith(p))) {
         setOpenSubmenus((prev) => ({ ...prev, career: true }))
       } else if (['/cms/users', '/cms/audit-log', '/admin/users', '/admin/audit-log'].some((p) => pathname?.startsWith(p))) {
         setOpenSubmenus((prev) => ({ ...prev, system: true }))
@@ -481,16 +483,13 @@ export default function AdminLayoutClient({
   const careerItems = [
     { id: 'career', label: getSectionLabel('career', 'Lowongan Karir'), href: '/cms/career', icon: UserCheck },
     { id: 'applications', label: 'Lamaran Masuk', href: '/cms/applications', icon: Inbox },
-    { id: 'career-templates', label: 'Template Balasan', href: '/cms/career-templates', icon: MessageSquare },
-  ].filter((item) => {
-    if (item.id === 'career-templates') return canAccess('career-templates') || canAccess('career')
-    return canAccess(item.id)
-  })
+  ].filter((item) => canAccess(item.id))
 
   // 4. Group Sistem & Hak Akses
   const systemItems = [
     { id: 'users', label: 'Manajemen Pengguna & Role', href: '/cms/users', icon: Shield },
     { id: 'audit-log', label: 'Audit Log Aktivitas', href: '/cms/audit-log', icon: FileText },
+    { id: 'seo', label: 'SEO & Sitemap (Root)', href: '/cms/seo', icon: Globe },
   ].filter((item) => canAccess(item.id))
 
   return (
@@ -578,27 +577,48 @@ export default function AdminLayoutClient({
           {/* KONTEN MENU DENGAN SUBMENU (SCROLLABLE & TIDAK MENUMPUK) */}
           <div className="flex-1 overflow-y-auto min-h-0 space-y-3 py-2 pr-1">
 
-            {/* PENGATURAN GLOBAL (DASHBOARD) */}
-            {canAccess('global') && (
+            {/* NAVIGASI UTAMA (PENGATURAN GLOBAL & TEMPLATE PESAN) */}
+            {(canAccess('global') || canAccess('templates')) && (
               <div className="space-y-1">
                 <div className="px-2.5 text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">
                   Navigasi Utama
                 </div>
-                <Link
-                  href="/cms"
-                  className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-all duration-200 border text-xs font-bold uppercase tracking-wide ${pathname === '/cms' || pathname === '/admin'
-                    ? isDarkMode
-                      ? 'bg-gray-800 text-white border-gray-700 font-black shadow-xs'
-                      : 'bg-gray-100 text-black border-gray-300 font-black shadow-xs'
-                    : isDarkMode
-                      ? 'text-gray-300 hover:bg-gray-800/60 hover:text-white border-transparent'
-                      : 'text-gray-700 hover:bg-gray-100 hover:text-gray-950 border-transparent'
-                    }`}
-                >
-                  <Settings className={`w-4 h-4 transition-transform ${pathname === '/cms' || pathname === '/admin' ? 'text-gray-500 dark:text-gray-400' : 'text-gray-400'
-                    }`} />
-                  <span>Pengaturan Global</span>
-                </Link>
+                {canAccess('global') && (
+                  <Link
+                    href="/cms"
+                    className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-all duration-200 border text-xs font-bold uppercase tracking-wide ${pathname === '/cms' || pathname === '/admin'
+                      ? isDarkMode
+                        ? 'bg-gray-800 text-white border-gray-700 font-black shadow-xs'
+                        : 'bg-gray-100 text-black border-gray-300 font-black shadow-xs'
+                      : isDarkMode
+                        ? 'text-gray-300 hover:bg-gray-800/60 hover:text-white border-transparent'
+                        : 'text-gray-700 hover:bg-gray-100 hover:text-gray-950 border-transparent'
+                      }`}
+                  >
+                    <Settings className={`w-4 h-4 transition-transform ${pathname === '/cms' || pathname === '/admin' ? 'text-gray-500 dark:text-gray-400' : 'text-gray-400'
+                      }`} />
+                    <span>Pengaturan Global</span>
+                  </Link>
+                )}
+                {canAccess('templates') && (
+                  <Link
+                    href="/cms/templates"
+                    className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-all duration-200 border text-xs font-bold uppercase tracking-wide ${pathname === '/cms/templates' || pathname?.startsWith('/cms/templates') || pathname?.startsWith('/admin/templates')
+                      ? isDarkMode
+                        ? 'bg-gray-800 text-white border-gray-700 font-black shadow-xs'
+                        : 'bg-gray-100 text-black border-gray-300 font-black shadow-xs'
+                      : isDarkMode
+                        ? 'text-gray-300 hover:bg-gray-800/60 hover:text-white border-transparent'
+                        : 'text-gray-700 hover:bg-gray-100 hover:text-gray-950 border-transparent'
+                      }`}
+                  >
+                    <MessageSquareQuote className={`w-4 h-4 transition-transform ${pathname === '/cms/templates' || pathname?.startsWith('/cms/templates') || pathname?.startsWith('/admin/templates')
+                      ? 'text-amber-500'
+                      : 'text-gray-400'
+                      }`} />
+                    <span>Template Pesan</span>
+                  </Link>
+                )}
               </div>
             )}
 

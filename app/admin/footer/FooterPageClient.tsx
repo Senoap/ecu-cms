@@ -1,7 +1,7 @@
 // app/admin/footer/FooterPageClient.tsx
 'use client'
 import { useState, useTransition, useMemo } from 'react'
-import { Save, PhoneCall, Share2, MessageSquare, Mail } from 'lucide-react'
+import { Save, PhoneCall, Share2 } from 'lucide-react'
 import type { FooterContent } from '@/lib/db'
 
 interface FooterPageClientProps {
@@ -26,10 +26,6 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
   const [facebook, setFacebook] = useState(initialFooter.socialMedia?.facebook || '')
   const [tiktok, setTiktok] = useState(initialFooter.socialMedia?.tiktok || '')
   const [youtube, setYoutube] = useState(initialFooter.socialMedia?.youtube || '')
-  const [waMessage, setWaMessage] = useState(initialFooter.inquiryTemplates?.waMessage || '')
-  const [emailSubject, setEmailSubject] = useState(initialFooter.inquiryTemplates?.emailSubject || '')
-  const [emailBody, setEmailBody] = useState(initialFooter.inquiryTemplates?.emailBody || '')
-
   const [savedBaseline, setSavedBaseline] = useState({
     description: initialFooter.description || '',
     address: initialFooter.address || '',
@@ -42,9 +38,6 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
     facebook: initialFooter.socialMedia?.facebook || '',
     tiktok: initialFooter.socialMedia?.tiktok || '',
     youtube: initialFooter.socialMedia?.youtube || '',
-    waMessage: initialFooter.inquiryTemplates?.waMessage || '',
-    emailSubject: initialFooter.inquiryTemplates?.emailSubject || '',
-    emailBody: initialFooter.inquiryTemplates?.emailBody || '',
   })
 
   const isDirty = useMemo(() => {
@@ -59,15 +52,12 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
       linkedin !== savedBaseline.linkedin ||
       facebook !== savedBaseline.facebook ||
       tiktok !== savedBaseline.tiktok ||
-      youtube !== savedBaseline.youtube ||
-      waMessage !== savedBaseline.waMessage ||
-      emailSubject !== savedBaseline.emailSubject ||
-      emailBody !== savedBaseline.emailBody
+      youtube !== savedBaseline.youtube
     )
   }, [
     description, address, phone, whatsapp, email, socialEnabled,
     instagram, linkedin, facebook, tiktok, youtube,
-    waMessage, emailSubject, emailBody, savedBaseline
+    savedBaseline
   ])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -89,9 +79,6 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
         facebook,
         tiktok,
         youtube,
-        waMessage,
-        emailSubject,
-        emailBody,
       })
       setShowSuccessToast(true)
       setTimeout(() => {
@@ -117,13 +104,14 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
       </div>
 
       <div className="max-w-4xl mx-auto space-y-8">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
+        {/* Header Banner (STICKY) */}
+        <div className="sticky top-0 z-20 bg-[#F4F6F9] dark:bg-[#0C0D12] !-mt-6 md:!-mt-8 pt-6 md:pt-8 pb-5 border-b border-gray-200 dark:border-gray-800 transition-colors flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
             <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white">
               Setting Footer, Kontak &amp; Sosmed
             </h1>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Ubah informasi kontak, alamat, tautan media sosial, serta template pesan konsultasi pengunjung.
+              Ubah informasi kontak, alamat kantor, dan tautan media sosial resmi perusahaan.
             </p>
           </div>
         </div>
@@ -316,68 +304,6 @@ export default function FooterPageClient({ initialFooter, updateFooterAction }: 
                 Ikon media sosial sedang dinonaktifkan dan tidak akan tampil di footer website.
               </div>
             )}
-          </div>
-
-          {/* BAGIAN 3: TEMPLATE PERTANYAAN PENGUNJUNG (POINT 10) */}
-          <div className="bg-white dark:bg-[#10131C] p-8 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-800/80 space-y-6 transition-colors">
-            <h3 className="text-sm font-black uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-800 pb-3 flex items-center gap-2">
-              <MessageSquare className="w-4 h-4" />
-              <span>3. Template Pertanyaan Pengunjung (WA & Email)</span>
-            </h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              Template ini akan otomatis terisi ketika pengunjung mengklik tombol WhatsApp atau Email di footer website untuk berkonsultasi.
-            </p>
-
-            {/* TEMPLATE WHATSAPP */}
-            <div className="space-y-2">
-              <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                <MessageSquare className="w-3.5 h-3.5 text-emerald-500" />
-                <span>Template Chat WhatsApp Pengunjung</span>
-              </label>
-              <textarea
-                name="waMessage"
-                rows={3}
-                value={waMessage}
-                onChange={(e) => setWaMessage(e.target.value)}
-                placeholder="Contoh: Halo PT. Empat Sinergi Utama, saya ingin berkonsultasi mengenai kebutuhan layanan alih daya..."
-                className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 font-medium shadow-inner"
-              />
-              <p className="text-[10px] text-gray-500 dark:text-gray-400">
-                Pesan ini akan langsung muncul di kotak chat WhatsApp pengunjung saat mengklik nomor/WhatsApp di footer.
-              </p>
-            </div>
-
-            {/* TEMPLATE EMAIL */}
-            <div className="space-y-4 pt-2">
-              <div className="space-y-1.5">
-                <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                  <Mail className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
-                  <span>Subjek Email Pengunjung</span>
-                </label>
-                <input
-                  type="text"
-                  name="emailSubject"
-                  value={emailSubject}
-                  onChange={(e) => setEmailSubject(e.target.value)}
-                  placeholder="Contoh: Konsultasi Layanan Alih Daya - PT. Empat Sinergi Utama"
-                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-2.5 text-gray-900 dark:text-white text-xs focus:outline-none focus:border-blue-500 font-medium shadow-inner"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-300">
-                  Draft Isi Pesan Email (Body)
-                </label>
-                <textarea
-                  name="emailBody"
-                  rows={6}
-                  value={emailBody}
-                  onChange={(e) => setEmailBody(e.target.value)}
-                  placeholder="Contoh template isi email pengunjung..."
-                  className="w-full bg-gray-50 dark:bg-[#090A0F] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 font-mono text-xs leading-relaxed shadow-inner"
-                />
-              </div>
-            </div>
           </div>
 
           {/* TOMBOL SIMPAN KE DRAFT MELAYANG DI POJOK KANAN BAWAH */}
