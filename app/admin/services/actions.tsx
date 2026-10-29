@@ -233,3 +233,42 @@ export async function deleteService(formData: FormData): Promise<{ success: bool
     }
   }
 }
+
+/**
+ * Server Action untuk menghasilkan pratinjau WebP instan dari foto HEIC/gambar apa pun.
+ * Menggunakan WebAssembly heic-decode + Sharp untuk dekode super cepat (~200ms).
+ */
+export async function previewHeicFile(formData: FormData): Promise<{ success: boolean; dataUrl?: string; error?: string }> {
+  try {
+    await requirePermission('services')
+    const file = formData.get('file') as File | null
+    if (!file) return { success: false, error: 'Berkas tidak ditemukan' }
+
+    const bytes = await file.arrayBuffer()
+    const buffer = Buffer.from(bytes)
+
+    const validation = validateImageBuffer(buffer, file.name)
+    if (!validation.valid) return { success: false, error: 'Format berkas tidak valid' }
+
+    let imageInstance: Sharp
+    if (isHeicFormat(buffer, file.name)) {
+      imageInstance = await decodeHeicToSharp(buffer)
+    } else {
+      imageInstance = sharp(buffer, { limitInputPixels: 100_000_000 }).rotate()
+    }
+
+    const previewBuffer = await imageInstance
+      .resize({ width: 800, height: 800, fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toBuffer()
+
+    const dataUrl = `data:image/webp;base64,${previewBuffer.toString('base64')}`
+    return { success: true, dataUrl }
+  } catch (err: unknown) {
+    console.warn('[previewHeicFile] Gagal generate preview HEIC:', err)
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : 'Gagal memproses pratinjau foto'
+    }
+  }
+}

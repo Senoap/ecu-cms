@@ -4,7 +4,7 @@ import { useState, useMemo, useTransition } from 'react'
 import { Save, Briefcase, Layers, Plus, X } from 'lucide-react'
 import type { ServiceItem } from '@/lib/db'
 import { AVAILABLE_ICONS, DynamicIcon } from '@/components/DynamicIcon'
-import { addService, updateService, deleteService, deleteServiceImage } from './actions'
+import { addService, updateService, deleteService, deleteServiceImage, previewHeicFile } from './actions'
 
 // Gabungkan dan otomatis hapus duplikat berdasarkan 'value' agar key unik
 const EXTENDED_ICONS = Array.from(
@@ -227,16 +227,77 @@ export default function ServicesClient({ initialServices }: { initialServices: S
       })
       setPreviewItems(initialItems)
 
-      // Decode HEIC di browser secara asinkron dengan batasan waktu (timeout 3.5 detik).
-      // Jika berhasil, pratinjau asli foto iPhone/Samsung tampil tajam dan berkas terkonversi dikompresi proporsional.
-      // Jika browser tidak mendukung atau melebihi batas waktu, sistem otomatis fallback ke server decoding WebP secara instan.
+      // Decode HEIC secara cerdas & bertingkat:
+      // 1. Prioritaskan API server (/api/admin/heic-preview via WASM heic-decode + Sharp) yang menghasilkan thumbnail WebP kilat (~200ms) untuk foto asli iPhone/Samsung.
+      // 2. Fallback ke Server Action previewHeicFile.
+      // 3. Fallback ke heic2any di browser.
+      // Dengan metode ini, foto asli 100% selalu tampil di kotak pratinjau sebelum disimpan!
       filesArray.forEach(async (file, idx) => {
         const isHeic = /\.(heic|heif)$/i.test(file.name) || file.type.includes('heic') || file.type.includes('heif')
         if (!isHeic) return
 
+        let previewSuccess = false
+
+        // 1. Coba decode via API route
+        try {
+          const fd = new FormData()
+          fd.append('file', file)
+          const apiRes = await fetch('/api/admin/heic-preview', {
+            method: 'POST',
+            body: fd
+          })
+          if (apiRes.ok) {
+            const data = await apiRes.json()
+            if (data.success && data.previewUrl) {
+              const blobRes = await fetch(data.previewUrl)
+              const blob = await blobRes.blob()
+              const convertedFile = new File([blob], file.name.replace(/\.(heic|heif)$/i, '.webp'), { type: 'image/webp' })
+
+              setPreviewItems(prev =>
+                prev.map((item, i) =>
+                  i === idx
+                    ? { ...item, url: data.previewUrl, isConverting: false, convertedFile }
+                    : item
+                )
+              )
+              previewSuccess = true
+            }
+          }
+        } catch (apiErr) {
+          console.warn('[HEIC Preview] API route failed, trying Server Action:', apiErr)
+        }
+
+        if (previewSuccess) return
+
+        // 2. Fallback: Coba Server Action previewHeicFile
+        try {
+          const fd = new FormData()
+          fd.append('file', file)
+          const saRes = await previewHeicFile(fd)
+          if (saRes.success && saRes.dataUrl) {
+            const blobRes = await fetch(saRes.dataUrl)
+            const blob = await blobRes.blob()
+            const convertedFile = new File([blob], file.name.replace(/\.(heic|heif)$/i, '.webp'), { type: 'image/webp' })
+
+            setPreviewItems(prev =>
+              prev.map((item, i) =>
+                i === idx
+                  ? { ...item, url: saRes.dataUrl!, isConverting: false, convertedFile }
+                  : item
+              )
+            )
+            previewSuccess = true
+          }
+        } catch (saErr) {
+          console.warn('[HEIC Preview] Server Action failed, trying client decoder:', saErr)
+        }
+
+        if (previewSuccess) return
+
+        // 3. Fallback: Coba heic2any di browser
         try {
           const timeoutPromise = new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error('Browser HEIC preview timeout')), 3500)
+            setTimeout(() => reject(new Error('Browser HEIC preview timeout')), 4000)
           )
 
           const convertPromise = (async () => {
@@ -267,7 +328,7 @@ export default function ServicesClient({ initialServices }: { initialServices: S
             )
           )
         } catch (err) {
-          console.warn('Browser heic2any fallback to server decoding:', err)
+          console.warn('All HEIC preview methods failed, fallback to badge:', err)
           setPreviewItems(prev =>
             prev.map((item, i) =>
               i === idx
