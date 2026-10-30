@@ -114,20 +114,85 @@ export default function AdminLayoutClient({
     }
   }, [isCompactViewport, isSplitScreen])
 
-  // Sesi tunggal & heartbeat berkala (Point 7)
+  // Pelacakan aktivitas pengguna & Sesi otomatis logout jika tidak ada aksi selama 3 hari
   useEffect(() => {
+    let lastActionTime = Date.now()
+    let hasActionSinceLastHeartbeat = true
+
+    // Sinkronisasi timestamp aksi terakhir dari localStorage (antar tab & session)
+    const stored = localStorage.getItem('esu_cms_last_action')
+    if (stored) {
+      const parsed = Number(stored)
+      if (Number.isFinite(parsed) && parsed > 0) {
+        lastActionTime = parsed
+      }
+    } else {
+      localStorage.setItem('esu_cms_last_action', String(lastActionTime))
+    }
+
+    const INACTIVITY_TIMEOUT_MS = 3 * 24 * 60 * 60 * 1000 // 3 hari (259.200.000 ms)
+
+    // Handler event interaksi pengguna (throttled 5 detik)
+    let throttleTimeout: NodeJS.Timeout | null = null
+    const onUserInteraction = () => {
+      if (throttleTimeout) return
+      throttleTimeout = setTimeout(() => {
+        throttleTimeout = null
+      }, 5000)
+
+      const now = Date.now()
+      lastActionTime = now
+      hasActionSinceLastHeartbeat = true
+      try {
+        localStorage.setItem('esu_cms_last_action', String(now))
+      } catch {}
+    }
+
+    const events = ['mousedown', 'keydown', 'scroll', 'touchstart', 'click']
+    events.forEach((ev) => window.addEventListener(ev, onUserInteraction, { passive: true }))
+
     const interval = setInterval(async () => {
       try {
-        const res = await heartbeatAdminSession()
+        const now = Date.now()
+
+        // Periksa apakah ada aksi yang lebih baru di tab lain
+        const currentStored = localStorage.getItem('esu_cms_last_action')
+        if (currentStored) {
+          const parsed = Number(currentStored)
+          if (Number.isFinite(parsed) && parsed > lastActionTime) {
+            lastActionTime = parsed
+            hasActionSinceLastHeartbeat = true
+          }
+        }
+
+        // Cek apakah pengguna telah inaktif tanpa aksi apa pun selama 3 hari
+        if (now - lastActionTime >= INACTIVITY_TIMEOUT_MS) {
+          clearInterval(interval)
+          await logoutAdmin()
+          alert('Sesi Anda telah berakhir secara otomatis karena tidak ada aktivitas selama 3 hari. Silakan login kembali.')
+          router.push('/login?reason=inactivity')
+          return
+        }
+
+        // Kirim heartbeat ke server dengan status apakah pengguna aktif beraksi
+        const res = await heartbeatAdminSession(hasActionSinceLastHeartbeat)
+        hasActionSinceLastHeartbeat = false
+
         if (res && !res.valid && res.message) {
+          clearInterval(interval)
           alert(res.message)
-          router.push('/login')
+          router.push('/login' + (res.reason === 'inactivity' ? '?reason=inactivity' : ''))
         }
       } catch (err) {
         console.warn('Heartbeat check error:', err)
       }
-    }, 15 * 1000)
-    return () => clearInterval(interval)
+    }, 20 * 1000)
+
+    return () => {
+      clearInterval(interval)
+      if (throttleTimeout) clearTimeout(throttleTimeout)
+      events.forEach((ev) => window.removeEventListener(ev, onUserInteraction))
+    }
   }, [router])
 
   // PWA (Progressive Web App) States (Point 4)

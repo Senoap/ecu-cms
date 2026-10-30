@@ -1,7 +1,14 @@
 // lib/session.ts
 // Token sesi bertanda tangan (HMAC-SHA256) + masa berlaku. Aman dipakai di proxy & server.
 export const SESSION_COOKIE = 'esu_admin_session'
-export const SESSION_MAX_AGE = 60 * 60 * 24 // 24 jam (detik)
+
+// Waktu timeout inaktivitas: logout otomatis jika tidak ada aksi pengguna selama 3 hari
+export const INACTIVITY_TIMEOUT_DAYS = 3
+export const INACTIVITY_TIMEOUT_SECONDS = INACTIVITY_TIMEOUT_DAYS * 24 * 60 * 60 // 259.200 detik (3 hari)
+export const INACTIVITY_TIMEOUT_MS = INACTIVITY_TIMEOUT_SECONDS * 1000 // 259.200.000 milidetik (3 hari)
+
+// Masa berlaku cookie & token sesi selaras dengan batas inaktivitas 3 hari
+export const SESSION_MAX_AGE = INACTIVITY_TIMEOUT_SECONDS
 
 function getSecret(): string {
   const secret = process.env.SESSION_SECRET

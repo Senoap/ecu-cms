@@ -3,7 +3,7 @@
 
 import { cookies, headers } from 'next/headers'
 import { timingSafeEqual } from 'crypto'
-import { SESSION_COOKIE, SESSION_MAX_AGE, createSessionToken } from '@/lib/session'
+import { SESSION_COOKIE, SESSION_MAX_AGE, createSessionToken, INACTIVITY_TIMEOUT_MS } from '@/lib/session'
 import { readDB } from '@/lib/db'
 import { verifyPassword, checkPasswordExpiry } from '@/lib/password'
 
@@ -203,7 +203,7 @@ export async function loginAdmin(formData: FormData): Promise<LoginResult> {
     }
   }
 
-  const SESSION_INACTIVITY_LIMIT = 30 * 60 * 1000 // 30 menit
+  const SESSION_INACTIVITY_LIMIT = INACTIVITY_TIMEOUT_MS // 3 hari
   const superAdminPassword = process.env.SUPERADMIN_PASSWORD
 
   // 0. Cek Superadmin (username === 'superadmin') - Tier tertinggi di atas admin, khusus kontrol user
@@ -214,13 +214,19 @@ export async function loginAdmin(formData: FormData): Promise<LoginResult> {
       const db = await readDB()
       const existingSession = db.activeSessions?.['superadmin']
       const now = Date.now()
-      if (existingSession && (now - existingSession.lastSeen < SESSION_INACTIVITY_LIMIT)) {
-        const isSameDevice = existingSession.ip === ip && existingSession.userAgent === userAgent
-        if (!isSameDevice) {
-          return {
-            success: false,
-            message: `Akun Superadmin sedang aktif di perangkat lain (${maskIp(existingSession.ip)}). Untuk alasan keamanan, login bersamaan tidak diizinkan. Silakan logout dari perangkat tersebut terlebih dahulu.`
+      if (existingSession) {
+        const lastAct = existingSession.lastActionAt || existingSession.lastSeen || existingSession.loggedInAt || 0
+        if (now - lastAct < SESSION_INACTIVITY_LIMIT) {
+          const isSameDevice = existingSession.ip === ip && existingSession.userAgent === userAgent
+          if (!isSameDevice) {
+            return {
+              success: false,
+              message: `Akun Superadmin sedang aktif di perangkat lain (${maskIp(existingSession.ip)}). Untuk alasan keamanan, login bersamaan tidak diizinkan. Silakan logout dari perangkat tersebut terlebih dahulu.`
+            }
           }
+        } else {
+          // Sesi lama sudah inaktif lebih dari 3 hari, bersihkan otomatis
+          if (db.activeSessions) delete db.activeSessions['superadmin']
         }
       }
 
@@ -232,6 +238,7 @@ export async function loginAdmin(formData: FormData): Promise<LoginResult> {
         userAgent,
         lastSeen: now,
         loggedInAt: now,
+        lastActionAt: now,
       }
 
       if (!db.auditLogs) db.auditLogs = []
@@ -271,13 +278,19 @@ export async function loginAdmin(formData: FormData): Promise<LoginResult> {
       const db = await readDB()
       const existingSession = db.activeSessions?.['admin']
       const now = Date.now()
-      if (existingSession && (now - existingSession.lastSeen < SESSION_INACTIVITY_LIMIT)) {
-        const isSameDevice = existingSession.ip === ip && existingSession.userAgent === userAgent
-        if (!isSameDevice) {
-          return {
-            success: false,
-            message: `Akun Administrator sedang aktif di perangkat lain (${maskIp(existingSession.ip)}). Untuk alasan keamanan, login bersamaan tidak diizinkan. Silakan logout dari perangkat tersebut terlebih dahulu.`
+      if (existingSession) {
+        const lastAct = existingSession.lastActionAt || existingSession.lastSeen || existingSession.loggedInAt || 0
+        if (now - lastAct < SESSION_INACTIVITY_LIMIT) {
+          const isSameDevice = existingSession.ip === ip && existingSession.userAgent === userAgent
+          if (!isSameDevice) {
+            return {
+              success: false,
+              message: `Akun Administrator sedang aktif di perangkat lain (${maskIp(existingSession.ip)}). Untuk alasan keamanan, login bersamaan tidak diizinkan. Silakan logout dari perangkat tersebut terlebih dahulu.`
+            }
           }
+        } else {
+          // Sesi lama sudah inaktif lebih dari 3 hari, bersihkan otomatis
+          if (db.activeSessions) delete db.activeSessions['admin']
         }
       }
 
@@ -289,6 +302,7 @@ export async function loginAdmin(formData: FormData): Promise<LoginResult> {
         userAgent,
         lastSeen: now,
         loggedInAt: now,
+        lastActionAt: now,
       }
 
       if (!db.auditLogs) db.auditLogs = []
@@ -364,13 +378,19 @@ export async function loginAdmin(formData: FormData): Promise<LoginResult> {
       // Cek single session enforcement (Point 7)
       const existingSession = db.activeSessions?.[matchedUser.id]
       const now = Date.now()
-      if (existingSession && (now - existingSession.lastSeen < SESSION_INACTIVITY_LIMIT)) {
-        const isSameDevice = existingSession.ip === ip && existingSession.userAgent === userAgent
-        if (!isSameDevice) {
-          return {
-            success: false,
-            message: `Akun "${matchedUser.name}" sedang aktif di perangkat lain (${maskIp(existingSession.ip)}). Login bersamaan tidak diizinkan. Silakan logout dari perangkat sebelumnya terlebih dahulu.`
+      if (existingSession) {
+        const lastAct = existingSession.lastActionAt || existingSession.lastSeen || existingSession.loggedInAt || 0
+        if (now - lastAct < SESSION_INACTIVITY_LIMIT) {
+          const isSameDevice = existingSession.ip === ip && existingSession.userAgent === userAgent
+          if (!isSameDevice) {
+            return {
+              success: false,
+              message: `Akun "${matchedUser.name}" sedang aktif di perangkat lain (${maskIp(existingSession.ip)}). Login bersamaan tidak diizinkan. Silakan logout dari perangkat sebelumnya terlebih dahulu.`
+            }
           }
+        } else {
+          // Sesi lama sudah inaktif lebih dari 3 hari, bersihkan otomatis
+          if (db.activeSessions) delete db.activeSessions[matchedUser.id]
         }
       }
 
@@ -382,6 +402,7 @@ export async function loginAdmin(formData: FormData): Promise<LoginResult> {
         userAgent,
         lastSeen: now,
         loggedInAt: now,
+        lastActionAt: now,
       }
 
       if (!db.auditLogs) db.auditLogs = []
@@ -519,6 +540,7 @@ export async function changePasswordOnLoginAction(formData: FormData): Promise<{
       userAgent,
       lastSeen: now,
       loggedInAt: now,
+      lastActionAt: now,
     }
 
     if (!db.auditLogs) db.auditLogs = []
@@ -593,7 +615,7 @@ export async function logoutAdmin() {
   return { success: true }
 }
 
-export async function heartbeatAdminSession(): Promise<{ valid: boolean; message?: string }> {
+export async function heartbeatAdminSession(hasRecentAction?: boolean): Promise<{ valid: boolean; message?: string; reason?: string }> {
   try {
     const cookieStore = await cookies()
     const token = cookieStore.get(SESSION_COOKIE)?.value
@@ -616,7 +638,29 @@ export async function heartbeatAdminSession(): Promise<{ valid: boolean; message
       return { valid: false, message: 'Akun Anda telah masuk di perangkat lain. Sesi di perangkat ini dinonaktifkan.' }
     }
 
-    session.lastSeen = Date.now()
+    const now = Date.now()
+    const lastAction = session.lastActionAt || session.lastSeen || session.loggedInAt || 0
+
+    // Cek batas inaktivitas: logout otomatis jika tidak ada aksi selama 3 hari
+    if (now - lastAction > INACTIVITY_TIMEOUT_MS) {
+      if (db.activeSessions) {
+        delete db.activeSessions[payload.userId]
+      }
+      await writeSystemDB(db)
+      cookieStore.delete(SESSION_COOKIE)
+      return {
+        valid: false,
+        message: 'Sesi Anda telah berakhir secara otomatis karena tidak ada aktivitas selama 3 hari. Silakan login kembali.',
+        reason: 'inactivity'
+      }
+    }
+
+    // Jika user terdeteksi berinteraksi/beraksi di browser, perbarui lastActionAt
+    if (hasRecentAction) {
+      session.lastActionAt = now
+    }
+    session.lastSeen = now
+
     await writeSystemDB(db)
     return { valid: true }
   } catch {

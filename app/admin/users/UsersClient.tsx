@@ -346,6 +346,10 @@ export default function UsersClient({
   const getSessionStatus = (userId: string) => {
     const sess = activeSessions[userId]
     if (!sess) return { isLoggedIn: false, isOnline: false, session: null }
+    const lastAct = sess.lastActionAt || sess.lastSeen || sess.loggedInAt || 0
+    if (currentTimestamp - lastAct >= 3 * 24 * 60 * 60 * 1000) {
+      return { isLoggedIn: false, isOnline: false, session: null }
+    }
     const isOnline = currentTimestamp - sess.lastSeen < SESSION_ONLINE_WINDOW_MS
     return { isLoggedIn: true, isOnline, session: sess }
   }

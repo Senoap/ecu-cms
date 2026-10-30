@@ -244,6 +244,7 @@ export interface ActiveSessionRecord {
   userAgent: string
   lastSeen: number
   loggedInAt: number
+  lastActionAt?: number // Waktu aksi / interaksi terakhir pengguna (untuk deteksi inaktivitas 3 hari)
 }
 
 export interface LoginAttemptRecord {

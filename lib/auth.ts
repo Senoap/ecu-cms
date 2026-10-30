@@ -1,7 +1,7 @@
 // lib/auth.ts
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { SESSION_COOKIE, getSessionPayload } from './session'
+import { SESSION_COOKIE, getSessionPayload, INACTIVITY_TIMEOUT_MS } from './session'
 import { readDB } from './db'
 
 import { AVAILABLE_MENUS, ALL_MENU_IDS } from './menus'
@@ -61,6 +61,23 @@ export async function getCurrentUser(): Promise<CurrentAdminUser | null> {
     const activeSession = db.activeSessions?.[payload.userId]
     if (!activeSession || activeSession.token !== token) {
       // Sesi tidak ditemukan di activeSessions (telah di-logout / dinonaktifkan) atau ditimpa di perangkat lain
+      return null
+    }
+
+    // Validasi Batas Inaktivitas (Logout otomatis jika tidak ada aksi pengguna selama 3 hari)
+    const now = Date.now()
+    const lastActivity = activeSession.lastActionAt || activeSession.lastSeen || activeSession.loggedInAt || 0
+    if (now - lastActivity > INACTIVITY_TIMEOUT_MS) {
+      try {
+        if (db.activeSessions) {
+          delete db.activeSessions[payload.userId]
+        }
+        const { writeSystemDB } = await import('./db')
+        await writeSystemDB(db)
+        store.delete(SESSION_COOKIE)
+      } catch (e) {
+        console.warn('Gagal membersihkan sesi inaktif 3 hari di getCurrentUser:', e)
+      }
       return null
     }
 
@@ -192,10 +209,31 @@ export async function isAdmin(): Promise<boolean> {
   return user !== null
 }
 
+/**
+ * Memperbarui timestamp aktivitas pengguna (throttled 60 detik) saat ada aksi server yang dieksekusi.
+ */
+export async function touchSessionAction(userId: string): Promise<void> {
+  try {
+    const { readDB, writeSystemDB } = await import('./db')
+    const db = await readDB()
+    if (db.activeSessions && db.activeSessions[userId]) {
+      const now = Date.now()
+      if (now - (db.activeSessions[userId].lastActionAt || 0) >= 60 * 1000) {
+        db.activeSessions[userId].lastActionAt = now
+        db.activeSessions[userId].lastSeen = now
+        await writeSystemDB(db)
+      }
+    }
+  } catch {
+    // Non-blocking
+  }
+}
+
 /** Panggil di baris pertama setiap server action admin. */
 export async function requireAdmin(): Promise<CurrentAdminUser> {
   const user = await getCurrentUser()
   if (!user) throw new Error('Unauthorized')
+  touchSessionAction(user.id).catch(() => {})
   return user
 }
 

@@ -66,6 +66,15 @@ export default function AdminLoginPage() {
         if (res?.bgImageUrl) setBgImageUrl(res.bgImageUrl)
       })
       .catch(() => { })
+
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('reason') === 'inactivity') {
+        setTimeout(() => {
+          setErrorMsg('Sesi Anda telah berakhir secara otomatis karena tidak ada aktivitas selama 3 hari. Silakan login kembali.')
+        }, 0)
+      }
+    }
   }, [])
 
   // Validasi kekuatan password baru secara real-time (Point 5)
