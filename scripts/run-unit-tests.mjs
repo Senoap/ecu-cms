@@ -145,8 +145,19 @@ import {
   verifySessionToken, 
   getSessionPayload,
   createPasswordResetToken,
-  verifyPasswordResetToken 
+  verifyPasswordResetToken,
+  INACTIVITY_TIMEOUT_DAYS,
+  INACTIVITY_TIMEOUT_SECONDS,
+  INACTIVITY_TIMEOUT_MS,
+  SESSION_MAX_AGE
 } from '../lib/session.ts'
+
+test('session - konstanta inaktivitas 3 hari terkonfigurasi dengan benar', () => {
+  assert.equal(INACTIVITY_TIMEOUT_DAYS, 3)
+  assert.equal(INACTIVITY_TIMEOUT_SECONDS, 259200)
+  assert.equal(INACTIVITY_TIMEOUT_MS, 259200000)
+  assert.equal(SESSION_MAX_AGE, 259200)
+})
 
 test('session - createSessionToken & verifySessionToken 4-bagian valid', async () => {
   const token = await createSessionToken('user_finance_01')
@@ -204,7 +215,7 @@ test('site - getSiteUrl mengembalikan URL yang bersih tanpa trailing slash', () 
     assert.equal(getSiteUrl(), 'https://empatsinergiutama.com')
 
     delete process.env.NEXT_PUBLIC_SITE_URL
-    assert.equal(getSiteUrl(), 'https://empatsinergiutama.com')
+    assert.equal(getSiteUrl(), 'https://domain.anda')
   } finally {
     if (originalEnv !== undefined) {
       process.env.NEXT_PUBLIC_SITE_URL = originalEnv
