@@ -203,7 +203,6 @@ export async function loginAdmin(formData: FormData): Promise<LoginResult> {
     }
   }
 
-  const SESSION_INACTIVITY_LIMIT = INACTIVITY_TIMEOUT_MS // 3 hari
   const superAdminPassword = process.env.SUPERADMIN_PASSWORD
 
   // 0. Cek Superadmin (username === 'superadmin') - Tier tertinggi di atas admin, khusus kontrol user
@@ -211,22 +210,16 @@ export async function loginAdmin(formData: FormData): Promise<LoginResult> {
     if (superAdminPassword && passwordMatches(password, superAdminPassword)) {
       await clearLoginAttempts(ip, 'superadmin')
 
+      // Single-Device Session Enforcement dengan Auto-Takeover:
+      // Jika akun sudah aktif di perangkat lain, sesi baru tetap diizinkan dan otomatis menonaktifkan sesi lama.
       const db = await readDB()
       const existingSession = db.activeSessions?.['superadmin']
       const now = Date.now()
+      let replacedOldSessionNotice = ''
       if (existingSession) {
-        const lastAct = existingSession.lastActionAt || existingSession.lastSeen || existingSession.loggedInAt || 0
-        if (now - lastAct < SESSION_INACTIVITY_LIMIT) {
-          const isSameDevice = existingSession.ip === ip && existingSession.userAgent === userAgent
-          if (!isSameDevice) {
-            return {
-              success: false,
-              message: `Akun Superadmin sedang aktif di perangkat lain (${maskIp(existingSession.ip)}). Untuk alasan keamanan, login bersamaan tidak diizinkan. Silakan logout dari perangkat tersebut terlebih dahulu.`
-            }
-          }
-        } else {
-          // Sesi lama sudah inaktif lebih dari 3 hari, bersihkan otomatis
-          if (db.activeSessions) delete db.activeSessions['superadmin']
+        const isSameDevice = existingSession.ip === ip && existingSession.userAgent === userAgent
+        if (!isSameDevice) {
+          replacedOldSessionNotice = ` (Sesi sebelumnya di ${maskIp(existingSession.ip)} dinonaktifkan otomatis)`
         }
       }
 
@@ -244,7 +237,7 @@ export async function loginAdmin(formData: FormData): Promise<LoginResult> {
       if (!db.auditLogs) db.auditLogs = []
       db.auditLogs.unshift({
         id: 'log-auth-' + now,
-        message: `Login berhasil oleh Superadmin dari IP: ${ip}.`,
+        message: `Login berhasil oleh Superadmin dari IP: ${ip}.${replacedOldSessionNotice}`,
         timestamp: now,
         type: 'AUTH',
         category: 'system',
@@ -274,23 +267,16 @@ export async function loginAdmin(formData: FormData): Promise<LoginResult> {
     if (secretPassword && passwordMatches(password, secretPassword)) {
       await clearLoginAttempts(ip, 'admin')
 
-      // Cek single session enforcement
+      // Single-Device Session Enforcement dengan Auto-Takeover:
+      // Jika akun sudah aktif di perangkat lain, sesi baru tetap diizinkan dan otomatis menonaktifkan sesi lama.
       const db = await readDB()
       const existingSession = db.activeSessions?.['admin']
       const now = Date.now()
+      let replacedOldSessionNotice = ''
       if (existingSession) {
-        const lastAct = existingSession.lastActionAt || existingSession.lastSeen || existingSession.loggedInAt || 0
-        if (now - lastAct < SESSION_INACTIVITY_LIMIT) {
-          const isSameDevice = existingSession.ip === ip && existingSession.userAgent === userAgent
-          if (!isSameDevice) {
-            return {
-              success: false,
-              message: `Akun Administrator sedang aktif di perangkat lain (${maskIp(existingSession.ip)}). Untuk alasan keamanan, login bersamaan tidak diizinkan. Silakan logout dari perangkat tersebut terlebih dahulu.`
-            }
-          }
-        } else {
-          // Sesi lama sudah inaktif lebih dari 3 hari, bersihkan otomatis
-          if (db.activeSessions) delete db.activeSessions['admin']
+        const isSameDevice = existingSession.ip === ip && existingSession.userAgent === userAgent
+        if (!isSameDevice) {
+          replacedOldSessionNotice = ` (Sesi sebelumnya di ${maskIp(existingSession.ip)} dinonaktifkan otomatis)`
         }
       }
 
@@ -308,7 +294,7 @@ export async function loginAdmin(formData: FormData): Promise<LoginResult> {
       if (!db.auditLogs) db.auditLogs = []
       db.auditLogs.unshift({
         id: 'log-auth-' + now,
-        message: `Login berhasil oleh Administrator Master dari IP: ${ip}.`,
+        message: `Login berhasil oleh Administrator Master dari IP: ${ip}.${replacedOldSessionNotice}`,
         timestamp: now,
         type: 'AUTH',
         category: 'system',
@@ -375,22 +361,15 @@ export async function loginAdmin(formData: FormData): Promise<LoginResult> {
         }
       }
 
-      // Cek single session enforcement (Point 7)
+      // Single-Device Session Enforcement dengan Auto-Takeover:
+      // Jika akun sudah aktif di perangkat lain, sesi baru tetap diizinkan dan otomatis menonaktifkan sesi lama.
       const existingSession = db.activeSessions?.[matchedUser.id]
       const now = Date.now()
+      let replacedOldSessionNotice = ''
       if (existingSession) {
-        const lastAct = existingSession.lastActionAt || existingSession.lastSeen || existingSession.loggedInAt || 0
-        if (now - lastAct < SESSION_INACTIVITY_LIMIT) {
-          const isSameDevice = existingSession.ip === ip && existingSession.userAgent === userAgent
-          if (!isSameDevice) {
-            return {
-              success: false,
-              message: `Akun "${matchedUser.name}" sedang aktif di perangkat lain (${maskIp(existingSession.ip)}). Login bersamaan tidak diizinkan. Silakan logout dari perangkat sebelumnya terlebih dahulu.`
-            }
-          }
-        } else {
-          // Sesi lama sudah inaktif lebih dari 3 hari, bersihkan otomatis
-          if (db.activeSessions) delete db.activeSessions[matchedUser.id]
+        const isSameDevice = existingSession.ip === ip && existingSession.userAgent === userAgent
+        if (!isSameDevice) {
+          replacedOldSessionNotice = ` (Sesi sebelumnya di ${maskIp(existingSession.ip)} dinonaktifkan otomatis)`
         }
       }
 
@@ -408,7 +387,7 @@ export async function loginAdmin(formData: FormData): Promise<LoginResult> {
       if (!db.auditLogs) db.auditLogs = []
       db.auditLogs.unshift({
         id: 'log-auth-' + now,
-        message: `Login berhasil oleh pengguna "${matchedUser.name}" (${matchedUser.role}) dari IP: ${ip}.`,
+        message: `Login berhasil oleh pengguna "${matchedUser.name}" (${matchedUser.role}) dari IP: ${ip}.${replacedOldSessionNotice}`,
         timestamp: now,
         type: 'AUTH',
         category: 'system',
